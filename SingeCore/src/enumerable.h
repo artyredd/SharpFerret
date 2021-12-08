@@ -43,4 +43,28 @@ struct _enumerable {
 	/// Otherwise TryGetPrevious() will return false when Current is the head, and TryGetNext() will return false when Current is the tail.
 	/// </summary>
 	bool Circular;
+	/// <summary>
+	/// Inserts a new item as the previous item
+	/// </summary>
+	Item(*InsertPrevious)(Enumerable);
+	/// <summary>
+	/// Inserts a new item as the next item
+	/// </summary>
+	Item(*InsertNext)(Enumerable);
+	/// <summary>
+	/// Appends the item to the end of the Enumerable, it will become the new end of the Enumerable
+	/// </summary>
+	Item(*Append)(Enumerable);
+	/// <summary>
+	/// Resets the current item back to the head of the enumerable(if it exists)
+	/// </summary>
+	void(*Reset)(Enumerable);
+	/// <summary>
+	/// Removes the current item from the Enumerable
+	/// </summary>
+	Item(*Remove)(Enumerable);
+	/// <summary>
+	/// Disposes of this object and all item contained
+	/// </summary>
+	void(*Dispose)(Enumerable);
 };
