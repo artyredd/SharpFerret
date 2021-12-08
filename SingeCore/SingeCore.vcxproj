@@ -94,6 +94,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -132,6 +133,7 @@
       <ShowProgress>LinkVerbose</ShowProgress>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -171,10 +173,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\csharp.h" />
+    <ClInclude Include="src\enumerable.h" />
     <ClInclude Include="src\exceptions.h" />
+    <ClInclude Include="src\Graphics\imaging.h" />
     <ClInclude Include="src\Graphics\window.h" />
+    <ClInclude Include="src\memory.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\imaging.c" />
+    <ClCompile Include="src\memory.c" />
     <ClCompile Include="src\SingeCore.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

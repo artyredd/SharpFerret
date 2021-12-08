@@ -1,5 +1,9 @@
 #pragma once
 
+#ifndef _csharp_h_
+#define _csharp_h_
+#endif // !_csharp_h_
+
 #include <stdbool.h>
 #include <intrin.h>
 #include "exceptions.h"

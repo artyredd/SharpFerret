@@ -3,13 +3,15 @@
 #include <stdlib.h>
 
 #include "csharp.h"
+#include "memory.h"
+
 #include "GL/glew.h"
 
 #include "GLFW/glfw3.h"
 
-#include "stb_image.h"
+#include "Graphics/window.h"
 
-const char* WindowName = "Singe";
+const char* WindowName = "Singine";
 
 size_t WindowWidth = 1920;
 size_t WindowHeight = 1080;
@@ -17,8 +19,6 @@ size_t WindowHeight = 1080;
 GLFWwindow* window;
 GLFWmonitor* monitor;
 const GLFWvidmode* videoMode;
-
-void LoadAndSetWindowIcon(GLFWwindow* window, char* iconPath);
 
 int main()
 {
@@ -62,8 +62,6 @@ int main()
 		throw(IndexOutOfRangeException);
 	}
 
-	LoadAndSetWindowIcon(window, "icon.png");
-
 	// initiliaze GLEW
 	glewExperimental = true;
 	if (glewInit() != true)
@@ -85,19 +83,13 @@ int main()
 
 	// clean up glfwResources
 	glfwTerminate();
-}
 
-GLFWimage icon = {
-	0,0,NULL
-};
+	// ensure leak free
+	PrintAlloc(stdout);
+	PrintFree(stdout);
 
-void LoadAndSetWindowIcon(GLFWwindow* window, char* iconPath)
-{
-	int n;
-
-	icon.pixels = stbi_load(iconPath, &icon.width, &icon.height, &n, 0);
-
-	glfwSetWindowIcon(window, 1, &icon);
-
-	stbi_image_free(icon.pixels);
+	if (AllocCount() > FreeCount())
+	{
+		throw(MemoryLeakException);
+	}
 }
