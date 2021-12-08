@@ -1,0 +1,3 @@
+# CMake generation dependency list for this directory.
+C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/CMake/glfw3.pc.in
+C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/src/CMakeLists.txt
