@@ -1,17 +1,20 @@
-
-typedef struct _item* Item;
-struct _item {
-	Item Next;
-	Item Previous;
-	union {
-		size_t Value;
-		void* Value;
-	};
-};
+#include "csharp.h"
+#include "singine/enumerableItem.h"
 
 typedef struct _enumerable* Enumerable;
 
 struct _enumerable {
+	/// <summary>
+	/// The number of items within this enumerable
+	/// </summary>
+	size_t Count;
+	/// <summary>
+	/// Whether or not this Enumerable is circular. 
+	/// When this Enumerable is circular and contains at least ONE item 
+	/// TryGetNext() and TryGetPrevious() will never return false unless an error occurs.
+	/// Otherwise TryGetPrevious() will return false when Current is the head, and TryGetNext() will return false when Current is the tail.
+	/// </summary>
+	bool Circular;
 	/// <summary>
 	/// The head of the doubly linked list
 	/// </summary>
@@ -20,10 +23,6 @@ struct _enumerable {
 	/// The tail of the doubly linked list
 	/// </summary>
 	Item Tail;
-	/// <summary>
-	/// The number of items within this enumerable
-	/// </summary>
-	size_t Count;
 	/// <summary>
 	/// The current item
 	/// </summary>
@@ -36,13 +35,6 @@ struct _enumerable {
 	/// Attempts to get the previous item within the Enumerable, returns true if out_item was set with the previous item, otherwise false
 	/// </summary>
 	bool (*TryGetPrevious)(Enumerable, Item* out_item);
-	/// <summary>
-	/// Whether or not this Enumerable is circular. 
-	/// When this Enumerable is circular and contains at least ONE item 
-	/// TryGetNext() and TryGetPrevious() will never return false unless an error occurs.
-	/// Otherwise TryGetPrevious() will return false when Current is the head, and TryGetNext() will return false when Current is the tail.
-	/// </summary>
-	bool Circular;
 	/// <summary>
 	/// Inserts a new item as the previous item
 	/// </summary>
@@ -68,3 +60,8 @@ struct _enumerable {
 	/// </summary>
 	void(*Dispose)(Enumerable);
 };
+
+/// Creates a new enumerable object implemented as a linked list
+Enumerable CreateEnumerable();
+
+bool RunTests();

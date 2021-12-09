@@ -3,13 +3,14 @@
 #include <stdlib.h>
 
 #include "csharp.h"
-#include "memory.h"
+#include "singine/memory.h"
 
 #include "GL/glew.h"
 
 #include "GLFW/glfw3.h"
 
-#include "Graphics/window.h"
+#include "graphics/window.h"
+#include "singine/enumerable.h"
 
 const char* WindowName = "Singine";
 
@@ -92,4 +93,6 @@ int main()
 	{
 		throw(MemoryLeakException);
 	}
+
+	fprintf(stdout, "Enumerable Tests = %s", RunTests() ? "PASSED" : "FAILED");
 }

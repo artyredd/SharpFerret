@@ -3,20 +3,6 @@
 #include "memory.h"
 #include "csharp.h"
 
-// we use real malloc here
-#ifdef malloc
-#define FLAG_MALLOC_OVERRIDE
-#undef malloc
-#endif
-#ifdef free
-#define FLAG_FREE_OVERRIDE
-#undef free
-#endif
-#ifdef calloc
-#define FLAG_CALLOC_OVERRIDE
-#undef calloc
-#endif
-
 static char GetByteGrouping(size_t value);
 static void PrintGroupedNumber(FILE* stream, size_t value);
 
@@ -159,7 +145,7 @@ static void PrintGroupedNumber(FILE* stream, size_t value)
 #endif
 
 	fprintf(stream, "%lli %s", groupedValue, name);
-	}
+}
 
 /// <summary>
 /// Returns the grouping bracket the provided value is in
@@ -203,17 +189,3 @@ static char GetByteGrouping(size_t value)
 	return 4;
 #endif
 }
-
-// re-enable overrides if they were enabled
-#ifdef FLAG_MALLOC_OVERRIDE
-#undef FLAG_MALLOC_OVERRIDE
-#define malloc(size) SafeAlloc(size)
-#endif
-#ifdef FLAG_FREE_OVERRIDE
-#undef FLAG_FREE_OVERRIDE
-#define free(address) SafeFree(address)
-#endif
-#ifdef FLAG_CALLOC_OVERRIDE
-#undef FLAG_CALLOC_OVERRIDE
-#define calloc(nitems,size) SafeCalloc(nitems,size)
-#endif

@@ -6,7 +6,7 @@
 
 #include <stdbool.h>
 #include <intrin.h>
-#include "exceptions.h"
+#include "singine/exceptions.h"
 
 #define null NULL
 #define true 1

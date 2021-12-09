@@ -1,16 +1,6 @@
-#pragma once
-
 #ifndef _stdio_h_
 #include <stdio.h>
 #endif // !_stdio_h_
-
-
-#ifdef DISABLE_OVERRIDE_ALLOC
-#else
-#define malloc(size) SafeAlloc(size)
-#define free(address) SafeFree(address)
-#define calloc(nitems,size) SafeCalloc(nitems,size)
-#endif
 
 // These perform only helper methods for benchmarking the application
 

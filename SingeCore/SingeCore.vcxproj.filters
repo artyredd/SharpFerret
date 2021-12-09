@@ -13,42 +13,66 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Graphics">
-      <UniqueIdentifier>{622233bb-112e-45c6-a915-169baa08f82b}</UniqueIdentifier>
+    <Filter Include="Source Files\Structures">
+      <UniqueIdentifier>{32a73270-75d3-413e-9f1b-52d85c0c0250}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Singine">
+      <UniqueIdentifier>{3359e0e3-3e1f-445e-8a29-f5c23959c42b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Header Files\Graphics">
-      <UniqueIdentifier>{3591f135-766e-48d7-be9a-1360f0d652ee}</UniqueIdentifier>
+      <UniqueIdentifier>{5338a08b-d55c-4209-b674-976f13654abf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Core">
+      <UniqueIdentifier>{9187e23a-baaf-492b-91e8-8848698bee60}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\csharp.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\exceptions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\imaging.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Graphics\window.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
-    <ClInclude Include="src\memory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\enumerable.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
+    <ClCompile Include="src\Source\enumerable.c">
+      <Filter>Source Files\Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\imaging.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\memory.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\SingeCore.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Headers\singine\enumerableItem.c">
+      <Filter>Source Files\Structures</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\cunit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\SingeCore.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\imaging.c">
-      <Filter>Source Files\Graphics</Filter>
-    </ClCompile>
-    <ClCompile Include="src\memory.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
+    <ClInclude Include="src\Headers\csharp.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\Singine\enumerable.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\Singine\exceptions.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\Singine\memory.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\Graphics\imaging.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\Graphics\window.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\enumerableItem.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\generics.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\cunit.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
