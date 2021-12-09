@@ -114,21 +114,23 @@ static Item InsertPrevious(Enumerable collection)
 		return item;
 	}
 
-	// shift the previous link left
 	Item previous = current->Previous;
 
-	if (previous is collection->Tail)
+	current->Previous = item;
+	item->Next = current;
+
+	item->Previous = previous;
+
+	if (previous != null)
+	{
+		previous->Next = item;
+	}
+
+	// the current node is the tail if the next node is null OR if the next node is the head of the list(circular)
+	if (current is collection->Head)
 	{
 		collection->Tail = item;
 	}
-	if (previous is collection->Head)
-	{
-		collection->Head = item;
-	}
-
-	current->Previous = item;
-
-	previous->Next = item;
 
 	return item;
 }
@@ -154,21 +156,23 @@ static Item InsertNext(Enumerable collection)
 		return item;
 	}
 
-	// shift the previous link left
 	Item next = current->Next;
 
-	if (next is collection->Tail)
+	current->Next = item;
+	item->Previous = current;
+
+	item->Next = next;
+
+	if (next != null)
+	{
+		next->Previous = item;
+	}
+
+	// the current node is the tail if the next node is null OR if the next node is the head of the list(circular)
+	if (current is collection->Tail)
 	{
 		collection->Tail = item;
 	}
-	if (next is collection->Head)
-	{
-		collection->Head = item;
-	}
-
-	current->Next = item;
-
-	next->Previous = item;
 
 	return item;
 }
@@ -502,6 +506,53 @@ static bool ResetWorks(FILE* stream)
 	return true;
 }
 
+static bool InsertNextWorks(FILE* stream)
+{
+	Enumerable collection = CreateEnumerable();
+
+	IsZero(collection->Count);
+
+	// if there are no items insert next should just append it
+	Item item = collection->InsertNext(collection);
+
+	Assert(item == collection->Head);
+
+	// if there is an item insert next should insert it AFTER the current node
+	Item next = collection->InsertNext(collection);
+
+	Assert(collection->Current->Next == next);
+
+	// it should also become the new tail
+	Assert(collection->Tail == next);
+
+	collection->Dispose(collection);
+
+	return true;
+}
+
+static bool InsertPreviousWorks(FILE* stream)
+{
+	Enumerable collection = CreateEnumerable();
+
+	IsZero(collection->Count);
+
+	// if there are no items insert previous should just append it
+	Item item = collection->InsertPrevious(collection);
+
+	Assert(item == collection->Head);
+
+	// if there is an item previous next should insert it BEFORE the current node and should become the new tail
+	Item next = collection->InsertPrevious(collection);
+
+	Assert(collection->Current->Previous == next);
+
+	Assert(collection->Tail == next);
+
+	collection->Dispose(collection);
+
+	return true;
+}
+
 bool RunTests()
 {
 	TestSuite suite = CreateSuite(__FILE__);
@@ -513,6 +564,8 @@ bool RunTests()
 	suite->Append(suite, "TryGetNextWorks", &TryGetNextWorks);
 	suite->Append(suite, "TryGetPreviousWorks", &TryGetPreviousWorks);
 	suite->Append(suite, "ResetWorks", &ResetWorks);
+	suite->Append(suite, "InsertNextWorks", &InsertNextWorks);
+	suite->Append(suite, "InsertPreviousWorks", &InsertPreviousWorks);
 
 	bool pass = suite->Run(suite);
 
