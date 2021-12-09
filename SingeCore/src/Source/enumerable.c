@@ -37,9 +37,7 @@ Enumerable CreateEnumerable()
 static bool TryGetNext(Enumerable collection, Item* out_item)
 {
 	// default to no out value
-	*out_item = null;
-
-	if (collection is null || out_item is null)
+	if (collection is null)
 	{
 		return false;
 	}
@@ -57,18 +55,18 @@ static bool TryGetNext(Enumerable collection, Item* out_item)
 		return false;
 	}
 
-	collection->Current = current->Next;
+	Item next = current->Next;
 
-	return current;
+	collection->Current = next;
+
+	*out_item = next;
+
+	return true;
 }
 
 static bool TryGetPrevious(Enumerable collection, Item* out_item)
 {
-	// default to no out value
-	*out_item = null;
-
-
-	if (collection is null || out_item is null)
+	if (collection is null)
 	{
 		return false;
 	}
@@ -86,9 +84,13 @@ static bool TryGetPrevious(Enumerable collection, Item* out_item)
 		return false;
 	}
 
-	collection->Current = current->Previous;
+	Item previous = current->Previous;
 
-	return current;
+	collection->Current = previous;
+
+	*out_item = previous;
+
+	return true;
 }
 
 static Item InsertPrevious(Enumerable collection)
@@ -114,6 +116,15 @@ static Item InsertPrevious(Enumerable collection)
 
 	// shift the previous link left
 	Item previous = current->Previous;
+
+	if (previous is collection->Tail)
+	{
+		collection->Tail = item;
+	}
+	if (previous is collection->Head)
+	{
+		collection->Head = item;
+	}
 
 	current->Previous = item;
 
@@ -146,6 +157,15 @@ static Item InsertNext(Enumerable collection)
 	// shift the previous link left
 	Item next = current->Next;
 
+	if (next is collection->Tail)
+	{
+		collection->Tail = item;
+	}
+	if (next is collection->Head)
+	{
+		collection->Head = item;
+	}
+
 	current->Next = item;
 
 	next->Previous = item;
@@ -165,7 +185,7 @@ static Item Append(Enumerable collection)
 
 	Item item = CreateItem();
 
-	if (collection->Tail is null)
+	if (collection->Head is null)
 	{
 		collection->Current = collection->Head = collection->Tail = item;
 
@@ -264,19 +284,21 @@ static void Dispose(Enumerable collection)
 	// free the links
 	collection->Reset(collection);
 
-	Item item;
-	while (collection->TryGetNext(collection, &item))
+	// break any circular links
+	if (collection->Tail != null)
 	{
-		// if we got to the tail
-		if (item is collection->Tail)
-		{
-			SafeFree(item->Value);
-			SafeFree(item);
-			break;
-		}
+		collection->Tail->Next = null;
+	}
 
-		SafeFree(item->Value);
-		SafeFree(item);
+	Item head = collection->Head;
+	while (head != null)
+	{
+		Item tmp = head;
+
+		head = head->Next;
+
+		SafeFree(tmp->Value);
+		SafeFree(tmp);
 	}
 
 	SafeFree(collection);
@@ -375,7 +397,109 @@ static bool RemoveWorks(FILE* stream)
 	IsNull(collection->Tail);
 	IsNull(collection->Current);
 
+	collection->Dispose(collection);
+
 	return 1;
+}
+
+static bool TryGetNextWorks(FILE* stream)
+{
+	Enumerable collection = CreateEnumerable();
+
+	for (size_t i = 0; i < 10; i++)
+	{
+		collection->Append(collection)->Value->AsSizeT = i;
+	}
+
+	Assert(collection->Current->Value->AsSizeT == 0);
+
+	Item item = collection->Current;
+
+	Equals((size_t)0, item->Value->AsSizeT, "%lli");
+
+	for (size_t i = 1; i < 10; i++)
+	{
+		item = null;
+
+		IsTrue(collection->TryGetNext(collection, &item));
+
+		NotNull(item);
+
+		Equals(i, item->Value->AsSizeT, "%lli");
+	}
+
+	item = null;
+
+	IsFalse(collection->TryGetNext(collection, &item));
+
+	Equals(collection->Count, (size_t)10, "%lli");
+
+	collection->Dispose(collection);
+
+	return true;
+}
+
+static bool TryGetPreviousWorks(FILE* stream)
+{
+	Enumerable collection = CreateEnumerable();
+
+	collection->Circular = true;
+
+	for (size_t i = 0; i < 10; i++)
+	{
+		collection->Append(collection)->Value->AsSizeT = i;
+	}
+
+	Item item = collection->Current;
+
+	Equals((size_t)0, item->Value->AsSizeT, "%lli");
+
+	for (size_t i = 9; i > 0; i--)
+	{
+		item = null;
+
+		IsTrue(collection->TryGetPrevious(collection, &item));
+
+		NotNull(item);
+
+		Equals(i, item->Value->AsSizeT, "%lli");
+	}
+
+	item = null;
+
+	Equals(collection->Count, (size_t)10, "%lli");
+
+	collection->Dispose(collection);
+
+	return true;
+}
+
+static bool ResetWorks(FILE* stream)
+{
+	Enumerable collection = CreateEnumerable();
+
+	for (size_t i = 0; i < 10; i++)
+	{
+		collection->Append(collection)->Value->AsSizeT = i;
+	}
+
+	Assert(collection->Current == collection->Head);
+
+	Item item;
+
+	IsTrue(collection->TryGetNext(collection, &item));
+
+	Assert(item->Previous is collection->Head);
+
+	Assert(collection->Current != collection->Head);
+
+	collection->Reset(collection);
+
+	Assert(collection->Current == collection->Head);
+
+	collection->Dispose(collection);
+
+	return true;
 }
 
 bool RunTests()
@@ -384,8 +508,11 @@ bool RunTests()
 
 	suite->Append(suite, "Instantiation", &InstantiatesCorrectly);
 	suite->Append(suite, "DisposesCorrectly", &DisposesCorrectly);
-	suite->Append(suite, "DisposesCorrectly", &AppendWorks);
-	suite->Append(suite, "DisposesCorrectly", &RemoveWorks);
+	suite->Append(suite, "AppendWorks", &AppendWorks);
+	suite->Append(suite, "RemoveWorks", &RemoveWorks);
+	suite->Append(suite, "TryGetNextWorks", &TryGetNextWorks);
+	suite->Append(suite, "TryGetPreviousWorks", &TryGetPreviousWorks);
+	suite->Append(suite, "ResetWorks", &ResetWorks);
 
 	bool pass = suite->Run(suite);
 
