@@ -1,12 +1,22 @@
+#pragma once
+
 #include "csharp.h"
 #include "imaging.h"
+#include "singine/enumerable.h"
 
 // The way a window is displayed, 0 = windowed, 1 = BorderlessFullScreen, 2 = FullScreen
 typedef int WindowMode;
 
-const static WindowMode WINDOWED = 0;
-const static WindowMode BORDERLESS_FULLSCREEN = 1;
-const static WindowMode FULLSCREEN = 2;
+// The way a window is displayed, 0 = windowed, 1 = BorderlessFullScreen, 2 = FullScreen
+const struct _WindowModes {
+	const WindowMode Windowed;
+	const WindowMode BorderlessFullScreen;
+	const WindowMode FullScreen;
+} WindowModes = {
+	0,
+	1,
+	2
+};
 
 /// <summary>
 /// The game window
@@ -42,6 +52,10 @@ struct _window {
 	/// Sets the mode of the window, 0 = WINDOWED, 1 = BORDERLESS_FULLSCREEN, 2 = FULLSCREEN
 	/// </summary>
 	void(*SetMode)(Window, WindowMode);
+	Enumerable event_BeforeInit;
+	Enumerable event_BeforeOpen;
+	Enumerable event_OnOpen;
+	Enumerable event_AfterOpen;
 };
 
-Window CreateWindow();
+Window CreateWindow(size_t width, size_t height, char* name, WindowMode windowMode);

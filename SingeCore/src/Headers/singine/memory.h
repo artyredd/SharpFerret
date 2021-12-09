@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef _stdio_h_
 #include <stdio.h>
 #endif // !_stdio_h_

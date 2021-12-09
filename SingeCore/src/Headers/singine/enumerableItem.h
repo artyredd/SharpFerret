@@ -1,3 +1,5 @@
+#pragma once
+
 #include "singine/generics.h"
 
 /// <summary>

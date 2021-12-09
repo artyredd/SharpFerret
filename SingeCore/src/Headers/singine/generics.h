@@ -1,3 +1,5 @@
+#pragma once
+
 typedef int TypeCode;
 
 /// <summary>
@@ -84,3 +86,15 @@ union _generic {
 	/// </summary>
 	size_t AsSizeT;
 };
+
+typedef struct _keyValuePair* KeyValuePair;
+
+struct _keyValuePair {
+	Generic Key;
+	TypeCode KeyType;
+	Generic Value;
+	TypeCode ValueType;
+	void(*Dispose)(KeyValuePair pair);
+};
+
+KeyValuePair CreateKeyValuePair(TypeCode key, TypeCode value);

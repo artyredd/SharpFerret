@@ -93,6 +93,4 @@ int main()
 	{
 		throw(MemoryLeakException);
 	}
-
-	fprintf(stdout, "Enumerable Tests = %s", RunTests() ? "PASSED" : "FAILED");
 }

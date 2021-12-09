@@ -45,6 +45,9 @@
     <ClCompile Include="src\Source\cunit.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\Headers\singine\generics.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">

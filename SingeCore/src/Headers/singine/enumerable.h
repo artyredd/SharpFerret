@@ -1,3 +1,5 @@
+#pragma once
+
 #include "csharp.h"
 #include "singine/enumerableItem.h"
 
