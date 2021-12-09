@@ -28,6 +28,7 @@ Enumerable CreateEnumerable()
 	list->InsertPrevious = &InsertPrevious;
 	list->Append = &Append;
 	list->Reset = &Reset;
+	list->Remove = &Remove;
 	list->Dispose = &Dispose;
 
 	return list;
@@ -354,9 +355,27 @@ static bool AppendWorks(FILE* stream)
 	return true;
 }
 
-static bool RemoveWorks()
+static bool RemoveWorks(FILE* stream)
 {
+	Enumerable collection = CreateEnumerable();
 
+	IsZero(collection->Count);
+
+	Item item = collection->Append(collection);
+
+	Equals((size_t)1, collection->Count, "%lli");
+
+	Item removed = collection->Remove(collection);
+
+	Assert(item == removed);
+
+	IsZero(collection->Count);
+
+	IsNull(collection->Head);
+	IsNull(collection->Tail);
+	IsNull(collection->Current);
+
+	return 1;
 }
 
 bool RunTests()
@@ -366,6 +385,7 @@ bool RunTests()
 	suite->Append(suite, "Instantiation", &InstantiatesCorrectly);
 	suite->Append(suite, "DisposesCorrectly", &DisposesCorrectly);
 	suite->Append(suite, "DisposesCorrectly", &AppendWorks);
+	suite->Append(suite, "DisposesCorrectly", &RemoveWorks);
 
 	bool pass = suite->Run(suite);
 
