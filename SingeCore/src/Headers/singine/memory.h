@@ -54,3 +54,9 @@ void SafeFree(void* address);
 
 // This function returns a pointer to the allocated memory, or NULL if the request fails.
 void* SafeCalloc(size_t nitems, size_t size);
+
+/// <summary>
+/// Safely allocates the provided size of memory with the provided alignment, otherwise throws OutOfMemoryException and exits program forcibly, 
+/// use AllocCount() for the number of calls to this method, use AllocSize() for the amount of memory allocated using this method
+/// </summary>
+void* SafeAllocAligned(size_t alignment, size_t size);

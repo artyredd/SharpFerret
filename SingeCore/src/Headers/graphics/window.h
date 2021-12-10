@@ -24,22 +24,8 @@ const struct _WindowModes {
 typedef struct _window* Window;
 
 struct _window {
-	/// <summary>
-	/// The width in pixels of this window
-	/// </summary>
-	size_t Width;
-	/// <summary>
-	/// The height in pixels of this window
-	/// </summary>
-	size_t Height;
-	/// <summary>
-	/// The underlying GLFWwindow handle for this window
-	/// </summary>
+
 	void* Handle;
-	/// <summary>
-	/// Initializes OpenGl(if it hasn't been already) and opens this window
-	/// </summary>
-	void(*Open)(Window);
 	/// <summary>
 	/// Disposes of this window
 	/// </summary>
@@ -52,10 +38,7 @@ struct _window {
 	/// Sets the mode of the window, 0 = WINDOWED, 1 = BORDERLESS_FULLSCREEN, 2 = FULLSCREEN
 	/// </summary>
 	void(*SetMode)(Window, WindowMode);
-	Enumerable event_BeforeInit;
-	Enumerable event_BeforeOpen;
-	Enumerable event_OnOpen;
-	Enumerable event_AfterOpen;
+	void(*OnResize)(Window, void(*Callback)(Window window));
 };
 
 Window CreateWindow(size_t width, size_t height, char* name, WindowMode windowMode);

@@ -1,3 +1,4 @@
+#include <malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include "memory.h"
@@ -84,6 +85,22 @@ void* SafeCalloc(size_t nitems, size_t size)
 void* SafeAlloc(size_t size)
 {
 	void* ptr = malloc(size);
+
+	if (ptr is null)
+	{
+		throw(OutOfMemoryException);
+	}
+
+	ALLOC_SIZE += size;
+
+	++ALLOC_COUNT;
+
+	return ptr;
+}
+
+void* SafeAllocAligned(size_t alignment, size_t size)
+{
+	void* ptr = _aligned_malloc(alignment, size);
 
 	if (ptr is null)
 	{
