@@ -181,6 +181,7 @@
     <ClCompile Include="src\Source\imaging.c" />
     <ClCompile Include="src\Source\memory.c" />
     <ClCompile Include="src\Source\SingeCore.c" />
+    <ClCompile Include="src\Source\window.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h" />

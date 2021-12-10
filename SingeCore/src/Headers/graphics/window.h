@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GLFW/glfw3.h"
 #include "csharp.h"
 #include "imaging.h"
 #include "singine/enumerable.h"
@@ -8,7 +9,7 @@
 typedef int WindowMode;
 
 // The way a window is displayed, 0 = windowed, 1 = BorderlessFullScreen, 2 = FullScreen
-const struct _WindowModes {
+static const struct _WindowModes {
 	const WindowMode Windowed;
 	const WindowMode BorderlessFullScreen;
 	const WindowMode FullScreen;
@@ -24,8 +25,10 @@ const struct _WindowModes {
 typedef struct _window* Window;
 
 struct _window {
-
-	void* Handle;
+	/// <summary>
+	/// The underlying window pointer
+	/// </summary>
+	GLFWwindow* Handle;
 	/// <summary>
 	/// Disposes of this window
 	/// </summary>
@@ -39,6 +42,17 @@ struct _window {
 	/// </summary>
 	void(*SetMode)(Window, WindowMode);
 	void(*OnResize)(Window, void(*Callback)(Window window));
+	/// <summary>
+	/// An enumerable list of window HINTS stored as keyvaluepairs or integers that should be applied to the window
+	/// </summary>
+	Enumerable WindowHints;
 };
 
 Window CreateWindow(size_t width, size_t height, char* name, WindowMode windowMode);
+
+// returns: true if the underlying window system(glfw) is initiliazed
+bool RuntimeStarted();
+// Starts the GLFW runtime, use RuntimeStarted() to determine if the runtime is currently started
+void StartRuntime();
+// Stops the GLFW runtime
+void StopRuntime();

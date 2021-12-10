@@ -25,6 +25,9 @@
     <Filter Include="Source Files\Core">
       <UniqueIdentifier>{9187e23a-baaf-492b-91e8-8848698bee60}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Window">
+      <UniqueIdentifier>{7e3566a9-da91-4859-9d1a-f3dd160f82db}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\enumerable.c">
@@ -47,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="src\Headers\singine\generics.c">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\window.c">
+      <Filter>Source Files\Window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

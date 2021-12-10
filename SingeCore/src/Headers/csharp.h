@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <intrin.h>
 #include "singine/exceptions.h"
+#include <stdio.h>
 
 #define null NULL
 #define true 1

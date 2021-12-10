@@ -61,6 +61,10 @@ struct _enumerable {
 	/// Disposes of this object and all item contained
 	/// </summary>
 	void(*Dispose)(Enumerable);
+	/// <summary>
+	/// Enumerable list of window hints that should be applied to the new window
+	/// </summary>
+	Enumerable WindowHints;
 };
 
 /// Creates a new enumerable object implemented as a linked list
