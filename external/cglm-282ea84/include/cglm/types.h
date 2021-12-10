@@ -9,7 +9,7 @@
 #define cglm_types_h
 
 #if defined(_MSC_VER)
-/* do not use alignment for older visual studio versions */
+ /* do not use alignment for older visual studio versions */
 #  if _MSC_VER < 1913 /*  Visual Studio 2017 version 15.6  */
 #    define CGLM_ALL_UNALIGNED
 #    define CGLM_ALIGN(X) /* no alignment */
@@ -52,7 +52,7 @@ typedef CGLM_ALIGN_IF(16) vec2  mat2[2];
 typedef CGLM_ALIGN_MAT    vec4  mat4[4];
 
 /*
-  Important: cglm stores quaternion as [x, y, z, w] in memory since v0.4.0 
+  Important: cglm stores quaternion as [x, y, z, w] in memory since v0.4.0
   it was [w, x, y, z] before v0.4.0 ( v0.3.5 and earlier ). w is real part.
 */
 

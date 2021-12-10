@@ -12,24 +12,13 @@
 #include "graphics/window.h"
 #include "singine/enumerable.h"
 
-const char* WindowName = "Singine";
+#include "graphics/window.h"
 
-size_t WindowWidth = 1920;
-size_t WindowHeight = 1080;
-
-GLFWwindow* window;
-GLFWmonitor* monitor;
-const GLFWvidmode* videoMode;
+Window window;
 
 int main()
 {
-	if (glfwInit() != true)
-	{
-		throw(IndexOutOfRangeException);
-	}
-
-	monitor = glfwGetPrimaryMonitor();
-	videoMode = glfwGetVideoMode(monitor);
+	StartRuntime();
 
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
@@ -45,23 +34,9 @@ int main()
 	glfwWindowHint(GLFW_RESIZABLE, true);
 	glfwWindowHint(GLFW_DECORATED, true);
 
-	if (WindowWidth == 0)
-	{
-		WindowWidth = videoMode->width;
-	}
+	glClearColor(1.0f, 1.0f, 0.4f, 0.0f);
 
-	if (WindowHeight == 0)
-	{
-		WindowHeight = videoMode->height;
-	}
-
-	window = glfwCreateWindow((int)WindowWidth, (int)WindowHeight, WindowName, NULL, NULL);
-
-	if (window is null)
-	{
-		glfwTerminate();
-		throw(IndexOutOfRangeException);
-	}
+	window = CreateWindow(1920, 1080, "Singine");
 
 	// initiliaze GLEW
 	glewExperimental = true;
@@ -71,19 +46,31 @@ int main()
 		throw(IndexOutOfRangeException);
 	}
 
+	// bind graphics card with GDI
+	glfwMakeContextCurrent(window->Handle);
+
+	bool swap = false;
+
+	WindowMethods.SetMode(window, WindowModes.FullScreen);
+
 	do {
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		if (glfwGetKey(window->Handle, GLFW_KEY_SPACE) == GLFW_PRESS)
+		{
+			WindowMethods.SetMode(window, WindowModes.Windowed);
+		}
+
 		// swap the back buffer with the front one
-		glfwSwapBuffers(window);
+		glfwSwapBuffers(window->Handle);
 
 		// poll for input
 		glfwPollEvents();
-	} while (glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) != true);
+	} while (glfwGetKey(window->Handle, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window->Handle) != true);
 
-	// bind graphics card with GDI
-	glfwMakeContextCurrent(window);
+	window->Dispose(window);
 
-	// clean up glfwResources
-	glfwTerminate();
+	StopRuntime();
 
 	// ensure leak free
 	PrintAlloc(stdout);

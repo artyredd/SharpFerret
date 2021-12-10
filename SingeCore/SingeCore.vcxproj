@@ -188,6 +188,8 @@
     <ClInclude Include="src\Headers\cunit.h" />
     <ClInclude Include="src\Headers\Graphics\imaging.h" />
     <ClInclude Include="src\Headers\Graphics\window.h" />
+    <ClInclude Include="src\Headers\math\shapes.h" />
+    <ClInclude Include="src\Headers\math\vectors.h" />
     <ClInclude Include="src\Headers\Singine\enumerable.h" />
     <ClInclude Include="src\Headers\singine\enumerableItem.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />

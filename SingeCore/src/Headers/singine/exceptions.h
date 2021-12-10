@@ -23,11 +23,13 @@ static Exception FileNotFoundException = 0x80070002;
 
 // A possible memory leak was detected
 static Exception MemoryLeakException = 0x70000001;
-
 // end custom exceptions
 
 // GLFW Exceptions
 
 static Exception FailedToInitializeExceptionGLFW = 0x60000001;
 static Exception NotIntializedExceptionGLFW = 0x60000002;
+static Exception FailedToCreateWindowExceptionGLFW = 0x60000003;
+static Exception FailedToGetWindowMonitorException = 0x60000004;
+static Exception FailedToGetVideoModeException = 0x60000005;
 // end GLFW Exceptions

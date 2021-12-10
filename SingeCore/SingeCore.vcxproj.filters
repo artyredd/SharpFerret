@@ -28,6 +28,9 @@
     <Filter Include="Source Files\Window">
       <UniqueIdentifier>{7e3566a9-da91-4859-9d1a-f3dd160f82db}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Math">
+      <UniqueIdentifier>{6f5b82b9-4f61-4900-96dc-a46c77862faa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\enumerable.c">
@@ -82,6 +85,12 @@
     </ClInclude>
     <ClInclude Include="src\Headers\cunit.h">
       <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\math\vectors.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\math\shapes.h">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
