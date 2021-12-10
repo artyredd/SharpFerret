@@ -19,34 +19,20 @@ static const struct _WindowModes {
 	2
 };
 
-/// <summary>
-/// The game window
-/// </summary>
-typedef struct _window* Window;
+typedef struct _windowObject* Window;
 
-struct _window {
-	/// <summary>
-	/// The underlying window pointer
-	/// </summary>
-	GLFWwindow* Handle;
-	/// <summary>
-	/// Disposes of this window
-	/// </summary>
-	void(*Dispose)(Window);
-	/// <summary>
-	/// Set's the window's icon
-	/// </summary>
-	void(*SetIcon)(Window, Image);
-	/// <summary>
-	/// Sets the mode of the window, 0 = WINDOWED, 1 = BORDERLESS_FULLSCREEN, 2 = FULLSCREEN
-	/// </summary>
-	void(*SetMode)(Window, WindowMode);
-	void(*OnResize)(Window, void(*Callback)(Window window));
-	/// <summary>
-	/// An enumerable list of window HINTS stored as keyvaluepairs or integers that should be applied to the window
-	/// </summary>
-	Enumerable WindowHints;
+// stores the state of a window
+struct _windowObject {
+	void* Handle;
+	void* Monitor;
+	void* VideoMode;
+	WindowMode Mode;
 };
+
+static struct _windowMethods {
+	void(*SetMode)(Window, const WindowMode);
+	void(*SetSize)(Window, const size_t width, const size_t height);
+} WindowMethods;
 
 Window CreateWindow(size_t width, size_t height, char* name, WindowMode windowMode);
 

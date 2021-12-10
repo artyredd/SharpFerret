@@ -5,8 +5,7 @@
 #define EnsureGlfwInitialized() if(IsRuntimeStarted is false) {throw(NotIntializedExceptionGLFW);}
 
 // private methods declarations
-
-void StartRuntime(void);
+static void InitializeStaticMethods(void);
 
 // private variables
 
@@ -24,7 +23,7 @@ Window CreateWindow(size_t width, size_t height, char* name, WindowMode windowMo
 		StartRuntime();
 	}
 
-
+	Window window = null;
 
 	return null;
 }
@@ -43,6 +42,8 @@ void StartRuntime(void)
 		throw(FailedToInitializeExceptionGLFW);
 	}
 
+	InitializeStaticMethods();
+
 	IsRuntimeStarted = true;
 }
 
@@ -51,5 +52,23 @@ void StopRuntime()
 {
 	glfwTerminate();
 	IsRuntimeStarted = false;
+}
+#pragma endregion
+
+#pragma region WindowMethods
+static void SetSize(Window window, const size_t width, const size_t height)
+{
+	throw(NotImplementedException);
+}
+
+static void SetMode(Window window, WindowMode mode)
+{
+	throw(NotImplementedException);
+}
+
+static void InitializeStaticMethods()
+{
+	WindowMethods.SetSize = &SetSize;
+	WindowMethods.SetMode = &SetMode;
 }
 #pragma endregion
