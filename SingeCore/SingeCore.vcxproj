@@ -179,6 +179,7 @@
     <ClCompile Include="src\Source\cunit.c" />
     <ClCompile Include="src\Source\enumerable.c" />
     <ClCompile Include="src\Source\imaging.c" />
+    <ClCompile Include="src\Source\input.c" />
     <ClCompile Include="src\Source\memory.c" />
     <ClCompile Include="src\Source\SingeCore.c" />
     <ClCompile Include="src\Source\window.c" />
@@ -188,6 +189,7 @@
     <ClInclude Include="src\Headers\cunit.h" />
     <ClInclude Include="src\Headers\Graphics\imaging.h" />
     <ClInclude Include="src\Headers\Graphics\window.h" />
+    <ClInclude Include="src\Headers\input.h" />
     <ClInclude Include="src\Headers\math\shapes.h" />
     <ClInclude Include="src\Headers\math\vectors.h" />
     <ClInclude Include="src\Headers\Singine\enumerable.h" />

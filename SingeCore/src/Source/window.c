@@ -110,6 +110,18 @@ static void Dispose(Window window)
 	SafeFree(window);
 }
 
+void SetHint(int attribute, int value)
+{
+	glfwWindowHint(attribute, value);
+}
+
+bool ShouldClose(Window window)
+{
+	NotNull(window);
+	NotNull(window->Handle);
+	return glfwWindowShouldClose(window->Handle);
+}
+
 #pragma region Runtime
 bool RuntimeStarted()
 {
@@ -163,7 +175,7 @@ static void SetMode(Window window, const WindowMode mode)
 	if (mode is WindowModes.Windowed)
 	{
 		// remove always on top if it's enabled
-		sWindow.SetAttribute(window, GLFW_FLOATING, false);
+		sWindow.SetAttribute(window, WindowHints.AlwaysOnTop, false);
 
 		// for some reason glfwSetWindowMonitor wont make it windowed if you set the width and height to be the same thing?
 		// so i set it to width and height - 1 then to the desired resolution to work around this
@@ -179,7 +191,7 @@ static void SetMode(Window window, const WindowMode mode)
 		glfwSetWindowMonitor(window->Handle, window->Monitor, 0, 0, window->VideoMode->width, window->VideoMode->height, window->VideoMode->refreshRate);
 
 		// set it to always on top
-		sWindow.SetAttribute(window, GLFW_FLOATING, true);
+		sWindow.SetAttribute(window, WindowHints.AlwaysOnTop, true);
 	}
 	else
 	{
@@ -210,7 +222,7 @@ static void SetIcon(Window window, Image image)
 	SafeFree(copy);
 }
 
-static int GetAttribute(Window window, const int attribute)
+static int GetWindowAttribute(Window window, const int attribute)
 {
 	NotNull(window);
 
@@ -219,7 +231,7 @@ static int GetAttribute(Window window, const int attribute)
 	return glfwGetWindowAttrib(window->Handle, attribute);
 }
 
-static void SetAttribute(Window window, const int attribute, const int value)
+static void SetWindowAttribute(Window window, const int attribute, const int value)
 {
 	NotNull(window);
 
@@ -239,8 +251,8 @@ static void SetCurrent(Window window)
 static void InitializeStaticMethods()
 {
 	sWindow.SetCurrent = &SetCurrent;
-	sWindow.GetAttribute = &GetAttribute;
-	sWindow.SetAttribute = &SetAttribute;
+	sWindow.GetAttribute = &GetWindowAttribute;
+	sWindow.SetAttribute = &SetWindowAttribute;
 	sWindow.SetSize = &SetSize;
 	sWindow.SetMode = &SetMode;
 	sWindow.SetIcon = &SetIcon;

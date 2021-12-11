@@ -40,17 +40,101 @@ static const struct _WindowModes {
 	2
 };
 
+typedef int Hint;
+
+static const struct _Hints {
+	const Hint MSAASamples;
+	const Hint Resizable;
+	const Hint Decorated;
+	const Hint Visible;
+	const Hint Focused;
+	const Hint AlwaysOnTop;
+	const Hint Maximized;
+	const Hint CenterCursor;
+	const Hint FocusOnShow;
+	const Hint ScaleToMonitor;
+	const Hint RefreshRate;
+	const Hint RedBits;
+	const Hint GreenBits;
+	const Hint BlueBits;
+	const Hint AlphaBits;
+} WindowHints = {
+	GLFW_SAMPLES,
+	GLFW_RESIZABLE,
+	GLFW_DECORATED,
+	GLFW_VISIBLE,
+	GLFW_FOCUSED,
+	GLFW_FLOATING,
+	GLFW_MAXIMIZED,
+	GLFW_CENTER_CURSOR,
+	GLFW_FOCUS_ON_SHOW,
+	GLFW_SCALE_TO_MONITOR,
+	GLFW_REFRESH_RATE,
+	GLFW_RED_BITS,
+	GLFW_GREEN_BITS,
+	GLFW_BLUE_BITS,
+	GLFW_ALPHA_BITS
+};
+
+static const struct _ContectHints {
+	const Hint API;
+	const Hint VersionMajor;
+	const Hint VersionMinor;
+	const Hint Robustness;
+	const Hint ReleaseBehavior;
+} ContextHints = {
+	GLFW_CONTEXT_CREATION_API,
+	GLFW_CONTEXT_VERSION_MAJOR,
+	GLFW_CONTEXT_VERSION_MINOR,
+	GLFW_CONTEXT_ROBUSTNESS,
+	GLFW_CONTEXT_RELEASE_BEHAVIOR
+};
+
+static const struct _OpenGLHints {
+	const Hint ForwardCompatibility;
+	const Hint DebugContext;
+	const Hint Profile;
+} OpenGLHints = {
+	GLFW_OPENGL_FORWARD_COMPAT,
+	GLFW_OPENGL_DEBUG_CONTEXT,
+	GLFW_OPENGL_PROFILE
+};
+
 typedef struct _windowObject* Window;
 
 // stores the state of a window
 struct _windowObject {
+	/// <summary>
+	/// The title of window
+	/// </summary>
 	char* Title;
+	/// <summary>
+	/// The tranform of the window
+	/// </summary>
 	int_rect Transform;
+	/// <summary>
+	/// The underlying handle for this window
+	/// </summary>
 	GLFWwindow* Handle;
+	/// <summary>
+	/// The monitor this window is displayed on
+	/// </summary>
 	GLFWmonitor* Monitor;
+	/// <summary>
+	/// The video mode used by this window
+	/// </summary>
 	const GLFWvidmode* VideoMode;
+	/// <summary>
+	/// The display mode the window was last set to
+	/// </summary>
 	WindowMode Mode;
+	/// <summary>
+	/// The refreshrate of the window
+	/// </summary>
 	int RefreshRate;
+	/// <summary>
+	/// Disposes and frees the window
+	/// </summary>
 	void(*Dispose)(Window);
 };
 
@@ -100,3 +184,8 @@ bool RuntimeStarted();
 void StartRuntime();
 // Stops the GLFW runtime
 void StopRuntime();
+
+/// Sets the hint value for the next created window globally
+void SetHint(int attribute, int value);
+
+bool ShouldClose(Window window);

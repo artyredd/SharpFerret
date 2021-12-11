@@ -21,18 +21,18 @@ int main()
 {
 	StartRuntime();
 
-	glfwWindowHint(GLFW_SAMPLES, 4);
+	SetHint(WindowHints.MSAASamples, 4);
 
 	// use opengl 3.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	SetHint(ContextHints.VersionMajor, 3);
+	SetHint(ContextHints.VersionMinor, 3);
 
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+	SetHint(OpenGLHints.ForwardCompatibility, GL_TRUE); // To make MacOS happy; should not be needed
+	SetHint(OpenGLHints.Profile, GLFW_OPENGL_CORE_PROFILE);
 
 	// allow it to be windowed and resize-able
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
-	glfwWindowHint(GLFW_DECORATED, GLFW_TRUE);
+	SetHint(WindowHints.Resizable, GLFW_TRUE);
+	SetHint(WindowHints.Decorated, GLFW_TRUE);
 
 	window = CreateWindow(1920, 1080, "Singine");
 
@@ -61,7 +61,7 @@ int main()
 
 		// poll for input
 		glfwPollEvents();
-	} while (glfwGetKey(window->Handle, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window->Handle) != true);
+	} while (glfwGetKey(window->Handle, GLFW_KEY_ESCAPE) != GLFW_PRESS && ShouldClose(window) != true);
 
 	window->Dispose(window);
 
