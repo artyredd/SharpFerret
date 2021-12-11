@@ -39,25 +39,56 @@ int main()
 
 	glClearColor(1.0f, 1.0f, 0.4f, 0.0f);
 
+	// bind graphics card with GDI
+	sWindow.SetCurrent(window);
+
 	// initiliaze GLEW
 	glewExperimental = true;
-	if (glewInit() != true)
+	if (glewInit() != GLEW_OK)
 	{
 		glfwTerminate();
 		throw(IndexOutOfRangeException);
 	}
 
-	// bind graphics card with GDI
-	sWindow.SetCurrent(window);
-
 	Image icon = LoadImage("icon.png");
 
 	using(icon, sWindow.SetIcon(window, icon));
 
+	float vertices[] = {
+		-1.0f,1.0f,0.0f,
+		1.0f,1.0f,0.0f,
+		0.0f,-1.0f,0.0f
+	};
 
+	GLuint VertexArrayID;
+	glGenVertexArrays(1, &VertexArrayID);
+	glBindVertexArray(VertexArrayID);
+
+	GLuint vertexbuffer;
+	glGenBuffers(1, &vertexbuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
+
+		glVertexAttribPointer(
+			0,
+			3,
+			GL_FLOAT,
+			false,
+			0,
+			null
+		);
+
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+
+		glDisableVertexAttribArray(0);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
