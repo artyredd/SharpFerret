@@ -15,6 +15,7 @@
 #include "graphics/window.h"
 #include "graphics/imaging.h"
 
+#include "input.h"
 Window window;
 
 int main()
@@ -53,15 +54,16 @@ int main()
 
 	using(icon, sWindow.SetIcon(window, icon));
 
+
+
 	do {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
 
-		// poll for input
-		glfwPollEvents();
-	} while (glfwGetKey(window->Handle, GLFW_KEY_ESCAPE) != GLFW_PRESS && ShouldClose(window) != true);
+		PollInput();
+	} while (GetKey(window, KeyCodes.Escape) != true && ShouldClose(window) != true);
 
 	window->Dispose(window);
 
