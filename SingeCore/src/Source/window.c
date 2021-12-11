@@ -4,6 +4,7 @@
 
 // Ensures that GLFW is Initilized, otherwise throws an exception
 #define EnsureGlfwInitialized() if(IsRuntimeStarted is false) {throw(NotIntializedExceptionGLFW);}
+#define NotNull(variableName) if (variableName is null){fprintf(stderr, #variableName"can not be null"NEWLINE);throw(InvalidArgumentException);}
 
 // private methods declarations
 static void InitializeStaticMethods(void);
@@ -15,7 +16,6 @@ static void Dispose(Window window);
 ///  tracks whether or not glfw has been initialized, is set to true by StartRuntime and false by StopRuntime
 /// </summary>
 static bool IsRuntimeStarted = false;
-
 
 Window CreateWindow(int width, int height, char* title)
 {
@@ -31,10 +31,7 @@ Window CreateWindow(int width, int height, char* title)
 		throw(InvalidArgumentException);
 	}
 
-	if (title is null)
-	{
-		fprintf(stderr, "Title can not be null"NEWLINE);
-	}
+	NotNull(title);
 
 	// Start the runtime if we haven't already
 	if (IsRuntimeStarted is false)
@@ -48,8 +45,8 @@ Window CreateWindow(int width, int height, char* title)
 
 	window->Dispose = &Dispose;
 
-	window->Transform.x = 0;
-	window->Transform.y = 0;
+	window->Transform.x = DEFAULT_WINDOW_X;
+	window->Transform.y = MINIMUM_WINDOW_Y;
 
 	window->Transform.Width = width;
 	window->Transform.Height = height;
@@ -113,7 +110,7 @@ static void Dispose(Window window)
 	SafeFree(window);
 }
 
-#pragma region Runtime Stop, Start, Started
+#pragma region Runtime
 bool RuntimeStarted()
 {
 	return IsRuntimeStarted;
@@ -141,18 +138,19 @@ void StopRuntime()
 #pragma endregion
 
 #pragma region WindowMethods
-static void SetSize(Window window, const size_t width, const size_t height)
+static void SetSize(Window window, const int width, const int height)
 {
-	throw(NotImplementedException);
+	NotNull(window);
+
+	window->Transform.Width = width;
+	window->Transform.Height = height;
+
+	glfwSetWindowSize(window->Handle, (int)width, (int)height);
 }
 
 static void SetMode(Window window, const WindowMode mode)
 {
-	if (window is null)
-	{
-		fprintf(stderr, "window was null"NEWLINE);
-		throw(InvalidArgumentException);
-	}
+	NotNull(window);
 
 	// check to see if the window is already in the requested mode
 	if (window->Mode is mode)
@@ -164,6 +162,9 @@ static void SetMode(Window window, const WindowMode mode)
 
 	if (mode is WindowModes.Windowed)
 	{
+		// remove always on top if it's enabled
+		sWindow.SetAttribute(window, GLFW_FLOATING, false);
+
 		// for some reason glfwSetWindowMonitor wont make it windowed if you set the width and height to be the same thing?
 		// so i set it to width and height - 1 then to the desired resolution to work around this
 		glfwSetWindowMonitor(window->Handle, null, transform.x, transform.y, transform.Width - 1, transform.Height - 1, 0);
@@ -176,6 +177,9 @@ static void SetMode(Window window, const WindowMode mode)
 	else if (mode is WindowModes.BorderlessFullScreen)
 	{
 		glfwSetWindowMonitor(window->Handle, window->Monitor, 0, 0, window->VideoMode->width, window->VideoMode->height, window->VideoMode->refreshRate);
+
+		// set it to always on top
+		sWindow.SetAttribute(window, GLFW_FLOATING, true);
 	}
 	else
 	{
@@ -187,9 +191,61 @@ static void SetMode(Window window, const WindowMode mode)
 	window->Mode = mode;
 }
 
+static void SetIcon(Window window, Image image)
+{
+	NotNull(window);
+
+	NotNull(image);
+
+	// create copy for GLFW
+	GLFWimage* copy = SafeAlloc(sizeof(GLFWimage));
+
+	copy->pixels = image->Pixels;
+
+	copy->height = (int)image->Height;
+	copy->width = (int)image->Width;
+
+	glfwSetWindowIcon(window->Handle, 1, copy);
+
+	SafeFree(copy);
+}
+
+static int GetAttribute(Window window, const int attribute)
+{
+	NotNull(window);
+
+	NotNull(window->Handle);
+
+	return glfwGetWindowAttrib(window->Handle, attribute);
+}
+
+static void SetAttribute(Window window, const int attribute, const int value)
+{
+	NotNull(window);
+
+	NotNull(window->Handle);
+
+	glfwSetWindowAttrib(window->Handle, attribute, value);
+}
+
+static void SetCurrent(Window window)
+{
+	NotNull(window);
+	NotNull(window->Handle);
+
+	glfwMakeContextCurrent(window->Handle);
+}
+
 static void InitializeStaticMethods()
 {
-	WindowMethods.SetSize = &SetSize;
-	WindowMethods.SetMode = &SetMode;
+	sWindow.SetCurrent = &SetCurrent;
+	sWindow.GetAttribute = &GetAttribute;
+	sWindow.SetAttribute = &SetAttribute;
+	sWindow.SetSize = &SetSize;
+	sWindow.SetMode = &SetMode;
+	sWindow.SetIcon = &SetIcon;
 }
 #pragma endregion
+
+#undef NotNull
+#undef EnsureGlfwInitialized

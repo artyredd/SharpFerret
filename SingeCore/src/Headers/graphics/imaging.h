@@ -1,3 +1,5 @@
+#pragma once
+
 #include "csharp.h"
 
 /// <summary>
@@ -22,11 +24,11 @@ struct _image {
 	/// <summary>
 	/// The width in pixels of the image
 	/// </summary>
-	size_t Width;
+	int Width;
 	/// <summary>
 	/// The height in pixels of the image
 	/// </summary>
-	size_t Height;
+	int Height;
 	/// <summary>
 	/// The number of color channels in the image
 	/// </summary>
@@ -48,6 +50,13 @@ static bool TryLoadImage(const char* path, Image* out_image);
 /// Attempts to load the image's information, returns true if the image was located and info obtained, otherwise false
 /// Use Dispose to free the object
 static bool TryGetImageInfo(const char* path, Image* out_info);
+
+/// <summary>
+/// Attempts to load the provided image, returns the loaded image if it was loaded, otherwise null
+/// </summary>
+/// <param name="path"></param>
+/// <returns></returns>
+Image LoadImage(const char* path);
 
 /// Allocates a new image and returns a pointer to it
 static Image CreateImage();

@@ -17,24 +17,31 @@ bool TryLoadImage(const char* path, Image* out_image)
 		return false;
 	}
 
-	Image image = CreateImage();
+	Image image = LoadImage(path);
 
-	int width = 0;
-	int height = 0;
-	int channels = 0;
-
-	image->Pixels = stbi_load(path, &width, &height, &channels, 0);
-
-	if (image->Pixels is null)
+	if (image is null)
 	{
 		return false;
 	}
 
-	image->Width = (size_t)width;
-	image->Height = (size_t)height;
-	image->Channels = (size_t)channels;
+	*out_image = image;
 
 	return true;
+}
+
+Image LoadImage(const char* path)
+{
+	Image image = CreateImage();
+
+	image->Pixels = stbi_load(path, &image->Width, &image->Height, &image->Channels, 0);
+
+	if (image->Pixels is null)
+	{
+		SafeFree(image);
+		return null;
+	}
+
+	return image;
 }
 
 bool TryGetImageInfo(const char* path, Image* out_info)

@@ -11,6 +11,11 @@
 #define _window_h_
 #endif // !_window_h_
 
+// The default window starting position
+#define DEFAULT_WINDOW_X 100
+// The defaault window starting position
+#define MINIMUM_WINDOW_Y 100
+
 // The way a window is displayed, 0 = windowed, 1 = BorderlessFullScreen, 2 = FullScreen
 typedef int WindowMode;
 
@@ -52,13 +57,32 @@ struct _windowObject {
 #ifndef _window_methods_
 #define _window_methods_
 struct _windowMethods {
+	/// <summary>
+	/// Sets the current graphics context to the provided window
+	/// </summary>
+	/// <param name=""></param>
+	void (*SetCurrent)(const Window);
+	/// <summary>
+	/// Retrieves the attribute's value of the provided window
+	/// </summary>
+	int(*GetAttribute)(const Window window, const int attribute);
+	/// <summary>
+	/// Sets the provided attribute on the provided window
+	/// </summary>
+	void (*SetAttribute)(Window, const int attribute, const int value);
+	/// <summary>
+	/// Sets the window icon of the provided window
+	/// </summary>
 	void (*SetIcon)(Window, const Image);
+	/// <summary>
+	/// Sets the display mode of the provided window
+	/// </summary>
 	void (*SetMode)(Window, const WindowMode);
 	/// <summary>
 	/// Sets the size of the provided window(if it's in windowed) otherwise sets the resultion of the window(if it's fullscreen)
 	/// </summary>
-	void (*SetSize)(Window, const size_t width, const size_t height);
-} WindowMethods;
+	void (*SetSize)(Window, const int width, const int height);
+} sWindow;
 #endif
 
 /// <summary>
