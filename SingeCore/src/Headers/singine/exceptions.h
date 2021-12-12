@@ -23,6 +23,9 @@ static Exception FileNotFoundException = 0x80070002;
 
 // A possible memory leak was detected
 static Exception MemoryLeakException = 0x70000001;
+static Exception FailedToReadFileException = 0x70000002;
+static Exception FailedToCloseFileException = 0x70000003;
+static Exception FailedToOpenFileException = 0x70000004;
 // end custom exceptions
 
 // GLFW Exceptions

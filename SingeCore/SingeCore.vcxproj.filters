@@ -31,6 +31,9 @@
     <Filter Include="Header Files\Math">
       <UniqueIdentifier>{6f5b82b9-4f61-4900-96dc-a46c77862faa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics\Shaders">
+      <UniqueIdentifier>{90377ebf-f80a-4a98-9bbf-79c985cc24b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\enumerable.c">
@@ -59,6 +62,12 @@
     </ClCompile>
     <ClCompile Include="src\Source\input.c">
       <Filter>Source Files\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\file.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\shaders.c">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,6 +106,12 @@
     </ClInclude>
     <ClInclude Include="src\Headers\input.h">
       <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\io\file.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\graphics\shaders.h">
+      <Filter>Header Files\Graphics\Shaders</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
