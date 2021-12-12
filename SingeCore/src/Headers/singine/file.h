@@ -33,7 +33,7 @@ char* ReadFile(const File file);
 
 bool TryReadFile(const File file, char** out_data);
 
-char* ReadAll(char* path);
+char* ReadAll(const char* path);
 
 bool TryReadAll(const char* path, char** out_data);
 

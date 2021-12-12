@@ -134,7 +134,7 @@
       <ShowProgress>LinkVerbose</ShowProgress>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
-      <Profile>true</Profile>
+      <Profile>false</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -193,13 +193,14 @@
     <ClInclude Include="src\Headers\graphics\shaders.h" />
     <ClInclude Include="src\Headers\Graphics\window.h" />
     <ClInclude Include="src\Headers\input.h" />
-    <ClInclude Include="src\Headers\io\file.h" />
     <ClInclude Include="src\Headers\math\shapes.h" />
     <ClInclude Include="src\Headers\math\vectors.h" />
     <ClInclude Include="src\Headers\Singine\enumerable.h" />
     <ClInclude Include="src\Headers\singine\enumerableItem.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />
+    <ClInclude Include="src\Headers\singine\file.h" />
     <ClInclude Include="src\Headers\singine\generics.h" />
+    <ClInclude Include="src\Headers\singine\guards.h" />
     <ClInclude Include="src\Headers\Singine\memory.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

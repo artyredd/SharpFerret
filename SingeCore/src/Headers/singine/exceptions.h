@@ -26,6 +26,7 @@ static Exception MemoryLeakException = 0x70000001;
 static Exception FailedToReadFileException = 0x70000002;
 static Exception FailedToCloseFileException = 0x70000003;
 static Exception FailedToOpenFileException = 0x70000004;
+static Exception FailedToWriteToStreamException = 0x70000005;
 // end custom exceptions
 
 // GLFW Exceptions
@@ -36,3 +37,7 @@ static Exception FailedToCreateWindowExceptionGLFW = 0x60000003;
 static Exception FailedToGetWindowMonitorException = 0x60000004;
 static Exception FailedToGetVideoModeException = 0x60000005;
 // end GLFW Exceptions
+
+// GL Exceptions
+static Exception FailedToCompileShaderException = 0x50000001;
+//

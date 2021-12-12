@@ -4,7 +4,7 @@
 typedef struct _shader* Shader;
 
 struct _shader {
-	unsigned int* Handle;
+	unsigned int Handle;
 };
 //
 //const struct _shaderMethods {

@@ -107,11 +107,14 @@
     <ClInclude Include="src\Headers\input.h">
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
-    <ClInclude Include="src\Headers\io\file.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Headers\graphics\shaders.h">
       <Filter>Header Files\Graphics\Shaders</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\guards.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\file.h">
+      <Filter>Header Files\Singine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

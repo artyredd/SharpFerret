@@ -1,4 +1,4 @@
-#include "io/file.h"
+#include "singine/file.h"
 #include "singine/memory.h"
 
 #define NotNull(variableName) if (variableName is null) { fprintf(stderr, #variableName"can not be null"); throw(InvalidArgumentException); }
@@ -139,6 +139,9 @@ char* ReadAll(const char* path)
 
 	fprintf(stderr, "Failed to open file %s"NEWLINE, path);
 	throw(FailedToOpenFileException);
+
+	// we shouldn't be able to get here, but it's possible if __debugbreak() is continued
+	return null;
 }
 
 bool TryReadAll(const char* path, char** out_data)
