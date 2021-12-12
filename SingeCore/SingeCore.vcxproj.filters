@@ -117,4 +117,12 @@
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="SimpleFragmentShader.fragmentshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="SimpleVertexShader.vertexshader">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

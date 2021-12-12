@@ -49,7 +49,7 @@ size_t GetFileSize(const File file)
 {
 	NotNull(file);
 
-	size_t currentPosition = ftell(file);
+	long currentPosition = ftell(file);
 
 	// this isn't the most portable solution but I wrapped this in an abstraction incase I need to diversify the portability later
 
@@ -61,17 +61,22 @@ size_t GetFileSize(const File file)
 	// if we did not start at the beginning of the file we should return to the original position inside of the file
 	if (currentPosition != 0)
 	{
-		fseek(file, (long)currentPosition, SEEK_SET);
+		rewind(file);
+		fseek(file, currentPosition, SEEK_SET);
 	}
 
-	return count + 1;
+	return count;
 }
 
 char* ReadFile(const File file)
 {
 	size_t length = GetFileSize(file);
 
-	char* result = SafeAlloc(length);
+	char* result = SafeAlloc(length + 1);
+
+	result[length] = '\0'; // add line terminator
+
+	rewind(file);
 
 	for (size_t i = 0; i < length; i++)
 	{
@@ -79,8 +84,21 @@ char* ReadFile(const File file)
 
 		if (c is EOF)
 		{
-			fprintf(stderr, "An error occurred while reading the file at ptr: %llix, Error Code %i", (size_t)file, ferror(file));
-			throw(FailedToReadFileException);
+			// check to see what error we got
+			// if we got 0 then the stream was likely not started at the beginning and we reached EOF early
+			int error = ferror(file);
+
+			// if the error we got was actually an error we should return early
+			// only attempt rewinding once
+			if (error != 0)
+			{
+				SafeFree(result);
+				fprintf(stderr, "An error occurred while reading the file at ptr: %llix, Error Code %i", (size_t)file, ferror(file));
+				throw(FailedToReadFileException);
+			}
+
+			result[i] = '\0';
+			break;
 		}
 
 		result[i] = c;
@@ -95,7 +113,11 @@ bool TryReadFile(const File file, char** out_data)
 
 	size_t length = GetFileSize(file);
 
-	char* result = SafeAlloc(length);
+	char* result = SafeAlloc(length + 1);
+
+	result[length] = '\0'; // add line terminator
+
+	rewind(file);
 
 	for (size_t i = 0; i < length; i++)
 	{
@@ -103,8 +125,20 @@ bool TryReadFile(const File file, char** out_data)
 
 		if (c is EOF)
 		{
-			SafeFree(result);
-			return false;
+			// check to see what error we got
+			// if we got 0 then the stream was likely not started at the beginning and we reached EOF early
+			int error = ferror(file);
+
+			// if the error we got was actually an error we should return early
+			// only attempt rewinding once
+			if (error != 0)
+			{
+				SafeFree(result);
+				return false;
+			}
+
+			result[i] = '\0';
+			break;
 		}
 
 		result[i] = c;

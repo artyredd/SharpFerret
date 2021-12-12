@@ -5,10 +5,11 @@ typedef struct _shader* Shader;
 
 struct _shader {
 	unsigned int Handle;
+	void(*Dispose)(Shader);
 };
 //
 //const struct _shaderMethods {
 //	Shader(*Compile)(const char* vertexPath, const char* fragmentPath);
 //} sShader;
 
-Shader Compile(const char* vertexPath, const char* fragmentPath);
+Shader CompileShader(const char* vertexPath, const char* fragmentPath);

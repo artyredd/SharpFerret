@@ -6,6 +6,7 @@
 #include "singine/file.h"
 #include "singine/memory.h"
 #include "GL/glew.h"
+#include <stdlib.h>
 
 #define LOG_BUFFER_SIZE 1024
 
@@ -87,7 +88,7 @@ static void PrintLog(unsigned int handle, File stream, void(*LogProvider)(unsign
 
 	LogProvider(handle, LOG_BUFFER_SIZE, &logLength, message);
 
-	for (size_t i = 0; i < logLength; i++)
+	for (size_t i = 0; i < min(LOG_BUFFER_SIZE, logLength); i++)
 	{
 		int c = message[i];
 
@@ -214,7 +215,23 @@ static bool TryCompileProgram(unsigned int vertexHandle, unsigned int fragmentHa
 	return true;
 }
 
-Shader Compile(const char* vertexPath, const char* fragmentPath)
+static void Dispose(Shader shader)
+{
+	glDeleteProgram(shader->Handle);
+	SafeFree(shader);
+}
+
+Shader CreateShader()
+{
+	Shader newShader = SafeAlloc(sizeof(struct _shader));
+
+	newShader->Handle = 0;
+	newShader->Dispose = &Dispose;
+
+	return newShader;
+}
+
+Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 {
 	EnsureNotNull(vertexPath);
 	EnsureNotNull(fragmentPath);
@@ -242,9 +259,10 @@ Shader Compile(const char* vertexPath, const char* fragmentPath)
 		throw(FailedToCompileShaderException);
 	}
 
-	Shader newShader = SafeAlloc(sizeof(struct _shader));
 
-	newShader->Handle = programHandle;
+	Shader shader = CreateShader();
 
-	return newShader;
+	shader->Handle = programHandle;
+
+	return shader;
 }

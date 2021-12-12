@@ -15,6 +15,8 @@
 #include "graphics/window.h"
 #include "graphics/imaging.h"
 
+#include "graphics/shaders.h"
+
 #include "input.h"
 Window window;
 
@@ -54,6 +56,8 @@ int main()
 
 	using(icon, sWindow.SetIcon(window, icon));
 
+	Shader shader = CompileShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
+
 	float vertices[] = {
 		-1.0f,1.0f,0.0f,
 		1.0f,1.0f,0.0f,
@@ -72,6 +76,8 @@ int main()
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		glUseProgram(shader->Handle);
 
 		glEnableVertexAttribArray(0);
 
@@ -95,6 +101,8 @@ int main()
 
 		PollInput();
 	} while (GetKey(window, KeyCodes.Escape) != true && ShouldClose(window) != true);
+
+	shader->Dispose(shader);
 
 	window->Dispose(window);
 
