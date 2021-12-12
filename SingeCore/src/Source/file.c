@@ -51,6 +51,8 @@ size_t GetFileSize(const File file)
 
 	size_t currentPosition = ftell(file);
 
+	// this isn't the most portable solution but I wrapped this in an abstraction incase I need to diversify the portability later
+
 	// seek to the end of the file and store the length of the file
 	fseek(file, 0L, SEEK_END);
 
@@ -87,6 +89,32 @@ char* ReadFile(const File file)
 	return result;
 }
 
+bool TryReadFile(const File file, char** out_data)
+{
+	*out_data = null;
+
+	size_t length = GetFileSize(file);
+
+	char* result = SafeAlloc(length);
+
+	for (size_t i = 0; i < length; i++)
+	{
+		int c = fgetc(file);
+
+		if (c is EOF)
+		{
+			SafeFree(result);
+			return false;
+		}
+
+		result[i] = c;
+	}
+
+	*out_data = result;
+
+	return true;
+}
+
 char* ReadAll(const char* path)
 {
 	File file;
@@ -113,9 +141,38 @@ char* ReadAll(const char* path)
 	throw(FailedToOpenFileException);
 }
 
+bool TryReadAll(const char* path, char** out_data)
+{
+	File file;
+
+	if (TryOpen(path, FileModes.Read, &file))
+	{
+		char* data;
+
+		if (TryReadFile(file, &data))
+		{
+			*out_data = data;
+
+			return true;
+		}
+
+		TryClose(file);
+	}
+
+	return false;
+}
+
 bool TryClose(File file)
 {
 	return fclose(file) != EOF;
+}
+
+void Close(File file)
+{
+	if (TryClose(file) is false)
+	{
+		throw(FailedToCloseFileException);
+	}
 }
 
 #undef NotNull

@@ -31,6 +31,12 @@ size_t GetFileSize(const File file);
 
 char* ReadFile(const File file);
 
+bool TryReadFile(const File file, char** out_data);
+
 char* ReadAll(char* path);
 
+bool TryReadAll(const char* path, char** out_data);
+
 bool TryClose(File file);
+
+void Close(File file);
