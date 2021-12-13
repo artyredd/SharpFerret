@@ -2,9 +2,10 @@
 #include "graphics/window.h"
 #include "singine/memory.h"
 
+#include "singine/guards.h"
+
 // Ensures that GLFW is Initilized, otherwise throws an exception
 #define EnsureGlfwInitialized() if(IsRuntimeStarted is false) {throw(NotIntializedExceptionGLFW);}
-#define NotNull(variableName) if (variableName is null){fprintf(stderr, #variableName"can not be null"NEWLINE);throw(InvalidArgumentException);}
 
 // private methods declarations
 static void InitializeStaticMethods(void);
@@ -31,7 +32,7 @@ Window CreateWindow(int width, int height, char* title)
 		throw(InvalidArgumentException);
 	}
 
-	NotNull(title);
+	EnsureNotNull(title);
 
 	// Start the runtime if we haven't already
 	if (IsRuntimeStarted is false)
@@ -117,8 +118,8 @@ void SetHint(int attribute, int value)
 
 bool ShouldClose(Window window)
 {
-	NotNull(window);
-	NotNull(window->Handle);
+	EnsureNotNull(window);
+	EnsureNotNull(window->Handle);
 	return glfwWindowShouldClose(window->Handle);
 }
 
@@ -152,7 +153,7 @@ void StopRuntime()
 #pragma region WindowMethods
 static void SetSize(Window window, const int width, const int height)
 {
-	NotNull(window);
+	EnsureNotNull(window);
 
 	window->Transform.Width = width;
 	window->Transform.Height = height;
@@ -162,7 +163,7 @@ static void SetSize(Window window, const int width, const int height)
 
 static void SetMode(Window window, const WindowMode mode)
 {
-	NotNull(window);
+	EnsureNotNull(window);
 
 	// check to see if the window is already in the requested mode
 	if (window->Mode is mode)
@@ -205,9 +206,9 @@ static void SetMode(Window window, const WindowMode mode)
 
 static void SetIcon(Window window, Image image)
 {
-	NotNull(window);
+	EnsureNotNull(window);
 
-	NotNull(image);
+	EnsureNotNull(image);
 
 	// create copy for GLFW
 	GLFWimage* copy = SafeAlloc(sizeof(GLFWimage));
@@ -224,26 +225,26 @@ static void SetIcon(Window window, Image image)
 
 static int GetWindowAttribute(Window window, const int attribute)
 {
-	NotNull(window);
+	EnsureNotNull(window);
 
-	NotNull(window->Handle);
+	EnsureNotNull(window->Handle);
 
 	return glfwGetWindowAttrib(window->Handle, attribute);
 }
 
 static void SetWindowAttribute(Window window, const int attribute, const int value)
 {
-	NotNull(window);
+	EnsureNotNull(window);
 
-	NotNull(window->Handle);
+	EnsureNotNull(window->Handle);
 
 	glfwSetWindowAttrib(window->Handle, attribute, value);
 }
 
 static void SetCurrent(Window window)
 {
-	NotNull(window);
-	NotNull(window->Handle);
+	EnsureNotNull(window);
+	EnsureNotNull(window->Handle);
 
 	glfwMakeContextCurrent(window->Handle);
 }
@@ -259,5 +260,4 @@ static void InitializeStaticMethods()
 }
 #pragma endregion
 
-#undef NotNull
 #undef EnsureGlfwInitialized

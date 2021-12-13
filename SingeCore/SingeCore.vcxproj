@@ -121,7 +121,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;STB_IMAGE_IMPLEMENTATION</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\stb_image;$(SolutionDir)external\glew-2.2.0\include;$(SolutionDir)external\cglm-282ea84\include;$(SolutionDir)SingeCore\src\;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;$(SolutionDir)SingeCore\src\Headers;$(SolutionDir)SingeCore\src\Source Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\stb_image;$(SolutionDir)external\glew-2.2.0\include;$(SolutionDir)external\cglm-282ea84\include;$(SolutionDir)SingeCore\src\;$(SolutionDIr)external\glfw-3.3.5\include;$(SolutionDir)SingeCore\src\Headers;$(SolutionDir)SingeCore\src\Source Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
     </ClCompile>
