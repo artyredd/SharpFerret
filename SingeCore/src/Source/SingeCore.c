@@ -61,9 +61,9 @@ int main()
 	Shader shader = CompileShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
 	float vertices[] = {
-		-1.0f,1.0f,0.0f,
-		1.0f,1.0f,0.0f,
-		0.0f,-1.0f,0.0f
+		0.0f,1.0f,0.0f,
+		-1.0f,-1.0f,0.0f,
+		1.0f,-1.0f,0.0f
 	};
 
 	GLuint VertexArrayID;
@@ -78,7 +78,7 @@ int main()
 	
 	mat4 projection;
 		
-	glm_perspective(70.0f,16.0f/9.0f,0.1f,100.0f, projection);
+	glm_perspective(glm_rad(70.0f),16.0f/9.0f,0.1f,100.0f, projection);
 
 	mat4 view;
 
@@ -86,8 +86,8 @@ int main()
 
 	glm_vec3_zero(target);
 
-	vec3 cameraPosition = {0,0,0};
-	vec3 up = {0,1,0};
+	vec3 cameraPosition = {4,3,3};
+	vec3 up = {0,1.0f,0};
 
 	glm_lookat(
 		cameraPosition,
@@ -102,18 +102,18 @@ int main()
 
 	mat4 MVP;
 
-	glm_mat4_mul(model,view,MVP);
+	glm_mat4_mul(projection, view, MVP);
 
-	glm_mat4_mul(MVP,projection,MVP);
+	glm_mat4_mul(MVP, model, MVP);
 
 	unsigned int mvpId = glGetUniformLocation(shader->Handle,"MVP");
-
-	glUniformMatrix4fv(mvpId,1,false, &MVP[0][0]);
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		glUseProgram(shader->Handle);
+
+		glUniformMatrix4fv(mvpId, 1, false, &MVP[0][0]);
 
 		glEnableVertexAttribArray(0);
 
