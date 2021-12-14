@@ -16,6 +16,8 @@
 #include "graphics/imaging.h"
 
 #include "graphics/shaders.h"
+#include "cglm/cam.h"
+#include "cglm/mat4.h"
 
 #include "input.h"
 Window window;
@@ -73,6 +75,40 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+	
+	mat4 projection;
+		
+	glm_perspective(70.0f,16.0f/9.0f,0.1f,100.0f, projection);
+
+	mat4 view;
+
+	vec3 target;
+
+	glm_vec3_zero(target);
+
+	vec3 cameraPosition = {0,0,0};
+	vec3 up = {0,1,0};
+
+	glm_lookat(
+		cameraPosition,
+		target,
+		up,
+		view
+	);
+
+	mat4 model;
+
+	glm_mat4_identity(model);
+
+	mat4 MVP;
+
+	glm_mat4_mul(model,view,MVP);
+
+	glm_mat4_mul(MVP,projection,MVP);
+
+	unsigned int mvpId = glGetUniformLocation(shader->Handle,"MVP");
+
+	glUniformMatrix4fv(mvpId,1,false, &MVP[0][0]);
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT);

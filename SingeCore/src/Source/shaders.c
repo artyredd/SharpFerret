@@ -52,29 +52,6 @@ static bool VerifyHandle(unsigned int handle)
 	return true;
 }
 
-static bool TryCompileShader(const char* data, ShaderType shaderType, unsigned int* out_handle)
-{
-	// default set the out variable to 0, so if we return early we don't accidently give a wierd handle that may not exist
-	*out_handle = 0;
-
-	// get a handle for the new shader
-	unsigned int handle = glCreateShader(shaderType);
-
-	// make sure the handle is valid
-	if (VerifyHandle(handle) is false)
-	{
-		glDeleteShader(handle);
-
-		return false;
-	}
-
-	glShaderSource(handle, 1, &data, null);
-	glCompileShader(handle);
-
-	*out_handle = handle;
-
-	return true;
-}
 
 static void PrintLog(unsigned int handle, File stream, void(*LogProvider)(unsigned int, int, int*, char*))
 {
@@ -129,6 +106,35 @@ static bool VerifyShaderStatus(unsigned int handle)
 		PrintShaderLog(handle, stderr);
 		return false;
 	}
+
+	return true;
+}
+
+static bool TryCompileShader(const char* data, ShaderType shaderType, unsigned int* out_handle)
+{
+	// default set the out variable to 0, so if we return early we don't accidently give a wierd handle that may not exist
+	*out_handle = 0;
+
+	// get a handle for the new shader
+	unsigned int handle = glCreateShader(shaderType);
+
+	// make sure the handle is valid
+	if (VerifyHandle(handle) is false)
+	{
+		glDeleteShader(handle);
+
+		return false;
+	}
+
+	glShaderSource(handle, 1, &data, null);
+	glCompileShader(handle);
+
+	if (VerifyShaderStatus(handle) is false)
+	{
+		return false;
+	}
+
+	*out_handle = handle;
 
 	return true;
 }
