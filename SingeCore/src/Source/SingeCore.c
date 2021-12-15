@@ -75,10 +75,10 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
-	
+
 	mat4 projection;
-		
-	glm_perspective(glm_rad(70.0f),16.0f/9.0f,0.1f,100.0f, projection);
+
+	glm_perspective(glm_rad(70.0f), 16.0f / 9.0f, 0.1f, 100.0f, projection);
 
 	mat4 view;
 
@@ -86,8 +86,8 @@ int main()
 
 	glm_vec3_zero(target);
 
-	vec3 cameraPosition = {4,3,3};
-	vec3 up = {0,1.0f,0};
+	vec3 cameraPosition = { 4,3,3 };
+	vec3 up = { 0,1.0f,0 };
 
 	glm_lookat(
 		cameraPosition,
@@ -106,7 +106,7 @@ int main()
 
 	glm_mat4_mul(MVP, model, MVP);
 
-	unsigned int mvpId = glGetUniformLocation(shader->Handle,"MVP");
+	unsigned int mvpId = glGetUniformLocation(shader->Handle, "MVP");
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT);

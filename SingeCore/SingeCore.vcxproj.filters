@@ -34,6 +34,9 @@
     <Filter Include="Header Files\Graphics\Shaders">
       <UniqueIdentifier>{90377ebf-f80a-4a98-9bbf-79c985cc24b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Modeling">
+      <UniqueIdentifier>{9207c7bb-6197-4ef6-9bad-1366a1e28542}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\enumerable.c">
@@ -67,6 +70,9 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Source\shaders.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\importer.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -116,12 +122,24 @@
     <ClInclude Include="src\Headers\singine\file.h">
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
+    <ClInclude Include="src\Headers\modeling\importer.h">
+      <Filter>Header Files\Modeling</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\modeling\mesh.h">
+      <Filter>Header Files\Modeling</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\modeling\model.h">
+      <Filter>Header Files\Modeling</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleFragmentShader.fragmentshader">
       <Filter>Resource Files</Filter>
     </None>
     <None Include="SimpleVertexShader.vertexshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="src\Headers\modeling\SecondFragmentShader.fragmentshader">
       <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>

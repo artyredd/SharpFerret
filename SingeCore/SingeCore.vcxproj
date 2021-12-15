@@ -180,6 +180,7 @@
     <ClCompile Include="src\Source\enumerable.c" />
     <ClCompile Include="src\Source\file.c" />
     <ClCompile Include="src\Source\imaging.c" />
+    <ClCompile Include="src\Source\importer.c" />
     <ClCompile Include="src\Source\input.c" />
     <ClCompile Include="src\Source\memory.c" />
     <ClCompile Include="src\Source\shaders.c" />
@@ -195,6 +196,9 @@
     <ClInclude Include="src\Headers\input.h" />
     <ClInclude Include="src\Headers\math\shapes.h" />
     <ClInclude Include="src\Headers\math\vectors.h" />
+    <ClInclude Include="src\Headers\modeling\importer.h" />
+    <ClInclude Include="src\Headers\modeling\mesh.h" />
+    <ClInclude Include="src\Headers\modeling\model.h" />
     <ClInclude Include="src\Headers\Singine\enumerable.h" />
     <ClInclude Include="src\Headers\singine\enumerableItem.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />
@@ -206,6 +210,7 @@
   <ItemGroup>
     <None Include="SimpleFragmentShader.fragmentshader" />
     <None Include="SimpleVertexShader.vertexshader" />
+    <None Include="src\Headers\modeling\SecondFragmentShader.fragmentshader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
