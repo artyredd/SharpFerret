@@ -24,11 +24,12 @@ typedef struct _mesh* Mesh;
 
 struct _mesh {
 	char* Name;
-	size_t VerticeCount;
+	size_t VertexCount;
 	vec3* Vertices;
 	size_t TextureVerticesCount;
 	vec3* TextureVertices;
 	size_t NormalCount;
 	vec3* Normals;
+	size_t FaceCount;
 	Face* Faces;
 };

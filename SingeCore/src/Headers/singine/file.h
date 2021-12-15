@@ -37,6 +37,8 @@ char* ReadAll(const char* path);
 
 bool TryReadAll(const char* path, char** out_data);
 
+bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength);
+
 bool TryClose(File file);
 
 void Close(File file);

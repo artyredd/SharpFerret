@@ -1,5 +1,6 @@
 #include "singine/file.h"
 #include "singine/memory.h"
+#include "singine/guards.h"
 
 #define NotNull(variableName) if (variableName is null) { fprintf(stderr, #variableName"can not be null"); throw(InvalidArgumentException); }
 
@@ -197,6 +198,36 @@ bool TryReadAll(const char* path, char** out_data)
 	}
 
 	return false;
+}
+
+bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength)
+{
+	GuardNotNull(file);
+
+	int c;
+	size_t index = 0;
+
+	while ((c = fgetc(file)) != EOF && index < bufferLength)
+	{
+		if (c is '\0')
+		{
+			break;
+		}
+		if (c is '\n')
+		{
+			break;
+		}
+		buffer[offset + index++] = c;
+	}
+
+	if (ferror(file))
+	{
+		return false;
+	}
+
+	*out_lineLength = index;
+
+	return true;
 }
 
 bool TryClose(File file)
