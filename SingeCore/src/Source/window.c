@@ -32,7 +32,7 @@ Window CreateWindow(int width, int height, char* title)
 		throw(InvalidArgumentException);
 	}
 
-	EnsureNotNull(title);
+	GuardNotNull(title);
 
 	// Start the runtime if we haven't already
 	if (IsRuntimeStarted is false)
@@ -118,8 +118,8 @@ void SetHint(int attribute, int value)
 
 bool ShouldClose(Window window)
 {
-	EnsureNotNull(window);
-	EnsureNotNull(window->Handle);
+	GuardNotNull(window);
+	GuardNotNull(window->Handle);
 	return glfwWindowShouldClose(window->Handle);
 }
 
@@ -153,7 +153,7 @@ void StopRuntime()
 #pragma region WindowMethods
 static void SetSize(Window window, const int width, const int height)
 {
-	EnsureNotNull(window);
+	GuardNotNull(window);
 
 	window->Transform.Width = width;
 	window->Transform.Height = height;
@@ -163,7 +163,7 @@ static void SetSize(Window window, const int width, const int height)
 
 static void SetMode(Window window, const WindowMode mode)
 {
-	EnsureNotNull(window);
+	GuardNotNull(window);
 
 	// check to see if the window is already in the requested mode
 	if (window->Mode is mode)
@@ -206,9 +206,9 @@ static void SetMode(Window window, const WindowMode mode)
 
 static void SetIcon(Window window, Image image)
 {
-	EnsureNotNull(window);
+	GuardNotNull(window);
 
-	EnsureNotNull(image);
+	GuardNotNull(image);
 
 	// create copy for GLFW
 	GLFWimage* copy = SafeAlloc(sizeof(GLFWimage));
@@ -225,26 +225,26 @@ static void SetIcon(Window window, Image image)
 
 static int GetWindowAttribute(Window window, const int attribute)
 {
-	EnsureNotNull(window);
+	GuardNotNull(window);
 
-	EnsureNotNull(window->Handle);
+	GuardNotNull(window->Handle);
 
 	return glfwGetWindowAttrib(window->Handle, attribute);
 }
 
 static void SetWindowAttribute(Window window, const int attribute, const int value)
 {
-	EnsureNotNull(window);
+	GuardNotNull(window);
 
-	EnsureNotNull(window->Handle);
+	GuardNotNull(window->Handle);
 
 	glfwSetWindowAttrib(window->Handle, attribute, value);
 }
 
 static void SetCurrent(Window window)
 {
-	EnsureNotNull(window);
-	EnsureNotNull(window->Handle);
+	GuardNotNull(window);
+	GuardNotNull(window->Handle);
 
 	glfwMakeContextCurrent(window->Handle);
 }

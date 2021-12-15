@@ -8,17 +8,27 @@ typedef float vec3[3];
 typedef float vec2[2];
 #endif // !cglm_h
 
-typedef struct _triangle* Triangle;
+typedef int intvec4[4];
+typedef int intvec3[3];
+typedef int intvec2[2];
 
-struct _triangle {
-	vec3 Vertices[3];
-	vec3 TextureVertices[3];
-	vec3 VertexNormals[3];
+typedef struct _face* Face;
+
+struct _face {
+	intvec3 Vertices[3];
+	intvec3 TextureVertices[3];
+	intvec3 Normals[3];
 };
 
 typedef struct _mesh* Mesh;
 
 struct _mesh {
 	char* Name;
-	Triangle* Triangles;
+	size_t VerticeCount;
+	vec3* Vertices;
+	size_t TextureVerticesCount;
+	vec3* TextureVertices;
+	size_t NormalCount;
+	vec3* Normals;
+	Face* Faces;
 };

@@ -22,19 +22,21 @@
 #define NEWLINE "\n" // Mac OS X uses \n
 #endif
 
-// prints the provided exception to stdout and exits the application
-// see https://docs.microsoft.com/en-us/cpp/intrinsics/debugbreak?view=msvc-170
+#define THROW_SHOULD_BREAK
+
+#ifdef THROW_SHOULD_BREAK 
 #ifdef __INTRIN_H_
-#define throw(errorCode) \
-	fprintf(stdout,"%s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE);\
-	__debugbreak();
+#define ThrowEvent(errorCode) __debugbreak();
 #else
+#define ThrowEvent(errorCode) exit(errorCode);
+#endif
+#else
+#define ThrowEvent(errorCode) exit(errorCode);
+#endif
 
 #define throw(errorCode) \
 	fprintf(stdout,"%s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE);\
-	exit(errorCode);
-
-#endif
+	ThrowEvent(errorCode);
 
 #define warn(errorCode) fprintf(stdout,"[WARNING] %s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE);
 

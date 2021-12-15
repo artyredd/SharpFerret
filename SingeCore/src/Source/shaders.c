@@ -55,8 +55,8 @@ static bool VerifyHandle(unsigned int handle)
 
 static void PrintLog(unsigned int handle, File stream, void(*LogProvider)(unsigned int, int, int*, char*))
 {
-	EnsureNotNull(stream);
-	EnsureNotNull(LogProvider);
+	GuardNotNull(stream);
+	GuardNotNull(LogProvider);
 
 	// since the shader failed to compile we should print the error if one exists
 	int logLength = 0;
@@ -239,8 +239,8 @@ Shader CreateShader()
 
 Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 {
-	EnsureNotNull(vertexPath);
-	EnsureNotNull(fragmentPath);
+	GuardNotNull(vertexPath);
+	GuardNotNull(fragmentPath);
 
 	// compile the vertex shader
 	unsigned int vertexHandle;
