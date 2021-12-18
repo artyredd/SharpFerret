@@ -1,6 +1,7 @@
 #include "singine/file.h"
 #include "singine/memory.h"
 #include "singine/guards.h"
+#include <stdio.h>
 
 #define NotNull(variableName) if (variableName is null) { fprintf(stderr, #variableName"can not be null"); throw(InvalidArgumentException); }
 
@@ -50,20 +51,27 @@ size_t GetFileSize(const File file)
 {
 	NotNull(file);
 
-	long currentPosition = ftell(file);
+	size_t currentPosition = _ftelli64(file);
 
 	// this isn't the most portable solution but I wrapped this in an abstraction incase I need to diversify the portability later
 
 	// seek to the end of the file and store the length of the file
-	fseek(file, 0L, SEEK_END);
+	if (_fseeki64(file, 0, SEEK_END) != 0)
+	{
+		throw(FailedToReadFileException);
+	}
 
-	size_t count = ftell(file);
+	size_t count = _ftelli64(file);
 
 	// if we did not start at the beginning of the file we should return to the original position inside of the file
 	if (currentPosition != 0)
 	{
 		rewind(file);
-		fseek(file, currentPosition, SEEK_SET);
+
+		if (_fseeki64(file, currentPosition, SEEK_SET) is 0)
+		{
+			throw(FailedToReadFileException);
+		}
 	}
 
 	return count;
@@ -220,12 +228,95 @@ bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, si
 		buffer[offset + index++] = c;
 	}
 
+	if (c is EOF && index is 0)
+	{
+		return false;
+	}
+
+	buffer[index] = '\0';
+
 	if (ferror(file))
 	{
 		return false;
 	}
 
 	*out_lineLength = index;
+
+	return true;
+}
+
+bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count)
+{
+	GuardNotNull(targetSequence);
+	GuardNotZero(targetLength);
+
+	// store the position that the file currently is in
+	long previousPosition = ftell(file);
+
+	if (previousPosition is - 1L)
+	{
+		return false;
+	}
+
+	// read until either we encounter abortSequence or EOF
+	size_t count = 0;
+	size_t abortIndex = 0;
+	size_t targetIndex = 0;
+
+	int c;
+	while ((c = fgetc(file)) != EOF)
+	{
+		// check to see if we are at the start of the target sequence
+		if (c is targetSequence[targetIndex])
+		{
+			++targetIndex;
+
+			// check to see if we have found the entire sequence
+			if (targetIndex >= targetLength)
+			{
+				++count;
+				targetIndex = 0;
+			}
+		}
+		else
+		{
+			// if the current character is not part of the target reset 
+			targetIndex = 0;
+		}
+
+		if (abortSequence != null)
+		{
+			// check to see if we are at the start of the target sequence
+			if (c is abortSequence[abortIndex])
+			{
+				++abortIndex;
+
+				// check to see if we have found the entire sequence
+				if (abortIndex >= targetLength)
+				{
+					break;
+				}
+			}
+			else
+			{
+				// if the current character is not part of the target reset 
+				abortIndex = 0;
+			}
+		}
+	}
+
+	if (ferror(file))
+	{
+		return false;
+	}
+
+	// return to beginning
+	if (fseek(file, previousPosition, SEEK_SET) != 0)
+	{
+		return false;
+	}
+
+	*out_count = count;
 
 	return true;
 }

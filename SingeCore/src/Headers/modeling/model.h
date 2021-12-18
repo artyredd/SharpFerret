@@ -6,5 +6,6 @@ typedef struct _model* Model;
 
 struct _model {
 	char* Name;
-	Mesh* Meshes;
+	Mesh Meshes;
+	void(*Dispose)(Model);
 };

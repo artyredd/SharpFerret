@@ -176,6 +176,7 @@
   <ItemGroup>
     <ClCompile Include="src\Headers\singine\enumerableItem.c" />
     <ClCompile Include="src\Headers\singine\generics.c" />
+    <ClCompile Include="src\Source\conversions.c" />
     <ClCompile Include="src\Source\cunit.c" />
     <ClCompile Include="src\Source\enumerable.c" />
     <ClCompile Include="src\Source\file.c" />
@@ -183,8 +184,10 @@
     <ClCompile Include="src\Source\importer.c" />
     <ClCompile Include="src\Source\input.c" />
     <ClCompile Include="src\Source\memory.c" />
+    <ClCompile Include="src\Source\parsing.c" />
     <ClCompile Include="src\Source\shaders.c" />
     <ClCompile Include="src\Source\SingeCore.c" />
+    <ClCompile Include="src\Source\vectors.c" />
     <ClCompile Include="src\Source\window.c" />
   </ItemGroup>
   <ItemGroup>
@@ -199,6 +202,7 @@
     <ClInclude Include="src\Headers\modeling\importer.h" />
     <ClInclude Include="src\Headers\modeling\mesh.h" />
     <ClInclude Include="src\Headers\modeling\model.h" />
+    <ClInclude Include="src\Headers\singine\conversions.h" />
     <ClInclude Include="src\Headers\Singine\enumerable.h" />
     <ClInclude Include="src\Headers\singine\enumerableItem.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />
@@ -206,11 +210,11 @@
     <ClInclude Include="src\Headers\singine\generics.h" />
     <ClInclude Include="src\Headers\singine\guards.h" />
     <ClInclude Include="src\Headers\Singine\memory.h" />
+    <ClInclude Include="src\Headers\singine\parsing.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleFragmentShader.fragmentshader" />
     <None Include="SimpleVertexShader.vertexshader" />
-    <None Include="src\Headers\modeling\SecondFragmentShader.fragmentshader" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

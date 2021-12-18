@@ -20,6 +20,10 @@
 #include "cglm/mat4.h"
 
 #include "input.h"
+#include "modeling/importer.h"
+#include "modeling/model.h"
+#include "singine/parsing.h"
+
 Window window;
 
 int main()
@@ -54,17 +58,21 @@ int main()
 		throw(IndexOutOfRangeException);
 	}
 
+	// Enable depth test
+	glEnable(GL_DEPTH_TEST);
+	// Accept fragment if it closer to the camera than the former one
+	glDepthFunc(GL_LESS);
+
+	// Cull triangles which normal is not towards the camera
+	glEnable(GL_CULL_FACE);
+
+	Model cube = ImportModel("cube.obj", FileFormats.Obj);
+
 	Image icon = LoadImage("icon.png");
 
 	using(icon, sWindow.SetIcon(window, icon));
 
 	Shader shader = CompileShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
-
-	float vertices[] = {
-		0.0f,1.0f,0.0f,
-		-1.0f,-1.0f,0.0f,
-		1.0f,-1.0f,0.0f
-	};
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -74,7 +82,11 @@ int main()
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, cube->Meshes->VertexCount * sizeof(float), &cube->Meshes->Vertices, GL_STATIC_DRAW);
+
+	GLuint uvBuffer;
+	glGenBuffers(1, &uvBuffer);
+	glBufferData(GL_ARRAY_BUFFER, cube->Meshes->TextureVertexCount * sizeof(float), &cube->Meshes->TextureVertices, GL_STATIC_DRAW);
 
 	mat4 projection;
 
@@ -109,7 +121,7 @@ int main()
 	unsigned int mvpId = glGetUniformLocation(shader->Handle, "MVP");
 
 	do {
-		glClear(GL_COLOR_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shader->Handle);
 
@@ -128,15 +140,30 @@ int main()
 			null
 		);
 
-		glDrawArrays(GL_TRIANGLES, 0, 3);
+		// 2nd attribute buffer : UVs
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+		glVertexAttribPointer(
+			1,                                // attribute
+			2,                                // size
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			(void*)0                          // array buffer offset
+		);
+
+		glDrawArrays(GL_TRIANGLES, 0, cube->Meshes->VertexCount);
 
 		glDisableVertexAttribArray(0);
+		glDisableVertexAttribArray(1);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
 
 		PollInput();
 	} while (GetKey(window, KeyCodes.Escape) != true && ShouldClose(window) != true);
+
+	cube->Dispose(cube);
 
 	shader->Dispose(shader);
 
