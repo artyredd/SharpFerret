@@ -72,7 +72,17 @@ int main()
 
 	using(icon, sWindow.SetIcon(window, icon));
 
+	Image uv = LoadImage("cubeuv.png");
+
 	Shader shader = CompileShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
+
+	GLuint uvID;
+	glGenTextures(1, &uvID);
+	glBindTexture(GL_TEXTURE_2D, uvID);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, uv->Width, uv->Height, 0, GL_BGRA, GL_UNSIGNED_BYTE, uv->Pixels);
+
+	glBindTexture(GL_TEXTURE_2D, 0);
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -120,6 +130,7 @@ int main()
 	glm_mat4_mul(MVP, model, MVP);
 
 	unsigned int mvpId = glGetUniformLocation(shader->Handle, "MVP");
+	unsigned int textureID = glGetUniformLocation(shader->Handle, "myTextureSampler");
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -127,6 +138,10 @@ int main()
 		glUseProgram(shader->Handle);
 
 		glUniformMatrix4fv(mvpId, 1, false, &MVP[0][0]);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, uvID);
+		glUniform1i(textureID, 0);
 
 		glEnableVertexAttribArray(0);
 
@@ -165,6 +180,8 @@ int main()
 	} while (GetKey(window, KeyCodes.Escape) != true && ShouldClose(window) != true);
 
 	cube->Dispose(cube);
+
+	uv->Dispose(uv);
 
 	shader->Dispose(shader);
 
