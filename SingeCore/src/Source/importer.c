@@ -258,7 +258,7 @@ static Mesh ComposeFaces(const float* vertices, const  size_t vertexCount, const
 	// each face has 9 integers representing 3 indices of the vertexs, uvs, and normals that represent the face
 	size_t numberOfTriplets = faceCount * 3;
 
-	for (size_t i = 0; i < numberOfTriplets - 1; i++)
+	for (size_t i = 0; i < numberOfTriplets; i++)
 	{
 		const size_t* buffer = faces + (i * 3);
 

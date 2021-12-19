@@ -82,11 +82,11 @@ int main()
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-	glBufferData(GL_ARRAY_BUFFER, cube->Meshes->VertexCount * sizeof(float), &cube->Meshes->Vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, cube->Meshes->VertexCount * sizeof(float), cube->Meshes->Vertices, GL_STATIC_DRAW);
 
 	GLuint uvBuffer;
 	glGenBuffers(1, &uvBuffer);
-	glBufferData(GL_ARRAY_BUFFER, cube->Meshes->TextureVertexCount * sizeof(float), &cube->Meshes->TextureVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, cube->Meshes->TextureVertexCount * sizeof(float), cube->Meshes->TextureVertices, GL_STATIC_DRAW);
 
 	mat4 projection;
 
@@ -98,7 +98,7 @@ int main()
 
 	glm_vec3_zero(target);
 
-	vec3 cameraPosition = { 4,3,3 };
+	vec3 cameraPosition = { 3,2,-3 };
 	vec3 up = { 0,1.0f,0 };
 
 	glm_lookat(
@@ -149,10 +149,10 @@ int main()
 			GL_FLOAT,                         // type
 			GL_FALSE,                         // normalized?
 			0,                                // stride
-			(void*)0                          // array buffer offset
+			null                    // array buffer offset
 		);
 
-		glDrawArrays(GL_TRIANGLES, 0, cube->Meshes->VertexCount);
+		glDrawArrays(GL_TRIANGLES, 0, cube->Meshes->VertexCount / 3);
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
