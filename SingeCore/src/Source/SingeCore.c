@@ -86,6 +86,7 @@ int main()
 
 	GLuint uvBuffer;
 	glGenBuffers(1, &uvBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
 	glBufferData(GL_ARRAY_BUFFER, cube->Meshes->TextureVertexCount * sizeof(float), cube->Meshes->TextureVertices, GL_STATIC_DRAW);
 
 	mat4 projection;
