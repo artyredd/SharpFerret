@@ -15,4 +15,5 @@ struct _mesh {
 	float* TextureVertices;
 	size_t NormalCount;
 	float* Normals;
+	Mesh Next;
 };

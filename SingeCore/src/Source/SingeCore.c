@@ -92,12 +92,12 @@ int main()
 	glGenBuffers(1, &vertexbuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
 
-	glBufferData(GL_ARRAY_BUFFER, cube->Meshes->VertexCount * sizeof(float), cube->Meshes->Vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, cube->Head->VertexCount * sizeof(float), cube->Head->Vertices, GL_STATIC_DRAW);
 
 	GLuint uvBuffer;
 	glGenBuffers(1, &uvBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-	glBufferData(GL_ARRAY_BUFFER, cube->Meshes->TextureVertexCount * sizeof(float), cube->Meshes->TextureVertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, cube->Head->TextureVertexCount * sizeof(float), cube->Head->TextureVertices, GL_STATIC_DRAW);
 
 	mat4 projection;
 
@@ -168,7 +168,7 @@ int main()
 			null                    // array buffer offset
 		);
 
-		glDrawArrays(GL_TRIANGLES, 0, cube->Meshes->VertexCount / 3);
+		glDrawArrays(GL_TRIANGLES, 0, cube->Head->VertexCount / 3);
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);

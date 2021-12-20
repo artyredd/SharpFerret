@@ -52,13 +52,21 @@ static struct _sequences {
 
 static void DisposeModel(Model model)
 {
-	if (model->Meshes != null)
+	if (model->Head != null)
 	{
-		SafeFree(model->Meshes->Vertices);
-		SafeFree(model->Meshes->TextureVertices);
-		SafeFree(model->Meshes->Normals);
-		SafeFree(model->Meshes->Name);
-		SafeFree(model->Meshes);
+		SafeFree(model->Head->Vertices);
+		SafeFree(model->Head->TextureVertices);
+		SafeFree(model->Head->Normals);
+		SafeFree(model->Head->Name);
+
+		Mesh head = model->Head;
+		while (head != null)
+		{
+			Mesh tmp = head;
+			head = head->Next;
+			SafeFree(tmp);
+		}
+
 	}
 
 	SafeFree(model);
@@ -78,6 +86,8 @@ static Mesh CreateMesh()
 	mesh->VertexCount = 0;
 	mesh->TextureVertexCount = 0;
 
+	mesh->Next = null;
+
 	return mesh;
 }
 
@@ -85,7 +95,7 @@ static Model CreateModel()
 {
 	Model model = SafeAlloc(sizeof(struct _model));
 
-	model->Meshes = null;
+	model->Head = model->Tail = null;
 	model->Name = null;
 	model->Dispose = &DisposeModel;
 
@@ -235,7 +245,7 @@ static bool TryGetNormalVertices(File stream, char* buffer, size_t bufferLength,
 
 static bool TryGetFaceAttributes(File stream, char* buffer, size_t bufferLength, size_t** out_attributes, size_t* out_count)
 {
-	return TryGetIntegerPattern(stream, buffer, bufferLength, Sequences.Face, NULL, 9, &TryParseFace, out_attributes, out_count);
+	return TryGetIntegerPattern(stream, buffer, bufferLength, Sequences.Face, Sequences.Object, 9, &TryParseFace, out_attributes, out_count);
 }
 
 static Mesh ComposeFaces(const float* vertices, const  size_t vertexCount, const  float* textures, const size_t textureCount, const float* normals, const  size_t normalCount, const  size_t* faces, const  size_t faceCount)
@@ -422,7 +432,15 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 				return false;
 			}
 
-			model->Meshes = mesh;
+			if (model->Tail != null)
+			{
+				model->Tail->Next = mesh;
+				model->Tail = mesh;
+			}
+			else
+			{
+				model->Head = model->Tail = mesh;
+			}
 		}
 	}
 
