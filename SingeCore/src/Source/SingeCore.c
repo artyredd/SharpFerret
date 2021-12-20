@@ -101,7 +101,7 @@ int main()
 
 	glm_vec3_zero(target);
 
-	vec3 cameraPosition = { 3,2,-3 };
+	vec3 cameraPosition = { 3,2,3 };
 	vec3 up = { 0,1.0f,0 };
 
 	glm_lookat(
