@@ -125,6 +125,7 @@ static Model CreateModel()
 	model->Head = model->Tail = null;
 	model->Name = null;
 	model->Dispose = &DisposeModel;
+	model->Count = 0;
 
 	return model;
 }
@@ -564,6 +565,8 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 			{
 				model->Head = model->Tail = mesh;
 			}
+
+			++(model->Count);
 		}
 	}
 

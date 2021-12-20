@@ -120,16 +120,24 @@ int main()
 
 	DefaultShader = shader;
 
-	RenderMesh renderMesh;
-	if (TryBindMesh(cube->Head, &renderMesh) is false)
-	{
-		throw(NotImplementedException);
-	}
+	size_t numberOfMeshes = cube->Count;
 
-	RenderMesh renderMesh1;
-	if (TryBindMesh(cube->Tail, &renderMesh1) is false)
+	// alloc array of points to rendermesh
+	RenderMesh* meshes = SafeAlloc(numberOfMeshes * sizeof(RenderMesh));
+
+	size_t i = 0;
+	Mesh head = cube->Head;
+	while (head isnt null)
 	{
-		throw(NotImplementedException);
+		RenderMesh renderMesh;
+		if (TryBindMesh(head, &renderMesh) is false)
+		{
+			throw(NotImplementedException);
+		}
+
+		meshes[i++] = renderMesh;
+
+		head = head->Next;
 	}
 
 	cube->Dispose(cube);
@@ -152,8 +160,10 @@ int main()
 		//glBindTexture(GL_TEXTURE_2D, uvID);
 		//glUniform1i(textureID, 0);
 
-		renderMesh->Draw(renderMesh, modelMVP);
-		renderMesh1->Draw(renderMesh1, modelMVP);
+		for (size_t i = 0; i < numberOfMeshes; i++)
+		{
+			meshes[i]->Draw(meshes[i], modelMVP);
+		}
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -161,6 +171,12 @@ int main()
 		PollInput();
 	} while (GetKey(window, KeyCodes.Escape) != true && ShouldClose(window) != true);
 
+	for (size_t i = 0; i < numberOfMeshes; i++)
+	{
+		meshes[i]->Dispose(meshes[i]);
+	}
+
+	SafeFree(meshes);
 
 	shader->Dispose(shader);
 
