@@ -5,6 +5,7 @@
 typedef float vec4[4];
 typedef float vec3[3];
 typedef float vec2[2];
+typedef vec4 mat4[4];
 #endif // !cglm_h
 
 typedef int intvec4[4];

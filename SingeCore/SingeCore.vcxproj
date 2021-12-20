@@ -185,6 +185,7 @@
     <ClCompile Include="src\Source\input.c" />
     <ClCompile Include="src\Source\memory.c" />
     <ClCompile Include="src\Source\parsing.c" />
+    <ClCompile Include="src\Source\rendermodel.c" />
     <ClCompile Include="src\Source\shaders.c" />
     <ClCompile Include="src\Source\SingeCore.c" />
     <ClCompile Include="src\Source\vectors.c" />
@@ -194,6 +195,7 @@
     <ClInclude Include="src\Headers\csharp.h" />
     <ClInclude Include="src\Headers\cunit.h" />
     <ClInclude Include="src\Headers\Graphics\imaging.h" />
+    <ClInclude Include="src\Headers\graphics\renderModel.h" />
     <ClInclude Include="src\Headers\graphics\shaders.h" />
     <ClInclude Include="src\Headers\Graphics\window.h" />
     <ClInclude Include="src\Headers\input.h" />

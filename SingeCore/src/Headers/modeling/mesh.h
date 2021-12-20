@@ -11,7 +11,7 @@ struct _mesh {
 	bool SmoothingEnabled;
 	size_t VertexCount;
 	float* Vertices;
-	size_t TextureVertexCount;
+	size_t TextureCount;
 	float* TextureVertices;
 	size_t NormalCount;
 	float* Normals;

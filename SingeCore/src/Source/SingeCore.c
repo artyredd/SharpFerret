@@ -23,6 +23,7 @@
 #include "modeling/importer.h"
 #include "modeling/model.h"
 #include "singine/parsing.h"
+#include "graphics/renderModel.h"
 
 Window window;
 
@@ -80,35 +81,15 @@ int main()
 	glGenTextures(1, &uvID);
 	glBindTexture(GL_TEXTURE_2D, uvID);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, uv->Width, uv->Height, 0, GL_BGRA, GL_UNSIGNED_BYTE, uv->Pixels);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, uv->Width, uv->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, uv->Pixels);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glBindTexture(GL_TEXTURE_2D, 0);
+	uv->Dispose(uv);
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-
-	GLuint vertexbuffer;
-	glGenBuffers(1, &vertexbuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
-	glBufferData(GL_ARRAY_BUFFER, cube->Head->VertexCount * sizeof(float), cube->Head->Vertices, GL_STATIC_DRAW);
-
-	GLuint uvBuffer;
-	glGenBuffers(1, &uvBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-	glBufferData(GL_ARRAY_BUFFER, cube->Head->TextureVertexCount * sizeof(float), cube->Head->TextureVertices, GL_STATIC_DRAW);
-
-	GLuint vertexbuffer1;
-	glGenBuffers(1, &vertexbuffer1);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer1);
-
-	glBufferData(GL_ARRAY_BUFFER, cube->Tail->VertexCount * sizeof(float), cube->Tail->Vertices, GL_STATIC_DRAW);
-
-	GLuint uvBuffer1;
-	glGenBuffers(1, &uvBuffer1);
-	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer1);
-	glBufferData(GL_ARRAY_BUFFER, cube->Tail->TextureVertexCount * sizeof(float), cube->Tail->TextureVertices, GL_STATIC_DRAW);
 
 	mat4 projection;
 
@@ -120,7 +101,7 @@ int main()
 
 	glm_vec3_zero(target);
 
-	vec3 cameraPosition = { 5,2,-5 };
+	vec3 cameraPosition = { 3,2,-3 };
 	vec3 up = { 0,1.0f,0 };
 
 	glm_lookat(
@@ -130,86 +111,49 @@ int main()
 		view
 	);
 
-	mat4 model;
-
-	glm_mat4_identity(model);
-
 	mat4 MVP;
 
 	glm_mat4_mul(projection, view, MVP);
 
-	glm_mat4_mul(MVP, model, MVP);
-
 	unsigned int mvpId = glGetUniformLocation(shader->Handle, "MVP");
 	unsigned int textureID = glGetUniformLocation(shader->Handle, "myTextureSampler");
+
+	DefaultShader = shader;
+
+	RenderMesh renderMesh;
+	if (TryBindMesh(cube->Head, &renderMesh) is false)
+	{
+		throw(NotImplementedException);
+	}
+
+	RenderMesh renderMesh1;
+	if (TryBindMesh(cube->Tail, &renderMesh1) is false)
+	{
+		throw(NotImplementedException);
+	}
+
+	cube->Dispose(cube);
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		glUseProgram(shader->Handle);
 
-		glUniformMatrix4fv(mvpId, 1, false, &MVP[0][0]);
+		mat4 model;
+
+		glm_mat4_identity(model);
+
+		mat4 modelMVP;
+		glm_mat4_mul(MVP, model, modelMVP);
+
+		glUniformMatrix4fv(mvpId, 1, false, &modelMVP[0][0]);
 
 		//glActiveTexture(GL_TEXTURE0);
 		//glBindTexture(GL_TEXTURE_2D, uvID);
 		//glUniform1i(textureID, 0);
 
-		glEnableVertexAttribArray(0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-
-		glVertexAttribPointer(
-			0,
-			3,
-			GL_FLOAT,
-			false,
-			0,
-			null
-		);
-
-		// 2nd attribute buffer : UVs
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
-		glVertexAttribPointer(
-			1,                                // attribute
-			2,                                // size
-			GL_FLOAT,                         // type
-			GL_FALSE,                         // normalized?
-			0,                                // stride
-			null                    // array buffer offset
-		);
-
-		glDrawArrays(GL_TRIANGLES, 0, cube->Head->VertexCount / 3);
-
-		glEnableVertexAttribArray(0);
-
-		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer1);
-
-		glVertexAttribPointer(
-			0,
-			3,
-			GL_FLOAT,
-			false,
-			0,
-			null
-		);
-
-		// 2nd attribute buffer : UVs
-		glEnableVertexAttribArray(1);
-		glBindBuffer(GL_ARRAY_BUFFER, uvBuffer1);
-		glVertexAttribPointer(
-			1,                                // attribute
-			2,                                // size
-			GL_FLOAT,                         // type
-			GL_FALSE,                         // normalized?
-			0,                                // stride
-			null                    // array buffer offset
-		);
-
-		glDrawArrays(GL_TRIANGLES, 0, cube->Tail->VertexCount / 3);
-
-		glDisableVertexAttribArray(0);
-		glDisableVertexAttribArray(1);
+		renderMesh->Draw(renderMesh, modelMVP);
+		renderMesh1->Draw(renderMesh1, modelMVP);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -217,9 +161,6 @@ int main()
 		PollInput();
 	} while (GetKey(window, KeyCodes.Escape) != true && ShouldClose(window) != true);
 
-	cube->Dispose(cube);
-
-	uv->Dispose(uv);
 
 	shader->Dispose(shader);
 

@@ -84,6 +84,9 @@
     <ClCompile Include="src\Source\conversions.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Source\rendermodel.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">
@@ -145,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\singine\conversions.h">
       <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\graphics\renderModel.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -111,7 +111,7 @@ static Mesh CreateMesh()
 
 	mesh->NormalCount = 0;
 	mesh->VertexCount = 0;
-	mesh->TextureVertexCount = 0;
+	mesh->TextureCount = 0;
 
 	mesh->Next = null;
 
@@ -368,8 +368,8 @@ static Mesh ComposeFaces(FileBuffer buffer, const  size_t* faces, const  size_t 
 	mesh->Vertices = SafeAlloc(mesh->VertexCount * sizeof(float));
 
 	// 3 vec2 per face, 2 float per vec2
-	mesh->TextureVertexCount = faceCount * 3 * 2;
-	mesh->TextureVertices = SafeAlloc(mesh->TextureVertexCount * sizeof(float));
+	mesh->TextureCount = faceCount * 3 * 2;
+	mesh->TextureVertices = SafeAlloc(mesh->TextureCount * sizeof(float));
 
 	// 3 vec3 per face, 3 float per vec3
 	mesh->NormalCount = faceCount * 3 * 3;
