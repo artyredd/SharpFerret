@@ -266,6 +266,26 @@ bool TryGetSequenceCount(File file, const char* targetSequence, const size_t tar
 	int c;
 	while ((c = fgetc(file)) != EOF)
 	{
+		if (abortSequence != null)
+		{
+			// check to see if we are at the start of the target sequence
+			if (c is abortSequence[abortIndex])
+			{
+				++abortIndex;
+
+				// check to see if we have found the entire sequence
+				if (abortIndex >= abortLength)
+				{
+					break;
+				}
+			}
+			else
+			{
+				// if the current character is not part of the target reset 
+				abortIndex = 0;
+			}
+		}
+
 		// check to see if we are at the start of the target sequence
 		if (c is targetSequence[targetIndex])
 		{
@@ -282,26 +302,6 @@ bool TryGetSequenceCount(File file, const char* targetSequence, const size_t tar
 		{
 			// if the current character is not part of the target reset 
 			targetIndex = 0;
-		}
-
-		if (abortSequence != null)
-		{
-			// check to see if we are at the start of the target sequence
-			if (c is abortSequence[abortIndex])
-			{
-				++abortIndex;
-
-				// check to see if we have found the entire sequence
-				if (abortIndex >= targetLength)
-				{
-					break;
-				}
-			}
-			else
-			{
-				// if the current character is not part of the target reset 
-				abortIndex = 0;
-			}
 		}
 	}
 

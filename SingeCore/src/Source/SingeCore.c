@@ -66,7 +66,7 @@ int main()
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-	Model cube = ImportModel("cube.obj", FileFormats.Obj);
+	Model cube = ImportModel("doublecube.obj", FileFormats.Obj);
 
 	Image icon = LoadImage("icon.png");
 

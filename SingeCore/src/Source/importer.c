@@ -230,7 +230,7 @@ static bool TryGetTextureVertices(File stream, char* buffer, size_t bufferLength
 
 static bool TryGetNormalVertices(File stream, char* buffer, size_t bufferLength, float** out_vertices, size_t* out_count)
 {
-	return TryGetVectorPattern(stream, buffer, bufferLength, Sequences.NormalVertex, Sequences.Face, 3, &TryParseVector3, out_vertices, out_count);
+	return TryGetVectorPattern(stream, buffer, bufferLength, Sequences.NormalVertex, Sequences.Smoothing, 3, &TryParseVector3, out_vertices, out_count);
 }
 
 static bool TryGetFaceAttributes(File stream, char* buffer, size_t bufferLength, size_t** out_attributes, size_t* out_count)
