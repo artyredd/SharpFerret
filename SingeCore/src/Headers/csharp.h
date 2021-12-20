@@ -13,6 +13,7 @@
 #define true 1
 #define false 0
 #define is ==
+#define isnt !=
 
 #ifdef _WIN32
 #define NEWLINE "\r\n"

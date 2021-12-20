@@ -99,6 +99,17 @@ int main()
 	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
 	glBufferData(GL_ARRAY_BUFFER, cube->Head->TextureVertexCount * sizeof(float), cube->Head->TextureVertices, GL_STATIC_DRAW);
 
+	GLuint vertexbuffer1;
+	glGenBuffers(1, &vertexbuffer1);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer1);
+
+	glBufferData(GL_ARRAY_BUFFER, cube->Tail->VertexCount * sizeof(float), cube->Tail->Vertices, GL_STATIC_DRAW);
+
+	GLuint uvBuffer1;
+	glGenBuffers(1, &uvBuffer1);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer1);
+	glBufferData(GL_ARRAY_BUFFER, cube->Tail->TextureVertexCount * sizeof(float), cube->Tail->TextureVertices, GL_STATIC_DRAW);
+
 	mat4 projection;
 
 	glm_perspective(glm_rad(70.0f), 16.0f / 9.0f, 0.1f, 100.0f, projection);
@@ -109,7 +120,7 @@ int main()
 
 	glm_vec3_zero(target);
 
-	vec3 cameraPosition = { 3,2,-3 };
+	vec3 cameraPosition = { 5,2,-5 };
 	vec3 up = { 0,1.0f,0 };
 
 	glm_lookat(
@@ -139,9 +150,9 @@ int main()
 
 		glUniformMatrix4fv(mvpId, 1, false, &MVP[0][0]);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, uvID);
-		glUniform1i(textureID, 0);
+		//glActiveTexture(GL_TEXTURE0);
+		//glBindTexture(GL_TEXTURE_2D, uvID);
+		//glUniform1i(textureID, 0);
 
 		glEnableVertexAttribArray(0);
 
@@ -169,6 +180,33 @@ int main()
 		);
 
 		glDrawArrays(GL_TRIANGLES, 0, cube->Head->VertexCount / 3);
+
+		glEnableVertexAttribArray(0);
+
+		glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer1);
+
+		glVertexAttribPointer(
+			0,
+			3,
+			GL_FLOAT,
+			false,
+			0,
+			null
+		);
+
+		// 2nd attribute buffer : UVs
+		glEnableVertexAttribArray(1);
+		glBindBuffer(GL_ARRAY_BUFFER, uvBuffer1);
+		glVertexAttribPointer(
+			1,                                // attribute
+			2,                                // size
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			null                    // array buffer offset
+		);
+
+		glDrawArrays(GL_TRIANGLES, 0, cube->Tail->VertexCount / 3);
 
 		glDisableVertexAttribArray(0);
 		glDisableVertexAttribArray(1);
