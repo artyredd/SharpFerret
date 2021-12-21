@@ -4,6 +4,11 @@
 
 #include "graphics/renderModel.h"
 
+float DefaultFieldOfView = 70.0f;
+float DefaultAspectRatio = 16.0f / 9.0f;
+float DefaultNearClippingPlane = 0.1f;
+float DefaultFarClippingPlane = 100.0f;
+
 typedef struct _camera* Camera;
 
 struct _camera
@@ -44,9 +49,15 @@ struct _camera
 	/// The matrix representing where the camera is looking
 	/// </summary>
 	mat4 ViewMatrix;
-	void(*DrawMesh)(Camera,Mesh);
+	mat4 ViewProjectionMatrix;
+	void(*DrawMesh)(Camera,Mesh,Shader);
+	void(*RecalculateProjection)(Camera);
+	void(*RecalculateView)(Camera);
+	void(*RecalculateViewProjection)(Camera);
 	/// <summary>
 	/// Diposes the managed resources and frees this object
 	/// </summary>
 	void(*Dispose)(Camera);
 };
+
+Camera CreateCamera();

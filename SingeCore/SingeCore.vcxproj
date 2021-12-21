@@ -176,6 +176,7 @@
   <ItemGroup>
     <ClCompile Include="src\Headers\singine\enumerableItem.c" />
     <ClCompile Include="src\Headers\singine\generics.c" />
+    <ClCompile Include="src\Source\camera.c" />
     <ClCompile Include="src\Source\conversions.c" />
     <ClCompile Include="src\Source\cunit.c" />
     <ClCompile Include="src\Source\enumerable.c" />

@@ -40,4 +40,5 @@ static Exception FailedToGetVideoModeException = 0x60000005;
 
 // GL Exceptions
 static Exception FailedToCompileShaderException = 0x50000001;
+static Exception FailedToLocationMVPUniformException = 0x50000001;
 //

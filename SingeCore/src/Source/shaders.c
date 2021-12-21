@@ -237,6 +237,25 @@ Shader CreateShader()
 	return newShader;
 }
 
+bool TryGetUniform(Shader shader, const char* name, int* out_handle)
+{
+	*out_handle = glGetUniformLocation(shader->Handle, name);
+
+	return *out_handle != -1;
+}
+
+bool TrySetUniform_mat4(Shader shader, int handle, void* value)
+{
+	if (handle is -1)
+	{
+		return false;
+	}
+
+	glUniformMatrix4fv(handle,1,false,value);
+
+	return true;
+}
+
 Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 {
 	GuardNotNull(vertexPath);
@@ -269,6 +288,15 @@ Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 	Shader shader = CreateShader();
 
 	shader->Handle = programHandle;
+
+	// meshes that arent GUI will have a MVP, we should warn
+	if (TryGetUniform(shader,ShaderMVPUniformName,&shader->MVPHandle) is false)
+	{
+		fprintf(stderr,"Failed to find a `union mat4 MVP` field within the vertex shader at %s \
+			if this shader is used to draw meshes that are not static on the GUI unexpected \
+			results may occur."NEWLINE, vertexPath);
+		warn(FailedToLocationMVPUniformException);
+	}
 
 	return shader;
 }

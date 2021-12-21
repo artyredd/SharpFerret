@@ -41,7 +41,10 @@ static void Draw(RenderMesh model, mat4 position)
 		null                    // array buffer offset
 	);
 
-	glDrawArrays(GL_TRIANGLES, 0, model->NumberOfTriangles);
+	// the entire mesh pipling ive written handles up to size_t
+	// its casted down to int here for DrawArrays
+	// this may cause issues at this line for models with > 65565 triangles
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)model->NumberOfTriangles);
 
 	glDisableVertexAttribArray(VertexShaderPosition);
 	glDisableVertexAttribArray(UVShaderPosition);

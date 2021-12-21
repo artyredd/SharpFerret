@@ -1,15 +1,22 @@
 #pragma once
-#include "singine/enumerable.h"
+#include "csharp.h"
+
+/// <summary>
+/// The standardised name that should be used to map the MVP union in shaders to memory, 
+/// name must be null terminated
+/// </summary>
+static const char* ShaderMVPUniformName = "MVP";
 
 typedef struct _shader* Shader;
 
 struct _shader {
 	unsigned int Handle;
+	int MVPHandle;
 	void(*Dispose)(Shader);
 };
-//
-//const struct _shaderMethods {
-//	Shader(*Compile)(const char* vertexPath, const char* fragmentPath);
-//} sShader;
+
+bool TrySetUniform_mat4(Shader shader, int handle, void* value);
+
+bool TryGetUniform(Shader shader, const char* name, int* out_handle);
 
 Shader CompileShader(const char* vertexPath, const char* fragmentPath);
