@@ -1,12 +1,16 @@
 #pragma once
 #include "csharp.h"
 
-#ifndef cglm_h
+#ifndef cglm_types_h
 typedef float vec4[4];
 typedef float vec3[3];
 typedef float vec2[2];
-typedef vec4 mat4[4];
 #endif // !cglm_h
+
+#ifndef cglm_mat_h
+typedef _declspec(align(16)) vec4 mat4[4];
+#endif // !cglm_mat_h
+
 
 typedef int intvec4[4];
 typedef int intvec3[3];

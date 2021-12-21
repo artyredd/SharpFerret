@@ -89,7 +89,7 @@ static bool TryBindBuffer(float* buffer, size_t sizeInBytes, unsigned int* out_h
 	return true;
 }
 
-bool TryBindMesh(Mesh mesh, RenderMesh* out_model)
+bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 {
 	*out_model = null;
 

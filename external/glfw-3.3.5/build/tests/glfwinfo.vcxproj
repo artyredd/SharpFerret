@@ -22,7 +22,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{DF94ACC4-0142-3D3C-86E6-29B0E9B6E54A}</ProjectGuid>
+    <ProjectGuid>{77DE8781-09EE-34C8-BDA2-2230B620BFB6}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
     <Platform>x64</Platform>
@@ -59,25 +59,25 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\Debug\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\Debug\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glfwinfo.dir\Debug\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">glfwinfo</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\Release\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\Release\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glfwinfo.dir\Release\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">glfwinfo</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\MinSizeRel\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\MinSizeRel\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">glfwinfo.dir\MinSizeRel\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">glfwinfo</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">.exe</TargetExt>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkIncremental>
     <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">true</GenerateManifest>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\RelWithDebInfo\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\RelWithDebInfo\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">glfwinfo.dir\RelWithDebInfo\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">glfwinfo</TargetName>
     <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">.exe</TargetExt>
@@ -86,7 +86,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
@@ -102,10 +102,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Debug\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -118,8 +118,8 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/Debug/glfwinfo.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/Debug/glfwinfo.pdb</ProgramDataBaseFile>
+      <ImportLibrary>C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/Debug/glfwinfo.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/Debug/glfwinfo.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -128,7 +128,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -144,10 +144,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"Release\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -160,8 +160,8 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/Release/glfwinfo.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/Release/glfwinfo.pdb</ProgramDataBaseFile>
+      <ImportLibrary>C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/Release/glfwinfo.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/Release/glfwinfo.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -170,7 +170,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <ExceptionHandling>
       </ExceptionHandling>
@@ -186,10 +186,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"MinSizeRel\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -202,8 +202,8 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/MinSizeRel/glfwinfo.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/MinSizeRel/glfwinfo.pdb</ProgramDataBaseFile>
+      <ImportLibrary>C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/MinSizeRel/glfwinfo.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/MinSizeRel/glfwinfo.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -212,7 +212,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AssemblerListingLocation>$(IntDir)</AssemblerListingLocation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <ExceptionHandling>
@@ -227,10 +227,10 @@
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions);WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;CMAKE_INTDIR=\"RelWithDebInfo\"</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Midl>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Repos\SingeEngine\external\glfw-3.3.5\deps;C:\Repos\SingeEngine\external\glfw-3.3.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
       <HeaderFileName>%(Filename).h</HeaderFileName>
       <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
@@ -243,8 +243,8 @@
       <AdditionalOptions>%(AdditionalOptions) /machine:x64</AdditionalOptions>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <ImportLibrary>C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/RelWithDebInfo/glfwinfo.lib</ImportLibrary>
-      <ProgramDataBaseFile>C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/RelWithDebInfo/glfwinfo.pdb</ProgramDataBaseFile>
+      <ImportLibrary>C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/RelWithDebInfo/glfwinfo.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/RelWithDebInfo/glfwinfo.pdb</ProgramDataBaseFile>
       <SubSystem>Console</SubSystem>
     </Link>
     <ProjectReference>
@@ -252,11 +252,11 @@
     </ProjectReference>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\tests\CMakeLists.txt">
+    <CustomBuild Include="C:\Repos\SingeEngine\external\glfw-3.3.5\tests\CMakeLists.txt">
       <UseUtf8Encoding>Always</UseUtf8Encoding>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/tests/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Repos/SingeEngine/external/glfw-3.3.5/tests/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5 -BC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Repos/SingeEngine/external/glfw-3.3.5 -BC:/Repos/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -265,11 +265,11 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/tests/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Repos/SingeEngine/external/glfw-3.3.5/tests/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5 -BC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Repos/SingeEngine/external/glfw-3.3.5 -BC:/Repos/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -278,11 +278,11 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/tests/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Repos/SingeEngine/external/glfw-3.3.5/tests/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5 -BC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Repos/SingeEngine/external/glfw-3.3.5 -BC:/Repos/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -291,11 +291,11 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/tests/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Repos/SingeEngine/external/glfw-3.3.5/tests/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5 -BC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/tests/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/Repos/SingeEngine/external/glfw-3.3.5 -BC:/Repos/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/Repos/SingeEngine/external/glfw-3.3.5/build/tests/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -304,26 +304,26 @@ exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
       <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\CMakeFiles\generate.stamp</Outputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\tests\glfwinfo.c" />
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps\getopt.h" />
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps\getopt.c" />
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps\glad\gl.h" />
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps\glad\vulkan.h" />
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\tests\glfwinfo.c" />
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\deps\getopt.h" />
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\deps\getopt.c" />
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\deps\glad\gl.h" />
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\deps\glad\vulkan.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\ZERO_CHECK.vcxproj">
-      <Project>{A72E7567-8661-359A-8BFD-411133E42BA3}</Project>
+    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\ZERO_CHECK.vcxproj">
+      <Project>{B9A27094-46D5-3D90-BB17-760D79621112}</Project>
       <Name>ZERO_CHECK</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\src\glfw.vcxproj">
-      <Project>{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}</Project>
+    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\src\glfw.vcxproj">
+      <Project>{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}</Project>
       <Name>glfw</Name>
     </ProjectReference>
   </ItemGroup>

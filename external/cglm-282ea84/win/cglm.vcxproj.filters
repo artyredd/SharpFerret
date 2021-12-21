@@ -558,5 +558,8 @@
     <ClInclude Include="..\include\cglm\call\clipspace\project_zo.h">
       <Filter>include\cglm\call\clipspace</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\glew-2.2.0\include\GL\wglew.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-# Install script for directory: C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/examples
+# Install script for directory: C:/Repos/SingeEngine/external/glfw-3.3.5/examples
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

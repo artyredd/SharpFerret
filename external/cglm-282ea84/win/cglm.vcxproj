@@ -56,6 +56,7 @@
     <ClCompile Include="..\src\vec4.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\glew-2.2.0\include\GL\wglew.h" />
     <ClInclude Include="..\include\cglm\affine-mat.h" />
     <ClInclude Include="..\include\cglm\affine.h" />
     <ClInclude Include="..\include\cglm\affine2d.h" />

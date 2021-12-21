@@ -13,4 +13,6 @@ static const struct _formats {
 
 static const FileFormat SupportedFormats[1] = { ".obj" };
 
+bool TryImportModel(char* path, FileFormat format, Model* out_model);
+
 Model ImportModel(char* path, FileFormat format);

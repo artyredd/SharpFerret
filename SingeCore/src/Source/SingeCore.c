@@ -67,7 +67,11 @@ int main()
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-	Model cube = ImportModel("doublecube.obj", FileFormats.Obj);
+	Model cube;
+	if (TryImportModel("doublecube.obj",FileFormats.Obj,&cube) is false)
+	{
+		throw(FailedToReadFileException);
+	}
 
 	Image icon = LoadImage("icon.png");
 
@@ -127,7 +131,7 @@ int main()
 
 	size_t i = 0;
 	Mesh head = cube->Head;
-	while (head isnt null)
+	while (head)
 	{
 		RenderMesh renderMesh;
 		if (TryBindMesh(head, &renderMesh) is false)

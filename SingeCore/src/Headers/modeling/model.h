@@ -14,3 +14,5 @@ struct _model {
 	Mesh Tail;
 	void(*Dispose)(Model);
 };
+
+Model CreateModel();

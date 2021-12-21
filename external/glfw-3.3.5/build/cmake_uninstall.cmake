@@ -1,9 +1,9 @@
 
-if (NOT EXISTS "C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/install_manifest.txt")
-    message(FATAL_ERROR "Cannot find install manifest: \"C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/install_manifest.txt\"")
+if (NOT EXISTS "C:/Repos/SingeEngine/external/glfw-3.3.5/build/install_manifest.txt")
+    message(FATAL_ERROR "Cannot find install manifest: \"C:/Repos/SingeEngine/external/glfw-3.3.5/build/install_manifest.txt\"")
 endif()
 
-file(READ "C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/install_manifest.txt" files)
+file(READ "C:/Repos/SingeEngine/external/glfw-3.3.5/build/install_manifest.txt" files)
 string(REGEX REPLACE "\n" ";" files "${files}")
 
 foreach (file ${files})

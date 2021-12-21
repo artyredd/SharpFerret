@@ -222,7 +222,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\include\GL\glew.h" />
-    <ClInclude Include="..\..\include\GL\wglew.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="..\glew.rc" />

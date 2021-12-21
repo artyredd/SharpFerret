@@ -67,29 +67,6 @@ struct _fileBuffer {
 #define BUFFER_SIZE 1024
 #define MAX_OBJECT_NAME_LENGTH 61
 
-static void DisposeModel(Model model)
-{
-	if (model->Head != null)
-	{
-		Mesh head = model->Head;
-		while (head != null)
-		{
-			Mesh tmp = head;
-
-			head = head->Next;
-
-			SafeFree(tmp->Vertices);
-			SafeFree(tmp->TextureVertices);
-			SafeFree(tmp->Normals);
-			SafeFree(tmp->Name);
-
-			SafeFree(tmp);
-		}
-	}
-
-	SafeFree(model);
-}
-
 static void DisposeFileBuffer(FileBuffer buffer)
 {
 	// the character buffer is not alloced by CreateFileBuffer do not free it
@@ -97,37 +74,6 @@ static void DisposeFileBuffer(FileBuffer buffer)
 	SafeFree(buffer->TextureBuffer);
 	SafeFree(buffer->VertexBuffer);
 	SafeFree(buffer);
-}
-
-static Mesh CreateMesh()
-{
-	Mesh mesh = SafeAlloc(sizeof(struct _mesh));
-
-	mesh->Name = null;
-
-	mesh->Normals = null;
-	mesh->Vertices = null;
-	mesh->TextureVertices = null;
-
-	mesh->NormalCount = 0;
-	mesh->VertexCount = 0;
-	mesh->TextureCount = 0;
-
-	mesh->Next = null;
-
-	return mesh;
-}
-
-static Model CreateModel()
-{
-	Model model = SafeAlloc(sizeof(struct _model));
-
-	model->Head = model->Tail = null;
-	model->Name = null;
-	model->Dispose = &DisposeModel;
-	model->Count = 0;
-
-	return model;
 }
 
 static FileBuffer CreateFileBuffer(char* streamBuffer, size_t characterBufferSize, size_t vertices, size_t textures, size_t normals)
@@ -237,12 +183,7 @@ static bool TryParseFace(const char* buffer, size_t* out_attributes)
 		&out_attributes[7],
 		&out_attributes[8]);
 
-	if (count != 9)
-	{
-		return false;
-	}
-
-	return true;
+	return count == 9;
 }
 
 static bool TryGetIntegerPattern(File stream,
@@ -498,7 +439,7 @@ static bool VerifyFormat(FileFormat format)
 	return false;
 }
 
-static bool TryImportModel(char* path, FileFormat format, Model* out_model)
+bool TryImportModel(char* path, FileFormat format, Model* out_model)
 {
 	// make sure the format is supported
 	if (VerifyFormat(format) is false)

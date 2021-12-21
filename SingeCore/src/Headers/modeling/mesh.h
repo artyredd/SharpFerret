@@ -8,6 +8,7 @@ typedef struct _mesh* Mesh;
 
 struct _mesh {
 	char* Name;
+	mat4 Transform;
 	bool SmoothingEnabled;
 	size_t VertexCount;
 	float* Vertices;
@@ -17,3 +18,5 @@ struct _mesh {
 	float* Normals;
 	Mesh Next;
 };
+
+Mesh CreateMesh();

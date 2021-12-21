@@ -1,114 +1,114 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\context.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\init.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\init.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\input.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\input.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\monitor.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\monitor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\platform.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\platform.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\vulkan.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\vulkan.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\window.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\window.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\egl_context.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\egl_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\osmesa_context.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\osmesa_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\null_init.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\null_init.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\null_monitor.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\null_monitor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\null_window.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\null_window.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\null_joystick.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\null_joystick.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_module.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_module.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_time.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_time.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_thread.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_thread.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_init.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_init.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_joystick.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_joystick.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_monitor.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_monitor.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_window.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_window.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\wgl_context.c">
+    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\wgl_context.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include\GLFW\glfw3.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\include\GLFW\glfw3.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include\GLFW\glfw3native.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\include\GLFW\glfw3native.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\internal.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\platform.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\mappings.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\mappings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\null_platform.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\null_platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\null_joystick.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\null_joystick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_time.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_time.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_thread.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_thread.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_platform.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_platform.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\win32_joystick.h">
+    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\win32_joystick.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\src\CMakeLists.txt" />
+    <CustomBuild Include="C:\Repos\SingeEngine\external\glfw-3.3.5\src\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{BBE80069-F5AA-33AC-B3DC-22C9CE3834C5}</UniqueIdentifier>
+      <UniqueIdentifier>{3744207C-7152-359B-901C-E1310D9949C0}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{F83B363D-7FEE-351C-92BA-5BB35D89B5B1}</UniqueIdentifier>
+      <UniqueIdentifier>{183F2095-6B01-351C-A410-EAFD98B67F16}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
