@@ -8,8 +8,6 @@ Mesh CreateMesh()
 
 	mesh->Name = null;
 
-	glm_mat4_identity(mesh->Transform);
-
 	mesh->Normals = null;
 	mesh->Vertices = null;
 	mesh->TextureVertices = null;

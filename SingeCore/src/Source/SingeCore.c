@@ -15,7 +15,7 @@
 #include "graphics/window.h"
 #include "graphics/imaging.h"
 
-#include "graphics/shaders.h"
+#include "graphics/shadercompiler.h"
 #include "cglm/cam.h"
 #include "cglm/mat4.h"
 
@@ -24,8 +24,12 @@
 #include "modeling/model.h"
 #include "singine/parsing.h"
 #include "graphics/renderModel.h"
+#include "graphics/camera.h"
+#include "input.h"
 
 Window window;
+
+Shader LoadShader(const char*,const char*);
 
 int main()
 {
@@ -79,7 +83,7 @@ int main()
 
 	Image uv = LoadImage("cubeuv.png");
 
-	Shader shader = CompileShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
+	Shader shader = LoadShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
 	GLuint uvID;
 	glGenTextures(1, &uvID);
@@ -91,35 +95,18 @@ int main()
 
 	uv->Dispose(uv);
 
+	Camera camera = CreateCamera();
+
+	camera->Position[0] = 3;
+	camera->Position[1] = 2;
+	camera->Position[2] = 3;
+
+	camera->Recalculate(camera);
+
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	mat4 projection;
-
-	glm_perspective(glm_rad(70.0f), 16.0f / 9.0f, 0.1f, 100.0f, projection);
-
-	mat4 view;
-
-	vec3 target;
-
-	glm_vec3_zero(target);
-
-	vec3 cameraPosition = { 3,2,3 };
-	vec3 up = { 0,1.0f,0 };
-
-	glm_lookat(
-		cameraPosition,
-		target,
-		up,
-		view
-	);
-
-	mat4 MVP;
-
-	glm_mat4_mul(projection, view, MVP);
-
-	unsigned int mvpId = glGetUniformLocation(shader->Handle, "MVP");
 	unsigned int textureID = glGetUniformLocation(shader->Handle, "myTextureSampler");
 
 	DefaultShader = shader;
@@ -146,27 +133,46 @@ int main()
 
 	cube->Dispose(cube);
 
+	float speed = 0.01f;
+
 	do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		glUseProgram(shader->Handle);
+		if (GetKey(window, KeyCodes.A))
+		{
+			camera->Position[0] -= speed;
+		}
+		if (GetKey(window, KeyCodes.D))
+		{
+			camera->Position[0] += speed;
+		}
+		if (GetKey(window, KeyCodes.W))
+		{
+			camera->Position[2] -= speed;
+		}
+		if (GetKey(window, KeyCodes.S))
+		{
+			camera->Position[2] += speed;
+		}
+		if (GetKey(window, KeyCodes.Space))
+		{
+			camera->Position[1] += speed;
+		}
+		if (GetKey(window, KeyCodes.LeftShift))
+		{
+			camera->Position[1] -= speed;
+		}
 
-		mat4 model;
+		camera->RecalculateView(camera);
+		camera->RecalculateViewProjection(camera);
 
-		glm_mat4_identity(model);
-
-		mat4 modelMVP;
-		glm_mat4_mul(MVP, model, modelMVP);
-
-		glUniformMatrix4fv(mvpId, 1, false, &modelMVP[0][0]);
-
-		//glActiveTexture(GL_TEXTURE0);
-		//glBindTexture(GL_TEXTURE_2D, uvID);
-		//glUniform1i(textureID, 0);
+		////glActiveTexture(GL_TEXTURE0);
+		////glBindTexture(GL_TEXTURE_2D, uvID);
+		////glUniform1i(textureID, 0);
 
 		for (size_t i = 0; i < numberOfMeshes; i++)
 		{
-			meshes[i]->Draw(meshes[i], modelMVP);
+			camera->DrawMesh(camera, meshes[i], shader);
 		}
 
 		// swap the back buffer with the front one
@@ -182,6 +188,8 @@ int main()
 
 	SafeFree(meshes);
 
+	camera->Dispose(camera);
+
 	shader->Dispose(shader);
 
 	window->Dispose(window);
@@ -196,4 +204,47 @@ int main()
 	{
 		throw(MemoryLeakException);
 	}
+}
+
+void BeforeDraw(Shader shader, mat4 mvp)
+{
+	glUseProgram(shader->Handle);
+
+	if (shader->MVPHandle is 0)
+	{
+		if (TryGetUniform(shader, "MVP", &shader->MVPHandle) is false)
+		{
+			throw(FailedToLocationMVPUniformException);
+		}
+	}
+
+	glUniformMatrix4fv(shader->MVPHandle, 1, false, &mvp[0][0]);
+}
+
+void Draw(Shader shader, void* renderMesh)
+{
+	RenderMesh mesh = renderMesh;
+
+	mesh->Draw(mesh,null);
+}
+
+void AfterDraw(Shader shader)
+{
+
+}
+
+Shader LoadShader(const char* vertexPath, const char* fragmentPath)
+{
+	Shader shader = CompileShader(vertexPath, fragmentPath);
+
+	if (shader is null)
+	{
+		throw(FailedToCompileShaderException);
+	}
+
+	shader->BeforeDraw = &BeforeDraw;
+	shader->DrawMesh = &Draw;
+	shader->AfterDraw = &AfterDraw;
+
+	return shader;
 }

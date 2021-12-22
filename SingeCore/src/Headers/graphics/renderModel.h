@@ -21,6 +21,7 @@ struct _renderMesh {
 	unsigned int UVBuffer;
 	unsigned int NormalBuffer;
 	size_t NumberOfTriangles;
+	mat4 Transform;
 	void(*Draw)(RenderMesh, mat4 position);
 	void(*Dispose)(RenderMesh);
 };

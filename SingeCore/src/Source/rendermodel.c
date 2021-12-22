@@ -1,6 +1,7 @@
 #include "graphics/renderModel.h"
 #include "singine/memory.h"
 #include "GL/glew.h"
+#include "cglm/mat4.h"
 
 static void Dispose(RenderMesh model)
 {
@@ -63,6 +64,8 @@ static RenderMesh CreateRenderModel()
 	mesh->NormalBuffer = 0;
 
 	mesh->NumberOfTriangles = 0;
+
+	glm_mat4_identity(mesh->Transform);
 
 	return mesh;
 }

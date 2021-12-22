@@ -4,10 +4,25 @@
 
 #include "graphics/renderModel.h"
 
-float DefaultFieldOfView = 70.0f;
-float DefaultAspectRatio = 16.0f / 9.0f;
-float DefaultNearClippingPlane = 0.1f;
-float DefaultFarClippingPlane = 100.0f;
+static float DefaultFieldOfView = 70.0f;
+static float DefaultAspectRatio = 16.0f / 9.0f;
+static float DefaultNearClippingPlane = 0.1f;
+static float DefaultFarClippingPlane = 100.0f;
+
+/// <summary>
+/// holds the internal state of the camera, NOT meant to be manually modified, use _camera methods
+/// </summary>
+struct _cameraState {
+	vec3 Position;
+	bool PositionModified;
+	vec3 Target;
+	bool TargetModified;
+	vec3 UpDirection;
+	mat4 View;
+	bool ViewModified;
+	mat4 Projection;
+	bool ProjectionModified;
+};
 
 typedef struct _camera* Camera;
 
@@ -36,7 +51,7 @@ struct _camera
 	/// <summary>
 	/// Where the camera should be looking in 3d space
 	/// </summary>
-	vec3 CameraTargetPositon;
+	vec3 TargetPosition;
 	/// <summary>
 	/// The direction the camera should consider is up
 	/// </summary>
@@ -50,10 +65,11 @@ struct _camera
 	/// </summary>
 	mat4 ViewMatrix;
 	mat4 ViewProjectionMatrix;
-	void(*DrawMesh)(Camera,Mesh,Shader);
+	void(*DrawMesh)(Camera,RenderMesh,Shader);
 	void(*RecalculateProjection)(Camera);
 	void(*RecalculateView)(Camera);
 	void(*RecalculateViewProjection)(Camera);
+	void(*Recalculate)(Camera);
 	/// <summary>
 	/// Diposes the managed resources and frees this object
 	/// </summary>

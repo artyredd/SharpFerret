@@ -7,16 +7,29 @@
 
 static void Dispose(Camera camera)
 {
-
+	SafeFree(camera);
 }
 
-static void DrawMesh(Camera camera, Mesh mesh, Shader shader)
+static void DrawMesh(Camera camera, RenderMesh mesh, Shader shader)
 {
 	// create the MVP
 	mat4 MVP;
-	glm_mat4_mul(camera->ViewProjectionMatrix,mesh->Transform,MVP);
+	glm_mat4_mul(camera->ViewProjectionMatrix, mesh->Transform, MVP);
 
-	throw(NotImplementedException);
+	if (shader->BeforeDraw isnt null)
+	{
+		shader->BeforeDraw(shader, MVP);
+	}
+
+	if (shader->DrawMesh isnt null)
+	{
+		shader->DrawMesh(shader, mesh);
+	}
+
+	if (shader->AfterDraw isnt null)
+	{
+		shader->AfterDraw(shader);
+	}
 }
 
 static void RecalculateProjection(Camera camera)
@@ -31,7 +44,7 @@ static void RecalculateProjection(Camera camera)
 static void RecalculateView(Camera camera)
 {
 	glm_lookat(camera->Position,
-		camera->CameraTargetPositon,
+		camera->TargetPosition,
 		camera->UpDirection,
 		camera->ViewMatrix);
 }
@@ -41,6 +54,13 @@ static void RecalculateViewProjection(Camera camera)
 	glm_mat4_mul(camera->ProjectionMatrix,
 		camera->ViewMatrix,
 		camera->ViewProjectionMatrix);
+}
+
+static void Recalculate(Camera camera)
+{
+	camera->RecalculateProjection(camera);
+	camera->RecalculateView(camera);
+	camera->RecalculateViewProjection(camera);
 }
 
 Camera CreateCamera()
@@ -58,6 +78,19 @@ Camera CreateCamera()
 	camera->RecalculateView = &RecalculateView;
 	camera->RecalculateProjection = &RecalculateProjection;
 	camera->RecalculateViewProjection = &RecalculateViewProjection;
+
+	camera->Recalculate = &Recalculate;
+
+	glm_vec3_zero(camera->TargetPosition);
+
+	camera->UpDirection[0] = 0;
+	camera->UpDirection[1] = 1.0f;
+	camera->UpDirection[2] = 0;
+
+	glm_mat4_identity(camera->ProjectionMatrix);
+	glm_mat4_identity(camera->ViewMatrix);
+	glm_mat4_identity(camera->ViewProjectionMatrix);
+
 
 	return camera;
 }
