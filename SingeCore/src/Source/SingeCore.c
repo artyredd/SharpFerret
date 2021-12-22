@@ -27,6 +27,7 @@
 #include "graphics/camera.h"
 #include "input.h"
 #include "cglm/affine.h"
+#include "math/quaternions.h"
 
 Window window;
 
@@ -136,7 +137,6 @@ int main()
 
 	float speed = 0.01f;
 
-	//meshes[numberOfMeshes - 1]->Transform;
 	vec4 scaler = {2,2,2,1};
 	vec3 zero = {0,0,0};
 	vec3 one = {1,1,1};
@@ -145,6 +145,12 @@ int main()
 	glm_translate(meshes[0]->Transform,zero);
 
 	float scaleAmount = 1.0f;
+	float rotateAmount = 0.0f;
+
+	vec3 directionToCamera;
+
+	Quaternion rotation;
+	glm_quat_identity(rotation);
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -191,12 +197,27 @@ int main()
 			scaleAmount -= speed;
 		}
 
-		scaler[0] = scaleAmount;
-		scaler[1] = scaleAmount;
-		scaler[2] = scaleAmount;
+		if (GetKey(window, KeyCodes.Left))
+		{
+			rotateAmount += speed;
+		}
+
+		if (GetKey(window, KeyCodes.Right))
+		{
+			rotateAmount -= speed;
+		}
+
+		SetVector3(scaler, scaleAmount, scaleAmount, scaleAmount);
 
 		glm_mat4_identity(meshes[0]->Transform);
 		glm_scale(meshes[0]->Transform, scaler);
+		//glm_rotate(meshes[0]->Transform, glm_rad(rotateAmount),Vector3.Left);
+		
+		// make the cube look at the camera creepily
+		glm_vec3_sub(Vector3.Zero, camera->Position, directionToCamera);
+		glm_quat_for(directionToCamera,Vector3.Up,rotation);
+
+		glm_quat_rotate(meshes[0]->Transform, rotation, meshes[0]->Transform);
 
 		for (size_t i = 0; i < numberOfMeshes; i++)
 		{

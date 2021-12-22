@@ -192,6 +192,7 @@
     <ClCompile Include="src\Source\shadercompiler.c" />
     <ClCompile Include="src\Source\shaders.c" />
     <ClCompile Include="src\Source\SingeCore.c" />
+    <ClCompile Include="src\Source\transform.c" />
     <ClCompile Include="src\Source\vectors.c" />
     <ClCompile Include="src\Source\window.c" />
   </ItemGroup>
@@ -203,8 +204,10 @@
     <ClInclude Include="src\Headers\graphics\renderModel.h" />
     <ClInclude Include="src\Headers\graphics\shadercompiler.h" />
     <ClInclude Include="src\Headers\graphics\shaders.h" />
+    <ClInclude Include="src\Headers\graphics\transform.h" />
     <ClInclude Include="src\Headers\Graphics\window.h" />
     <ClInclude Include="src\Headers\input.h" />
+    <ClInclude Include="src\Headers\math\quaternions.h" />
     <ClInclude Include="src\Headers\math\shapes.h" />
     <ClInclude Include="src\Headers\math\vectors.h" />
     <ClInclude Include="src\Headers\modeling\importer.h" />
