@@ -13,6 +13,9 @@ static float DefaultFarClippingPlane = 100.0f;
 /// holds the internal state of the camera, NOT meant to be manually modified, use _camera methods
 /// </summary>
 struct _cameraState {
+	/// <summary>
+	/// The position in world space where this camera is centered
+	/// </summary>
 	vec3 Position;
 	bool PositionModified;
 	vec3 Target;

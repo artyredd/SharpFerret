@@ -14,7 +14,7 @@ Shader CreateShader()
 	Shader newShader = SafeAlloc(sizeof(struct _shader));
 
 	newShader->Handle = 0;
-	newShader->MVPHandle = 0;
+	newShader->MVPHandle = -1;
 	newShader->Dispose = &Dispose;
 	newShader->AfterDraw = null;
 	newShader->BeforeDraw = null;

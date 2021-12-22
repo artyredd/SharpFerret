@@ -26,6 +26,7 @@
 #include "graphics/renderModel.h"
 #include "graphics/camera.h"
 #include "input.h"
+#include "cglm/affine.h"
 
 Window window;
 
@@ -135,6 +136,16 @@ int main()
 
 	float speed = 0.01f;
 
+	//meshes[numberOfMeshes - 1]->Transform;
+	vec4 scaler = {2,2,2,1};
+	vec3 zero = {0,0,0};
+	vec3 one = {1,1,1};
+	glm_scale(meshes[0]->Transform, scaler);
+	glm_rotate(meshes[0]->Transform,glm_rad(0),one);
+	glm_translate(meshes[0]->Transform,zero);
+
+	float scaleAmount = 1.0f;
+
 	do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -169,6 +180,23 @@ int main()
 		////glActiveTexture(GL_TEXTURE0);
 		////glBindTexture(GL_TEXTURE_2D, uvID);
 		////glUniform1i(textureID, 0);
+
+		if (GetKey(window, KeyCodes.Up))
+		{
+			scaleAmount += speed;
+		}
+
+		if (GetKey(window, KeyCodes.Down))
+		{
+			scaleAmount -= speed;
+		}
+
+		scaler[0] = scaleAmount;
+		scaler[1] = scaleAmount;
+		scaler[2] = scaleAmount;
+
+		glm_mat4_identity(meshes[0]->Transform);
+		glm_scale(meshes[0]->Transform, scaler);
 
 		for (size_t i = 0; i < numberOfMeshes; i++)
 		{
@@ -210,7 +238,7 @@ void BeforeDraw(Shader shader, mat4 mvp)
 {
 	glUseProgram(shader->Handle);
 
-	if (shader->MVPHandle is 0)
+	if (shader->MVPHandle is -1)
 	{
 		if (TryGetUniform(shader, "MVP", &shader->MVPHandle) is false)
 		{
