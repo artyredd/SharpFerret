@@ -44,16 +44,18 @@ int main()
 	SetHint(ContextHints.VersionMajor, 3);
 	SetHint(ContextHints.VersionMinor, 3);
 
-	SetHint(OpenGLHints.ForwardCompatibility, GL_TRUE); // To make MacOS happy; should not be needed
+	SetHint(OpenGLHints.ForwardCompatibility, true); // To make MacOS happy; should not be needed
 	SetHint(OpenGLHints.Profile, GLFW_OPENGL_CORE_PROFILE);
 
 	// allow it to be windowed and resize-able
-	SetHint(WindowHints.Resizable, GLFW_TRUE);
-	SetHint(WindowHints.Decorated, GLFW_TRUE);
+	SetHint(WindowHints.Resizable, true);
+	SetHint(WindowHints.Decorated, true);
 
 	window = CreateWindow(1920, 1080, "Singine");
 
-	glClearColor(1.0f, 1.0f, 0.4f, 0.0f);
+	SetInputWindow(window);
+
+	SetClearColor(0.4f, 0.4f, 0.0f, 0.0f);
 
 	// bind graphics card with GDI
 	sWindow.SetCurrent(window);
@@ -95,6 +97,8 @@ int main()
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, uv->Width, uv->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, uv->Pixels);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glfwSetInputMode(window->Handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	uv->Dispose(uv);
 
@@ -147,27 +151,27 @@ int main()
 	do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		if (GetKey(window, KeyCodes.A))
+		if (GetKey(KeyCodes.A))
 		{
 			camera->AddPositionX(camera, -speed);
 		}
-		if (GetKey(window, KeyCodes.D))
+		if (GetKey(KeyCodes.D))
 		{
 			camera->AddPositionX(camera, speed);
 		}
-		if (GetKey(window, KeyCodes.W))
+		if (GetKey(KeyCodes.W))
 		{
 			camera->AddPositionZ(camera, -speed);
 		}
-		if (GetKey(window, KeyCodes.S))
+		if (GetKey(KeyCodes.S))
 		{
 			camera->AddPositionZ(camera, speed);
 		}
-		if (GetKey(window, KeyCodes.Space))
+		if (GetKey(KeyCodes.Space))
 		{
 			camera->AddPositionY(camera, speed);
 		}
-		if (GetKey(window, KeyCodes.LeftShift))
+		if (GetKey(KeyCodes.LeftShift))
 		{
 			camera->AddPositionY(camera, -speed);
 		}
@@ -176,22 +180,22 @@ int main()
 		////glBindTexture(GL_TEXTURE_2D, uvID);
 		////glUniform1i(textureID, 0); 
 
-		if (GetKey(window, KeyCodes.Up))
+		if (GetKey(KeyCodes.Up))
 		{
 			scaleAmount += speed;
 		}
 
-		if (GetKey(window, KeyCodes.Down))
+		if (GetKey(KeyCodes.Down))
 		{
 			scaleAmount -= speed;
 		}
 
-		if (GetKey(window, KeyCodes.Left))
+		if (GetKey(KeyCodes.Left))
 		{
 			rotateAmount += speed;
 		}
 
-		if (GetKey(window, KeyCodes.Right))
+		if (GetKey(KeyCodes.Right))
 		{
 			rotateAmount -= speed;
 		}
@@ -213,7 +217,9 @@ int main()
 		glfwSwapBuffers(window->Handle);
 
 		PollInput();
-	} while (GetKey(window, KeyCodes.Escape) != true && ShouldClose(window) != true);
+
+		fprintf(stdout, "z: %0.4lf y: %0.4lf"NEWLINE, MousePosition[0], MousePosition[1]);
+	} while (GetKey(KeyCodes.Escape) != true && ShouldClose(window) != true);
 
 	for (size_t i = 0; i < numberOfMeshes; i++)
 	{

@@ -36,6 +36,7 @@ static Exception NotIntializedExceptionGLFW = 0x60000002;
 static Exception FailedToCreateWindowExceptionGLFW = 0x60000003;
 static Exception FailedToGetWindowMonitorException = 0x60000004;
 static Exception FailedToGetVideoModeException = 0x60000005;
+static Exception NoActiveWindowException = 0x60000006;
 // end GLFW Exceptions
 
 // GL Exceptions

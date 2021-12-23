@@ -148,6 +148,12 @@ void SetHint(int attribute, int value)
 	glfwWindowHint(attribute, value);
 }
 
+void SetClearColor(float r, float g, float b, float a)
+{
+	EnsureGlfwInitialized();
+	glClearColor(r, g, b, a);
+}
+
 bool ShouldClose(Window window)
 {
 	GuardNotNull(window);

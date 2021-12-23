@@ -119,6 +119,47 @@ const struct _keyCodes {
 
 extern const struct _keyCodes KeyCodes;
 
+typedef int CursorMode;
+
+struct _cursorModes {
+	const CursorMode Normal;
+	const CursorMode Hidden;
+	const CursorMode Disabled;
+};
+
+extern const struct _cursorModes CursorModes;
+
 void PollInput(void);
 
-bool GetKey(Window window, KeyCode key);
+/// <summary>
+/// Sets the provided window as the active window that should receive input
+/// </summary>
+/// <param name="window"></param>
+void SetInputWindow(Window window);
+
+/// <summary>
+/// Gets the last set active window
+/// </summary>
+/// <returns></returns>
+Window GetInputWindow();
+
+/// <summary>
+/// Gets whether the given key is held down for the active window
+/// </summary>
+/// <param name="key"></param>
+/// <returns></returns>
+bool GetKey(KeyCode key);
+
+/// <summary>
+/// The current mouse position for the active window
+/// </summary>
+double MousePosition[2];
+
+// Sets the mouse position for the current window to the position provided
+void SetMousePosition(double x, double y);
+
+void SetCursorMode(CursorMode mode);
+CursorMode GetCursorMode(void);
+
+void SetRawMouseEnabled(bool value);
+bool GetRawMouseEnabled();

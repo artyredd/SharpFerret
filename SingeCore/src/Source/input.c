@@ -1,6 +1,12 @@
 #include "input.h"
 #include "GLFW/glfw3.h"
 
+#define EnsureWindowSet() if (ActiveWindow is null)\
+	{\
+	fprintf(stderr, "There is no active window that was set with SetInputWindow(Window)"NEWLINE);\
+	throw(NoActiveWindowException);\
+	}\
+
 const struct _keyCodes KeyCodes = {
 	.none = 0,
 	.Unknown = GLFW_KEY_UNKNOWN,
@@ -114,12 +120,75 @@ const struct _keyCodes KeyCodes = {
 	.PageDown = GLFW_KEY_PAGE_DOWN
 };
 
+const struct _cursorModes CursorModes = {
+	.Normal = GLFW_CURSOR_NORMAL,
+	.Hidden = GLFW_CURSOR_HIDDEN,
+	.Disabled = GLFW_CURSOR_DISABLED
+};
+
+static Window ActiveWindow = null;
+static CursorMode CurrentCursorMode = GLFW_CURSOR_NORMAL;
+static bool RawMouseEnabled = false;
+
 void PollInput()
 {
 	glfwPollEvents();
+	glfwGetCursorPos(ActiveWindow->Handle, &MousePosition[0], &MousePosition[1]);
 }
 
-bool GetKey(Window window, KeyCode key)
+bool GetKey(KeyCode key)
 {
-	return glfwGetKey(window->Handle, key);
+	EnsureWindowSet();
+	return glfwGetKey(ActiveWindow->Handle, key);
+}
+
+void SetInputWindow(Window window)
+{
+	ActiveWindow = window;
+}
+
+Window GetInputWindow()
+{
+	return ActiveWindow;
+}
+
+void SetMousePosition(double x, double y)
+{
+	EnsureWindowSet();
+	glfwSetCursorPos(ActiveWindow->Handle, x, y);
+	MousePosition[0] = x;
+	MousePosition[1] = y;
+}
+
+void SetCursorMode(CursorMode mode)
+{
+	EnsureWindowSet();
+	glfwSetInputMode(ActiveWindow->Handle, GLFW_CURSOR, mode);
+	CurrentCursorMode = mode;
+}
+
+CursorMode GetCursorMode(void)
+{
+	return CurrentCursorMode;
+}
+
+void SetRawMouseEnabled(bool value)
+{
+	if (glfwRawMouseMotionSupported())
+	{
+		if (value)
+		{
+			glfwSetInputMode(ActiveWindow->Handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+		}
+		else
+		{
+			glfwSetInputMode(ActiveWindow->Handle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+		}
+		RawMouseEnabled = value;
+	}
+}
+
+bool GetRawMouseEnabled()
+{
+	return RawMouseEnabled;
 }

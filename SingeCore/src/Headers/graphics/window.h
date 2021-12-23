@@ -166,4 +166,9 @@ void StopRuntime();
 /// Sets the hint value for the next created window globally
 void SetHint(int attribute, int value);
 
+/// <summary>
+/// Sets the default clear color of the graphics device
+/// </summary>
+void SetClearColor(float r, float g, float b, float a);
+
 bool ShouldClose(Window window);
