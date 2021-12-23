@@ -26,6 +26,8 @@ typedef _declspec(align(16)) vec4 mat4[4];
 
 #define Vector4Equals(left,right) (left[0] ==  right[0] && left[1] == right[1] && left[2] == right[2] && left[3] == right[3])
 
+#define Vector3MembersEqual(vector,x,y,z) (vector[0] ==  x && vector[1] == y && vector[2] == z)
+
 static void CopyTo(const float* source, float* destination, const size_t count)
 {
 	for (size_t i = 0; i < count; i++)
@@ -41,6 +43,11 @@ static void CopyTo(const float* source, float* destination, const size_t count)
 #define SetY(vector, y) vector[1] = y
 #define SetZ(vector, z) vector[2] = z
 #define SetW(vector, w) vector[3] = w
+
+#define AddX(vector, x) vector[0] += x
+#define AddY(vector, y) vector[1] += y
+#define AddZ(vector, z) vector[2] += z
+#define AddW(vector, w) vector[3] += w
 
 #define SetVector2(vec2, x, y) vec2[0] = x; vec2[1] = y
 #define SetVector3(vec3, x, y, z) vec3[0] = x; vec3[1] = y; vec3[2] = z

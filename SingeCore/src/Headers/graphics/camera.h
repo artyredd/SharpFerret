@@ -12,19 +12,25 @@ static float DefaultFarClippingPlane = 100.0f;
 /// <summary>
 /// holds the internal state of the camera, NOT meant to be manually modified, use _camera methods
 /// </summary>
-struct _cameraState {
+struct cameraState {
 	/// <summary>
-	/// The position in world space where this camera is centered
+	/// This is a bit mask that controls the dirty state of this object
+	/// 0 : Not Modified; != 0 : Modified
 	/// </summary>
-	vec3 Position;
-	bool PositionModified;
-	vec3 Target;
-	bool TargetModified;
-	vec3 UpDirection;
-	mat4 View;
-	bool ViewModified;
+	unsigned int Modified;
+	/// <summary>
+	/// The previous projection matrix that was calculated, this needs to be  refreshed any time the FOV, Aspect Ratio, or near and far clipping distances
+	/// are changed
+	/// </summary>
 	mat4 Projection;
-	bool ProjectionModified;
+	/// <summary>
+	/// The previous view matrix that was calculated, this needs to be refreshed any time the Position, TargetPosition, or up direction are modified
+	/// </summary>
+	mat4 View;
+	/// <summary>
+	/// The previous combined state of this camera, this is the combined matrices of the view and projection
+	/// </summary>
+	mat4 State;
 };
 
 typedef struct _camera* Camera;
@@ -59,20 +65,28 @@ struct _camera
 	/// The direction the camera should consider is up
 	/// </summary>
 	vec3 UpDirection;
-	/// <summary>
-	/// The matrix representing how objects should be rendered based on FoV, clipping and aspect ration
-	/// </summary>
-	mat4 ProjectionMatrix;
-	/// <summary>
-	/// The matrix representing where the camera is looking
-	/// </summary>
-	mat4 ViewMatrix;
-	mat4 ViewProjectionMatrix;
+	struct cameraState State;
 	void(*DrawMesh)(Camera, RenderMesh, Shader);
-	void(*RecalculateProjection)(Camera);
-	void(*RecalculateView)(Camera);
-	void(*RecalculateViewProjection)(Camera);
-	void(*Recalculate)(Camera);
+	/// <summary>
+	/// Forces the camera to recalculate it's fields and members on the next draw call, use the provided methods to modify fields instead of manually
+	/// </summary>
+	void(*ForceRefresh)(Camera);
+	void(*SetFoV)(Camera, float);
+	void(*SetAspectRatio)(Camera, float);
+	void(*SetNearClippingDistance)(Camera, float);
+	void(*SetFarClippingDistance)(Camera, float);
+	void(*SetPositionVector)(Camera, vec3);
+	void(*SetPositionX)(Camera, float);
+	void(*SetPositionY)(Camera, float);
+	void(*SetPositionZ)(Camera, float);
+	void(*SetPosition)(Camera, float, float, float);
+	void(*AddPositionVector)(Camera, vec3);
+	void(*AddPositionX)(Camera, float);
+	void(*AddPositionY)(Camera, float);
+	void(*AddPositionZ)(Camera, float);
+	void(*AddPosition)(Camera, float, float, float);
+	void(*SetTargetVector)(Camera, vec3);
+	void(*SetUpDirectionVector)(Camera, vec3);
 	/// <summary>
 	/// Diposes the managed resources and frees this object
 	/// </summary>

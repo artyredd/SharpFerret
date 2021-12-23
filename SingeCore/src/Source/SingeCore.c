@@ -99,11 +99,9 @@ int main()
 
 	Camera camera = CreateCamera();
 
-	camera->Position[0] = 3;
-	camera->Position[1] = 2;
-	camera->Position[2] = 3;
+	vec3 startingPosition = { 3,2,3 };
 
-	camera->Recalculate(camera);
+	camera->SetPositionVector(camera, startingPosition);
 
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -150,31 +148,28 @@ int main()
 
 		if (GetKey(window, KeyCodes.A))
 		{
-			camera->Position[0] -= speed;
+			camera->AddPositionX(camera, -speed);
 		}
 		if (GetKey(window, KeyCodes.D))
 		{
-			camera->Position[0] += speed;
+			camera->AddPositionX(camera, speed);
 		}
 		if (GetKey(window, KeyCodes.W))
 		{
-			camera->Position[2] -= speed;
+			camera->AddPositionZ(camera, -speed);
 		}
 		if (GetKey(window, KeyCodes.S))
 		{
-			camera->Position[2] += speed;
+			camera->AddPositionZ(camera, speed);
 		}
 		if (GetKey(window, KeyCodes.Space))
 		{
-			camera->Position[1] += speed;
+			camera->AddPositionY(camera, speed);
 		}
 		if (GetKey(window, KeyCodes.LeftShift))
 		{
-			camera->Position[1] -= speed;
+			camera->AddPositionY(camera, -speed);
 		}
-
-		camera->RecalculateView(camera);
-		camera->RecalculateViewProjection(camera);
 
 		////glActiveTexture(GL_TEXTURE0);
 		////glBindTexture(GL_TEXTURE_2D, uvID);
