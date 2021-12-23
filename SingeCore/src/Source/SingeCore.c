@@ -173,7 +173,7 @@ int main()
 
 		////glActiveTexture(GL_TEXTURE0);
 		////glBindTexture(GL_TEXTURE_2D, uvID);
-		////glUniform1i(textureID, 0);
+		////glUniform1i(textureID, 0); 
 
 		if (GetKey(window, KeyCodes.Up))
 		{

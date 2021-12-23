@@ -1,10 +1,7 @@
 #pragma once
 
-#include "GLFW/glfw3.h"
 #include "csharp.h"
 #include "imaging.h"
-#include "singine/enumerable.h"
-#include "cglm/vec2.h"
 #include "math/shapes.h"
 
 #ifndef _window_h_
@@ -42,7 +39,7 @@ static const struct _WindowModes {
 
 typedef int Hint;
 
-static const struct _Hints {
+const struct _Hints {
 	const Hint MSAASamples;
 	const Hint Resizable;
 	const Hint Decorated;
@@ -58,47 +55,27 @@ static const struct _Hints {
 	const Hint GreenBits;
 	const Hint BlueBits;
 	const Hint AlphaBits;
-} WindowHints = {
-	GLFW_SAMPLES,
-	GLFW_RESIZABLE,
-	GLFW_DECORATED,
-	GLFW_VISIBLE,
-	GLFW_FOCUSED,
-	GLFW_FLOATING,
-	GLFW_MAXIMIZED,
-	GLFW_CENTER_CURSOR,
-	GLFW_FOCUS_ON_SHOW,
-	GLFW_SCALE_TO_MONITOR,
-	GLFW_REFRESH_RATE,
-	GLFW_RED_BITS,
-	GLFW_GREEN_BITS,
-	GLFW_BLUE_BITS,
-	GLFW_ALPHA_BITS
 };
 
-static const struct _ContectHints {
+extern const struct _Hints WindowHints;
+
+const struct _contextHints {
 	const Hint API;
 	const Hint VersionMajor;
 	const Hint VersionMinor;
 	const Hint Robustness;
 	const Hint ReleaseBehavior;
-} ContextHints = {
-	GLFW_CONTEXT_CREATION_API,
-	GLFW_CONTEXT_VERSION_MAJOR,
-	GLFW_CONTEXT_VERSION_MINOR,
-	GLFW_CONTEXT_ROBUSTNESS,
-	GLFW_CONTEXT_RELEASE_BEHAVIOR
 };
 
-static const struct _OpenGLHints {
+extern const struct _contextHints ContextHints;
+
+const struct _OpenGLHints {
 	const Hint ForwardCompatibility;
 	const Hint DebugContext;
 	const Hint Profile;
-} OpenGLHints = {
-	GLFW_OPENGL_FORWARD_COMPAT,
-	GLFW_OPENGL_DEBUG_CONTEXT,
-	GLFW_OPENGL_PROFILE
 };
+
+extern const struct _OpenGLHints OpenGLHints;
 
 typedef struct _windowObject* Window;
 
@@ -113,17 +90,17 @@ struct _windowObject {
 	/// </summary>
 	int_rect Transform;
 	/// <summary>
-	/// The underlying handle for this window
+	/// The underlying GLFWwindow handle for this window
 	/// </summary>
-	GLFWwindow* Handle;
+	void* Handle;
 	/// <summary>
-	/// The monitor this window is displayed on
+	/// The GLFWmonitor monitor this window is displayed on
 	/// </summary>
-	GLFWmonitor* Monitor;
+	void* Monitor;
 	/// <summary>
-	/// The video mode used by this window
+	/// The GLFWvidmode mode used by this window
 	/// </summary>
-	const GLFWvidmode* VideoMode;
+	const void* VideoMode;
 	/// <summary>
 	/// The display mode the window was last set to
 	/// </summary>
@@ -140,6 +117,7 @@ struct _windowObject {
 
 #ifndef _window_methods_
 #define _window_methods_
+
 struct _windowMethods {
 	/// <summary>
 	/// Sets the current graphics context to the provided window

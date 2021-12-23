@@ -1,8 +1,40 @@
 #include "csharp.h"
 #include "graphics/window.h"
 #include "singine/memory.h"
-
+#include "GLFW/glfw3.h"
 #include "singine/guards.h"
+
+const struct _Hints WindowHints = {
+	GLFW_SAMPLES,
+	GLFW_RESIZABLE,
+	GLFW_DECORATED,
+	GLFW_VISIBLE,
+	GLFW_FOCUSED,
+	GLFW_FLOATING,
+	GLFW_MAXIMIZED,
+	GLFW_CENTER_CURSOR,
+	GLFW_FOCUS_ON_SHOW,
+	GLFW_SCALE_TO_MONITOR,
+	GLFW_REFRESH_RATE,
+	GLFW_RED_BITS,
+	GLFW_GREEN_BITS,
+	GLFW_BLUE_BITS,
+	GLFW_ALPHA_BITS
+};
+
+const struct _contextHints ContextHints = {
+	GLFW_CONTEXT_CREATION_API,
+	GLFW_CONTEXT_VERSION_MAJOR,
+	GLFW_CONTEXT_VERSION_MINOR,
+	GLFW_CONTEXT_ROBUSTNESS,
+	GLFW_CONTEXT_RELEASE_BEHAVIOR
+};
+
+const struct _OpenGLHints OpenGLHints = {
+	GLFW_OPENGL_FORWARD_COMPAT,
+	GLFW_OPENGL_DEBUG_CONTEXT,
+	GLFW_OPENGL_PROFILE
+};
 
 // Ensures that GLFW is Initilized, otherwise throws an exception
 #define EnsureGlfwInitialized() if(IsRuntimeStarted is false) {throw(NotIntializedExceptionGLFW);}
@@ -86,11 +118,11 @@ Window CreateWindow(int width, int height, char* title)
 
 	if (width is 0)
 	{
-		window->Transform.Width = window->VideoMode->width;
+		window->Transform.Width = ((GLFWvidmode*)window->VideoMode)->width;
 	}
 	if (height is 0)
 	{
-		window->Transform.Height = window->VideoMode->height;
+		window->Transform.Height = ((GLFWvidmode*)window->VideoMode)->height;
 	}
 
 	return window;
@@ -171,6 +203,8 @@ static void SetMode(Window window, const WindowMode mode)
 		return;
 	}
 
+	GLFWvidmode* videoMode = ((GLFWvidmode*)window->VideoMode);
+
 	int_rect transform = window->Transform;
 
 	if (mode is WindowModes.Windowed)
@@ -185,11 +219,11 @@ static void SetMode(Window window, const WindowMode mode)
 	}
 	else if (mode is WindowModes.FullScreen)
 	{
-		glfwSetWindowMonitor(window->Handle, window->Monitor, 0, 0, transform.Width, transform.Height, window->VideoMode->refreshRate);
+		glfwSetWindowMonitor(window->Handle, window->Monitor, 0, 0, transform.Width, transform.Height, videoMode->refreshRate);
 	}
 	else if (mode is WindowModes.BorderlessFullScreen)
 	{
-		glfwSetWindowMonitor(window->Handle, window->Monitor, 0, 0, window->VideoMode->width, window->VideoMode->height, window->VideoMode->refreshRate);
+		glfwSetWindowMonitor(window->Handle, window->Monitor, 0, 0, videoMode->width, videoMode->height, videoMode->refreshRate);
 
 		// set it to always on top
 		sWindow.SetAttribute(window, WindowHints.AlwaysOnTop, true);
