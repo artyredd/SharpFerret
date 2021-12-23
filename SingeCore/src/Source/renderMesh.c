@@ -1,4 +1,4 @@
-#include "graphics/renderModel.h"
+#include "graphics/renderMesh.h"
 #include "singine/memory.h"
 #include "GL/glew.h"
 #include "cglm/mat4.h"
@@ -9,6 +9,8 @@ static void Dispose(RenderMesh model)
 	glDeleteBuffers(1, &model->VertexBuffer);
 	glDeleteBuffers(1, &model->UVBuffer);
 	glDeleteBuffers(1, &model->NormalBuffer);
+
+	SafeFree(model->Transform);
 
 	SafeFree(model);
 }
@@ -65,7 +67,7 @@ static RenderMesh CreateRenderModel()
 
 	mesh->NumberOfTriangles = 0;
 
-	glm_mat4_identity(mesh->Transform);
+	mesh->Transform = CreateTransform();
 
 	return mesh;
 }

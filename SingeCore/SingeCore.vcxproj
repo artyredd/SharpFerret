@@ -134,7 +134,7 @@
       <ShowProgress>LinkVerbose</ShowProgress>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
-      <Profile>false</Profile>
+      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -188,7 +188,7 @@
     <ClCompile Include="src\Source\mesh.c" />
     <ClCompile Include="src\Source\model.c" />
     <ClCompile Include="src\Source\parsing.c" />
-    <ClCompile Include="src\Source\rendermodel.c" />
+    <ClCompile Include="src\Source\renderMesh.c" />
     <ClCompile Include="src\Source\shadercompiler.c" />
     <ClCompile Include="src\Source\shaders.c" />
     <ClCompile Include="src\Source\SingeCore.c" />
@@ -201,7 +201,7 @@
     <ClInclude Include="src\Headers\cunit.h" />
     <ClInclude Include="src\Headers\graphics\camera.h" />
     <ClInclude Include="src\Headers\Graphics\imaging.h" />
-    <ClInclude Include="src\Headers\graphics\renderModel.h" />
+    <ClInclude Include="src\Headers\graphics\renderMesh.h" />
     <ClInclude Include="src\Headers\graphics\shadercompiler.h" />
     <ClInclude Include="src\Headers\graphics\shaders.h" />
     <ClInclude Include="src\Headers\graphics\transform.h" />

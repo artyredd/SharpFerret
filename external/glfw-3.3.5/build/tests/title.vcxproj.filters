@@ -1,24 +1,24 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="C:\Repos\SingeEngine\external\glfw-3.3.5\tests\title.c">
+    <ClCompile Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\tests\title.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="C:\Repos\SingeEngine\external\glfw-3.3.5\deps\glad\gl.h">
+    <ClInclude Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\deps\glad\gl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Repos\SingeEngine\external\glfw-3.3.5\tests\CMakeLists.txt" />
+    <CustomBuild Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\tests\CMakeLists.txt" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header Files">
-      <UniqueIdentifier>{3744207C-7152-359B-901C-E1310D9949C0}</UniqueIdentifier>
+      <UniqueIdentifier>{BBE80069-F5AA-33AC-B3DC-22C9CE3834C5}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files">
-      <UniqueIdentifier>{183F2095-6B01-351C-A410-EAFD98B67F16}</UniqueIdentifier>
+      <UniqueIdentifier>{F83B363D-7FEE-351C-92BA-5BB35D89B5B1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

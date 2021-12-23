@@ -23,7 +23,7 @@
 #include "modeling/importer.h"
 #include "modeling/model.h"
 #include "singine/parsing.h"
-#include "graphics/renderModel.h"
+#include "graphics/renderMesh.h"
 #include "graphics/camera.h"
 #include "input.h"
 #include "cglm/affine.h"
@@ -31,7 +31,7 @@
 
 Window window;
 
-Shader LoadShader(const char*,const char*);
+Shader LoadShader(const char*, const char*);
 
 int main()
 {
@@ -74,7 +74,7 @@ int main()
 	glEnable(GL_CULL_FACE);
 
 	Model cube;
-	if (TryImportModel("doublecube.obj",FileFormats.Obj,&cube) is false)
+	if (TryImportModel("doublecube.obj", FileFormats.Obj, &cube) is false)
 	{
 		throw(FailedToReadFileException);
 	}
@@ -137,20 +137,13 @@ int main()
 
 	float speed = 0.01f;
 
-	vec4 scaler = {2,2,2,1};
-	vec3 zero = {0,0,0};
-	vec3 one = {1,1,1};
-	glm_scale(meshes[0]->Transform, scaler);
-	glm_rotate(meshes[0]->Transform,glm_rad(0),one);
-	glm_translate(meshes[0]->Transform,zero);
+	vec4 scaler = { 2,2,2,1 };
 
 	float scaleAmount = 1.0f;
 	float rotateAmount = 0.0f;
 
-	vec3 directionToCamera;
 
 	Quaternion rotation;
-	glm_quat_identity(rotation);
 
 	do {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -209,15 +202,11 @@ int main()
 
 		SetVector3(scaler, scaleAmount, scaleAmount, scaleAmount);
 
-		glm_mat4_identity(meshes[0]->Transform);
-		glm_scale(meshes[0]->Transform, scaler);
-		//glm_rotate(meshes[0]->Transform, glm_rad(rotateAmount),Vector3.Left);
-		
-		// make the cube look at the camera creepily
-		glm_vec3_sub(Vector3.Zero, camera->Position, directionToCamera);
-		glm_quat_for(directionToCamera,Vector3.Up,rotation);
+		glm_quat(rotation, rotateAmount, 1, 0, 0);
 
-		glm_quat_rotate(meshes[0]->Transform, rotation, meshes[0]->Transform);
+		SetRotation(meshes[0]->Transform, rotation);
+
+		SetScale(meshes[0]->Transform, scaler);
 
 		for (size_t i = 0; i < numberOfMeshes; i++)
 		{
@@ -259,7 +248,7 @@ void BeforeDraw(Shader shader, mat4 mvp)
 {
 	glUseProgram(shader->Handle);
 
-	if (shader->MVPHandle is -1)
+	if (shader->MVPHandle is - 1)
 	{
 		if (TryGetUniform(shader, "MVP", &shader->MVPHandle) is false)
 		{
@@ -274,7 +263,7 @@ void Draw(Shader shader, void* renderMesh)
 {
 	RenderMesh mesh = renderMesh;
 
-	mesh->Draw(mesh,null);
+	mesh->Draw(mesh, null);
 }
 
 void AfterDraw(Shader shader)

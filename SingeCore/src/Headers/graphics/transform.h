@@ -3,7 +3,7 @@
 #include "math/vectors.h"
 #include "math/quaternions.h"
 
-typedef struct transformState {
+struct transformState {
 	/// <summary>
 	/// Modified state is an unsigned int used as a bit mas to identify if various elements of this
 	/// state have been modified
@@ -55,10 +55,18 @@ Transform CreateTransform();
 /// Recalulates the underlying state of the transform
 /// </summary>
 /// <param name=""></param>
-void RefreshTransform(Transform);
+vec4* RefreshTransform(Transform);
 
 /// <summary>
 /// Recalulates the underlying state of the transform ignoring any previously saved state
 /// </summary>
 /// <param name=""></param>
-void ForceRefreshTransform(Transform);
+vec4* ForceRefreshTransform(Transform);
+
+void SetPosition(Transform, vec3 position);
+void SetRotation(Transform, Quaternion rotation);
+void SetScale(Transform, vec3 scale);
+
+void AddPostion(Transform, vec3 amount);
+void AddRotation(Transform, Quaternion amount);
+void AddScale(Transform, vec3 amount);

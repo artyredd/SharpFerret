@@ -3,6 +3,7 @@
 #include "modeling/model.h"
 #include "math/vectors.h"
 #include "graphics/shaders.h"
+#include "graphics/transform.h"
 
 /// <summary>
 /// The default Shader that should be used 
@@ -21,7 +22,7 @@ struct _renderMesh {
 	unsigned int UVBuffer;
 	unsigned int NormalBuffer;
 	size_t NumberOfTriangles;
-	mat4 Transform;
+	Transform Transform;
 	void(*Draw)(RenderMesh, mat4 position);
 	void(*Dispose)(RenderMesh);
 };

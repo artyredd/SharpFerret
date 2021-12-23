@@ -2,7 +2,7 @@
 
 #include "math/vectors.h"
 
-#include "graphics/renderModel.h"
+#include "graphics/renderMesh.h"
 
 static float DefaultFieldOfView = 70.0f;
 static float DefaultAspectRatio = 16.0f / 9.0f;
@@ -68,7 +68,7 @@ struct _camera
 	/// </summary>
 	mat4 ViewMatrix;
 	mat4 ViewProjectionMatrix;
-	void(*DrawMesh)(Camera,RenderMesh,Shader);
+	void(*DrawMesh)(Camera, RenderMesh, Shader);
 	void(*RecalculateProjection)(Camera);
 	void(*RecalculateView)(Camera);
 	void(*RecalculateViewProjection)(Camera);

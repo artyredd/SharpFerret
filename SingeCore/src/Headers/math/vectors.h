@@ -8,12 +8,23 @@ typedef float vec2[2];
 #endif // !cglm_h
 
 #ifndef cglm_mat_h
+#define GLM_MAT4_IDENTITY_INIT  {{1.0f, 0.0f, 0.0f, 0.0f},                    \
+                                 {0.0f, 1.0f, 0.0f, 0.0f},                    \
+                                 {0.0f, 0.0f, 1.0f, 0.0f},                    \
+                                 {0.0f, 0.0f, 0.0f, 1.0f}}
+
+#define GLM_MAT4_ZERO_INIT      {{0.0f, 0.0f, 0.0f, 0.0f},                    \
+                                 {0.0f, 0.0f, 0.0f, 0.0f},                    \
+                                 {0.0f, 0.0f, 0.0f, 0.0f},                    \
+                                 {0.0f, 0.0f, 0.0f, 0.0f}}
 typedef _declspec(align(16)) vec4 mat4[4];
 #endif // !cglm_mat_h
 
 #define Vector2Equals(left,right) (left[0] ==  right[0] && left[1] == right[1])
 
 #define Vector3Equals(left,right) (left[0] ==  right[0] && left[1] == right[1] && left[2] == right[2])
+
+#define Vector4Equals(left,right) (left[0] ==  right[0] && left[1] == right[1] && left[2] == right[2] && left[3] == right[3])
 
 static void CopyTo(const float* source, float* destination, const size_t count)
 {
@@ -34,6 +45,15 @@ static void CopyTo(const float* source, float* destination, const size_t count)
 #define SetVector2(vec2, x, y) vec2[0] = x; vec2[1] = y
 #define SetVector3(vec3, x, y, z) vec3[0] = x; vec3[1] = y; vec3[2] = z
 #define SetVector4(vec4, x, y, z, w) vec4[0] = x; vec4[1] = y; vec4[2] = z; vec4[3] = w
+
+#define AddVector3(vec3, x, y, z) vec3[0] += x; vec3[1] += y; vec3[2] += z
+#define AddVector4(vec4, x, y, z, w) vec4[0] += x; vec4[1] += y; vec4[2] += z; vec4[3] += w
+
+#define SetVectors3(left,right) left[0] = right[0]; left[1] = right[1]; left[2] = right[2]
+#define SetVectors4(left,right) left[0] = right[0]; left[1] = right[1]; left[2] = right[2]; left[3] = right[3]
+
+#define AddVectors3(left,right) left[0] += right[0]; left[1] += right[1]; left[2] += right[2]
+#define AddVectors4(left,right) left[0] += right[0]; left[1] += right[1]; left[2] += right[2]; left[3] += right[3]
 
 #define InitializeVector3(vec3) SetVector3(vec3,0,0,0);
 #define InitializeVector4(vec3) SetVector4(vec3,0,0,0,0);
@@ -58,6 +78,14 @@ static struct _vectorDirections {
 	.Right = { 1, 1, 0},
 	.Forward = { 0, 0, 1},
 	.Back = { 0, 1, -1}
+};
+
+static struct _matrixConstants {
+	mat4 Identity;
+	mat4 Zero;
+} Matrix4 = {
+	.Identity = GLM_MAT4_IDENTITY_INIT,
+	.Zero = GLM_MAT4_ZERO_INIT
 };
 
 bool TryParseVector3(char* buffer, vec3 out_vector);

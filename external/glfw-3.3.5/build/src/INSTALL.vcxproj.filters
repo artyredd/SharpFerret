@@ -1,13 +1,13 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="16.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CustomBuild Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\a605139e10631badef827bd0312c23b1\INSTALL_force.rule">
+    <CustomBuild Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\cc8b0b585661ea0fee5c7f4a893168f6\INSTALL_force.rule">
       <Filter>CMake Rules</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="CMake Rules">
-      <UniqueIdentifier>{8676FC4A-746A-3B1E-B642-CB443AD80B40}</UniqueIdentifier>
+      <UniqueIdentifier>{E1606D4F-82D4-3B13-8AEF-FE124EF172E1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

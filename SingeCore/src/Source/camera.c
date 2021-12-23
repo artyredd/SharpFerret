@@ -4,6 +4,7 @@
 #include "cglm/mat4.h"
 #include "cglm/cam.h"
 #include "graphics/shaders.h"
+#include "graphics/transform.h"
 
 static void Dispose(Camera camera)
 {
@@ -12,9 +13,12 @@ static void Dispose(Camera camera)
 
 static void DrawMesh(Camera camera, RenderMesh mesh, Shader shader)
 {
+	// make sure the meshes transform is up to date
+	vec4* modelMatrix = RefreshTransform(mesh->Transform);
+
 	// create the MVP
 	mat4 MVP;
-	glm_mat4_mul(camera->ViewProjectionMatrix, mesh->Transform, MVP);
+	glm_mat4_mul(camera->ViewProjectionMatrix, modelMatrix, MVP);
 
 	if (shader->BeforeDraw isnt null)
 	{
@@ -34,10 +38,10 @@ static void DrawMesh(Camera camera, RenderMesh mesh, Shader shader)
 
 static void RecalculateProjection(Camera camera)
 {
-	glm_perspective(glm_rad(camera->FieldOfView), 
-		camera->AspectRatio, 
-		camera->NearClippingDistance, 
-		camera->FarClippingDistance, 
+	glm_perspective(glm_rad(camera->FieldOfView),
+		camera->AspectRatio,
+		camera->NearClippingDistance,
+		camera->FarClippingDistance,
 		camera->ProjectionMatrix);
 }
 

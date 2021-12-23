@@ -4,6 +4,7 @@
 
 #define SetFlag(mask,flag,value) if(value){ mask |= flag; }else{ mask ^= flag; }
 #define HasFlag(mask,flag) (((mask) & (flag)) == (flag))
+#define ResetFlags(mask) mask = 0
 
 // 1 (0b_0000_0000_0000_0001)
 #define FLAG_0 (1<<0)

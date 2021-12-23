@@ -22,7 +22,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{75C0D89E-A80D-3184-8E0C-890DBB3E0350}</ProjectGuid>
+    <ProjectGuid>{440B1B60-8AED-3179-B0AC-5652C3AF87AB}</ProjectGuid>
     <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
     <Keyword>Win32Proj</Keyword>
     <Platform>x64</Platform>
@@ -105,11 +105,11 @@
     </Midl>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <CustomBuild Include="C:\Repos\SingeEngine\external\glfw-3.3.5\CMakeLists.txt">
+    <CustomBuild Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\CMakeLists.txt">
       <UseUtf8Encoding>Always</UseUtf8Encoding>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/Repos/SingeEngine/external/glfw-3.3.5/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Building Custom Rule C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Repos/SingeEngine/external/glfw-3.3.5 -BC:/Repos/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/Repos/SingeEngine/external/glfw-3.3.5/build/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5 -BC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -117,12 +117,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\CMake\cmake_uninstall.cmake.in;C:\Repos\SingeEngine\external\glfw-3.3.5\CMake\glfw3Config.cmake.in;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeCCompiler.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeRCCompiler.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\Program Files\CMake\share\cmake-3.21\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\WriteBasicConfigVersionFile.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\CMake\cmake_uninstall.cmake.in;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\CMake\glfw3Config.cmake.in;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeCCompiler.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeRCCompiler.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/Repos/SingeEngine/external/glfw-3.3.5/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Building Custom Rule C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Repos/SingeEngine/external/glfw-3.3.5 -BC:/Repos/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/Repos/SingeEngine/external/glfw-3.3.5/build/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5 -BC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -130,12 +130,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\CMake\cmake_uninstall.cmake.in;C:\Repos\SingeEngine\external\glfw-3.3.5\CMake\glfw3Config.cmake.in;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeCCompiler.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeRCCompiler.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\Program Files\CMake\share\cmake-3.21\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\WriteBasicConfigVersionFile.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\CMake\cmake_uninstall.cmake.in;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\CMake\glfw3Config.cmake.in;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeCCompiler.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeRCCompiler.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/Repos/SingeEngine/external/glfw-3.3.5/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">Building Custom Rule C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Repos/SingeEngine/external/glfw-3.3.5 -BC:/Repos/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/Repos/SingeEngine/external/glfw-3.3.5/build/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5 -BC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -143,12 +143,12 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\CMake\cmake_uninstall.cmake.in;C:\Repos\SingeEngine\external\glfw-3.3.5\CMake\glfw3Config.cmake.in;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeCCompiler.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeRCCompiler.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\Program Files\CMake\share\cmake-3.21\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\WriteBasicConfigVersionFile.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\CMake\cmake_uninstall.cmake.in;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\CMake\glfw3Config.cmake.in;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeCCompiler.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeRCCompiler.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|x64'">false</LinkObjects>
-      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/Repos/SingeEngine/external/glfw-3.3.5/CMakeLists.txt</Message>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">Building Custom Rule C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/CMakeLists.txt</Message>
       <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">setlocal
-"C:\Program Files\CMake\bin\cmake.exe" -SC:/Repos/SingeEngine/external/glfw-3.3.5 -BC:/Repos/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/Repos/SingeEngine/external/glfw-3.3.5/build/CMakeFiles/generate.stamp
+"C:\Program Files\CMake\bin\cmake.exe" -SC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5 -BC:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build --check-stamp-file C:/_Programming/Repos/C/SingeEngine/external/glfw-3.3.5/build/CMakeFiles/generate.stamp
 if %errorlevel% neq 0 goto :cmEnd
 :cmEnd
 endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
@@ -156,146 +156,146 @@ endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
 exit /b %1
 :cmDone
 if %errorlevel% neq 0 goto :VCEnd</Command>
-      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.22\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.22\Modules\WriteBasicConfigVersionFile.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\CMake\cmake_uninstall.cmake.in;C:\Repos\SingeEngine\external\glfw-3.3.5\CMake\glfw3Config.cmake.in;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeCCompiler.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeRCCompiler.cmake;C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.22.1\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
-      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Repos\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\generate.stamp</Outputs>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\Program Files\CMake\share\cmake-3.21\Modules\BasicConfigVersion-SameMajorVersion.cmake.in;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeDependentOption.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakePackageConfigHelpers.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CMakeSystemSpecificInitialize.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckCSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckIncludeFile.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\CMakeCommonCompilerMacros.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Compiler\MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindDoxygen.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\FindThreads.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\GNUInstallDirs.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Internal\CheckSourceCompiles.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows-MSVC.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.21\Modules\WriteBasicConfigVersionFile.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\CMake\cmake_uninstall.cmake.in;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\CMake\glfw3Config.cmake.in;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeCCompiler.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeRCCompiler.cmake;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\3.21.2\CMakeSystem.cmake;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\CMakeFiles\generate.stamp</Outputs>
       <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|x64'">false</LinkObjects>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\ZERO_CHECK.vcxproj">
-      <Project>{B9A27094-46D5-3D90-BB17-760D79621112}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\ZERO_CHECK.vcxproj">
+      <Project>{A72E7567-8661-359A-8BFD-411133E42BA3}</Project>
       <Name>ZERO_CHECK</Name>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <CopyToOutputDirectory>Never</CopyToOutputDirectory>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\allocator.vcxproj">
-      <Project>{8F050926-6338-3F89-BC37-C4CE21A5C494}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\allocator.vcxproj">
+      <Project>{FE87D76B-0963-32D4-96A8-618F97F5A20F}</Project>
       <Name>allocator</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\boing.vcxproj">
-      <Project>{CF2D6147-DB82-3224-9D62-CA6CD6238FB6}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\boing.vcxproj">
+      <Project>{0F016BB1-E09C-3C67-BFFF-510A3F5A3526}</Project>
       <Name>boing</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\clipboard.vcxproj">
-      <Project>{5C7CD490-0593-3755-9CD0-6349AE9AE6D9}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\clipboard.vcxproj">
+      <Project>{41718219-D548-32FC-A446-49ABE6F3FD13}</Project>
       <Name>clipboard</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\cursor.vcxproj">
-      <Project>{97A3EDEA-766D-3C50-9217-A156947F7DFC}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\cursor.vcxproj">
+      <Project>{6699990A-8E93-3FA0-BE94-CDC90F01F0B6}</Project>
       <Name>cursor</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\empty.vcxproj">
-      <Project>{A4DB5070-0FF5-3EE0-8436-D50196A8971C}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\empty.vcxproj">
+      <Project>{8BE56925-4374-366A-8A6B-9784952DB104}</Project>
       <Name>empty</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\events.vcxproj">
-      <Project>{813B5C81-AA7A-32D9-B185-76E02A0C10D8}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\events.vcxproj">
+      <Project>{D223F495-06D3-3DC5-A642-557621D519B2}</Project>
       <Name>events</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\gamma.vcxproj">
-      <Project>{5F0FD525-0BF1-3AC6-AE2A-3911FD684AE2}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\gamma.vcxproj">
+      <Project>{4BA9A264-08CD-3B70-BDE5-43FE0C5F5BBB}</Project>
       <Name>gamma</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\gears.vcxproj">
-      <Project>{C7A70B9F-F7CB-3237-AA11-E145F8F89190}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\gears.vcxproj">
+      <Project>{05F31436-4243-3D36-A416-50B037FBD40F}</Project>
       <Name>gears</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\src\glfw.vcxproj">
-      <Project>{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\src\glfw.vcxproj">
+      <Project>{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}</Project>
       <Name>glfw</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\glfwinfo.vcxproj">
-      <Project>{77DE8781-09EE-34C8-BDA2-2230B620BFB6}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\glfwinfo.vcxproj">
+      <Project>{DF94ACC4-0142-3D3C-86E6-29B0E9B6E54A}</Project>
       <Name>glfwinfo</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\heightmap.vcxproj">
-      <Project>{53EDCF21-C5FC-36CA-B853-C0C04D220BAF}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\heightmap.vcxproj">
+      <Project>{5620C047-61B0-3CE0-9DEB-DBEFC27A45F6}</Project>
       <Name>heightmap</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\icon.vcxproj">
-      <Project>{6212E09C-BACD-382E-A525-3FD6EDA32CE8}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\icon.vcxproj">
+      <Project>{FE6F4791-7031-39A0-8707-9A40BCE9B7DE}</Project>
       <Name>icon</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\iconify.vcxproj">
-      <Project>{FE5D3F08-B096-3FE9-9539-47EB18EF630C}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\iconify.vcxproj">
+      <Project>{4D495833-D28C-3787-B355-9E4BE668DC00}</Project>
       <Name>iconify</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\inputlag.vcxproj">
-      <Project>{34394827-EDA8-31D0-9059-5799608C6A2C}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\inputlag.vcxproj">
+      <Project>{494EBAEC-492F-3898-9842-AEDA947AEEF0}</Project>
       <Name>inputlag</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\joysticks.vcxproj">
-      <Project>{5A4EF2AE-4889-34EF-9642-5043E7B77E0E}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\joysticks.vcxproj">
+      <Project>{09CE75F0-9F6A-38B1-92E8-D84EDB0B719B}</Project>
       <Name>joysticks</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\monitors.vcxproj">
-      <Project>{068F2BB3-ED4F-3AF9-ACD5-D87C6C8E912C}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\monitors.vcxproj">
+      <Project>{3F2AA4CD-2E85-36C0-817B-5E5E20DCD7EC}</Project>
       <Name>monitors</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\msaa.vcxproj">
-      <Project>{E2AD03DC-A34F-355A-A038-F1C97F4367E4}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\msaa.vcxproj">
+      <Project>{7254B8C9-8693-3986-8178-4BE945643513}</Project>
       <Name>msaa</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\offscreen.vcxproj">
-      <Project>{98EFB874-FADE-3F1A-863D-353C7D12B2BF}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\offscreen.vcxproj">
+      <Project>{629B3439-7849-31A7-B1FF-A22FB8EB0FA3}</Project>
       <Name>offscreen</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\particles.vcxproj">
-      <Project>{C62FE9E3-2DD4-38B1-88CD-F4D304E4CD15}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\particles.vcxproj">
+      <Project>{E4C36A40-A7FD-394E-8E10-63207A6FB7E0}</Project>
       <Name>particles</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\reopen.vcxproj">
-      <Project>{15705966-78E1-3267-9AF7-E9A748B7B09F}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\reopen.vcxproj">
+      <Project>{5C3C6EE1-62D2-3593-AC39-A13B1BCA1D5B}</Project>
       <Name>reopen</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\sharing.vcxproj">
-      <Project>{36539C35-D890-3AD7-ABA2-2EC450F79DEB}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\sharing.vcxproj">
+      <Project>{9CEB3AE3-7B9F-3FA6-8154-5FD98CA90EDD}</Project>
       <Name>sharing</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\splitview.vcxproj">
-      <Project>{EDCCB85A-56A1-30BC-9864-7500C52949FE}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\splitview.vcxproj">
+      <Project>{3477D82E-6E6D-3816-BC34-E5538A9D332D}</Project>
       <Name>splitview</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\tearing.vcxproj">
-      <Project>{5881D8D7-E291-31FA-9BD4-57536401C825}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\tearing.vcxproj">
+      <Project>{CB16CD27-72B5-3438-B632-E10E66382380}</Project>
       <Name>tearing</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\threads.vcxproj">
-      <Project>{B35F10B4-E614-3956-B004-15312A9B0817}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\threads.vcxproj">
+      <Project>{DEA80C5F-331A-3AC3-B1B0-4E141B35F832}</Project>
       <Name>threads</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\timeout.vcxproj">
-      <Project>{A3532935-AD49-3FB8-91B9-4707140D4D55}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\timeout.vcxproj">
+      <Project>{2BCE741C-D0E6-3D32-B203-459F5B8B155D}</Project>
       <Name>timeout</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\title.vcxproj">
-      <Project>{D59E22FD-E043-3209-AE44-820DB43FD37D}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\title.vcxproj">
+      <Project>{BD8C480E-F6D8-3BAC-B968-83DA19E694B9}</Project>
       <Name>title</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\triangle-opengl.vcxproj">
-      <Project>{39F5FD3E-F82C-3E60-87C4-AD1DF52B9F88}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\triangle-opengl.vcxproj">
+      <Project>{267C3AEF-6772-37B2-A9D2-2688A3C3D819}</Project>
       <Name>triangle-opengl</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\triangle-opengles.vcxproj">
-      <Project>{E395AEC5-8C10-399B-A328-616515D6531C}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\triangle-opengles.vcxproj">
+      <Project>{77D17036-415E-365F-A2CA-16A5963FBCA4}</Project>
       <Name>triangle-opengles</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\triangle-vulkan.vcxproj">
-      <Project>{07C96241-7F48-3A1D-8CC2-B76AF52FE12E}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\triangle-vulkan.vcxproj">
+      <Project>{0DE7A711-77EF-3506-974B-89D07B38BC1C}</Project>
       <Name>triangle-vulkan</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\wave.vcxproj">
-      <Project>{2A4E47DE-55F1-3B21-B89F-F407B49BE630}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\wave.vcxproj">
+      <Project>{B8EEBDEE-C295-3D1B-9414-6506761A6464}</Project>
       <Name>wave</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\tests\window.vcxproj">
-      <Project>{67763876-D6AC-3ACE-B512-4F6963C9A27A}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\tests\window.vcxproj">
+      <Project>{76826883-F120-3922-B2BE-5BC97AFCC227}</Project>
       <Name>window</Name>
     </ProjectReference>
-    <ProjectReference Include="C:\Repos\SingeEngine\external\glfw-3.3.5\build\examples\windows.vcxproj">
-      <Project>{6656D7F0-B03A-3B29-88F9-91E2646B7EAA}</Project>
+    <ProjectReference Include="C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\build\examples\windows.vcxproj">
+      <Project>{53AA79F3-39B1-3D10-B4CF-09DE8C921A58}</Project>
       <Name>windows</Name>
     </ProjectReference>
   </ItemGroup>
