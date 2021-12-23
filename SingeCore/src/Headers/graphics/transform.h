@@ -3,6 +3,31 @@
 #include "math/vectors.h"
 #include "math/quaternions.h"
 
+typedef struct transformState {
+	/// <summary>
+	/// Modified state is an unsigned int used as a bit mas to identify if various elements of this
+	/// state have been modified
+	/// format: 0 : unmodified; != 0 : modified, all other values are implementation defined but are as follows:
+	/// 0x01 : position modified; 0x02 rotation modified; 0x04 scale modified; Any or all flags may be present
+	/// </summary>
+	unsigned int Modified;
+	/// <summary>
+	/// The previously calculated scale matrix for this transform, this is NOT initialized with a value
+	/// until the first time this transform is refreshed
+	/// </summary>
+	mat4 PreviousScaleMatrix;
+	/// <summary>
+	/// The previously calculated rotation matrix for this transform, this is NOT initialized with a value
+	/// until the first time this transform is refreshed
+	/// </summary>
+	mat4 PreviousRotationMatrix;
+	/// <summary>
+	/// The previously calculated trasform matrix for this transform, this is NOT initialized with a value
+	/// until the first time this transform is refreshed
+	/// </summary>
+	mat4 State;
+};
+
 typedef struct _transform* Transform;
 
 struct _transform {
@@ -21,12 +46,7 @@ struct _transform {
 	/// <summary>
 	/// The stored state of this transform
 	/// </summary>
-	mat4 PreviousState;
-	/// <summary>
-	/// This flag denotes whethere or not this transform has been modified
-	/// When a transform is modified in any way a new Matrix must be computed
-	/// </summary>
-	bool Modified;
+	struct transformState PreviousState;
 };
 
 Transform CreateTransform();

@@ -206,6 +206,7 @@
     <ClInclude Include="src\Headers\graphics\shaders.h" />
     <ClInclude Include="src\Headers\graphics\transform.h" />
     <ClInclude Include="src\Headers\Graphics\window.h" />
+    <ClInclude Include="src\Headers\helpers\quickmask.h" />
     <ClInclude Include="src\Headers\input.h" />
     <ClInclude Include="src\Headers\math\quaternions.h" />
     <ClInclude Include="src\Headers\math\shapes.h" />

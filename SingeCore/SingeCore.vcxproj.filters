@@ -37,6 +37,9 @@
     <Filter Include="Header Files\Modeling">
       <UniqueIdentifier>{9207c7bb-6197-4ef6-9bad-1366a1e28542}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\helpers">
+      <UniqueIdentifier>{ed8faaaa-beb5-43ec-a008-59ac8119b7dd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\enumerable.c">
@@ -178,6 +181,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\math\quaternions.h">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\helpers\quickmask.h">
+      <Filter>Header Files\helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
