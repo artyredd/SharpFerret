@@ -28,6 +28,7 @@
 #include "input.h"
 #include "cglm/affine.h"
 #include "math/quaternions.h"
+#include "cglm/quat.h"
 
 Window window;
 

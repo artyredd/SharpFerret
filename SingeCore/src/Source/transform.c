@@ -2,6 +2,7 @@
 #include "singine/memory.h"
 
 #include "cglm/affine.h"
+#include "cglm/quat.h"
 #include "helpers/quickmask.h"
 
 
