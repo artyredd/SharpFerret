@@ -362,4 +362,4 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
 
-external\glfw-3.3.5\build
+external/glfw-3.3.5/build/
