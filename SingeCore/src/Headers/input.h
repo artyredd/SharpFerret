@@ -164,13 +164,51 @@ CursorMode GetCursorMode(void);
 void SetRawMouseEnabled(bool value);
 bool GetRawMouseEnabled();
 
-typedef int Axis;
+// The number of axes that are supported
+#define MAX_AXES 3
 
-struct _availableAxis {
+/// <summary>
+/// Integer representation of an axis
+/// </summary>
+typedef unsigned int Axis;
+
+const static struct _availableAxes {
+	Axis None;
 	Axis MouseX;
 	Axis MouseY;
+} Axes = {
+	.None = 0,
+	.MouseX = 1,
+	.MouseY = 2
 };
 
-extern const struct _availableAxis Axes;
+typedef struct _axisDefinition* AxisDefinition;
+
+struct _axisDefinition {
+	double MinimumValue;
+	double MaximumValue;
+	double PreviousValue;
+};
+
+static struct _axisDefinition AxisDefinitions[3] = {
+	// none
+	{
+		.MinimumValue = 0.0,
+		.MaximumValue = 0.0,
+		.PreviousValue = 0.0
+	},
+	// MouseX
+	{
+		.MinimumValue = 1.0,
+		.MaximumValue = 1.0,
+		.PreviousValue = 0.0
+	},
+	// MouseY
+	{
+		.MinimumValue = 1.0,
+		.MaximumValue = 1.0,
+		.PreviousValue = 0.0
+	}
+};
 
 double GetAxis(Axis axis);

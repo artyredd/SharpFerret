@@ -185,6 +185,9 @@
     <ClInclude Include="src\Headers\helpers\quickmask.h">
       <Filter>Header Files\helpers</Filter>
     </ClInclude>
+    <ClInclude Include="src\Headers\math\macros.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleFragmentShader.fragmentshader">

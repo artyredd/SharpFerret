@@ -98,7 +98,7 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	glfwSetInputMode(window->Handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	SetCursorMode(CursorModes.Hidden);
 
 	uv->Dispose(uv);
 
@@ -138,7 +138,7 @@ int main()
 
 	cube->Dispose(cube);
 
-	float speed = 0.01f;
+	float speed = 0.1f;
 
 	vec4 scaler = { 2,2,2,1 };
 
@@ -180,22 +180,22 @@ int main()
 		////glBindTexture(GL_TEXTURE_2D, uvID);
 		////glUniform1i(textureID, 0); 
 
-		if (GetKey(KeyCodes.Up))
+		if (GetAxis(Axes.MouseX) > 0)
 		{
 			scaleAmount += speed;
 		}
 
-		if (GetKey(KeyCodes.Down))
+		if (GetAxis(Axes.MouseX) < 0)
 		{
 			scaleAmount -= speed;
 		}
 
-		if (GetKey(KeyCodes.Left))
+		if (GetAxis(Axes.MouseY) > 0)
 		{
 			rotateAmount += speed;
 		}
 
-		if (GetKey(KeyCodes.Right))
+		if (GetAxis(Axes.MouseY) < 0)
 		{
 			rotateAmount -= speed;
 		}
@@ -218,7 +218,6 @@ int main()
 
 		PollInput();
 
-		fprintf(stdout, "z: %0.4lf y: %0.4lf"NEWLINE, MousePosition[0], MousePosition[1]);
 	} while (GetKey(KeyCodes.Escape) != true && ShouldClose(window) != true);
 
 	for (size_t i = 0; i < numberOfMeshes; i++)

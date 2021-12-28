@@ -1,11 +1,16 @@
 #include "input.h"
 #include "GLFW/glfw3.h"
+#include <stdlib.h>
+#include <math.h>
+#include "math/macros.h"
 
 #define EnsureWindowSet() if (ActiveWindow is null)\
 	{\
 	fprintf(stderr, "There is no active window that was set with SetInputWindow(Window)"NEWLINE);\
 	throw(NoActiveWindowException);\
 	}\
+
+void CalculateAxes(void);
 
 const struct _keyCodes KeyCodes = {
 	.none = 0,
@@ -130,10 +135,13 @@ static Window ActiveWindow = null;
 static CursorMode CurrentCursorMode = GLFW_CURSOR_NORMAL;
 static bool RawMouseEnabled = false;
 
+static double AxisStates[MAX_AXES];
+
 void PollInput()
 {
 	glfwPollEvents();
 	glfwGetCursorPos(ActiveWindow->Handle, &MousePosition[0], &MousePosition[1]);
+	CalculateAxes();
 }
 
 bool GetKey(KeyCode key)
@@ -191,4 +199,39 @@ void SetRawMouseEnabled(bool value)
 bool GetRawMouseEnabled()
 {
 	return RawMouseEnabled;
+}
+
+static double CalculateAxis(AxisDefinition definition, double newValue)
+{
+	double deadZoneLower = (definition->PreviousValue - definition->MinimumValue);
+	double deadZoneUpper = (definition->PreviousValue + definition->MinimumValue);
+
+	// check if the new value is within the deadzone, if it is return as unchanged
+	if (newValue > deadZoneLower && newValue < deadZoneUpper)
+	{
+		return 0.0;
+	}
+
+	double difference = newValue - definition->PreviousValue;
+
+	definition->PreviousValue = newValue;
+
+	return difference > 0.0 ? 1.0 : -1.0;
+}
+
+void CalculateAxes()
+{
+	AxisStates[Axes.None] = 0.0;
+	AxisStates[Axes.MouseX] = CalculateAxis(&AxisDefinitions[Axes.MouseX], MousePosition[0]);
+	AxisStates[Axes.MouseY] = CalculateAxis(&AxisDefinitions[Axes.MouseY], MousePosition[1]);
+}
+
+double GetAxis(Axis axis)
+{
+	if(axis > (MAX_AXES-1))
+	{
+		return 0.0;
+	}
+
+	return AxisStates[axis];
 }
