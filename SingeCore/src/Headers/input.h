@@ -163,3 +163,14 @@ CursorMode GetCursorMode(void);
 
 void SetRawMouseEnabled(bool value);
 bool GetRawMouseEnabled();
+
+typedef int Axis;
+
+struct _availableAxis {
+	Axis MouseX;
+	Axis MouseY;
+};
+
+extern const struct _availableAxis Axes;
+
+double GetAxis(Axis axis);
