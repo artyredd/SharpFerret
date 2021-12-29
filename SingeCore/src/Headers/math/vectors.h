@@ -62,9 +62,13 @@ static void CopyTo(const float* source, float* destination, const size_t count)
 #define AddVectors3(left,right) left[0] += right[0]; left[1] += right[1]; left[2] += right[2]
 #define AddVectors4(left,right) left[0] += right[0]; left[1] += right[1]; left[2] += right[2]; left[3] += right[3]
 
+#define MultiplyVectors3(left, right) left[0] *= right[0]; left[1] *= right[1]; left[2] *= right[2]
+
 #define InitializeVector3(vec3) SetVector3(vec3,0,0,0);
 #define InitializeVector4(vec3) SetVector4(vec3,0,0,0,0);
 #define InitializeMat4(mat4) glm_mat4_identity(mat4)
+
+#define SetMatrices4(left,right) SetVectors4(left[0],right[0]);SetVectors4(left[1],right[1]);SetVectors4(left[2],right[2]);SetVectors4(left[3],right[3])
 
 static struct _vectorDirections {
 	vec3 Zero;

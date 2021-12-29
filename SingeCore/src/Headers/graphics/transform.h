@@ -15,14 +15,19 @@ struct transformState {
 	/// The previously calculated scale matrix for this transform, this is NOT initialized with a value
 	/// until the first time this transform is refreshed
 	/// </summary>
-	mat4 PreviousScaleMatrix;
+	mat4 ScaleMatrix;
 	/// <summary>
 	/// The previously calculated rotation matrix for this transform, this is NOT initialized with a value
 	/// until the first time this transform is refreshed
 	/// </summary>
-	mat4 PreviousRotationMatrix;
+	mat4 RotationMatrix;
 	/// <summary>
-	/// The previously calculated trasform matrix for this transform, this is NOT initialized with a value
+	/// The previously calculated trasform matrix for this transform NOT including the parent matrix, this is NOT initialized with a value
+	/// until the first time this transform is refreshed
+	/// </summary>
+	mat4 LocalState;
+	/// <summary>
+	/// The previously calculated trasform matrix for this transform, INCLUDING the parent's matrix, this is NOT initialized with a value
 	/// until the first time this transform is refreshed
 	/// </summary>
 	mat4 State;
@@ -31,6 +36,30 @@ struct transformState {
 typedef struct _transform* Transform;
 
 struct _transform {
+	/// <summary>
+	/// The parent of this transform
+	/// </summary>
+	Transform Parent;
+	/// <summary>
+	/// The head of the children of this transform
+	/// </summary>
+	Transform Child;
+	/// <summary>
+	/// The tail of the children of this transform
+	/// </summary>
+	Transform LastChild;
+	/// <summary>
+	/// The next child of the parent of this transform
+	/// </summary>
+	Transform Next;
+	/// <summary>
+	/// The previous child of the parent of this transform
+	/// </summary>
+	Transform Previous;
+	/// <summary>
+	/// The number of children in this transform
+	/// </summary>
+	size_t Count;
 	/// <summary>
 	/// The position of this transform in world space
 	/// </summary>
@@ -70,3 +99,5 @@ void SetScale(Transform, vec3 scale);
 void AddPostion(Transform, vec3 amount);
 void AddRotation(Transform, Quaternion amount);
 void AddScale(Transform, vec3 amount);
+
+void SetParent(Transform, Transform parent);

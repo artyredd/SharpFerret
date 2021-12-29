@@ -40,6 +40,9 @@
     <Filter Include="Header Files\helpers">
       <UniqueIdentifier>{ed8faaaa-beb5-43ec-a008-59ac8119b7dd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Scripts">
+      <UniqueIdentifier>{c6582471-7e83-41d9-b882-e74feba101dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\enumerable.c">
@@ -106,6 +109,9 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Source\time.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\quaternions.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -193,6 +199,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\singine\time.h">
       <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\scripts\fpsCamera.h">
+      <Filter>Header Files\Scripts</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -139,71 +139,79 @@ int main()
 
 	cube->Dispose(cube);
 
-	float speed = 0.1f;
+	float speed = 10.0f;
 
-	vec4 scaler = { 2,2,2,1 };
+	vec4 scaler = { 1,1,1,1 };
 
 	float scaleAmount = 1.0f;
 	float rotateAmount = 0.0f;
 
-
 	Quaternion rotation;
+
+	meshes[1]->Transform->Parent = meshes[0]->Transform;
+	meshes[0]->Transform->Child = meshes[1]->Transform;
+	meshes[0]->Transform->LastChild = meshes[1]->Transform;
+	meshes[0]->Transform->Count = 1;
 
 	do {
 		UpdateTime();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		float modifier = speed * (float)DeltaTime();
+
 		if (GetKey(KeyCodes.A))
 		{
-			camera->AddPositionX(camera, -speed);
+			camera->AddPositionX(camera, -modifier);
 		}
 		if (GetKey(KeyCodes.D))
 		{
-			camera->AddPositionX(camera, speed);
+			camera->AddPositionX(camera, modifier);
 		}
 		if (GetKey(KeyCodes.W))
 		{
-			camera->AddPositionZ(camera, -speed);
+			camera->AddPositionZ(camera, -modifier);
 		}
 		if (GetKey(KeyCodes.S))
 		{
-			camera->AddPositionZ(camera, speed);
+			camera->AddPositionZ(camera, modifier);
 		}
 		if (GetKey(KeyCodes.Space))
 		{
-			camera->AddPositionY(camera, speed);
+			camera->AddPositionY(camera, modifier);
 		}
 		if (GetKey(KeyCodes.LeftShift))
 		{
-			camera->AddPositionY(camera, -speed);
+			camera->AddPositionY(camera, -modifier);
 		}
 
 		////glActiveTexture(GL_TEXTURE0);
 		////glBindTexture(GL_TEXTURE_2D, uvID);
 		////glUniform1i(textureID, 0); 
 
-		if (GetAxis(Axes.MouseX) > 0)
+		if (GetKey(KeyCodes.Up))
 		{
-			scaleAmount += speed;
+			scaleAmount += modifier;
 		}
 
-		if (GetAxis(Axes.MouseX) < 0)
+		if (GetKey(KeyCodes.Down))
 		{
-			scaleAmount -= speed;
+			scaleAmount -= modifier;
 		}
 
-		if (GetAxis(Axes.MouseY) > 0)
+		if (GetKey(KeyCodes.Left))
 		{
-			rotateAmount += speed;
+			rotateAmount += modifier;
 		}
 
-		if (GetAxis(Axes.MouseY) < 0)
+		if (GetKey(KeyCodes.Right))
 		{
-			rotateAmount -= speed;
+			rotateAmount -= modifier;
 		}
 
-		SetVector3(scaler, scaleAmount, scaleAmount, scaleAmount);
+		SetVector3(scaler, scaleAmount, 
+			scaleAmount, 
+			scaleAmount);
 
 		glm_quat(rotation, rotateAmount, 1, 0, 0);
 
@@ -211,10 +219,14 @@ int main()
 
 		SetScale(meshes[0]->Transform, scaler);
 
-		for (size_t i = 0; i < numberOfMeshes; i++)
+		camera->DrawMesh(camera, meshes[0], shader);
+
+		camera->DrawMesh(camera, meshes[1], shader);
+
+		/*for (size_t i = 0; i < numberOfMeshes; i++)
 		{
 			camera->DrawMesh(camera, meshes[i], shader);
-		}
+		}*/
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);

@@ -188,6 +188,7 @@
     <ClCompile Include="src\Source\mesh.c" />
     <ClCompile Include="src\Source\model.c" />
     <ClCompile Include="src\Source\parsing.c" />
+    <ClCompile Include="src\Source\quaternions.c" />
     <ClCompile Include="src\Source\renderMesh.c" />
     <ClCompile Include="src\Source\shadercompiler.c" />
     <ClCompile Include="src\Source\shaders.c" />
@@ -216,6 +217,7 @@
     <ClInclude Include="src\Headers\modeling\importer.h" />
     <ClInclude Include="src\Headers\modeling\mesh.h" />
     <ClInclude Include="src\Headers\modeling\model.h" />
+    <ClInclude Include="src\Headers\scripts\fpsCamera.h" />
     <ClInclude Include="src\Headers\singine\conversions.h" />
     <ClInclude Include="src\Headers\Singine\enumerable.h" />
     <ClInclude Include="src\Headers\singine\enumerableItem.h" />
