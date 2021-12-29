@@ -29,6 +29,7 @@
 #include "cglm/affine.h"
 #include "math/quaternions.h"
 #include "cglm/quat.h"
+#include "singine/time.h"
 
 Window window;
 
@@ -149,6 +150,8 @@ int main()
 	Quaternion rotation;
 
 	do {
+		UpdateTime();
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		if (GetKey(KeyCodes.A))
@@ -218,6 +221,7 @@ int main()
 
 		PollInput();
 
+		//fprintf(stdout,"Total: %0.4fs	FrameTime: %0.4fms"NEWLINE, Time(), FrameTime() * 1000.0);
 	} while (GetKey(KeyCodes.Escape) != true && ShouldClose(window) != true);
 
 	for (size_t i = 0; i < numberOfMeshes; i++)

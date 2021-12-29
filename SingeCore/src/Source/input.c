@@ -228,7 +228,8 @@ void CalculateAxes()
 
 double GetAxis(Axis axis)
 {
-	if(axis > (MAX_AXES-1))
+	// make sure we get a valid axis
+	if(axis >= MAX_AXES)
 	{
 		return 0.0;
 	}

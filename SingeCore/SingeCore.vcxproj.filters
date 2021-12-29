@@ -105,6 +105,9 @@
     <ClCompile Include="src\Source\transform.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Source\time.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">
@@ -187,6 +190,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\math\macros.h">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\time.h">
+      <Filter>Header Files\Singine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

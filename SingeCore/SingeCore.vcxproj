@@ -192,6 +192,7 @@
     <ClCompile Include="src\Source\shadercompiler.c" />
     <ClCompile Include="src\Source\shaders.c" />
     <ClCompile Include="src\Source\SingeCore.c" />
+    <ClCompile Include="src\Source\time.c" />
     <ClCompile Include="src\Source\transform.c" />
     <ClCompile Include="src\Source\vectors.c" />
     <ClCompile Include="src\Source\window.c" />
@@ -224,6 +225,7 @@
     <ClInclude Include="src\Headers\singine\guards.h" />
     <ClInclude Include="src\Headers\Singine\memory.h" />
     <ClInclude Include="src\Headers\singine\parsing.h" />
+    <ClInclude Include="src\Headers\singine\time.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleFragmentShader.fragmentshader" />
