@@ -15,6 +15,16 @@
 #define is ==
 #define isnt !=
 
+// expression that provides either left or right, whichever isn't value, if both are value returns value
+#define Coalesce(left,right,operator,value) (left operator value ? left : right)
+
+// expression that provides either left or right, whichever isn't null, if both are null returns null
+// equivalent to left ?? right
+#define NullCoalesce(left,right) Coalesce(left,right,isnt,null) 
+
+// equivalent to left ??= right;
+#define NullCoalesceAssign(left,right) if(left is null) {left = right}
+
 #ifdef _WIN32
 #define NEWLINE "\r\n"
 #elif defined macintosh // OS 9

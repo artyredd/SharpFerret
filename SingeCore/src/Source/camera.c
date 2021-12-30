@@ -125,28 +125,28 @@ static void SetFoV(Camera camera, float value)
 {
 	PreventUneccesaryAssignment(camera->FieldOfView, value, == );
 	camera->FieldOfView = value;
-	SetFlag(camera->State.Modified, ProjectionModifiedFlag, true);
+	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
 }
 
 static void SetAspectRatio(Camera camera, float value)
 {
 	PreventUneccesaryAssignment(camera->AspectRatio, value, == );
 	camera->AspectRatio = value;
-	SetFlag(camera->State.Modified, ProjectionModifiedFlag, true);
+	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
 }
 
 static void SetNearClippingDistance(Camera camera, float value)
 {
 	PreventUneccesaryAssignment(camera->NearClippingDistance, value, == );
 	camera->NearClippingDistance = value;
-	SetFlag(camera->State.Modified, ProjectionModifiedFlag, true);
+	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
 }
 
 static void SetFarClippingDistance(Camera camera, float value)
 {
 	PreventUneccesaryAssignment(camera->FarClippingDistance, value, == );
 	camera->FarClippingDistance = value;
-	SetFlag(camera->State.Modified, ProjectionModifiedFlag, true);
+	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
 }
 
 static void SetCameraPosition(Camera camera, vec3 value)
@@ -156,28 +156,28 @@ static void SetCameraPosition(Camera camera, vec3 value)
 		return;
 	}
 	SetVectors3(camera->Position, value);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void SetCameraPositionX(Camera camera, float x)
 {
 	PreventUneccesaryAssignment(camera->Position[0], x, == );
 	SetX(camera->Position, x);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void SetCameraPositionY(Camera camera, float y)
 {
 	PreventUneccesaryAssignment(camera->Position[1], y, == );
 	SetY(camera->Position, y);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void SetCameraPositionZ(Camera camera, float z)
 {
 	PreventUneccesaryAssignment(camera->Position[2], z, == );
 	SetZ(camera->Position, z);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void SetCameraPositionXYZ(Camera camera, float x, float y, float z)
@@ -187,7 +187,7 @@ static void SetCameraPositionXYZ(Camera camera, float x, float y, float z)
 		return;
 	}
 	SetVector3(camera->Position, x, y, z);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void AddCameraPosition(Camera camera, vec3 value)
@@ -197,28 +197,28 @@ static void AddCameraPosition(Camera camera, vec3 value)
 		return;
 	}
 	AddVectors3(camera->Position, value);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void AddCameraPositionX(Camera camera, float x)
 {
 	PreventUneccesaryAssignment(camera->Position[0], x, == );
 	AddX(camera->Position, x);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void AddCameraPositionY(Camera camera, float y)
 {
 	PreventUneccesaryAssignment(camera->Position[1], y, == );
 	AddY(camera->Position, y);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void AddCameraPositionZ(Camera camera, float z)
 {
 	PreventUneccesaryAssignment(camera->Position[2], z, == );
 	AddZ(camera->Position, z);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void AddCameraPositionXYZ(Camera camera, float x, float y, float z)
@@ -228,7 +228,7 @@ static void AddCameraPositionXYZ(Camera camera, float x, float y, float z)
 		return;
 	}
 	AddVector3(camera->Position, x, y, z);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void SetTarget(Camera camera, vec3 value)
@@ -238,7 +238,7 @@ static void SetTarget(Camera camera, vec3 value)
 		return;
 	}
 	SetVectors3(camera->TargetPosition, value);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 static void SetUpDirection(Camera camera, vec3 value)
@@ -248,7 +248,7 @@ static void SetUpDirection(Camera camera, vec3 value)
 		return;
 	}
 	SetVectors3(camera->UpDirection, value);
-	SetFlag(camera->State.Modified, ViewModifiedFlag, true);
+	SetFlag(camera->State.Modified, ViewModifiedFlag);
 }
 
 

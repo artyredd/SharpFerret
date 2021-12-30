@@ -4,7 +4,7 @@
 #include "cglm/affine.h"
 #include "cglm/quat.h"
 #include "helpers/quickmask.h"
-
+#include "singine/guards.h"
 
 #define PositionModifiedFlag FLAG_0
 #define RotationModifiedFlag FLAG_1
@@ -47,7 +47,7 @@ static void NotifyChildren(Transform transform)
 	Transform child = transform->Child;
 	while (child != null)
 	{
-		SetFlag(child->PreviousState.Modified, ParentModifiedFlag, true);
+		SetFlag(child->PreviousState.Modified, ParentModifiedFlag);
 		child = child->Next;
 	}
 }
@@ -134,6 +134,106 @@ vec4* ForceRefreshTransform(Transform transform)
 	return transform->PreviousState.State;
 }
 
+// Detaches the provided child from the given transform
+// peforms an O(n) search by reference
+static void DetachChild(Transform transform, Transform child)
+{
+	GuardNotNull(transform);
+
+	// while it doesnt make sense to call this with a null child
+	// the expected result of removing nothing, is nothing.. so just return
+	if (child is null)
+	{
+		return;
+	}
+
+	// traverse all children and remove in-place
+
+	Transform current = transform->Child;
+
+	while (current != null)
+	{
+		// perform reference check
+		if (current is child)
+		{
+			// since this is the child remove it,
+			// transforms are a doubly linked list
+
+			// store the next and previous so we can link them
+			Transform next = current->Next;
+			Transform previous = current->Previous;
+
+			// reset the child's links
+			current->Parent = null;
+			current->Next = null;
+			current->Previous = null;
+
+			// make sure if the child is the head or tail we drop the references
+			if(current is transform->Child)
+			{ 
+				// set the new head to either next or previous with preference to next
+				transform->Child = NullCoalesce(next, previous);
+			}
+			if (current is transform->LastChild)
+			{
+				// set the new tail to either next or previous with preference to previous
+				transform->LastChild = NullCoalesce(previous, next);;
+			}
+
+			// link next and previous if they exist
+			if (next isnt null)
+			{
+				next->Previous = previous;
+			}
+			if (previous isnt null)
+			{
+				previous->Next = next;
+			}
+
+			// reduce the number of children
+			--(transform->Count);
+
+			break;
+		}
+	}
+}
+
+static void AttachChild(Transform transform, Transform child)
+{
+	if (transform isnt null)
+	{
+		++(transform->Count);
+
+		if (transform->LastChild is null)
+		{
+			transform->Child = transform->LastChild = child;
+		}
+		else
+		{
+			transform->LastChild->Next = child;
+			child->Previous = transform->LastChild;
+		}
+	}
+
+	child->Parent = transform;
+}
+
+void SetParent(Transform transform, Transform parent)
+{
+	// make sure to detach the previous parent if there is one
+	if (transform->Parent isnt null)
+	{
+		DetachChild(transform->Parent, transform);
+	}
+
+	// attach the child to the new parent
+	AttachChild(parent, transform);
+
+	// mark the child transform as modified since there is a new parent that
+	// will affect it's transform
+   	SetFlag(transform->PreviousState.Modified, ParentModifiedFlag);
+}
+
 void SetPosition(Transform transform, vec3 position)
 {
 	if (Vector3Equals(position, transform->Position))
@@ -142,7 +242,7 @@ void SetPosition(Transform transform, vec3 position)
 	}
 
 	SetVectors3(transform->Position, position);
-	SetFlag(transform->PreviousState.Modified, PositionModifiedFlag, true);
+	SetFlag(transform->PreviousState.Modified, PositionModifiedFlag);
 }
 
 void SetRotation(Transform transform, Quaternion rotation)
@@ -153,7 +253,7 @@ void SetRotation(Transform transform, Quaternion rotation)
 	}
 
 	SetVectors4(transform->Rotation, rotation);
-	SetFlag(transform->PreviousState.Modified, RotationModifiedFlag, true);
+	SetFlag(transform->PreviousState.Modified, RotationModifiedFlag);
 }
 
 void SetScale(Transform transform, vec3 scale)
@@ -164,13 +264,13 @@ void SetScale(Transform transform, vec3 scale)
 	}
 
 	SetVectors3(transform->Scale, scale);
-	SetFlag(transform->PreviousState.Modified, ScaleModifiedFlag, true);
+	SetFlag(transform->PreviousState.Modified, ScaleModifiedFlag);
 }
 
 void AddPostion(Transform transform, vec3 amount)
 {
 	AddVectors3(transform->Position, amount);
-	SetFlag(transform->PreviousState.Modified, PositionModifiedFlag, true);
+	SetFlag(transform->PreviousState.Modified, PositionModifiedFlag);
 }
 
 void AddRotation(Transform transform, Quaternion amount)
@@ -178,11 +278,11 @@ void AddRotation(Transform transform, Quaternion amount)
 	// to add a rotation to a quaterion we multiply, gotta love imaginary number magic
 	glm_quat_mul(transform->Rotation, amount, transform->Rotation);
 
-	SetFlag(transform->PreviousState.Modified, RotationModifiedFlag, true);
+	SetFlag(transform->PreviousState.Modified, RotationModifiedFlag);
 }
 
 void AddScale(Transform transform, vec3 amount)
 {
 	AddVectors3(transform->Scale, amount);
-	SetFlag(transform->PreviousState.Modified, ScaleModifiedFlag, true);
+	SetFlag(transform->PreviousState.Modified, ScaleModifiedFlag);
 }

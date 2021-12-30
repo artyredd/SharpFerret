@@ -2,7 +2,9 @@
 
 /* forgive me */
 
-#define SetFlag(mask,flag,value) if(value){ mask |= flag; }else{ mask ^= flag; }
+#define SetFlag(mask,flag) mask |= flag
+#define ClearFlag(mask,flag) mask ^= flag
+#define AssignFlag(mask,flag,value) if(value){ SetFlag(mask,flag,value); }else{ ClearFlag(mask,flag); }
 #define HasFlag(mask,flag) (((mask) & (flag)) == (flag))
 #define ResetFlags(mask) mask = 0
 

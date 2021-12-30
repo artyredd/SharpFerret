@@ -148,10 +148,7 @@ int main()
 
 	Quaternion rotation;
 
-	meshes[1]->Transform->Parent = meshes[0]->Transform;
-	meshes[0]->Transform->Child = meshes[1]->Transform;
-	meshes[0]->Transform->LastChild = meshes[1]->Transform;
-	meshes[0]->Transform->Count = 1;
+	SetParent(meshes[1]->Transform, meshes[0]->Transform);
 
 	do {
 		UpdateTime();
@@ -178,7 +175,7 @@ int main()
 		}
 		if (GetKey(KeyCodes.Space))
 		{
-			camera->AddPositionY(camera, modifier);
+			//camera->AddPositionY(camera, modifier);
 		}
 		if (GetKey(KeyCodes.LeftShift))
 		{
@@ -207,6 +204,18 @@ int main()
 		if (GetKey(KeyCodes.Right))
 		{
 			rotateAmount -= modifier;
+		}
+
+		if (GetKey(KeyCodes.Space))
+		{
+			if (meshes[1]->Transform->Parent isnt null)
+			{
+				SetParent(meshes[1]->Transform, null);
+			}
+			else
+			{
+				SetParent(meshes[1]->Transform, meshes[0]->Transform);
+			}
 		}
 
 		SetVector3(scaler, scaleAmount, 

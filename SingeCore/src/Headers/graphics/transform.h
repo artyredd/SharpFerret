@@ -100,4 +100,5 @@ void AddPostion(Transform, vec3 amount);
 void AddRotation(Transform, Quaternion amount);
 void AddScale(Transform, vec3 amount);
 
+// Sets the provided transform's parent as the provided parent
 void SetParent(Transform, Transform parent);
