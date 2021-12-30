@@ -75,7 +75,7 @@ struct _transform {
 	/// <summary>
 	/// The stored state of this transform
 	/// </summary>
-	struct transformState PreviousState;
+	struct transformState State;
 };
 
 Transform CreateTransform();
@@ -96,7 +96,7 @@ void SetPosition(Transform, vec3 position);
 void SetRotation(Transform, Quaternion rotation);
 void SetScale(Transform, vec3 scale);
 
-void AddPostion(Transform, vec3 amount);
+void AddPosition(Transform, vec3 amount);
 void AddRotation(Transform, Quaternion amount);
 void AddScale(Transform, vec3 amount);
 

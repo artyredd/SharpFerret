@@ -1,7 +1,7 @@
 #pragma once
 
 #include "math/vectors.h"
-
+#include "graphics/transform.h"
 #include "graphics/renderMesh.h"
 
 static float DefaultFieldOfView = 70.0f;
@@ -53,18 +53,7 @@ struct _camera
 	/// The distance from the camera where objects should not be rendered
 	/// </summary>
 	float FarClippingDistance;
-	/// <summary>
-	/// The position in 3d space the camera is located
-	/// </summary>
-	vec3 Position;
-	/// <summary>
-	/// Where the camera should be looking in 3d space
-	/// </summary>
-	vec3 TargetPosition;
-	/// <summary>
-	/// The direction the camera should consider is up
-	/// </summary>
-	vec3 UpDirection;
+	Transform Transform;
 	struct cameraState State;
 	void(*DrawMesh)(Camera, RenderMesh, Shader);
 	/// <summary>
@@ -75,18 +64,6 @@ struct _camera
 	void(*SetAspectRatio)(Camera, float);
 	void(*SetNearClippingDistance)(Camera, float);
 	void(*SetFarClippingDistance)(Camera, float);
-	void(*SetPositionVector)(Camera, vec3);
-	void(*SetPositionX)(Camera, float);
-	void(*SetPositionY)(Camera, float);
-	void(*SetPositionZ)(Camera, float);
-	void(*SetPosition)(Camera, float, float, float);
-	void(*AddPositionVector)(Camera, vec3);
-	void(*AddPositionX)(Camera, float);
-	void(*AddPositionY)(Camera, float);
-	void(*AddPositionZ)(Camera, float);
-	void(*AddPosition)(Camera, float, float, float);
-	void(*SetTargetVector)(Camera, vec3);
-	void(*SetUpDirectionVector)(Camera, vec3);
 	/// <summary>
 	/// Diposes the managed resources and frees this object
 	/// </summary>

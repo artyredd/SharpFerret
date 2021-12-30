@@ -6,6 +6,8 @@
 #include "graphics/shaders.h"
 #include "graphics/transform.h"
 #include "helpers/quickmask.h"
+#include "cglm/quat.h"
+#include "cglm/affine.h"
 
 #define ProjectionModifiedFlag FLAG_0
 #define ViewModifiedFlag FLAG_1
@@ -59,16 +61,17 @@ static void RecalculateProjection(Camera camera)
 
 static void RecalculateView(Camera camera)
 {
-	glm_lookat(camera->Position,
+	/*glm_lookat(camera->Position,
 		camera->TargetPosition,
 		camera->UpDirection,
-		camera->State.View);
+		camera->State.View);*/
+	RefreshTransform(camera->Transform);
 }
 
 static void RecalculateViewProjection(Camera camera)
 {
 	glm_mat4_mul(camera->State.Projection,
-		camera->State.View,
+		camera->Transform->State.State,
 		camera->State.State);
 
 	ResetFlags(camera->State.Modified);
@@ -88,6 +91,13 @@ static vec4* Recalculate(Camera camera)
 static vec4* RefreshCamera(Camera camera)
 {
 	unsigned int mask = camera->State.Modified;
+
+	// check to see if our transform has changed
+	if (camera->Transform->State.Modified isnt 0)
+	{
+		SetFlag(mask, ViewModifiedFlag);
+	}
+
 	// check to see if it's state was modified at all
 	if (mask is 0)
 	{
@@ -100,12 +110,12 @@ static vec4* RefreshCamera(Camera camera)
 	}
 
 	// check to see if the projection was modified, if it was we need to re-calculate it and re-multiply it with the view
-	if (HasFlag(camera->State.Modified, ProjectionModifiedFlag))
+	if (HasFlag(mask, ProjectionModifiedFlag))
 	{
 		RecalculateProjection(camera);
 	}
 
-	if (HasFlag(camera->State.Modified, ViewModifiedFlag))
+	if (HasFlag(mask, ViewModifiedFlag))
 	{
 		RecalculateView(camera);
 	}
@@ -149,109 +159,6 @@ static void SetFarClippingDistance(Camera camera, float value)
 	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
 }
 
-static void SetCameraPosition(Camera camera, vec3 value)
-{
-	if (Vector3Equals(camera->Position, value))
-	{
-		return;
-	}
-	SetVectors3(camera->Position, value);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void SetCameraPositionX(Camera camera, float x)
-{
-	PreventUneccesaryAssignment(camera->Position[0], x, == );
-	SetX(camera->Position, x);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void SetCameraPositionY(Camera camera, float y)
-{
-	PreventUneccesaryAssignment(camera->Position[1], y, == );
-	SetY(camera->Position, y);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void SetCameraPositionZ(Camera camera, float z)
-{
-	PreventUneccesaryAssignment(camera->Position[2], z, == );
-	SetZ(camera->Position, z);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void SetCameraPositionXYZ(Camera camera, float x, float y, float z)
-{
-	if (Vector3MembersEqual(camera->Position, x, y, z))
-	{
-		return;
-	}
-	SetVector3(camera->Position, x, y, z);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void AddCameraPosition(Camera camera, vec3 value)
-{
-	if (Vector3Equals(camera->Position, value))
-	{
-		return;
-	}
-	AddVectors3(camera->Position, value);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void AddCameraPositionX(Camera camera, float x)
-{
-	PreventUneccesaryAssignment(camera->Position[0], x, == );
-	AddX(camera->Position, x);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void AddCameraPositionY(Camera camera, float y)
-{
-	PreventUneccesaryAssignment(camera->Position[1], y, == );
-	AddY(camera->Position, y);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void AddCameraPositionZ(Camera camera, float z)
-{
-	PreventUneccesaryAssignment(camera->Position[2], z, == );
-	AddZ(camera->Position, z);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void AddCameraPositionXYZ(Camera camera, float x, float y, float z)
-{
-	if (Vector3MembersEqual(camera->Position, x, y, z))
-	{
-		return;
-	}
-	AddVector3(camera->Position, x, y, z);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void SetTarget(Camera camera, vec3 value)
-{
-	if (Vector3Equals(camera->TargetPosition, value))
-	{
-		return;
-	}
-	SetVectors3(camera->TargetPosition, value);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-static void SetUpDirection(Camera camera, vec3 value)
-{
-	if (Vector3Equals(camera->UpDirection, value))
-	{
-		return;
-	}
-	SetVectors3(camera->UpDirection, value);
-	SetFlag(camera->State.Modified, ViewModifiedFlag);
-}
-
-
 Camera CreateCamera()
 {
 	Camera camera = SafeAlloc(sizeof(struct _camera));
@@ -269,24 +176,8 @@ Camera CreateCamera()
 	camera->SetFarClippingDistance = &SetFarClippingDistance;
 	camera->SetNearClippingDistance = &SetNearClippingDistance;
 	camera->SetFoV = &SetFoV;
-	camera->SetTargetVector = &SetTarget;
-	camera->SetUpDirectionVector = &SetUpDirection;
 
-	camera->SetPositionVector = &SetCameraPosition;
-	camera->SetPosition = &SetCameraPositionXYZ;
-	camera->SetPositionX = &SetCameraPositionX;
-	camera->SetPositionY = &SetCameraPositionY;
-	camera->SetPositionZ = &SetCameraPositionZ;
-
-	camera->AddPositionVector = &AddCameraPosition;
-	camera->AddPosition = &AddCameraPositionXYZ;
-	camera->AddPositionX = &AddCameraPositionX;
-	camera->AddPositionY = &AddCameraPositionY;
-	camera->AddPositionZ = &AddCameraPositionZ;
-
-	glm_vec3_zero(camera->TargetPosition);
-
-	SetVector3(camera->UpDirection, 0, 1.0f, 0);
+	camera->Transform = CreateTransform();
 
 	// mark the state as needing a full refresh
 	camera->State.Modified = AllModifiedFlag;

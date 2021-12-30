@@ -28,10 +28,10 @@ Transform CreateTransform()
 	SetVector3(transform->Scale, 1, 1, 1);
 	SetVector4(transform->Rotation, 0, 0, 0, 1);
 
-	InitializeMat4(transform->PreviousState.State);
+	InitializeMat4(transform->State.State);
 
 	// set the all modified flag so we do a full refresh of the transform on first draw
-	transform->PreviousState.Modified = AllModifiedFlag;
+	transform->State.Modified = AllModifiedFlag;
 
 	// no need to init the transform states since they will be populated before first draw by RecalculateTransform
 
@@ -47,31 +47,31 @@ static void NotifyChildren(Transform transform)
 	Transform child = transform->Child;
 	while (child != null)
 	{
-		SetFlag(child->PreviousState.Modified, ParentModifiedFlag);
+		SetFlag(child->State.Modified, ParentModifiedFlag);
 		child = child->Next;
 	}
 }
 
 vec4* RefreshTransform(Transform transform)
 {
-	unsigned int mask = transform->PreviousState.Modified;
+	unsigned int mask = transform->State.Modified;
 
 	// if nothing changed return
 	if (mask is 0)
 	{
-		return transform->PreviousState.State;
+		return transform->State.State;
 	}
 	
 	// check to see if only my parent has changed
 	if (mask is ParentModifiedFlag && transform->Parent != null)
 	{
-		glm_mat4_mul(transform->Parent->PreviousState.State, transform->PreviousState.LocalState, transform->PreviousState.State);
+		glm_mat4_mul(transform->Parent->State.State, transform->State.LocalState, transform->State.State);
 
-		ResetFlags(transform->PreviousState.Modified);
+		ResetFlags(transform->State.Modified);
 
 		NotifyChildren(transform);
 
-		return transform->PreviousState.State;
+		return transform->State.State;
 	}
 
 	// check to see if we should perform a whole refresh
@@ -85,53 +85,53 @@ vec4* RefreshTransform(Transform transform)
 	// this engine was orignally designed to be single threaded
 	if (HasFlag(mask, RotationModifiedFlag))
 	{
-		glm_quat_rotate(transform->PreviousState.ScaleMatrix, transform->Rotation, transform->PreviousState.RotationMatrix);
+		glm_quat_rotate(transform->State.ScaleMatrix, transform->Rotation, transform->State.RotationMatrix);
 	}
 
 	// since the rotation and scale were not affected only translate and store into the previous state
-	glm_translate_to(transform->PreviousState.RotationMatrix, transform->Position, transform->PreviousState.LocalState);
+	glm_translate_to(transform->State.RotationMatrix, transform->Position, transform->State.LocalState);
 
 	if(transform->Parent != null)
 	{ 
-		glm_mat4_mul(transform->Parent->PreviousState.State, transform->PreviousState.LocalState, transform->PreviousState.State);
+		glm_mat4_mul(transform->Parent->State.State, transform->State.LocalState, transform->State.State);
 	}
 	else
 	{
-		SetMatrices4(transform->PreviousState.State, transform->PreviousState.LocalState);
+		SetMatrices4(transform->State.State, transform->State.LocalState);
 	}
 
-	ResetFlags(transform->PreviousState.Modified);
+	ResetFlags(transform->State.Modified);
 
 	NotifyChildren(transform);
 
-	return transform->PreviousState.State;
+	return transform->State.State;
 }
 
 vec4* ForceRefreshTransform(Transform transform)
 {
-	glm_scale_to(Matrix4.Identity, transform->Scale, transform->PreviousState.ScaleMatrix);
+	glm_scale_to(Matrix4.Identity, transform->Scale, transform->State.ScaleMatrix);
 
-	glm_quat_rotate(transform->PreviousState.ScaleMatrix, transform->Rotation, transform->PreviousState.RotationMatrix);
+	glm_quat_rotate(transform->State.ScaleMatrix, transform->Rotation, transform->State.RotationMatrix);
 
-	glm_translate_to(transform->PreviousState.RotationMatrix, transform->Position, transform->PreviousState.LocalState);
+	glm_translate_to(transform->State.RotationMatrix, transform->Position, transform->State.LocalState);
 
 	if (transform->Parent != null)
 	{
-		glm_mat4_mul(transform->Parent->PreviousState.State, transform->PreviousState.LocalState, transform->PreviousState.State);
+		glm_mat4_mul(transform->Parent->State.State, transform->State.LocalState, transform->State.State);
 	}
 	else
 	{
-		SetMatrices4(transform->PreviousState.State, transform->PreviousState.LocalState);
+		SetMatrices4(transform->State.State, transform->State.LocalState);
 	}
 
 	// make sure to reset the dirty flag
-	ResetFlags(transform->PreviousState.Modified);
+	ResetFlags(transform->State.Modified);
 
 	// notify the children that they should recalculate their transforms to use our
 	// new state
 	NotifyChildren(transform);
 
-	return transform->PreviousState.State;
+	return transform->State.State;
 }
 
 // Detaches the provided child from the given transform
@@ -231,7 +231,7 @@ void SetParent(Transform transform, Transform parent)
 
 	// mark the child transform as modified since there is a new parent that
 	// will affect it's transform
-   	SetFlag(transform->PreviousState.Modified, ParentModifiedFlag);
+   	SetFlag(transform->State.Modified, ParentModifiedFlag);
 }
 
 void SetPosition(Transform transform, vec3 position)
@@ -242,7 +242,7 @@ void SetPosition(Transform transform, vec3 position)
 	}
 
 	SetVectors3(transform->Position, position);
-	SetFlag(transform->PreviousState.Modified, PositionModifiedFlag);
+	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
 void SetRotation(Transform transform, Quaternion rotation)
@@ -253,7 +253,7 @@ void SetRotation(Transform transform, Quaternion rotation)
 	}
 
 	SetVectors4(transform->Rotation, rotation);
-	SetFlag(transform->PreviousState.Modified, RotationModifiedFlag);
+	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
 void SetScale(Transform transform, vec3 scale)
@@ -264,13 +264,18 @@ void SetScale(Transform transform, vec3 scale)
 	}
 
 	SetVectors3(transform->Scale, scale);
-	SetFlag(transform->PreviousState.Modified, ScaleModifiedFlag);
+	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-void AddPostion(Transform transform, vec3 amount)
+void AddPosition(Transform transform, vec3 amount)
 {
+	if (Vector3Equals(amount, Vector3.Zero))
+	{
+		return;
+	}
+
 	AddVectors3(transform->Position, amount);
-	SetFlag(transform->PreviousState.Modified, PositionModifiedFlag);
+	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
 void AddRotation(Transform transform, Quaternion amount)
@@ -278,11 +283,11 @@ void AddRotation(Transform transform, Quaternion amount)
 	// to add a rotation to a quaterion we multiply, gotta love imaginary number magic
 	glm_quat_mul(transform->Rotation, amount, transform->Rotation);
 
-	SetFlag(transform->PreviousState.Modified, RotationModifiedFlag);
+	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
 void AddScale(Transform transform, vec3 amount)
 {
 	AddVectors3(transform->Scale, amount);
-	SetFlag(transform->PreviousState.Modified, ScaleModifiedFlag);
+	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }

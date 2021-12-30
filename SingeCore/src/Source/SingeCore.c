@@ -30,6 +30,7 @@
 #include "math/quaternions.h"
 #include "cglm/quat.h"
 #include "singine/time.h"
+#include "helpers/quickmask.h"
 
 Window window;
 
@@ -107,8 +108,6 @@ int main()
 
 	vec3 startingPosition = { 3,2,3 };
 
-	camera->SetPositionVector(camera, startingPosition);
-
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
@@ -146,6 +145,8 @@ int main()
 	float scaleAmount = 1.0f;
 	float rotateAmount = 0.0f;
 
+	vec3 positionModifier = { 0, 0, 0 };
+
 	Quaternion rotation;
 
 	SetParent(meshes[1]->Transform, meshes[0]->Transform);
@@ -159,32 +160,34 @@ int main()
 
 		if (GetKey(KeyCodes.A))
 		{
-			camera->AddPositionX(camera, -modifier);
+			positionModifier[0] -= modifier;
 		}
 		if (GetKey(KeyCodes.D))
 		{
-			camera->AddPositionX(camera, modifier);
+			positionModifier[0] += modifier;
 		}
 		if (GetKey(KeyCodes.W))
 		{
-			camera->AddPositionZ(camera, -modifier);
+			positionModifier[2] -= modifier;
 		}
 		if (GetKey(KeyCodes.S))
 		{
-			camera->AddPositionZ(camera, modifier);
+			positionModifier[2] += modifier;
 		}
 		if (GetKey(KeyCodes.Space))
 		{
-			//camera->AddPositionY(camera, modifier);
+			positionModifier[1] -= modifier;
 		}
 		if (GetKey(KeyCodes.LeftShift))
 		{
-			camera->AddPositionY(camera, -modifier);
+			positionModifier[1] += modifier;
 		}
 
 		////glActiveTexture(GL_TEXTURE0);
 		////glBindTexture(GL_TEXTURE_2D, uvID);
 		////glUniform1i(textureID, 0); 
+
+		SetPosition(camera->Transform, positionModifier);
 
 		if (GetKey(KeyCodes.Up))
 		{
@@ -206,25 +209,14 @@ int main()
 			rotateAmount -= modifier;
 		}
 
-		if (GetKey(KeyCodes.Space))
-		{
-			if (meshes[1]->Transform->Parent isnt null)
-			{
-				SetParent(meshes[1]->Transform, null);
-			}
-			else
-			{
-				SetParent(meshes[1]->Transform, meshes[0]->Transform);
-			}
-		}
-
 		SetVector3(scaler, scaleAmount, 
 			scaleAmount, 
 			scaleAmount);
 
-		glm_quat(rotation, rotateAmount, 1, 0, 0);
+		glm_quat(rotation, rotateAmount, 0, 1, 0);
 
-		SetRotation(meshes[0]->Transform, rotation);
+		//SetRotation(meshes[0]->Transform, rotation);
+		SetRotation(camera->Transform, rotation);
 
 		SetScale(meshes[0]->Transform, scaler);
 
