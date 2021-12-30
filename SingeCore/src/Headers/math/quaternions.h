@@ -7,7 +7,7 @@ typedef vec4 Quaternion;
 
 static struct _quaternionConsts {
 	Quaternion Identity;
-} sQuaternion = {
+} Quaternions = {
 	.Identity = {0,0,0,1}
 };
 

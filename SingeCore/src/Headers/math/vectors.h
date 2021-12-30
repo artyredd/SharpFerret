@@ -59,6 +59,9 @@ static void CopyTo(const float* source, float* destination, const size_t count)
 #define SetVectors3(left,right) left[0] = right[0]; left[1] = right[1]; left[2] = right[2]
 #define SetVectors4(left,right) left[0] = right[0]; left[1] = right[1]; left[2] = right[2]; left[3] = right[3]
 
+#define Vectors3CopyTo(left,right) SetVectors3(right,left)
+#define Vectors4CopyTo(left,right) SetVectors4(right,left)
+
 #define AddVectors3(left,right) left[0] += right[0]; left[1] += right[1]; left[2] += right[2]
 #define AddVectors4(left,right) left[0] += right[0]; left[1] += right[1]; left[2] += right[2]; left[3] += right[3]
 

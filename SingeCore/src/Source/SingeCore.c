@@ -145,6 +145,16 @@ int main()
 	float scaleAmount = 1.0f;
 	float rotateAmount = 0.0f;
 
+	vec3 up = { 1, 0, 0 };
+
+	Quaternion ninteyDegrees;
+
+	glm_quat(ninteyDegrees, GLM_PI, 0, 1, 0);
+
+	vec3 result;
+
+	glm_quat_rotatev(ninteyDegrees, up, result);
+
 	vec3 positionModifier = { 0, 0, 0 };
 
 	Quaternion rotation;
@@ -168,11 +178,11 @@ int main()
 		}
 		if (GetKey(KeyCodes.W))
 		{
-			positionModifier[2] -= modifier;
+			positionModifier[2] += modifier;
 		}
 		if (GetKey(KeyCodes.S))
 		{
-			positionModifier[2] += modifier;
+			positionModifier[2] -= modifier;
 		}
 		if (GetKey(KeyCodes.Space))
 		{
@@ -206,7 +216,7 @@ int main()
 
 		if (GetKey(KeyCodes.Right))
 		{
-			rotateAmount -= modifier;
+			rotateAmount += modifier;
 		}
 
 		SetVector3(scaler, scaleAmount, 
