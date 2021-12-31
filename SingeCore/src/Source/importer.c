@@ -340,9 +340,9 @@ static Mesh ComposeFaces(FileBuffer buffer, const  size_t* faces, const  size_t 
 		const float* subNormals = buffer->NormalBuffer + (normalIndex * 3);
 
 		// copy the floats over to their final arrays
-		Vector3CopyTo(subVertices, mesh->Vertices + (i * 3));
-		Vector2CopyTo(subUVs, mesh->TextureVertices + (i * 2));
-		Vector3CopyTo(subNormals, mesh->Normals + (i * 3));
+		Vectors3CopyTo(subVertices, mesh->Vertices + (i * 3));
+		Vectors2CopyTo(subUVs, mesh->TextureVertices + (i * 2));
+		Vectors3CopyTo(subNormals, mesh->Normals + (i * 3));
 	}
 
 	return mesh;

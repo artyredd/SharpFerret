@@ -2,6 +2,7 @@
 #include "singine/memory.h"
 #include "GL/glew.h"
 #include "cglm/mat4.h"
+#include "helpers/macros.h"
 
 static void Dispose(RenderMesh model)
 {
@@ -53,7 +54,7 @@ static void Draw(RenderMesh model, mat4 position)
 	glDisableVertexAttribArray(UVShaderPosition);
 }
 
-static RenderMesh CreateRenderModel()
+static RenderMesh CreateRenderMesh()
 {
 	RenderMesh mesh = SafeAlloc(sizeof(struct _renderMesh));
 
@@ -101,7 +102,7 @@ bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 {
 	*out_model = null;
 
-	RenderMesh model = CreateRenderModel();
+	RenderMesh model = CreateRenderMesh();
 
 	if (TryBindBuffer(mesh->Vertices, mesh->VertexCount * sizeof(float), &model->VertexBuffer) is false)
 	{
@@ -126,4 +127,22 @@ bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 	*out_model = model;
 
 	return true;
+}
+
+void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
+{
+	CopyMember(source, destination, Shader);
+	CopyMember(source, destination, VertexBuffer);
+	CopyMember(source, destination, UVBuffer);
+	CopyMember(source, destination, NormalBuffer);
+	CopyMember(source, destination, NumberOfTriangles);
+}
+
+RenderMesh InstanceMesh(RenderMesh mesh)
+{
+	RenderMesh result = CreateRenderMesh();
+
+	RenderMeshCopyTo(mesh, result);
+
+	return result;
 }

@@ -29,3 +29,6 @@ struct _renderMesh {
 
 // Attempts to register the model with the underlying graphics device
 bool TryBindMesh(Mesh mesh, RenderMesh* out_model);
+
+// Creates a new instance of the provided rendermesh with it's own transform
+RenderMesh InstanceMesh(RenderMesh);

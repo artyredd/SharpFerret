@@ -57,3 +57,5 @@
 #define FLAG_15 (1<<15)
 
 #define FLAG_ALL 0xFFFF
+
+#define FlagN(n) (1<<n)

@@ -66,6 +66,11 @@ static void RecalculateView(Camera camera)
 		camera->UpDirection,
 		camera->State.View);*/
 	RefreshTransform(camera->Transform);
+
+	// becuase all objects move around the camera and not the other way around
+	// to move the camera right we must move all objects left
+	// since the matrix for the camera is in normal units we have to flip the direction
+	// so if the camera is at 0,1,0 we have to render all objects with 0,-1,0 so the camera apears above them
 }
 
 static void RecalculateViewProjection(Camera camera)

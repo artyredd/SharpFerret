@@ -32,6 +32,7 @@ Transform CreateTransform()
 
 	// set the all modified flag so we do a full refresh of the transform on first draw
 	transform->State.Modified = AllModifiedFlag;
+	ResetFlags(transform->State.Directions.Accessed);
 
 	// no need to init the transform states since they will be populated before first draw by RecalculateTransform
 
@@ -61,7 +62,10 @@ vec4* RefreshTransform(Transform transform)
 	{
 		return transform->State.State;
 	}
-	
+
+	// since ANYthing changed force recalculation of direction vectors
+	ResetFlags(transform->State.Directions.Accessed);
+
 	// check to see if only my parent has changed
 	if (mask is ParentModifiedFlag && transform->Parent != null)
 	{
@@ -91,8 +95,8 @@ vec4* RefreshTransform(Transform transform)
 	// since the rotation and scale were not affected only translate and store into the previous state
 	glm_translate_to(transform->State.RotationMatrix, transform->Position, transform->State.LocalState);
 
-	if(transform->Parent != null)
-	{ 
+	if (transform->Parent != null)
+	{
 		glm_mat4_mul(transform->Parent->State.State, transform->State.LocalState, transform->State.State);
 	}
 	else
@@ -126,6 +130,9 @@ vec4* ForceRefreshTransform(Transform transform)
 
 	// make sure to reset the dirty flag
 	ResetFlags(transform->State.Modified);
+
+	// make sure our cardinal directions are forced to recalculate if they are used
+	ResetFlags(transform->State.Directions.Accessed);
 
 	// notify the children that they should recalculate their transforms to use our
 	// new state
@@ -169,8 +176,8 @@ static void DetachChild(Transform transform, Transform child)
 			current->Previous = null;
 
 			// make sure if the child is the head or tail we drop the references
-			if(current is transform->Child)
-			{ 
+			if (current is transform->Child)
+			{
 				// set the new head to either next or previous with preference to next
 				transform->Child = NullCoalesce(next, previous);
 			}
@@ -231,7 +238,7 @@ void SetParent(Transform transform, Transform parent)
 
 	// mark the child transform as modified since there is a new parent that
 	// will affect it's transform
-   	SetFlag(transform->State.Modified, ParentModifiedFlag);
+	SetFlag(transform->State.Modified, ParentModifiedFlag);
 }
 
 void SetPosition(Transform transform, vec3 position)
@@ -290,4 +297,45 @@ void AddScale(Transform transform, vec3 amount)
 {
 	AddVectors3(transform->Scale, amount);
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
+}
+
+void GetDirection(Transform transform, Direction direction, vec3 out_direction)
+{
+	GuardNotNull(transform);
+
+	if (direction is Directions.Zero)
+	{
+		Vectors3CopyTo(Vector3.Zero, out_direction);
+		return;
+	}
+
+	// since we handled Zero as an edge case shift index down by one
+	--direction;
+
+	// this is  a magic number but I doubt there will be more than 6 cardinal directions in the future..
+	GuardLessThanEqual(direction, 5);
+
+	static float* directions[6] = {
+		Vector3.Left,
+		Vector3.Right,
+		Vector3.Up,
+		Vector3.Down,
+		Vector3.Forward,
+		Vector3.Back
+	};
+
+	// first check to see if we have already calc'ed the vector this frame
+	// if we have we should just return the pre-calculated one and not re-multiply the rotation
+	if (HasFlag(transform->State.Directions.Accessed, FlagN(direction)))
+	{
+		Vectors3CopyTo(transform->State.Directions.Directions[direction], out_direction);
+
+		return;
+	}
+
+	glm_quat_rotatev(transform->Rotation, directions[direction], transform->State.Directions.Directions[direction]);
+
+	Vectors3CopyTo(transform->State.Directions.Directions[direction], out_direction);
+
+	SetFlag(transform->State.Directions.Accessed, FlagN(direction));
 }

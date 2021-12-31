@@ -78,14 +78,20 @@ int main()
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-	Model cube;
-	if (TryImportModel("doublecube.obj", FileFormats.Obj, &cube) is false)
+	Model arrow;
+	if (TryImportModel("arrow.obj", FileFormats.Obj, &arrow) is false)
 	{
 		throw(FailedToReadFileException);
 	}
 
-	Model arrow;
-	if (TryImportModel("arrow.obj", FileFormats.Obj, &arrow) is false)
+	Model gizmo;
+	if (TryImportModel("gizmo.obj", FileFormats.Obj, &gizmo) is false)
+	{
+		throw(FailedToReadFileException);
+	}
+
+	Model ball;
+	if (TryImportModel("ball.obj", FileFormats.Obj, &ball) is false)
 	{
 		throw(FailedToReadFileException);
 	}
@@ -122,25 +128,23 @@ int main()
 
 	DefaultShader = shader;
 
-	size_t numberOfMeshes = cube->Count;
+	//// alloc array of points to rendermesh
+	//RenderMesh* meshes = SafeAlloc(numberOfMeshes * sizeof(RenderMesh));
 
-	// alloc array of points to rendermesh
-	RenderMesh* meshes = SafeAlloc(numberOfMeshes * sizeof(RenderMesh));
+	//size_t i = 0;
+	//Mesh head = cube->Head;
+	//while (head)
+	//{
+	//	RenderMesh renderMesh;
+	//	if (TryBindMesh(head, &renderMesh) is false)
+	//	{
+	//		throw(NotImplementedException);
+	//	}
 
-	size_t i = 0;
-	Mesh head = cube->Head;
-	while (head)
-	{
-		RenderMesh renderMesh;
-		if (TryBindMesh(head, &renderMesh) is false)
-		{
-			throw(NotImplementedException);
-		}
+	//	meshes[i++] = renderMesh;
 
-		meshes[i++] = renderMesh;
-
-		head = head->Next;
-	}
+	//	head = head->Next;
+	//}
 
 	RenderMesh arrowMesh;
 	if (TryBindMesh(arrow->Head, &arrowMesh) is false)
@@ -148,8 +152,55 @@ int main()
 		throw(NotImplementedException);
 	}
 
+	RenderMesh ballMesh;
+	if (TryBindMesh(ball->Head, &ballMesh) is false)
+	{
+		throw(NotImplementedException);
+	}
+
+	ball->Dispose(ball);
+
 	arrow->Dispose(arrow);
-	cube->Dispose(cube);
+
+	Enumerable gizmoMeshes = CreateEnumerable();
+
+	Mesh next = gizmo->Head;
+	while (next != null)
+	{
+		RenderMesh newMesh;
+		if (TryBindMesh(next, &newMesh) is false)
+		{
+			throw(NotImplementedException);
+		}
+		gizmoMeshes->Append(gizmoMeshes)->Value->AsPointer = newMesh;
+		next = next->Next;
+	}
+
+	gizmo->Dispose(gizmo);
+
+	// make a copy of the arrow
+	RenderMesh otherArrow = InstanceMesh(arrowMesh);
+	RenderMesh thirdArrow = InstanceMesh(arrowMesh);
+
+	vec3 thirdArrowScale = { 2,2,2 };
+
+	SetScale(thirdArrow->Transform, thirdArrowScale);
+
+	vec3 pos = { 0,0,0 };
+
+	Quaternion otherRotation;
+
+	glm_quat(otherRotation, GLM_PI / 2.0, 1, 0, 0);
+
+	Quaternion rightTurn;
+
+	glm_quat(rightTurn, GLM_PI / 2.0, 0, 1, 0);
+
+	glm_quat_mul(otherRotation, rightTurn, rightTurn);
+
+	SetPosition(otherArrow->Transform, pos);
+
+	SetRotation(otherArrow->Transform, rightTurn);
 
 	float speed = 10.0f;
 
@@ -158,101 +209,113 @@ int main()
 	float scaleAmount = 1.0f;
 	float rotateAmount = 0.0f;
 
-	vec3 up = { 1, 0, 0 };
-
-	Quaternion ninteyDegrees;
-
-	glm_quat(ninteyDegrees, GLM_PI, 0, 1, 0);
-
-	vec3 result;
-
-	glm_quat_rotatev(ninteyDegrees, up, result);
-
-	vec3 positionModifier = { 0, 0, 0 };
+	vec3 position = { 0, -2, -3 };
 
 	Quaternion rotation;
 
-	SetParent(meshes[1]->Transform, meshes[0]->Transform);
+	glm_quat(rotation, GLM_PI, 0, 0, 1);
+
+	vec3 positionModifier;
+
+	vec3 ballDirection;
 
 	do {
 		UpdateTime();
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+		Vectors3CopyTo(camera->Transform->Position, position);
+
 		float modifier = speed * (float)DeltaTime();
+
+		GetDirection(ballMesh->Transform, Directions.Forward, ballDirection);
+		ScaleVector3(ballDirection, modifier);
+		//AddPosition(ballMesh->Transform, ballDirection);
+
+		Quaternion ballRotation;
+		glm_quat(ballRotation, (GLM_PI / 4.0f) * modifier, 0, 1, 0);
+		AddRotation(ballMesh->Transform, ballRotation);
 
 		if (GetKey(KeyCodes.A))
 		{
-			positionModifier[0] -= modifier;
+			GetDirection(camera->Transform, Directions.Left, positionModifier);
+			ScaleVector3(positionModifier, modifier);
+			SubtractVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.D))
 		{
-			positionModifier[0] += modifier;
+			GetDirection(camera->Transform, Directions.Right, positionModifier);
+			ScaleVector3(positionModifier, modifier);
+			SubtractVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.W))
 		{
-			positionModifier[2] += modifier;
+			GetDirection(camera->Transform, Directions.Forward, positionModifier);
+			ScaleVector3(positionModifier, modifier);
+			AddVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.S))
 		{
-			positionModifier[2] -= modifier;
+			GetDirection(camera->Transform, Directions.Back, positionModifier);
+			ScaleVector3(positionModifier, modifier);
+			AddVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.Space))
 		{
-			positionModifier[1] -= modifier;
+			GetDirection(camera->Transform, Directions.Up, positionModifier);
+			ScaleVector3(positionModifier, modifier);
+			SubtractVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.LeftShift))
 		{
-			positionModifier[1] += modifier;
+			GetDirection(camera->Transform, Directions.Down, positionModifier);
+			ScaleVector3(positionModifier, modifier);
+			SubtractVectors3(position, positionModifier);
 		}
 
 		////glActiveTexture(GL_TEXTURE0);
 		////glBindTexture(GL_TEXTURE_2D, uvID);
 		////glUniform1i(textureID, 0); 
 
-		SetPosition(camera->Transform, positionModifier);
+		if (GetKey(KeyCodes.Up)) scaleAmount += modifier;
+		if (GetKey(KeyCodes.Down)) scaleAmount -= modifier;
+		if (GetKey(KeyCodes.Left)) rotateAmount += modifier;
+		if (GetKey(KeyCodes.Right)) rotateAmount -= modifier;
 
-		if (GetKey(KeyCodes.Up))
-		{
-			scaleAmount += modifier;
-		}
-
-		if (GetKey(KeyCodes.Down))
-		{
-			scaleAmount -= modifier;
-		}
-
-		if (GetKey(KeyCodes.Left))
-		{
-			rotateAmount += modifier;
-		}
-
-		if (GetKey(KeyCodes.Right))
-		{
-			rotateAmount += modifier;
-		}
-
-		SetVector3(scaler, scaleAmount, 
-			scaleAmount, 
+		SetVector3(scaler, scaleAmount,
+			scaleAmount,
 			scaleAmount);
 
+		fprintf(stdout, "Position: ");
+		PrintVector3(position, stdout);
+		fprintf(stdout, " Rotation: %0.2f rads (%0.2f) pi Forward: ", rotateAmount, rotateAmount / GLM_PI);
+		vec3 forwardVector;
+		GetDirection(camera->Transform, Directions.Forward, forwardVector);
+		PrintVector3(forwardVector, stdout);
+		fprintf(stdout, NEWLINE);
+
+		glm_quat(camera->Transform->Rotation, GLM_PI, 0, 0, 1);
 		glm_quat(rotation, rotateAmount, 0, 1, 0);
 
-		//SetRotation(meshes[0]->Transform, rotation);
-		SetRotation(camera->Transform, rotation);
+		AddRotation(camera->Transform, rotation);
 
-		SetScale(meshes[0]->Transform, scaler);
+		SetPosition(camera->Transform, position);
+		//SetRotation(camera->Transform, rotation);
 
-		camera->DrawMesh(camera, meshes[0], shader);
+		//camera->DrawMesh(camera, arrowMesh, shader);
+		//camera->DrawMesh(camera, otherArrow, shader);
+		//camera->DrawMesh(camera, thirdArrow, shader);
 
-		camera->DrawMesh(camera, meshes[1], shader);
+		gizmoMeshes->Reset(gizmoMeshes);
 
-		camera->DrawMesh(camera, arrowMesh, shader);
-
-		/*for (size_t i = 0; i < numberOfMeshes; i++)
+		Item gizmoMesh = gizmoMeshes->Current;
+		do
 		{
-			camera->DrawMesh(camera, meshes[i], shader);
-		}*/
+			RenderMesh mesh = gizmoMesh->Value->AsPointer;
+			camera->DrawMesh(camera, mesh, shader);
+		} while (gizmoMeshes->TryGetNext(gizmoMeshes, &gizmoMesh));
+
+		camera->DrawMesh(camera, ballMesh, shader);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -262,14 +325,21 @@ int main()
 		//fprintf(stdout,"Total: %0.4fs	FrameTime: %0.4fms"NEWLINE, Time(), FrameTime() * 1000.0);
 	} while (GetKey(KeyCodes.Escape) != true && ShouldClose(window) != true);
 
-	for (size_t i = 0; i < numberOfMeshes; i++)
-	{
-		meshes[i]->Dispose(meshes[i]);
-	}
-
 	arrowMesh->Dispose(arrowMesh);
+	otherArrow->Dispose(otherArrow);
+	thirdArrow->Dispose(thirdArrow);
+	ballMesh->Dispose(ballMesh);
 
-	SafeFree(meshes);
+	gizmoMeshes->Reset(gizmoMeshes);
+
+	Item gizmoMesh = gizmoMeshes->Current;
+	do
+	{
+		RenderMesh mesh = gizmoMesh->Value->AsPointer;
+		mesh->Dispose(mesh);
+	} while (gizmoMeshes->TryGetNext(gizmoMeshes, &gizmoMesh));
+
+	gizmoMeshes->Dispose(gizmoMeshes);
 
 	camera->Dispose(camera);
 

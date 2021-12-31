@@ -3,6 +3,15 @@
 #include "math/vectors.h"
 #include "math/quaternions.h"
 
+struct _directionStates {
+	// Represents whether the directions were accessed and lazily assigned this frame, this resets to 0 everytime the transform is modified
+	// the first time one of the directions is accessed after a transform has been updated it is flags in this int so we don't re-calculate it
+	// for this frame
+	unsigned int Accessed;
+	// array of vector3's that represent already calculated directions for a transform, order: left, right, up, down, forward, back
+	vec3 Directions[6];
+};
+
 struct transformState {
 	/// <summary>
 	/// Modified state is an unsigned int used as a bit mas to identify if various elements of this
@@ -31,11 +40,16 @@ struct transformState {
 	/// until the first time this transform is refreshed
 	/// </summary>
 	mat4 State;
+	/// <summary>
+	/// Stores the pre-calculated directions for this object during runtime
+	/// </summary>
+	struct _directionStates Directions;
 };
 
 typedef struct _transform* Transform;
 
 struct _transform {
+	// Linked list of the transform tree
 	/// <summary>
 	/// The parent of this transform
 	/// </summary>
@@ -60,6 +74,7 @@ struct _transform {
 	/// The number of children in this transform
 	/// </summary>
 	size_t Count;
+	// transform members
 	/// <summary>
 	/// The position of this transform in world space
 	/// </summary>
@@ -102,3 +117,5 @@ void AddScale(Transform, vec3 amount);
 
 // Sets the provided transform's parent as the provided parent
 void SetParent(Transform, Transform parent);
+
+void GetDirection(Transform transform, Direction directions, vec3 out_direction);

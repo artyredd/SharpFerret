@@ -204,10 +204,12 @@
     <ClInclude Include="src\Headers\graphics\camera.h" />
     <ClInclude Include="src\Headers\Graphics\imaging.h" />
     <ClInclude Include="src\Headers\graphics\renderMesh.h" />
+    <ClInclude Include="src\Headers\graphics\renderModel.h" />
     <ClInclude Include="src\Headers\graphics\shadercompiler.h" />
     <ClInclude Include="src\Headers\graphics\shaders.h" />
     <ClInclude Include="src\Headers\graphics\transform.h" />
     <ClInclude Include="src\Headers\Graphics\window.h" />
+    <ClInclude Include="src\Headers\helpers\macros.h" />
     <ClInclude Include="src\Headers\helpers\quickmask.h" />
     <ClInclude Include="src\Headers\input.h" />
     <ClInclude Include="src\Headers\math\macros.h" />
