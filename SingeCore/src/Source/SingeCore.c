@@ -84,6 +84,12 @@ int main()
 		throw(FailedToReadFileException);
 	}
 
+	Model arrow;
+	if (TryImportModel("arrow.obj", FileFormats.Obj, &arrow) is false)
+	{
+		throw(FailedToReadFileException);
+	}
+
 	Image icon = LoadImage("icon.png");
 
 	using(icon, sWindow.SetIcon(window, icon));
@@ -136,6 +142,13 @@ int main()
 		head = head->Next;
 	}
 
+	RenderMesh arrowMesh;
+	if (TryBindMesh(arrow->Head, &arrowMesh) is false)
+	{
+		throw(NotImplementedException);
+	}
+
+	arrow->Dispose(arrow);
 	cube->Dispose(cube);
 
 	float speed = 10.0f;
@@ -234,6 +247,8 @@ int main()
 
 		camera->DrawMesh(camera, meshes[1], shader);
 
+		camera->DrawMesh(camera, arrowMesh, shader);
+
 		/*for (size_t i = 0; i < numberOfMeshes; i++)
 		{
 			camera->DrawMesh(camera, meshes[i], shader);
@@ -251,6 +266,8 @@ int main()
 	{
 		meshes[i]->Dispose(meshes[i]);
 	}
+
+	arrowMesh->Dispose(arrowMesh);
 
 	SafeFree(meshes);
 
