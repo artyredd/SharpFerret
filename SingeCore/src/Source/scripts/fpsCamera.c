@@ -5,8 +5,7 @@
 #include "singine/time.h"
 #include "cglm/quat.h"
 
-#define HorizontalAxis Axes.Horizontal
-#define VerticalAxis Axes.Vertical
+
 
 void Update(Camera camera);
 
@@ -27,8 +26,8 @@ struct _fpsCameraScript FPSCamera = {
 void Update(Camera camera)
 {
 	// get the axis
-	double xAxis = GetAxis(FPSCamera.InvertAxes ? VerticalAxis : HorizontalAxis);
-	double yAxis = GetAxis(FPSCamera.InvertAxes ? HorizontalAxis : VerticalAxis);
+	double xAxis = GetAxis(FPSCamera.InvertAxes ? DEFAULT_VERTICAL_AXIS : DEFAULT_HORIZONTAL_AXIS);
+	double yAxis = GetAxis(FPSCamera.InvertAxes ? DEFAULT_HORIZONTAL_AXIS : DEFAULT_VERTICAL_AXIS);
 
 	// invert the y if requested
 	yAxis = FPSCamera.InvertY ? -yAxis : yAxis;

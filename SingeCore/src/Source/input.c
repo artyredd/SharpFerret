@@ -216,7 +216,7 @@ static double CalculateAxis(AxisDefinition definition, double newValue)
 
 	definition->PreviousValue = newValue;
 
-	return difference > 0.0 ? 1.0 : -1.0;
+	return difference;
 }
 
 void CalculateAxes()

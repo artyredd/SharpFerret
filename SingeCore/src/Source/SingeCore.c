@@ -115,7 +115,7 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	SetCursorMode(CursorModes.Normal);
+	SetCursorMode(CursorModes.Disabled);
 
 	uv->Dispose(uv);
 
@@ -162,6 +162,10 @@ int main()
 	}
 
 	ball->Dispose(ball);
+
+	RenderMesh centerBall = InstanceMesh(ballMesh);
+
+	SetParent(ballMesh->Transform, centerBall->Transform);
 
 	arrow->Dispose(arrow);
 
@@ -224,8 +228,8 @@ int main()
 
 	vec3 ballDirection;
 
-	SetScales(ballMesh->Transform, 1, 1, 1);
-	SetPositions(ballMesh->Transform, 0, 0, 1);
+	SetScales(ballMesh->Transform, 0.5, 0.5, 0.5);
+	SetPositions(ballMesh->Transform, 0, 0, 3);
 
 	do {
 		UpdateTime();
@@ -243,8 +247,11 @@ int main()
 		rotateAmount += modifier;
 
 		Quaternion ballRotation;
-		glm_quat(ballRotation, rotateAmount / GLM_PI, 0, 1, 0);
+		glm_quat(ballRotation, rotateAmount / GLM_PI, 1, 0, 0);
 		SetRotation(ballMesh->Transform, ballRotation);
+
+		glm_quat(ballRotation, -(rotateAmount / GLM_PI), 0, 1, 0);
+		SetRotation(centerBall->Transform, ballRotation);
 
 		if (GetKey(KeyCodes.A))
 		{
@@ -312,6 +319,7 @@ int main()
 			camera->DrawMesh(camera, mesh, shader);
 		} while (gizmoMeshes->TryGetNext(gizmoMeshes, &gizmoMesh));
 
+		camera->DrawMesh(camera, centerBall, shader);
 		camera->DrawMesh(camera, ballMesh, shader);
 
 		// swap the back buffer with the front one
@@ -326,6 +334,7 @@ int main()
 	otherArrow->Dispose(otherArrow);
 	thirdArrow->Dispose(thirdArrow);
 	ballMesh->Dispose(ballMesh);
+	centerBall->Dispose(centerBall);
 
 	gizmoMeshes->Reset(gizmoMeshes);
 
