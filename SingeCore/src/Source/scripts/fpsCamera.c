@@ -14,11 +14,12 @@ struct _fpsCameraScript FPSCamera = {
 	.MouseSensitivity = DEFAULT_MOUSE_SENSITIVITY,
 	.MouseXSensitivity = DEFAULT_MOUSEX_SENSITIVITY,
 	.MouseYSensitivity = DEFAULT_MOUSEY_SENSITIVITY,
+	.InvertX = DEFAULT_INVERTX,
 	.InvertY = DEFAULT_INVERTY,
 	.InvertAxes = DEFAULT_INVERT_AXES,
 	.State = {
-		.HorizontalAngle = 0.0,
-		.VerticalAngle = 0.0
+		.HorizontalAngle = DEFAULT_HORIZONTAL_ANGLE * GLM_PI,
+		.VerticalAngle = DEFAULT_VERTICAL_ANGLE * GLM_PI
 	},
 	.Update = &Update
 };
@@ -31,6 +32,7 @@ void Update(Camera camera)
 
 	// invert the y if requested
 	yAxis = FPSCamera.InvertY ? -yAxis : yAxis;
+	xAxis = FPSCamera.InvertX ? -xAxis : xAxis;
 
 	FPSCamera.State.HorizontalAngle += xAxis * DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseXSensitivity;
 	FPSCamera.State.VerticalAngle += yAxis * DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseYSensitivity;

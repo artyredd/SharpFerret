@@ -212,7 +212,9 @@ int main()
 	float scaleAmount = 1.0f;
 	float rotateAmount = 0.0f;
 
-	vec3 position = { 0, -2, -3 };
+	vec3 position = { 3.25, 0.5, -3.18 };
+
+	SetPosition(camera->Transform, position);
 
 	Quaternion rotation;
 
