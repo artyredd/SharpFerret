@@ -240,9 +240,11 @@ int main()
 		//ScaleVector3(ballDirection, modifier);
 		////AddPosition(ballMesh->Transform, ballDirection);
 
+		rotateAmount += modifier;
+
 		Quaternion ballRotation;
-		glm_quat(ballRotation, (GLM_PI / 4.0f) * modifier, 0, 1, 0);
-		AddRotation(ballMesh->Transform, ballRotation);
+		glm_quat(ballRotation, rotateAmount / GLM_PI, 0, 1, 0);
+		SetRotation(ballMesh->Transform, ballRotation);
 
 		if (GetKey(KeyCodes.A))
 		{

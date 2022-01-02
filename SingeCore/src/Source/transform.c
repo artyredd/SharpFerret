@@ -61,8 +61,6 @@ static void NotifyChildren(Transform transform)
 
 vec4* RefreshTransform(Transform transform)
 {
-	//return ForceRefreshTransform(transform);
-
 	unsigned int mask = transform->State.Modified;
 
 	// if nothing changed return
@@ -103,6 +101,7 @@ vec4* RefreshTransform(Transform transform)
 		}
 		else
 		{
+			SetMatrices4(transform->State.RotationMatrix, transform->State.ScaleMatrix);
 			glm_quat_rotate_at(transform->State.RotationMatrix, transform->Rotation, transform->Position);
 		}
 	}
@@ -128,9 +127,8 @@ vec4* RefreshTransform(Transform transform)
 
 vec4* ForceRefreshTransform(Transform transform)
 {
+	// order must be scale first -> then rotate -> then translate
 	glm_scale_to(Matrix4.Identity, transform->Scale, transform->State.ScaleMatrix);
-
-
 
 	if (transform->RotateAroundCenter)
 	{
