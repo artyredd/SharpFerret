@@ -2,6 +2,7 @@
 
 #include "math/vectors.h"
 #include "math/quaternions.h"
+#include "csharp.h"
 
 struct _directionStates {
 	// Represents whether the directions were accessed and lazily assigned this frame, this resets to 0 everytime the transform is modified
@@ -88,9 +89,14 @@ struct _transform {
 	/// </summary>
 	vec3 Scale;
 	/// <summary>
+	/// Whether rotations should be calculated from the world origin or the transforms position, think planet rotation around sun(origin) vs planet rotating by itself (around position)
+	/// </summary>
+	bool RotateAroundCenter;
+	/// <summary>
 	/// The stored state of this transform
 	/// </summary>
 	struct transformState State;
+	void(*Dispose)(Transform);
 };
 
 Transform CreateTransform();
@@ -108,8 +114,10 @@ vec4* RefreshTransform(Transform);
 vec4* ForceRefreshTransform(Transform);
 
 void SetPosition(Transform, vec3 position);
+void SetPositions(Transform transform, float x, float y, float z);
 void SetRotation(Transform, Quaternion rotation);
 void SetScale(Transform, vec3 scale);
+void SetScales(Transform transform, float x, float y, float z);
 
 void AddPosition(Transform, vec3 amount);
 void AddRotation(Transform, Quaternion amount);

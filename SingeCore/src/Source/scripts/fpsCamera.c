@@ -1,0 +1,51 @@
+#include "scripts/fpsCamera.h"
+#include "graphics/renderMesh.h"
+#include "graphics/shaders.h"
+#include "input.h"
+#include "singine/time.h"
+#include "cglm/quat.h"
+
+#define HorizontalAxis Axes.Horizontal
+#define VerticalAxis Axes.Vertical
+
+void Update(Camera camera);
+
+struct _fpsCameraScript FPSCamera = {
+	.MouseSensitivity = DEFAULT_MOUSE_SENSITIVITY,
+	.MouseXSensitivity = DEFAULT_MOUSEX_SENSITIVITY,
+	.MouseYSensitivity = DEFAULT_MOUSEY_SENSITIVITY,
+	.InvertY = DEFAULT_INVERTY,
+	.InvertAxes = DEFAULT_INVERT_AXES,
+	.State = {
+		.HorizontalAngle = 0.0,
+		.VerticalAngle = 0.0
+	},
+	.Update = &Update
+};
+
+void Update(Camera camera)
+{
+	// get the axis
+	double xAxis = GetAxis(FPSCamera.InvertAxes ? VerticalAxis : HorizontalAxis);
+	double yAxis = GetAxis(FPSCamera.InvertAxes ? HorizontalAxis : VerticalAxis);
+
+	// invert the y if requested
+	yAxis = FPSCamera.InvertY ? -yAxis : yAxis;
+
+	FPSCamera.State.HorizontalAngle += xAxis * DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseXSensitivity;
+	FPSCamera.State.VerticalAngle += yAxis * DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseYSensitivity;
+
+	// create a quaternion that represents spinning around the Y axis(horizontally spinning)
+	glm_quat(FPSCamera.State.HorizontalRotation, (float)FPSCamera.State.HorizontalAngle, 0, 1, 0);
+
+	// create a quaternion that represents spinning around Z axis (looking up and down)
+	glm_quat(FPSCamera.State.VerticalRotation, (float)FPSCamera.State.VerticalAngle, 1, 0, 0);
+
+	// combine the two
+	glm_quat_mul(FPSCamera.State.VerticalRotation, FPSCamera.State.HorizontalRotation, FPSCamera.State.State);
+
+	// set the camera's rotation to the new rotation
+	SetRotation(camera->Transform, FPSCamera.State.State);
+
+	SetMousePosition(0, 0);
+}

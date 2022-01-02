@@ -190,6 +190,7 @@
     <ClCompile Include="src\Source\parsing.c" />
     <ClCompile Include="src\Source\quaternions.c" />
     <ClCompile Include="src\Source\renderMesh.c" />
+    <ClCompile Include="src\Source\scripts\fpsCamera.c" />
     <ClCompile Include="src\Source\shadercompiler.c" />
     <ClCompile Include="src\Source\shaders.c" />
     <ClCompile Include="src\Source\SingeCore.c" />

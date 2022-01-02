@@ -224,12 +224,14 @@ void CalculateAxes()
 	AxisStates[Axes.None] = 0.0;
 	AxisStates[Axes.MouseX] = CalculateAxis(&AxisDefinitions[Axes.MouseX], MousePosition[0]);
 	AxisStates[Axes.MouseY] = CalculateAxis(&AxisDefinitions[Axes.MouseY], MousePosition[1]);
+	AxisStates[Axes.Horizontal] = -(double)GetKey(KeyCodes.Left) + (double)GetKey(KeyCodes.Right);
+	AxisStates[Axes.Vertical] = -(double)GetKey(KeyCodes.Down) + (double)GetKey(KeyCodes.Up);
 }
 
 double GetAxis(Axis axis)
 {
 	// make sure we get a valid axis
-	if(axis >= MAX_AXES)
+	if (axis >= MAX_AXES)
 	{
 		return 0.0;
 	}

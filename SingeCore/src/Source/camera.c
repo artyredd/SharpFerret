@@ -184,6 +184,11 @@ Camera CreateCamera()
 
 	camera->Transform = CreateTransform();
 
+	// since the camera's transform is special we DONT want it to rotate around it's own position since that will
+	// affect all objects in scene
+	// have the camera rotate around origin since the camera is always at origin
+	camera->Transform->RotateAroundCenter = true;
+
 	// mark the state as needing a full refresh
 	camera->State.Modified = AllModifiedFlag;
 

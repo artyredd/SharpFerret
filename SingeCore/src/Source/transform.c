@@ -13,6 +13,11 @@
 
 #define AllModifiedFlag (PositionModifiedFlag | RotationModifiedFlag | ScaleModifiedFlag)
 
+static void Dispose(Transform transform)
+{
+	SafeFree(transform);
+}
+
 Transform CreateTransform()
 {
 	Transform transform = SafeAlloc(sizeof(struct _transform));
@@ -23,6 +28,7 @@ Transform CreateTransform()
 	transform->Next = null;
 	transform->Previous = null;
 	transform->Count = 0;
+	transform->RotateAroundCenter = false;
 
 	InitializeVector3(transform->Position);
 	SetVector3(transform->Scale, 1, 1, 1);
@@ -55,6 +61,8 @@ static void NotifyChildren(Transform transform)
 
 vec4* RefreshTransform(Transform transform)
 {
+	//return ForceRefreshTransform(transform);
+
 	unsigned int mask = transform->State.Modified;
 
 	// if nothing changed return
@@ -89,7 +97,14 @@ vec4* RefreshTransform(Transform transform)
 	// this engine was orignally designed to be single threaded
 	if (HasFlag(mask, RotationModifiedFlag))
 	{
-		glm_quat_rotate(transform->State.ScaleMatrix, transform->Rotation, transform->State.RotationMatrix);
+		if (transform->RotateAroundCenter)
+		{
+			glm_quat_rotate(transform->State.ScaleMatrix, transform->Rotation, transform->State.RotationMatrix);
+		}
+		else
+		{
+			glm_quat_rotate_at(transform->State.RotationMatrix, transform->Rotation, transform->Position);
+		}
 	}
 
 	// since the rotation and scale were not affected only translate and store into the previous state
@@ -115,7 +130,17 @@ vec4* ForceRefreshTransform(Transform transform)
 {
 	glm_scale_to(Matrix4.Identity, transform->Scale, transform->State.ScaleMatrix);
 
-	glm_quat_rotate(transform->State.ScaleMatrix, transform->Rotation, transform->State.RotationMatrix);
+
+
+	if (transform->RotateAroundCenter)
+	{
+		glm_quat_rotate(transform->State.ScaleMatrix, transform->Rotation, transform->State.RotationMatrix);
+	}
+	else
+	{
+		SetMatrices4(transform->State.RotationMatrix, transform->State.ScaleMatrix);
+		glm_quat_rotate_at(transform->State.RotationMatrix, transform->Rotation, transform->Position);
+	}
 
 	glm_translate_to(transform->State.RotationMatrix, transform->Position, transform->State.LocalState);
 
@@ -252,6 +277,20 @@ void SetPosition(Transform transform, vec3 position)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
+void SetPositions(Transform transform, float x, float y, float z)
+{
+	float newPos[3] = { x, y, z };
+
+	if (Vector3Equals(transform->Position, newPos))
+	{
+		return;
+	}
+
+	SetVectors3(transform->Position, newPos);
+
+	SetFlag(transform->State.Modified, PositionModifiedFlag);
+}
+
 void SetRotation(Transform transform, Quaternion rotation)
 {
 	if (Vector4Equals(rotation, transform->Rotation))
@@ -271,6 +310,20 @@ void SetScale(Transform transform, vec3 scale)
 	}
 
 	SetVectors3(transform->Scale, scale);
+	SetFlag(transform->State.Modified, ScaleModifiedFlag);
+}
+
+void SetScales(Transform transform, float x, float y, float z)
+{
+	float newPos[3] = { x, y, z };
+
+	if (Vector3Equals(transform->Scale, newPos))
+	{
+		return;
+	}
+
+	SetVectors3(transform->Scale, newPos);
+
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 

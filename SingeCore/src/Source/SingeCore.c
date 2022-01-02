@@ -32,6 +32,9 @@
 #include "singine/time.h"
 #include "helpers/quickmask.h"
 
+// scripts (not intrinsically part of the engine)
+#include "scripts/fpsCamera.h"
+
 Window window;
 
 Shader LoadShader(const char*, const char*);
@@ -112,7 +115,7 @@ int main()
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-	SetCursorMode(CursorModes.Hidden);
+	SetCursorMode(CursorModes.Normal);
 
 	uv->Dispose(uv);
 
@@ -219,6 +222,9 @@ int main()
 
 	vec3 ballDirection;
 
+	SetScales(ballMesh->Transform, 1, 1, 1);
+	SetPositions(ballMesh->Transform, 0, 0, 1);
+
 	do {
 		UpdateTime();
 
@@ -228,9 +234,9 @@ int main()
 
 		float modifier = speed * (float)DeltaTime();
 
-		GetDirection(ballMesh->Transform, Directions.Forward, ballDirection);
-		ScaleVector3(ballDirection, modifier);
-		//AddPosition(ballMesh->Transform, ballDirection);
+		//GetDirection(ballMesh->Transform, Directions.Forward, ballDirection);
+		//ScaleVector3(ballDirection, modifier);
+		////AddPosition(ballMesh->Transform, ballDirection);
 
 		Quaternion ballRotation;
 		glm_quat(ballRotation, (GLM_PI / 4.0f) * modifier, 0, 1, 0);
@@ -277,30 +283,17 @@ int main()
 		////glBindTexture(GL_TEXTURE_2D, uvID);
 		////glUniform1i(textureID, 0); 
 
-		if (GetKey(KeyCodes.Up)) scaleAmount += modifier;
-		if (GetKey(KeyCodes.Down)) scaleAmount -= modifier;
-		if (GetKey(KeyCodes.Left)) rotateAmount += modifier;
-		if (GetKey(KeyCodes.Right)) rotateAmount -= modifier;
-
-		SetVector3(scaler, scaleAmount,
-			scaleAmount,
-			scaleAmount);
-
 		fprintf(stdout, "Position: ");
 		PrintVector3(position, stdout);
-		fprintf(stdout, " Rotation: %0.2f rads (%0.2f) pi Forward: ", rotateAmount, rotateAmount / GLM_PI);
+		fprintf(stdout, " Rotation: [ x: %0.2fpi, y: %0.2fpi ] Forward: ", FPSCamera.State.HorizontalAngle / GLM_PI, FPSCamera.State.VerticalAngle / GLM_PI);
 		vec3 forwardVector;
 		GetDirection(camera->Transform, Directions.Forward, forwardVector);
 		PrintVector3(forwardVector, stdout);
 		fprintf(stdout, NEWLINE);
 
-		glm_quat(camera->Transform->Rotation, GLM_PI, 0, 0, 1);
-		glm_quat(rotation, rotateAmount, 0, 1, 0);
-
-		AddRotation(camera->Transform, rotation);
+		FPSCamera.Update(camera);
 
 		SetPosition(camera->Transform, position);
-		//SetRotation(camera->Transform, rotation);
 
 		//camera->DrawMesh(camera, arrowMesh, shader);
 		//camera->DrawMesh(camera, otherArrow, shader);

@@ -43,6 +43,9 @@
     <Filter Include="Header Files\Scripts">
       <UniqueIdentifier>{c6582471-7e83-41d9-b882-e74feba101dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Scripts">
+      <UniqueIdentifier>{cd1941a9-7240-46cd-a22b-201fd88c539b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\enumerable.c">
@@ -113,6 +116,9 @@
     </ClCompile>
     <ClCompile Include="src\Source\quaternions.c">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\scripts\fpsCamera.c">
+      <Filter>Source Files\Scripts</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

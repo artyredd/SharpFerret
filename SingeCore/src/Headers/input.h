@@ -165,7 +165,7 @@ void SetRawMouseEnabled(bool value);
 bool GetRawMouseEnabled();
 
 // The number of axes that are supported
-#define MAX_AXES 3
+#define MAX_AXES 5
 
 /// <summary>
 /// Integer representation of an axis
@@ -176,10 +176,14 @@ const static struct _availableAxes {
 	Axis None;
 	Axis MouseX;
 	Axis MouseY;
+	Axis Horizontal;
+	Axis Vertical;
 } Axes = {
 	.None = 0,
 	.MouseX = 1,
-	.MouseY = 2
+	.MouseY = 2,
+	.Horizontal = 3,
+	.Vertical = 4
 };
 
 typedef struct _axisDefinition* AxisDefinition;
@@ -190,7 +194,7 @@ struct _axisDefinition {
 	double PreviousValue;
 };
 
-static struct _axisDefinition AxisDefinitions[3] = {
+static struct _axisDefinition AxisDefinitions[MAX_AXES] = {
 	// none
 	{
 		.MinimumValue = 0.0,
@@ -204,6 +208,18 @@ static struct _axisDefinition AxisDefinitions[3] = {
 		.PreviousValue = 0.0
 	},
 	// MouseY
+	{
+		.MinimumValue = 1.0,
+		.MaximumValue = 1.0,
+		.PreviousValue = 0.0
+	},
+	// Horizontal
+	{
+		.MinimumValue = 1.0,
+		.MaximumValue = 1.0,
+		.PreviousValue = 0.0
+	},
+	// Vertical
 	{
 		.MinimumValue = 1.0,
 		.MaximumValue = 1.0,
