@@ -29,6 +29,7 @@ Transform CreateTransform()
 	transform->Previous = null;
 	transform->Count = 0;
 	transform->RotateAroundCenter = false;
+	transform->InvertTransform = false;
 
 	InitializeVector3(transform->Position);
 	SetVector3(transform->Scale, 1, 1, 1);
@@ -91,23 +92,40 @@ vec4* RefreshTransform(Transform transform)
 		return ForceRefreshTransform(transform);
 	}
 
+	// create a place to store rot and pos for the followup matrix multiplications
+	Quaternion rotation;
+	vec3 position;
+
+	// check whether or not we should invert the pos and rotation
+	// this is typically only used for the camera since the camera never "moves"
+	if (transform->InvertTransform)
+	{
+		glm_quat_inv(transform->Rotation, rotation);
+		glm_vec3_negate_to(transform->Position, position);
+	}
+	else
+	{
+		Vectors4CopyTo(transform->Rotation, rotation);
+		Vectors3CopyTo(transform->Position, position);
+	}
+
 	// since we dont need to do a full refresh, do only the calcs needed to save cpu time
 	// this engine was orignally designed to be single threaded
 	if (HasFlag(mask, RotationModifiedFlag))
 	{
 		if (transform->RotateAroundCenter)
 		{
-			glm_quat_rotate(transform->State.ScaleMatrix, transform->Rotation, transform->State.RotationMatrix);
+			glm_quat_rotate(transform->State.ScaleMatrix, rotation, transform->State.RotationMatrix);
 		}
 		else
 		{
 			SetMatrices4(transform->State.RotationMatrix, transform->State.ScaleMatrix);
-			glm_quat_rotate_at(transform->State.RotationMatrix, transform->Rotation, transform->Position);
+			glm_quat_rotate_at(transform->State.RotationMatrix, rotation, position);
 		}
 	}
 
 	// since the rotation and scale were not affected only translate and store into the previous state
-	glm_translate_to(transform->State.RotationMatrix, transform->Position, transform->State.LocalState);
+	glm_translate_to(transform->State.RotationMatrix, position, transform->State.LocalState);
 
 	if (transform->Parent != null)
 	{
@@ -130,17 +148,34 @@ vec4* ForceRefreshTransform(Transform transform)
 	// order must be scale first -> then rotate -> then translate
 	glm_scale_to(Matrix4.Identity, transform->Scale, transform->State.ScaleMatrix);
 
+	// create a place to store rot and pos for the followup matrix multiplications
+	Quaternion rotation;
+	vec3 position;
+
+	// check whether or not we should invert the pos and rotation
+	// this is typically only used for the camera since the camera never "moves"
+	if (transform->InvertTransform)
+	{
+		glm_quat_inv(transform->Rotation, rotation);
+		glm_vec3_negate_to(transform->Position, position);
+	}
+	else
+	{
+		Vectors4CopyTo(transform->Rotation, rotation);
+		Vectors3CopyTo(transform->Position, position);
+	}
+
 	if (transform->RotateAroundCenter)
 	{
-		glm_quat_rotate(transform->State.ScaleMatrix, transform->Rotation, transform->State.RotationMatrix);
+		glm_quat_rotate(transform->State.ScaleMatrix, rotation, transform->State.RotationMatrix);
 	}
 	else
 	{
 		SetMatrices4(transform->State.RotationMatrix, transform->State.ScaleMatrix);
-		glm_quat_rotate_at(transform->State.RotationMatrix, transform->Rotation, transform->Position);
+		glm_quat_rotate_at(transform->State.RotationMatrix, rotation, position);
 	}
 
-	glm_translate_to(transform->State.RotationMatrix, transform->Position, transform->State.LocalState);
+	glm_translate_to(transform->State.RotationMatrix, position, transform->State.LocalState);
 
 	if (transform->Parent != null)
 	{

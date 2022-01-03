@@ -93,6 +93,10 @@ struct _transform {
 	/// </summary>
 	bool RotateAroundCenter;
 	/// <summary>
+	/// Whether or not this transform should be inverted when drawn, this is mostly used for the camera but could be used for any transform
+	/// </summary>
+	bool InvertTransform;
+	/// <summary>
 	/// The stored state of this transform
 	/// </summary>
 	struct transformState State;

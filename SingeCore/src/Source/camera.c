@@ -189,6 +189,11 @@ Camera CreateCamera()
 	// have the camera rotate around origin since the camera is always at origin
 	camera->Transform->RotateAroundCenter = true;
 
+	// since the camera's transform is used to draw all of the other objects in the scene
+	// we should invert the camera's transform
+	// if we want to "turn" the camera 90deg to the right we should rotate the entire scene 90deg to the left
+	camera->Transform->InvertTransform = true;
+
 	// mark the state as needing a full refresh
 	camera->State.Modified = AllModifiedFlag;
 

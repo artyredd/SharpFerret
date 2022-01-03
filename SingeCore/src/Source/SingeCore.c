@@ -60,6 +60,8 @@ int main()
 
 	SetInputWindow(window);
 
+	//sWindow.SetMode(window, WindowModes.FullScreen);
+
 	SetClearColor(0.4f, 0.4f, 0.0f, 0.0f);
 
 	// bind graphics card with GDI
@@ -88,7 +90,7 @@ int main()
 	}
 
 	Model gizmo;
-	if (TryImportModel("gizmo.obj", FileFormats.Obj, &gizmo) is false)
+	if (TryImportModel("room.obj", FileFormats.Obj, &gizmo) is false)
 	{
 		throw(FailedToReadFileException);
 	}
@@ -130,24 +132,6 @@ int main()
 	unsigned int textureID = glGetUniformLocation(shader->Handle, "myTextureSampler");
 
 	DefaultShader = shader;
-
-	//// alloc array of points to rendermesh
-	//RenderMesh* meshes = SafeAlloc(numberOfMeshes * sizeof(RenderMesh));
-
-	//size_t i = 0;
-	//Mesh head = cube->Head;
-	//while (head)
-	//{
-	//	RenderMesh renderMesh;
-	//	if (TryBindMesh(head, &renderMesh) is false)
-	//	{
-	//		throw(NotImplementedException);
-	//	}
-
-	//	meshes[i++] = renderMesh;
-
-	//	head = head->Next;
-	//}
 
 	RenderMesh arrowMesh;
 	if (TryBindMesh(arrow->Head, &arrowMesh) is false)
@@ -257,37 +241,37 @@ int main()
 		{
 			GetDirection(camera->Transform, Directions.Left, positionModifier);
 			ScaleVector3(positionModifier, modifier);
-			SubtractVectors3(position, positionModifier);
+			AddVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.D))
 		{
 			GetDirection(camera->Transform, Directions.Right, positionModifier);
 			ScaleVector3(positionModifier, modifier);
-			SubtractVectors3(position, positionModifier);
+			AddVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.W))
 		{
 			GetDirection(camera->Transform, Directions.Forward, positionModifier);
 			ScaleVector3(positionModifier, modifier);
-			AddVectors3(position, positionModifier);
+			SubtractVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.S))
 		{
 			GetDirection(camera->Transform, Directions.Back, positionModifier);
 			ScaleVector3(positionModifier, modifier);
-			AddVectors3(position, positionModifier);
+			SubtractVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.Space))
 		{
 			GetDirection(camera->Transform, Directions.Up, positionModifier);
 			ScaleVector3(positionModifier, modifier);
-			SubtractVectors3(position, positionModifier);
+			AddVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.LeftShift))
 		{
 			GetDirection(camera->Transform, Directions.Down, positionModifier);
 			ScaleVector3(positionModifier, modifier);
-			SubtractVectors3(position, positionModifier);
+			AddVectors3(position, positionModifier);
 		}
 
 		////glActiveTexture(GL_TEXTURE0);
