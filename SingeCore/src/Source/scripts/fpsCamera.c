@@ -43,7 +43,9 @@ void Update(Camera camera)
 	glm_quat(FPSCamera.State.VerticalRotation, (float)FPSCamera.State.VerticalAngle, 1, 0, 0);
 
 	// combine the two
-	glm_quat_mul(FPSCamera.State.VerticalRotation, FPSCamera.State.HorizontalRotation, FPSCamera.State.State);
+	// order here matters since multiplying two quaternions is one rotation THEN a second rotation after
+	// they are not combined, we should rotate horizontally THEN up and down otherwise weird things happen
+	glm_quat_mul(FPSCamera.State.HorizontalRotation, FPSCamera.State.VerticalRotation, FPSCamera.State.State);
 
 	// set the camera's rotation to the new rotation
 	SetRotation(camera->Transform, FPSCamera.State.State);

@@ -36,11 +36,29 @@ const struct _OpenGLHints OpenGLHints = {
 	GLFW_OPENGL_PROFILE
 };
 
+
+static void SetCurrent(const Window);
+static int GetWindowAttribute(const Window window, const int attribute);
+static void SetWindowAttribute(Window, const int attribute, const int value);
+static void  SetIcon(Window, const Image);
+static void  SetMode(Window, const WindowMode);
+static void  SetSize(Window, const int width, const int height);
+static void  Focus(Window);
+
+const struct _windowMethods sWindow = {
+	.SetCurrent = &SetCurrent,
+	.GetAttribute = &GetWindowAttribute,
+	.SetAttribute = &SetWindowAttribute,
+	.SetIcon = &SetIcon,
+	.SetMode = &SetMode,
+	.SetSize = &SetSize,
+	.Focus = &Focus
+};
+
 // Ensures that GLFW is Initilized, otherwise throws an exception
 #define EnsureGlfwInitialized() if(IsRuntimeStarted is false) {throw(NotIntializedExceptionGLFW);}
 
 // private methods declarations
-static void InitializeStaticMethods(void);
 static void Dispose(Window window);
 
 // private variables
@@ -175,8 +193,6 @@ void StartRuntime(void)
 		throw(FailedToInitializeExceptionGLFW);
 	}
 
-	InitializeStaticMethods();
-
 	IsRuntimeStarted = true;
 }
 
@@ -289,14 +305,9 @@ static void SetCurrent(Window window)
 	glfwMakeContextCurrent(window->Handle);
 }
 
-static void InitializeStaticMethods()
+static void Focus(Window window)
 {
-	sWindow.SetCurrent = &SetCurrent;
-	sWindow.GetAttribute = &GetWindowAttribute;
-	sWindow.SetAttribute = &SetWindowAttribute;
-	sWindow.SetSize = &SetSize;
-	sWindow.SetMode = &SetMode;
-	sWindow.SetIcon = &SetIcon;
+	glfwFocusWindow(window->Handle);
 }
 #pragma endregion
 

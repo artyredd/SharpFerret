@@ -103,13 +103,13 @@ static struct _vectorDirections {
 	vec3 Forward;
 	vec3 Back;
 } Vector3 = {
-	.Zero = { 0, 0, 0},
-	.Left = { -1, 0, 0},
-	.Right = { 1, 0, 0},
-	.Up = { 0, 1, 0},
-	.Down = { 0, -1, 0},
-	.Forward = { 0, 0, 1},
-	.Back = { 0, 0, -1}
+	.Zero = { 0, 0, 0 },
+	.Left = { -1, 0, 0 },
+	.Right = { 1, 0, 0 },
+	.Up = { 0, 1, 0 },
+	.Down = { 0, -1, 0 },
+	.Forward = { 0, 0, 1 },
+	.Back = { 0, 0, -1 }
 };
 
 static struct _matrixConstants {

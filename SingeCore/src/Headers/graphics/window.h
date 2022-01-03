@@ -144,7 +144,13 @@ struct _windowMethods {
 	/// Sets the size of the provided window(if it's in windowed) otherwise sets the resultion of the window(if it's fullscreen)
 	/// </summary>
 	void (*SetSize)(Window, const int width, const int height);
-} sWindow;
+	/// <summary>
+	/// Focuses the window for the user
+	/// </summary>
+	void (*Focus)(Window);
+};
+
+extern const struct _windowMethods sWindow;
 #endif
 
 /// <summary>
