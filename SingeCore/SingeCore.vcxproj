@@ -210,6 +210,8 @@
     <ClInclude Include="src\Headers\graphics\renderModel.h" />
     <ClInclude Include="src\Headers\graphics\shadercompiler.h" />
     <ClInclude Include="src\Headers\graphics\shaders.h" />
+    <ClInclude Include="src\Headers\graphics\sharedBuffer.h" />
+    <ClInclude Include="src\Headers\graphics\texture.h" />
     <ClInclude Include="src\Headers\graphics\transform.h" />
     <ClInclude Include="src\Headers\Graphics\window.h" />
     <ClInclude Include="src\Headers\helpers\macros.h" />

@@ -165,7 +165,7 @@ int main()
 
 		rotateAmount += modifier;
 
-		vec3 ballPosition = { 0,sin(rotateAmount), 0 };
+		vec3 ballPosition = { 0,(float)sin(rotateAmount), 0 };
 
 		SetPosition(ball->Transform, ballPosition);
 
@@ -282,15 +282,13 @@ void BeforeDraw(Shader shader, mat4 mvp)
 {
 	glUseProgram(shader->Handle);
 
-	if (shader->MVPHandle is - 1)
+	int handle;
+	if (Shaders.TryGetUniform(shader, Uniforms.MVP, &handle) is false)
 	{
-		if (TryGetUniform(shader, "MVP", &shader->MVPHandle) is false)
-		{
-			throw(FailedToLocationMVPUniformException);
-		}
+		throw(FailedToLocationMVPUniformException);
 	}
 
-	glUniformMatrix4fv(shader->MVPHandle, 1, false, &mvp[0][0]);
+	glUniformMatrix4fv(handle, 1, false, &mvp[0][0]);
 }
 
 void Draw(Shader shader, void* renderMesh)

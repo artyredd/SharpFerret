@@ -227,6 +227,12 @@
     <ClInclude Include="src\Headers\singine\gameobjectHelpers.h">
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
+    <ClInclude Include="src\Headers\graphics\texture.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\graphics\sharedBuffer.h">
+      <Filter>Header Files\Graphics\Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SimpleFragmentShader.fragmentshader">
