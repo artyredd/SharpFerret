@@ -1,5 +1,6 @@
 #include "singine/time.h"
 #include "GLFW/glfw3.h"
+#include <stdlib.h>
 
 size_t totalFrames;
 double totalTime;
@@ -43,6 +44,9 @@ void UpdateTime()
 	double current = glfwGetTime();
 
 	deltaTime = current - previousTime;
+
+	deltaTime = min(deltaTime, DELTA_TIME_MAX);
+	deltaTime = max(deltaTime, DELTA_TIME_MIN);
 
 	previousTime = current;
 

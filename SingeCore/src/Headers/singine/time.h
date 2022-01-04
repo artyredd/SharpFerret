@@ -1,5 +1,10 @@
 #pragma once
 
+// The smallest value DeltaTime can be, generally no purpose to this
+#define DELTA_TIME_MIN 0.0
+// The largest value DeltaTime can be, used to prevent time issues on low-end hardware or when the engine's thread is frozen etc..
+#define DELTA_TIME_MAX 1.0/15.0 // 15FPS
+
 /// <summary>
 /// Returns the total number of frames since the start of the program
 /// </summary>
