@@ -400,12 +400,16 @@ static bool TryCreateMesh(File stream, FileBuffer buffer, Mesh* out_mesh)
 
 	// check to see if there is smoothing enabled, this is normally preceded by the laast normal vector and should be in the buffer
 	// so we should attemp to parse it
-	bool smoothingEnabled;
-	if (TryParseBoolean(buffer->StreamBuffer + strlen(Sequences.Smoothing), 3, &smoothingEnabled) is false)
-	{
-		SafeFree(name);
+	bool smoothingEnabled = false;
 
-		return false;
+	if (buffer->StreamBuffer[0] is Tokens.Smoothing)
+	{
+		if (TryParseBoolean(buffer->StreamBuffer + strlen(Sequences.Smoothing), 3, &smoothingEnabled) is false)
+		{
+			SafeFree(name);
+
+			return false;
+		}
 	}
 
 	// at this point the smoothing is still in the buffer, but GetFaceAttributes starts with reading a line so this doesnt matter

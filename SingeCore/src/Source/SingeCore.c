@@ -117,10 +117,9 @@ int main()
 
 	DefaultShader = shader;
 
-
-
 	GameObject ball = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
 	GameObject otherBall = GameObjects.Duplicate(ball);
+	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
 	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj);
 
 	//test memory leak
@@ -130,8 +129,6 @@ int main()
 
 		GameObjects.Destroy(tmp);
 	}
-
-	SetParent(otherBall->Transform, ball->Transform);
 
 	float speed = 10.0f;
 
@@ -144,15 +141,15 @@ int main()
 
 	SetPosition(camera->Transform, position);
 
-	Quaternion rotation;
-
-	glm_quat(rotation, (float)GLM_PI, 0, 0, 1);
-
 	vec3 positionModifier;
 
+	SetParent(otherBall->Transform, ball->Transform);
 	SetScales(otherBall->Transform, 0.5, 0.5, 0.5);
 	SetPositions(otherBall->Transform, 0, 0, 3);
+	SetPositions(car->Transform, 0, 0, 0);
 
+	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
+	UpdateTime();
 	do {
 		UpdateTime();
 
@@ -168,12 +165,29 @@ int main()
 
 		rotateAmount += modifier;
 
+		vec3 ballPosition = { 0,sin(rotateAmount), 0 };
+
+		SetPosition(ball->Transform, ballPosition);
+
 		Quaternion ballRotation;
 		glm_quat(ballRotation, rotateAmount / (float)GLM_PI, 0, 1, 0);
 		SetRotation(ball->Transform, ballRotation);
 
 		glm_quat(ballRotation, -(rotateAmount / (float)GLM_PI), 0, 1, 0);
 		SetRotation(otherBall->Transform, ballRotation);
+
+		// drive car
+		vec3 carDirection;
+		GetDirection(car->Transform, Directions.Forward, carDirection);
+
+		ScaleVector3(carDirection, modifier);
+
+		AddPosition(car->Transform, carDirection);
+
+		Quaternion carRotation;
+		glm_quat(carRotation, ((float)GLM_PI / 8.0f) * modifier, 0, 1, 0);
+
+		AddRotation(car->Transform, carRotation);
 
 		if (GetKey(KeyCodes.A))
 		{
@@ -228,10 +242,10 @@ int main()
 
 		SetPosition(camera->Transform, position);
 
-		GameObjects.Draw(room, camera);
+		GameObjects.Draw(car, camera);
 		GameObjects.Draw(ball, camera);
 		GameObjects.Draw(otherBall, camera);
-
+		GameObjects.Draw(room, camera);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -243,6 +257,7 @@ int main()
 
 	GameObjects.Destroy(ball);
 	GameObjects.Destroy(otherBall);
+	GameObjects.Destroy(car);
 	GameObjects.Destroy(room);
 
 	camera->Dispose(camera);
