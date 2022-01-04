@@ -69,6 +69,8 @@ typedef _declspec(align(16)) vec4 mat4[4];
 
 #define SetMatrices4(left,right) SetVectors4(left[0],right[0]);SetVectors4(left[1],right[1]);SetVectors4(left[2],right[2]);SetVectors4(left[3],right[3])
 
+#define Matrix4CopyTo(source, destination) SetMatrices4(destination,source)
+
 #define FLOAT_FORMAT "%0.2f"
 
 #define PrintVector3(vector,stream) fprintf(stream, "["FLOAT_FORMAT","FLOAT_FORMAT","FLOAT_FORMAT"]", vector[0], vector[1], vector[2]);

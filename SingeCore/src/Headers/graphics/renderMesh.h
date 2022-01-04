@@ -14,13 +14,22 @@ static unsigned int VertexShaderPosition = 0;
 static unsigned int UVShaderPosition = 1;
 static unsigned int NormalShaderPosition = 2;
 
+typedef struct _sharedBuffer* SharedBuffer;
+
+struct _sharedBuffer {
+	// The opengl handle for this buffer
+	unsigned int Handle;
+	// The number of objects that reference this struct with pointers, when this reaches 0 this buffer can be reclaimed by OpenGL(freed)
+	size_t ActiveInstances;
+};
+
 typedef struct _renderMesh* RenderMesh;
 
 struct _renderMesh {
 	Shader Shader;
-	unsigned int VertexBuffer;
-	unsigned int UVBuffer;
-	unsigned int NormalBuffer;
+	SharedBuffer VertexBuffer;
+	SharedBuffer UVBuffer;
+	SharedBuffer NormalBuffer;
 	size_t NumberOfTriangles;
 	Transform Transform;
 	void(*Draw)(RenderMesh, mat4 position);

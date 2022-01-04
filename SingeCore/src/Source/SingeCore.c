@@ -31,6 +31,8 @@
 #include "cglm/quat.h"
 #include "singine/time.h"
 #include "helpers/quickmask.h"
+#include "singine/gameobjectHelpers.h"
+
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
@@ -83,24 +85,6 @@ int main()
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-	Model arrow;
-	if (TryImportModel("arrow.obj", FileFormats.Obj, &arrow) is false)
-	{
-		throw(FailedToReadFileException);
-	}
-
-	Model gizmo;
-	if (TryImportModel("room.obj", FileFormats.Obj, &gizmo) is false)
-	{
-		throw(FailedToReadFileException);
-	}
-
-	Model ball;
-	if (TryImportModel("ball.obj", FileFormats.Obj, &ball) is false)
-	{
-		throw(FailedToReadFileException);
-	}
-
 	Image icon = LoadImage("icon.png");
 
 	using(icon, sWindow.SetIcon(window, icon));
@@ -133,65 +117,21 @@ int main()
 
 	DefaultShader = shader;
 
-	RenderMesh arrowMesh;
-	if (TryBindMesh(arrow->Head, &arrowMesh) is false)
+
+
+	GameObject ball = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
+	GameObject otherBall = GameObjects.Duplicate(ball);
+	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj);
+
+	//test memory leak
+	for (size_t i = 0; i < 5; i++)
 	{
-		throw(NotImplementedException);
+		GameObject tmp = GameObjects.Duplicate(ball);
+
+		GameObjects.Destroy(tmp);
 	}
 
-	RenderMesh ballMesh;
-	if (TryBindMesh(ball->Head, &ballMesh) is false)
-	{
-		throw(NotImplementedException);
-	}
-
-	ball->Dispose(ball);
-
-	RenderMesh centerBall = InstanceMesh(ballMesh);
-
-	SetParent(ballMesh->Transform, centerBall->Transform);
-
-	arrow->Dispose(arrow);
-
-	Enumerable gizmoMeshes = CreateEnumerable();
-
-	Mesh next = gizmo->Head;
-	while (next != null)
-	{
-		RenderMesh newMesh;
-		if (TryBindMesh(next, &newMesh) is false)
-		{
-			throw(NotImplementedException);
-		}
-		gizmoMeshes->Append(gizmoMeshes)->Value->AsPointer = newMesh;
-		next = next->Next;
-	}
-
-	gizmo->Dispose(gizmo);
-
-	// make a copy of the arrow
-	RenderMesh otherArrow = InstanceMesh(arrowMesh);
-	RenderMesh thirdArrow = InstanceMesh(arrowMesh);
-
-	vec3 thirdArrowScale = { 2,2,2 };
-
-	SetScale(thirdArrow->Transform, thirdArrowScale);
-
-	vec3 pos = { 0,0,0 };
-
-	Quaternion otherRotation;
-
-	glm_quat(otherRotation, GLM_PI / 2.0, 1, 0, 0);
-
-	Quaternion rightTurn;
-
-	glm_quat(rightTurn, GLM_PI / 2.0, 0, 1, 0);
-
-	glm_quat_mul(otherRotation, rightTurn, rightTurn);
-
-	SetPosition(otherArrow->Transform, pos);
-
-	SetRotation(otherArrow->Transform, rightTurn);
+	SetParent(otherBall->Transform, ball->Transform);
 
 	float speed = 10.0f;
 
@@ -200,20 +140,18 @@ int main()
 	float scaleAmount = 1.0f;
 	float rotateAmount = 0.0f;
 
-	vec3 position = { 3.25, 0.5, -3.18 };
+	vec3 position = { 3.25f, 0.5f, -3.18f };
 
 	SetPosition(camera->Transform, position);
 
 	Quaternion rotation;
 
-	glm_quat(rotation, GLM_PI, 0, 0, 1);
+	glm_quat(rotation, (float)GLM_PI, 0, 0, 1);
 
 	vec3 positionModifier;
 
-	vec3 ballDirection;
-
-	SetScales(ballMesh->Transform, 0.5, 0.5, 0.5);
-	SetPositions(ballMesh->Transform, 0, 0, 3);
+	SetScales(otherBall->Transform, 0.5, 0.5, 0.5);
+	SetPositions(otherBall->Transform, 0, 0, 3);
 
 	do {
 		UpdateTime();
@@ -231,11 +169,11 @@ int main()
 		rotateAmount += modifier;
 
 		Quaternion ballRotation;
-		glm_quat(ballRotation, rotateAmount / GLM_PI, 1, 0, 0);
-		SetRotation(ballMesh->Transform, ballRotation);
+		glm_quat(ballRotation, rotateAmount / (float)GLM_PI, 0, 1, 0);
+		SetRotation(ball->Transform, ballRotation);
 
-		glm_quat(ballRotation, -(rotateAmount / GLM_PI), 0, 1, 0);
-		SetRotation(centerBall->Transform, ballRotation);
+		glm_quat(ballRotation, -(rotateAmount / (float)GLM_PI), 0, 1, 0);
+		SetRotation(otherBall->Transform, ballRotation);
 
 		if (GetKey(KeyCodes.A))
 		{
@@ -290,17 +228,10 @@ int main()
 
 		SetPosition(camera->Transform, position);
 
-		gizmoMeshes->Reset(gizmoMeshes);
+		GameObjects.Draw(room, camera);
+		GameObjects.Draw(ball, camera);
+		GameObjects.Draw(otherBall, camera);
 
-		Item gizmoMesh = gizmoMeshes->Current;
-		do
-		{
-			RenderMesh mesh = gizmoMesh->Value->AsPointer;
-			camera->DrawMesh(camera, mesh, shader);
-		} while (gizmoMeshes->TryGetNext(gizmoMeshes, &gizmoMesh));
-
-		camera->DrawMesh(camera, centerBall, shader);
-		camera->DrawMesh(camera, ballMesh, shader);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -310,22 +241,9 @@ int main()
 		//fprintf(stdout,"Total: %0.4fs	FrameTime: %0.4fms"NEWLINE, Time(), FrameTime() * 1000.0);
 	} while (GetKey(KeyCodes.Escape) != true && ShouldClose(window) != true);
 
-	arrowMesh->Dispose(arrowMesh);
-	otherArrow->Dispose(otherArrow);
-	thirdArrow->Dispose(thirdArrow);
-	ballMesh->Dispose(ballMesh);
-	centerBall->Dispose(centerBall);
-
-	gizmoMeshes->Reset(gizmoMeshes);
-
-	Item gizmoMesh = gizmoMeshes->Current;
-	do
-	{
-		RenderMesh mesh = gizmoMesh->Value->AsPointer;
-		mesh->Dispose(mesh);
-	} while (gizmoMeshes->TryGetNext(gizmoMeshes, &gizmoMesh));
-
-	gizmoMeshes->Dispose(gizmoMeshes);
+	GameObjects.Destroy(ball);
+	GameObjects.Destroy(otherBall);
+	GameObjects.Destroy(room);
 
 	camera->Dispose(camera);
 

@@ -1,10 +1,13 @@
 #include "graphics/transform.h"
 #include "singine/memory.h"
 
+#include "helpers/macros.h"
+
 #include "cglm/affine.h"
 #include "cglm/quat.h"
 #include "helpers/quickmask.h"
 #include "singine/guards.h"
+#include "math/vectors.h"
 
 #define PositionModifiedFlag FLAG_0
 #define RotationModifiedFlag FLAG_1
@@ -21,6 +24,8 @@ static void Dispose(Transform transform)
 Transform CreateTransform()
 {
 	Transform transform = SafeAlloc(sizeof(struct _transform));
+
+	transform->Dispose = &Dispose;
 
 	transform->Child = null;
 	transform->LastChild = null;
@@ -44,6 +49,51 @@ Transform CreateTransform()
 	// no need to init the transform states since they will be populated before first draw by RecalculateTransform
 
 	return transform;
+}
+
+static void DirectionStatesCopyTo(struct _directionStates* source, struct _directionStates* destination)
+{
+	CopyMember(source, destination, Accessed);
+
+	Vectors3CopyTo(source->Directions[0], destination->Directions[0]);
+	Vectors3CopyTo(source->Directions[1], destination->Directions[1]);
+	Vectors3CopyTo(source->Directions[2], destination->Directions[2]);
+	Vectors3CopyTo(source->Directions[3], destination->Directions[3]);
+	Vectors3CopyTo(source->Directions[4], destination->Directions[4]);
+	Vectors3CopyTo(source->Directions[5], destination->Directions[5]);
+}
+
+static void StateCopyTo(struct transformState* source, struct transformState* destination)
+{
+	CopyMember(source, destination, Modified);
+
+	Matrix4CopyTo(source->ScaleMatrix, destination->ScaleMatrix);
+	Matrix4CopyTo(source->RotationMatrix, destination->RotationMatrix);
+	Matrix4CopyTo(source->LocalState, destination->LocalState);
+	Matrix4CopyTo(source->State, destination->State);
+
+	DirectionStatesCopyTo(&source->Directions, &destination->Directions);
+}
+
+void TransformCopyTo(Transform source, Transform destination)
+{
+	CopyMember(source, destination, RotateAroundCenter);
+	CopyMember(source, destination, InvertTransform);
+
+	Vectors3CopyTo(source->Scale, destination->Scale);
+	Vectors3CopyTo(source->Position, destination->Position);
+	Vectors4CopyTo(source->Rotation, destination->Rotation);
+
+	StateCopyTo(&source->State, &destination->State);
+}
+
+Transform DuplicateTransform(Transform transform)
+{
+	Transform newTransform = CreateTransform();
+
+	TransformCopyTo(transform, newTransform);
+
+	return newTransform;
 }
 
 /// <summary>
@@ -277,6 +327,7 @@ static void AttachChild(Transform transform, Transform child)
 		{
 			transform->LastChild->Next = child;
 			child->Previous = transform->LastChild;
+			transform->LastChild = child;
 		}
 	}
 

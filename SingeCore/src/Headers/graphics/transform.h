@@ -105,6 +105,10 @@ struct _transform {
 
 Transform CreateTransform();
 
+void TransformCopyTo(Transform source, Transform destination);
+
+Transform DuplicateTransform(Transform);
+
 /// <summary>
 /// Recalulates the underlying state of the transform
 /// </summary>

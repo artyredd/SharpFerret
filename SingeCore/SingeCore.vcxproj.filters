@@ -120,6 +120,12 @@
     <ClCompile Include="src\Source\scripts\fpsCamera.c">
       <Filter>Source Files\Scripts</Filter>
     </ClCompile>
+    <ClCompile Include="src\Source\gameobject.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\gameobjectHelpers.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">
@@ -214,6 +220,12 @@
     </ClInclude>
     <ClInclude Include="src\Headers\graphics\renderModel.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\gameobject.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\gameobjectHelpers.h">
+      <Filter>Header Files\Singine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

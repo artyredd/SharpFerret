@@ -7,11 +7,37 @@
 static void Dispose(RenderMesh model)
 {
 	// never dispose of the shader in the model
-	glDeleteBuffers(1, &model->VertexBuffer);
-	glDeleteBuffers(1, &model->UVBuffer);
-	glDeleteBuffers(1, &model->NormalBuffer);
+	if (model->VertexBuffer->ActiveInstances <= 1)
+	{
+		glDeleteBuffers(1, &model->VertexBuffer->Handle);
+		SafeFree(model->VertexBuffer);
+	}
+	else
+	{
+		--(model->VertexBuffer->ActiveInstances);
+	}
 
-	SafeFree(model->Transform);
+	if (model->UVBuffer->ActiveInstances <= 1)
+	{
+		glDeleteBuffers(1, &model->UVBuffer->Handle);
+		SafeFree(model->UVBuffer);
+	}
+	else
+	{
+		--(model->UVBuffer->ActiveInstances);
+	}
+
+	if (model->NormalBuffer->ActiveInstances <= 1)
+	{
+		glDeleteBuffers(1, &model->NormalBuffer->Handle);
+		SafeFree(model->NormalBuffer);
+	}
+	else
+	{
+		--(model->NormalBuffer->ActiveInstances);
+	}
+
+	model->Transform->Dispose(model->Transform);
 
 	SafeFree(model);
 }
@@ -22,7 +48,7 @@ static void Draw(RenderMesh model, mat4 position)
 
 	glEnableVertexAttribArray(VertexShaderPosition);
 
-	glBindBuffer(GL_ARRAY_BUFFER, model->VertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, model->VertexBuffer->Handle);
 
 	glVertexAttribPointer(
 		VertexShaderPosition,
@@ -35,7 +61,7 @@ static void Draw(RenderMesh model, mat4 position)
 
 	// 2nd attribute buffer : UVs
 	glEnableVertexAttribArray(UVShaderPosition);
-	glBindBuffer(GL_ARRAY_BUFFER, model->UVBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, model->UVBuffer->Handle);
 	glVertexAttribPointer(
 		UVShaderPosition,                 // attribute
 		2,                                // size
@@ -62,9 +88,9 @@ static RenderMesh CreateRenderMesh()
 	mesh->Draw = &Draw;
 
 	mesh->Shader = DefaultShader;
-	mesh->UVBuffer = 0;
-	mesh->VertexBuffer = 0;
-	mesh->NormalBuffer = 0;
+	mesh->UVBuffer = null;
+	mesh->VertexBuffer = null;
+	mesh->NormalBuffer = null;
 
 	mesh->NumberOfTriangles = 0;
 
@@ -73,9 +99,9 @@ static RenderMesh CreateRenderMesh()
 	return mesh;
 }
 
-static bool TryBindBuffer(float* buffer, size_t sizeInBytes, unsigned int* out_handle)
+static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedBuffer destinationBuffer)
 {
-	*out_handle = 0;
+	destinationBuffer->Handle = 0;
 
 	GLuint index_buffer; // Save this for later rendering
 	glGenBuffers(1, &index_buffer);
@@ -93,9 +119,19 @@ static bool TryBindBuffer(float* buffer, size_t sizeInBytes, unsigned int* out_h
 		return false;
 	}
 
-	*out_handle = index_buffer;
+	destinationBuffer->Handle = index_buffer;
 
 	return true;
+}
+
+SharedBuffer CreateSharedBuffer()
+{
+	SharedBuffer buffer = SafeAlloc(sizeof(struct _sharedBuffer));
+
+	buffer->Handle = 0;
+	buffer->ActiveInstances = 1;
+
+	return buffer;
 }
 
 bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
@@ -104,19 +140,24 @@ bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 
 	RenderMesh model = CreateRenderMesh();
 
-	if (TryBindBuffer(mesh->Vertices, mesh->VertexCount * sizeof(float), &model->VertexBuffer) is false)
+	// since this is a new mesh we should create new buffers from scratch
+	model->UVBuffer = CreateSharedBuffer();
+	model->VertexBuffer = CreateSharedBuffer();
+	model->NormalBuffer = CreateSharedBuffer();
+
+	if (TryBindBuffer(mesh->Vertices, mesh->VertexCount * sizeof(float), model->VertexBuffer) is false)
 	{
 		model->Dispose(model);
 		return false;
 	}
 
-	if (TryBindBuffer(mesh->TextureVertices, mesh->TextureCount * sizeof(float), &model->UVBuffer) is false)
+	if (TryBindBuffer(mesh->TextureVertices, mesh->TextureCount * sizeof(float), model->UVBuffer) is false)
 	{
 		model->Dispose(model);
 		return false;
 	}
 
-	if (TryBindBuffer(mesh->Normals, mesh->NormalCount * sizeof(float), &model->NormalBuffer) is false)
+	if (TryBindBuffer(mesh->Normals, mesh->NormalCount * sizeof(float), model->NormalBuffer) is false)
 	{
 		model->Dispose(model);
 		return false;
@@ -132,9 +173,16 @@ bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 {
 	CopyMember(source, destination, Shader);
+
 	CopyMember(source, destination, VertexBuffer);
+	++source->VertexBuffer->ActiveInstances;
+
 	CopyMember(source, destination, UVBuffer);
+	++source->UVBuffer->ActiveInstances;
+
 	CopyMember(source, destination, NormalBuffer);
+	++source->NormalBuffer->ActiveInstances;
+
 	CopyMember(source, destination, NumberOfTriangles);
 }
 

@@ -181,6 +181,8 @@
     <ClCompile Include="src\Source\cunit.c" />
     <ClCompile Include="src\Source\enumerable.c" />
     <ClCompile Include="src\Source\file.c" />
+    <ClCompile Include="src\Source\gameobject.c" />
+    <ClCompile Include="src\Source\gameobjectHelpers.c" />
     <ClCompile Include="src\Source\imaging.c" />
     <ClCompile Include="src\Source\importer.c" />
     <ClCompile Include="src\Source\input.c" />
@@ -226,6 +228,8 @@
     <ClInclude Include="src\Headers\singine\enumerableItem.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />
     <ClInclude Include="src\Headers\singine\file.h" />
+    <ClInclude Include="src\Headers\singine\gameobject.h" />
+    <ClInclude Include="src\Headers\singine\gameobjectHelpers.h" />
     <ClInclude Include="src\Headers\singine\generics.h" />
     <ClInclude Include="src\Headers\singine\guards.h" />
     <ClInclude Include="src\Headers\Singine\memory.h" />

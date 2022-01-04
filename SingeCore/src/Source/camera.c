@@ -20,6 +20,7 @@ static vec4* RefreshCamera(CameracameraVP);
 
 static void Dispose(Camera camera)
 {
+	camera->Transform->Dispose(camera->Transform);
 	SafeFree(camera);
 }
 
