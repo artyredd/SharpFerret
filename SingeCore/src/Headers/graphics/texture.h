@@ -109,7 +109,7 @@ extern const struct _textureWrapModes WrapModes;
 typedef struct _texture* Texture;
 
 struct _texture {
-	SharedBuffer Buffer;
+	SharedHandle Handle;
 	size_t Height;
 	size_t Width;
 	BufferFormat BufferFormat;
@@ -138,7 +138,7 @@ struct _textureMethods
 	/// <summary>
 	/// Instances a new copy of the provided texture
 	/// </summary>
-	Texture(*InstanceTexture)(Texture texture);
+	Texture(*Instance)(Texture texture);
 	/// <summary>
 	/// Disposed the provided texture
 	/// </summary>

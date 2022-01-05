@@ -134,7 +134,7 @@
       <ShowProgress>LinkVerbose</ShowProgress>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
-      <Profile>true</Profile>
+      <Profile>false</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -186,6 +186,7 @@
     <ClCompile Include="src\Source\imaging.c" />
     <ClCompile Include="src\Source\importer.c" />
     <ClCompile Include="src\Source\input.c" />
+    <ClCompile Include="src\Source\material.c" />
     <ClCompile Include="src\Source\memory.c" />
     <ClCompile Include="src\Source\mesh.c" />
     <ClCompile Include="src\Source\model.c" />
@@ -208,6 +209,7 @@
     <ClInclude Include="src\Headers\cunit.h" />
     <ClInclude Include="src\Headers\graphics\camera.h" />
     <ClInclude Include="src\Headers\Graphics\imaging.h" />
+    <ClInclude Include="src\Headers\graphics\material.h" />
     <ClInclude Include="src\Headers\graphics\renderMesh.h" />
     <ClInclude Include="src\Headers\graphics\renderModel.h" />
     <ClInclude Include="src\Headers\graphics\shadercompiler.h" />

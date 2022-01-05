@@ -12,9 +12,9 @@ static void OnBufferDispose(unsigned int handle)
 static void Dispose(RenderMesh model)
 {
 	// never dispose of the shader in the model
-	SharedBuffers.Dispose(model->VertexBuffer, &OnBufferDispose);
-	SharedBuffers.Dispose(model->UVBuffer, &OnBufferDispose);
-	SharedBuffers.Dispose(model->NormalBuffer, &OnBufferDispose);
+	SharedHandles.Dispose(model->VertexBuffer, &OnBufferDispose);
+	SharedHandles.Dispose(model->UVBuffer, &OnBufferDispose);
+	SharedHandles.Dispose(model->NormalBuffer, &OnBufferDispose);
 
 	model->Transform->Dispose(model->Transform);
 
@@ -23,7 +23,7 @@ static void Dispose(RenderMesh model)
 
 static void Draw(RenderMesh model, mat4 position)
 {
-	glUseProgram(model->Shader->Handle);
+	glUseProgram(model->Shader->Handle->Handle);
 
 	glEnableVertexAttribArray(VertexShaderPosition);
 
@@ -78,7 +78,7 @@ static RenderMesh CreateRenderMesh()
 	return mesh;
 }
 
-static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedBuffer destinationBuffer)
+static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedHandle destinationBuffer)
 {
 	destinationBuffer->Handle = 0;
 
@@ -110,9 +110,9 @@ bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 	RenderMesh model = CreateRenderMesh();
 
 	// since this is a new mesh we should create new buffers from scratch
-	model->UVBuffer = CreateSharedBuffer();
-	model->VertexBuffer = CreateSharedBuffer();
-	model->NormalBuffer = CreateSharedBuffer();
+	model->UVBuffer = CreateSharedHandle();
+	model->VertexBuffer = CreateSharedHandle();
+	model->NormalBuffer = CreateSharedHandle();
 
 	if (TryBindBuffer(mesh->Vertices, mesh->VertexCount * sizeof(float), model->VertexBuffer) is false)
 	{

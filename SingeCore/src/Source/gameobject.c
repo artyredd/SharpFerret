@@ -34,6 +34,8 @@ static void Dispose(GameObject gameobject)
 		SafeFree(gameobject->Name);
 	}
 
+	Materials.Dispose(gameobject->Material);
+
 	SafeFree(gameobject);
 }
 
@@ -48,6 +50,7 @@ GameObject CreateGameObject()
 	gameObject->NameLength = 0;
 
 	gameObject->Transform = CreateTransform();
+	gameObject->Material = null;
 
 	return gameObject;
 }
@@ -76,6 +79,8 @@ static void GameObjectCopyTo(GameObject source, GameObject destination)
 		}
 	}
 
+	destination->Material = Materials.Instance(source->Material);
+
 	TransformCopyTo(source->Transform, destination->Transform);
 }
 
@@ -101,6 +106,6 @@ static void Draw(GameObject gameobject, Camera camera)
 
 	for (size_t i = 0; i < gameobject->Count; i++)
 	{
-		camera->DrawMesh(camera, gameobject->Meshes[i], gameobject->Meshes[i]->Shader);
+		camera->DrawMesh(camera, gameobject->Meshes[i], gameobject->Material);
 	}
 }

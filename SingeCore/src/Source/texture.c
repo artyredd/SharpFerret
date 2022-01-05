@@ -92,7 +92,7 @@ const struct _textureMethods Textures = {
 	.Dispose = &Dispose,
 	.TryCreateTexture = &TryCreateTexture,
 	.TryCreateTextureAdvanced = &TryCreateTextureAdvanced,
-	.InstanceTexture = &InstanceTexture,
+	.Instance = &InstanceTexture,
 	.Modify = &Modify
 };
 
@@ -103,7 +103,7 @@ static void OnTextureBufferDispose(unsigned int handle)
 
 static void Dispose(Texture texture)
 {
-	SharedBuffers.Dispose(texture->Buffer, &OnTextureBufferDispose);
+	SharedHandles.Dispose(texture->Handle, &OnTextureBufferDispose);
 
 	SafeFree(texture);
 }
@@ -115,7 +115,7 @@ static Texture CreateTexture(bool allocBuffer)
 
 	if (allocBuffer)
 	{
-		texture->Buffer = CreateSharedBuffer();
+		texture->Handle = CreateSharedHandle();
 	}
 
 	texture->Height = 0;
@@ -176,7 +176,7 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureF
 	texture->Height = image->Height;
 	texture->Width = image->Width;
 
-	texture->Buffer->Handle = handle;
+	texture->Handle->Handle = handle;
 
 	texture->BufferFormat = bufferFormat;
 	texture->Format = format;
@@ -193,16 +193,21 @@ static bool TryCreateTexture(Image image, Texture* out_texture)
 
 static Texture InstanceTexture(Texture texture)
 {
+	if (texture is null)
+	{
+		return null;
+	}
+
 	Texture newTexture = CreateTexture(false);
 
 	CopyMember(texture, newTexture, Height);
 	CopyMember(texture, newTexture, Width);
 
-	CopyMember(texture, newTexture, Buffer);
+	CopyMember(texture, newTexture, Handle);
 
 	// increment the number of instances that are active for the texture so when dispose is called on the texture the underlying
 	// buffer handle does not get disposed until the last texture that references it is diposed
-	++(texture->Buffer->ActiveInstances);
+	++(texture->Handle->ActiveInstances);
 
 	CopyMember(texture, newTexture, BufferFormat);
 	CopyMember(texture, newTexture, Format);

@@ -1,6 +1,6 @@
 #pragma once
 
-typedef struct _sharedBuffer* SharedBuffer;
+typedef struct _sharedBuffer* SharedHandle;
 
 struct _sharedBuffer {
 	// The opengl handle for this buffer
@@ -14,9 +14,9 @@ struct _sharedBufferMethods
 	/// <summary>
 	/// Disposes the buffer if the active instances of this object is less than or equal to 0, if it diposes OnDipose is invoked with the handle of the buffer
 	/// </summary>
-	void (*Dispose)(SharedBuffer, void(*OnDispose)(unsigned int handle));
+	void (*Dispose)(SharedHandle, void(*OnDispose)(unsigned int handle));
 };
 
-extern const struct _sharedBufferMethods SharedBuffers;
+extern const struct _sharedBufferMethods SharedHandles;
 
-SharedBuffer CreateSharedBuffer();
+SharedHandle CreateSharedHandle();

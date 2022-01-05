@@ -24,7 +24,7 @@ static void Dispose(Camera camera)
 	SafeFree(camera);
 }
 
-static void DrawMesh(Camera camera, RenderMesh mesh, Shader shader)
+static void DrawMesh(Camera camera, RenderMesh mesh, Material material)
 {
 	// make sure the meshes transform is up to date
 	vec4* modelMatrix = RefreshTransform(mesh->Transform);
@@ -35,20 +35,31 @@ static void DrawMesh(Camera camera, RenderMesh mesh, Shader shader)
 	mat4 MVP;
 	glm_mat4_mul(cameraVP, modelMatrix, MVP);
 
-	if (shader->BeforeDraw isnt null)
+	if (material isnt null)
 	{
-		shader->BeforeDraw(shader, MVP);
+		if (material->Shader isnt null)
+		{
+			Shader shader = material->Shader;
+
+			if (shader->BeforeDraw isnt null)
+			{
+				shader->BeforeDraw(shader, MVP);
+			}
+
+			Materials.Draw(material);
+
+			if (shader->DrawMesh isnt null)
+			{
+				shader->DrawMesh(shader, mesh);
+			}
+
+			if (shader->AfterDraw isnt null)
+			{
+				shader->AfterDraw(shader);
+			}
+		}
 	}
 
-	if (shader->DrawMesh isnt null)
-	{
-		shader->DrawMesh(shader, mesh);
-	}
-
-	if (shader->AfterDraw isnt null)
-	{
-		shader->AfterDraw(shader);
-	}
 }
 
 static void RecalculateProjection(Camera camera)

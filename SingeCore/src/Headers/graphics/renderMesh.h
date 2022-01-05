@@ -19,9 +19,11 @@ typedef struct _renderMesh* RenderMesh;
 
 struct _renderMesh {
 	Shader Shader;
-	SharedBuffer VertexBuffer;
-	SharedBuffer UVBuffer;
-	SharedBuffer NormalBuffer;
+
+	SharedHandle VertexBuffer;
+	SharedHandle UVBuffer;
+	SharedHandle NormalBuffer;
+
 	size_t NumberOfTriangles;
 	Transform Transform;
 	void(*Draw)(RenderMesh, mat4 position);

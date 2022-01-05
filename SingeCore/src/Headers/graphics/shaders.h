@@ -1,6 +1,7 @@
 #pragma once
 #include "csharp.h"
 #include "math/vectors.h"
+#include "sharedBuffer.h"
 
 #define UNIFORM_NAME_MVP "MVP"
 #define UNIFORM_NAME_Texture0 "myTextureSampler"
@@ -38,8 +39,8 @@ struct _shaderUniforms {
 typedef struct _shader* Shader;
 
 struct _shader {
-	unsigned int Handle;
-	struct _shaderUniforms Uniforms;
+	SharedHandle Handle;
+	struct _shaderUniforms* Uniforms;
 	/// <summary>
 	/// The method that is ran before the mesh using this shader is ran, 
 	/// mat4 is the MVP for the mesh being rendered, can be NULL
@@ -53,14 +54,18 @@ struct _shader {
 	/// Invoked after any given mesh is drawn
 	/// </summary>
 	void(*AfterDraw)(Shader);
-	/// <summary>
-	/// Disposes and frees this shader and any managed resources it controls
-	/// </summary>
-	void(*Dispose)(Shader);
 };
 
 struct _shaderMethods {
+	/// <summary>
+	/// Creates a new instance of the provided shader
+	/// </summary>
+	Shader(*Instance)(Shader);
 	bool (*TryGetUniform)(Shader, Uniform, int* out_handle);
+	/// <summary>
+	/// Disposes and frees this shader and any managed resources it controls
+	/// </summary>
+	void (*Dispose)(Shader);
 };
 
 const extern struct _shaderMethods Shaders;

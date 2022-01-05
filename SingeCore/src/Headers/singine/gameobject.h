@@ -2,6 +2,7 @@
 #include "graphics/transform.h"
 #include "graphics/renderMesh.h"
 #include "graphics/camera.h"
+#include "graphics/material.h"
 
 typedef struct _gameObject* GameObject;
 
@@ -27,6 +28,7 @@ struct _gameObject {
 	/// The number of render meshes this object controls
 	/// </summary>
 	size_t Count;
+	Material Material;
 };
 
 struct _gameObjectMethods {

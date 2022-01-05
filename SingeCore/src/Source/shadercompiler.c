@@ -221,7 +221,7 @@ static bool TryCompileProgram(unsigned int vertexHandle, unsigned int fragmentHa
 
 bool TryGetUniform(Shader shader, const char* name, int* out_handle)
 {
-	*out_handle = glGetUniformLocation(shader->Handle, name);
+	*out_handle = glGetUniformLocation(shader->Handle->Handle, name);
 
 	return *out_handle != -1;
 }
@@ -269,7 +269,7 @@ Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 
 	Shader shader = CreateShader();
 
-	shader->Handle = programHandle;
+	shader->Handle->Handle = programHandle;
 
 	return shader;
 }

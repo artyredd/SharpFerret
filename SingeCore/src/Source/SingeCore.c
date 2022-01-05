@@ -94,6 +94,19 @@ int main()
 
 	Shader shader = LoadShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
+	// check shader instancing and disposing
+	for (size_t i = 0; i < 5; i++)
+	{
+		Shader instance = Shaders.Instance(shader);
+
+		Shaders.Dispose(instance);
+	}
+
+	if (shader->Handle->ActiveInstances != 1)
+	{
+		throw(InvalidArgumentException);
+	}
+
 	int textureId;
 	if (Shaders.TryGetUniform(shader, Uniforms.Texture0, &textureId) is false)
 	{
@@ -109,12 +122,12 @@ int main()
 	// test texture disposing
 	for (size_t i = 0; i < 5; i++)
 	{
-		Texture newInstance = Textures.InstanceTexture(cubeTexture);
+		Texture newInstance = Textures.Instance(cubeTexture);
 
 		Textures.Dispose(newInstance);
 	}
 
-	if (cubeTexture->Buffer->ActiveInstances != 1)
+	if (cubeTexture->Handle->ActiveInstances != 1)
 	{
 		throw(InvalidArgumentException);
 	}
@@ -122,6 +135,8 @@ int main()
 	SetCursorMode(CursorModes.Disabled);
 
 	uv->Dispose(uv);
+
+	Material baseMaterial = Materials.Create(shader, cubeTexture);
 
 	Camera camera = CreateCamera();
 
@@ -139,6 +154,11 @@ int main()
 	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
 	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj);
 	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
+
+	ball->Material = Materials.Instance(baseMaterial);
+	car->Material = Materials.Instance(baseMaterial);
+	room->Material = Materials.Instance(baseMaterial);
+	cube->Material = Materials.Instance(baseMaterial);
 
 	//test memory leak
 	for (size_t i = 0; i < 5; i++)
@@ -254,10 +274,6 @@ int main()
 
 		SetPosition(camera->Transform, position);
 
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, cubeTexture->Buffer->Handle);
-		glUniform1i(textureId, 0);
-
 		GameObjects.Draw(cube, camera);
 
 		GameObjects.Draw(car, camera);
@@ -281,9 +297,11 @@ int main()
 
 	Textures.Dispose(cubeTexture);
 
+	Materials.Dispose(baseMaterial);
+
 	camera->Dispose(camera);
 
-	shader->Dispose(shader);
+	Shaders.Dispose(shader);
 
 	window->Dispose(window);
 
@@ -301,7 +319,7 @@ int main()
 
 void BeforeDraw(Shader shader, mat4 mvp)
 {
-	glUseProgram(shader->Handle);
+	glUseProgram(shader->Handle->Handle);
 
 	int handle;
 	if (Shaders.TryGetUniform(shader, Uniforms.MVP, &handle) is false)
