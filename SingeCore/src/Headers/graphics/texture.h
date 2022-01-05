@@ -1,10 +1,17 @@
 #pragma once
 #include <stdlib.h>
 #include "graphics/sharedBuffer.h"
+#include "graphics/imaging.h"
+
+#define DEFAULT_MINIFYING_FILTER Filters.Linear
+#define DEFAULT_MAGNIFYING_FILTER Filters.Linear
+#define DEFAULT_TEXTURE_FORMAT TextureFormats.RGBA
+#define DEFAULT_TEXTURE_BUFFER_FORMAT BufferFormats.UByte
 
 typedef unsigned int TextureFormat;
 
 struct _textureFormats {
+	TextureFormat None;
 	TextureFormat Red;
 	TextureFormat RG;
 	TextureFormat RGB;
@@ -28,6 +35,7 @@ typedef unsigned int BufferFormat;
 
 struct _bufferFormat
 {
+	BufferFormat None;
 	BufferFormat UByte;
 	BufferFormat Byte;
 	BufferFormat UShort;
@@ -98,10 +106,39 @@ struct _textureWrapModes {
 
 extern const struct _textureWrapModes WrapModes;
 
+typedef struct _texture* Texture;
+
 struct _texture {
-	SharedBuffer TextureBuffer;
+	SharedBuffer Buffer;
 	size_t Height;
 	size_t Width;
 	BufferFormat BufferFormat;
-	TextureFormat TextureFormat;
+	TextureFormat Format;
 };
+
+struct _textureMethods
+{
+	/// <summary>
+	/// Modifies the currently bound texture, this should be invoked in the method given to TryCreateTextureAdvanced
+	/// </summary>
+	void(*Modify)(TextureSetting setting, TextureSettingValue value);
+	/// <summary>
+	/// Attempts to create a new texture from the provided image and invokes the given method after the texture has been bound so modifiers such as 
+	/// filters can be applied in-line
+	/// </summary>
+	bool (*TryCreateTextureAdvanced)(Image image, Texture out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle));
+	/// <summary>
+	/// Attempts to create a new texture from the provided image
+	/// </summary>
+	bool (*TryCreateTexture)(Image, Texture out_texture);
+	/// <summary>
+	/// Instances a new copy of the provided texture
+	/// </summary>
+	Texture(*InstanceTexture)(Texture texture);
+	/// <summary>
+	/// Disposed the provided texture
+	/// </summary>
+	void (*Dispose)(Texture);
+};
+
+extern const struct _textureMethods Textures;
