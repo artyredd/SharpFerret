@@ -109,11 +109,10 @@ int main()
 
 	vec3 startingPosition = { 3,2,3 };
 
+	// bind a vertex array for OpenGL this is required to render objects
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-
-	unsigned int textureID = glGetUniformLocation(shader->Handle, "myTextureSampler");
 
 	DefaultShader = shader;
 
@@ -158,10 +157,6 @@ int main()
 		Vectors3CopyTo(camera->Transform->Position, position);
 
 		float modifier = speed * (float)DeltaTime();
-
-		//GetDirection(ballMesh->Transform, Directions.Forward, ballDirection);
-		//ScaleVector3(ballDirection, modifier);
-		////AddPosition(ballMesh->Transform, ballDirection);
 
 		rotateAmount += modifier;
 

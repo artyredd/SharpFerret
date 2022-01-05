@@ -4,6 +4,7 @@
 #include "math/vectors.h"
 #include "graphics/shaders.h"
 #include "graphics/transform.h"
+#include "graphics/sharedBuffer.h"
 
 /// <summary>
 /// The default Shader that should be used 
@@ -13,15 +14,6 @@ Shader DefaultShader;
 static unsigned int VertexShaderPosition = 0;
 static unsigned int UVShaderPosition = 1;
 static unsigned int NormalShaderPosition = 2;
-
-typedef struct _sharedBuffer* SharedBuffer;
-
-struct _sharedBuffer {
-	// The opengl handle for this buffer
-	unsigned int Handle;
-	// The number of objects that reference this struct with pointers, when this reaches 0 this buffer can be reclaimed by OpenGL(freed)
-	size_t ActiveInstances;
-};
 
 typedef struct _renderMesh* RenderMesh;
 

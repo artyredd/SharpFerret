@@ -195,7 +195,9 @@
     <ClCompile Include="src\Source\scripts\fpsCamera.c" />
     <ClCompile Include="src\Source\shadercompiler.c" />
     <ClCompile Include="src\Source\shaders.c" />
+    <ClCompile Include="src\Source\sharedBuffer.c" />
     <ClCompile Include="src\Source\SingeCore.c" />
+    <ClCompile Include="src\Source\texture.c" />
     <ClCompile Include="src\Source\time.c" />
     <ClCompile Include="src\Source\transform.c" />
     <ClCompile Include="src\Source\vectors.c" />

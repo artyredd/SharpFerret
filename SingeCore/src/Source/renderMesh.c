@@ -4,38 +4,17 @@
 #include "cglm/mat4.h"
 #include "helpers/macros.h"
 
+static void OnBufferDispose(unsigned int handle)
+{
+	glDeleteBuffers(1, &handle);
+}
+
 static void Dispose(RenderMesh model)
 {
 	// never dispose of the shader in the model
-	if (model->VertexBuffer->ActiveInstances <= 1)
-	{
-		glDeleteBuffers(1, &model->VertexBuffer->Handle);
-		SafeFree(model->VertexBuffer);
-	}
-	else
-	{
-		--(model->VertexBuffer->ActiveInstances);
-	}
-
-	if (model->UVBuffer->ActiveInstances <= 1)
-	{
-		glDeleteBuffers(1, &model->UVBuffer->Handle);
-		SafeFree(model->UVBuffer);
-	}
-	else
-	{
-		--(model->UVBuffer->ActiveInstances);
-	}
-
-	if (model->NormalBuffer->ActiveInstances <= 1)
-	{
-		glDeleteBuffers(1, &model->NormalBuffer->Handle);
-		SafeFree(model->NormalBuffer);
-	}
-	else
-	{
-		--(model->NormalBuffer->ActiveInstances);
-	}
+	SharedBuffers.Dispose(model->VertexBuffer, &OnBufferDispose);
+	SharedBuffers.Dispose(model->UVBuffer, &OnBufferDispose);
+	SharedBuffers.Dispose(model->NormalBuffer, &OnBufferDispose);
 
 	model->Transform->Dispose(model->Transform);
 
@@ -122,16 +101,6 @@ static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedBuffer destin
 	destinationBuffer->Handle = index_buffer;
 
 	return true;
-}
-
-SharedBuffer CreateSharedBuffer()
-{
-	SharedBuffer buffer = SafeAlloc(sizeof(struct _sharedBuffer));
-
-	buffer->Handle = 0;
-	buffer->ActiveInstances = 1;
-
-	return buffer;
 }
 
 bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
