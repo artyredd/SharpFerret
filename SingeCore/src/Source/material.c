@@ -73,9 +73,11 @@ static void Draw(Material material)
 		int textureHandle;
 		if (Shaders.TryGetUniform(material->Shader, Uniforms.Texture0, &textureHandle))
 		{
+			glEnable(GL_TEXTURE_2D);
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, material->MainTexture->Handle->Handle);
 			glUniform1i(textureHandle, 0);
+			glDisable(GL_TEXTURE_2D);
 		}
 	}
 }

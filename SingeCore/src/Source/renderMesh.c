@@ -21,9 +21,9 @@ static void Dispose(RenderMesh model)
 	SafeFree(model);
 }
 
-static void Draw(RenderMesh model, mat4 position)
+static void Draw(RenderMesh model, Material material)
 {
-	glUseProgram(model->Shader->Handle->Handle);
+	glUseProgram(material->Shader->Handle->Handle);
 
 	glEnableVertexAttribArray(VertexShaderPosition);
 
@@ -66,7 +66,6 @@ static RenderMesh CreateRenderMesh()
 	mesh->Dispose = &Dispose;
 	mesh->Draw = &Draw;
 
-	mesh->Shader = DefaultShader;
 	mesh->UVBuffer = null;
 	mesh->VertexBuffer = null;
 	mesh->NormalBuffer = null;
@@ -141,8 +140,6 @@ bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 
 void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 {
-	CopyMember(source, destination, Shader);
-
 	CopyMember(source, destination, VertexBuffer);
 	++source->VertexBuffer->ActiveInstances;
 

@@ -47,10 +47,6 @@ struct _shader {
 	/// </summary>
 	void(*BeforeDraw)(Shader, mat4 mvpMatrix);
 	/// <summary>
-	/// Should draw the given mesh using this shader
-	/// </summary>
-	void(*DrawMesh)(Shader, void* RenderMesh);
-	/// <summary>
 	/// Invoked after any given mesh is drawn
 	/// </summary>
 	void(*AfterDraw)(Shader);

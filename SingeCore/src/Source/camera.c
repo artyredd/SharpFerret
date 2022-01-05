@@ -48,10 +48,7 @@ static void DrawMesh(Camera camera, RenderMesh mesh, Material material)
 
 			Materials.Draw(material);
 
-			if (shader->DrawMesh isnt null)
-			{
-				shader->DrawMesh(shader, mesh);
-			}
+			mesh->Draw(mesh, material);
 
 			if (shader->AfterDraw isnt null)
 			{

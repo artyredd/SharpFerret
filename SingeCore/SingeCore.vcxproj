@@ -243,6 +243,7 @@
     <ClInclude Include="src\Headers\singine\time.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ColorUV.fragmentshader" />
     <None Include="SimpleFragmentShader.fragmentshader" />
     <None Include="SimpleVertexShader.vertexshader" />
   </ItemGroup>

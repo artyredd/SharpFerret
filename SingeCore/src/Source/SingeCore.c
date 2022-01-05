@@ -92,23 +92,25 @@ int main()
 
 	Image uv = LoadImage("cubeuv.png");
 
-	Shader shader = LoadShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
+	Shader texturedShader = LoadShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
+
+	Shader uvShader = LoadShader("SimpleVertexShader.vertexshader", "ColorUV.fragmentshader");
 
 	// check shader instancing and disposing
 	for (size_t i = 0; i < 5; i++)
 	{
-		Shader instance = Shaders.Instance(shader);
+		Shader instance = Shaders.Instance(texturedShader);
 
 		Shaders.Dispose(instance);
 	}
 
-	if (shader->Handle->ActiveInstances != 1)
+	if (texturedShader->Handle->ActiveInstances != 1)
 	{
 		throw(InvalidArgumentException);
 	}
 
 	int textureId;
-	if (Shaders.TryGetUniform(shader, Uniforms.Texture0, &textureId) is false)
+	if (Shaders.TryGetUniform(texturedShader, Uniforms.Texture0, &textureId) is false)
 	{
 		throw(FailedToOpenFileException);
 	}
@@ -136,7 +138,9 @@ int main()
 
 	uv->Dispose(uv);
 
-	Material baseMaterial = Materials.Create(shader, cubeTexture);
+	Material texturedMaterial = Materials.Create(texturedShader, cubeTexture);
+
+	Material uvMaterial = Materials.Create(uvShader, null);
 
 	Camera camera = CreateCamera();
 
@@ -147,18 +151,17 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	DefaultShader = shader;
-
 	GameObject ball = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
+	ball->Material = Materials.Instance(uvMaterial);
+
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
 	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj);
 	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
 
-	ball->Material = Materials.Instance(baseMaterial);
-	car->Material = Materials.Instance(baseMaterial);
-	room->Material = Materials.Instance(baseMaterial);
-	cube->Material = Materials.Instance(baseMaterial);
+	car->Material = Materials.Instance(uvMaterial);
+	room->Material = Materials.Instance(uvMaterial);
+	cube->Material = Materials.Instance(texturedMaterial);
 
 	//test memory leak
 	for (size_t i = 0; i < 5; i++)
@@ -297,11 +300,14 @@ int main()
 
 	Textures.Dispose(cubeTexture);
 
-	Materials.Dispose(baseMaterial);
+	Materials.Dispose(texturedMaterial);
+	Materials.Dispose(uvMaterial);
 
 	camera->Dispose(camera);
 
-	Shaders.Dispose(shader);
+	Shaders.Dispose(texturedShader);
+
+	Shaders.Dispose(uvShader);
 
 	window->Dispose(window);
 
@@ -330,13 +336,6 @@ void BeforeDraw(Shader shader, mat4 mvp)
 	glUniformMatrix4fv(handle, 1, false, &mvp[0][0]);
 }
 
-void Draw(Shader shader, void* renderMesh)
-{
-	RenderMesh mesh = renderMesh;
-
-	mesh->Draw(mesh, null);
-}
-
 void AfterDraw(Shader shader)
 {
 
@@ -352,7 +351,6 @@ Shader LoadShader(const char* vertexPath, const char* fragmentPath)
 	}
 
 	shader->BeforeDraw = &BeforeDraw;
-	shader->DrawMesh = &Draw;
 	shader->AfterDraw = &AfterDraw;
 
 	return shader;

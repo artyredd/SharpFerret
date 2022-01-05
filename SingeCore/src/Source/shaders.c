@@ -59,7 +59,6 @@ static Shader CreateShaderWithUniforms(bool allocUniforms)
 
 	newShader->AfterDraw = null;
 	newShader->BeforeDraw = null;
-	newShader->DrawMesh = null;
 
 	return newShader;
 }
@@ -84,7 +83,6 @@ static Shader Instance(Shader shader)
 
 	CopyMember(shader, newShader, AfterDraw);
 	CopyMember(shader, newShader, BeforeDraw);
-	CopyMember(shader, newShader, DrawMesh);
 
 	CopyMember(shader, newShader, Uniforms);
 

@@ -103,6 +103,10 @@ static void OnTextureBufferDispose(unsigned int handle)
 
 static void Dispose(Texture texture)
 {
+	if (texture is null)
+	{
+		return;
+	}
 	SharedHandles.Dispose(texture->Handle, &OnTextureBufferDispose);
 
 	SafeFree(texture);
