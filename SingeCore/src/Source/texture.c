@@ -83,8 +83,8 @@ const struct _textureWrapModes WrapModes = {
 };
 
 static void Dispose(Texture);
-static bool TryCreateTexture(Image, Texture out_texture);
-static bool TryCreateTextureAdvanced(Image image, Texture out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle));
+static bool TryCreateTexture(Image, Texture* out_texture);
+static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle));
 static void Modify(TextureSetting setting, TextureSettingValue value);
 Texture InstanceTexture(Texture texture);
 
@@ -124,6 +124,8 @@ static Texture CreateTexture(bool allocBuffer)
 	texture->BufferFormat = BufferFormats.None;
 	texture->Format = TextureFormats.None;
 
+	texture->Slot = 0;
+
 	return texture;
 }
 
@@ -152,7 +154,7 @@ static bool DefaultTryModifyTexture(unsigned int handle)
 	return true;
 }
 
-static bool TryCreateTextureAdvanced(Image image, Texture out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle))
+static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle))
 {
 	BoolGuardNotNull(image);
 
@@ -179,12 +181,12 @@ static bool TryCreateTextureAdvanced(Image image, Texture out_texture, TextureFo
 	texture->BufferFormat = bufferFormat;
 	texture->Format = format;
 
-	out_texture = texture;
+	*out_texture = texture;
 
 	return true;
 }
 
-static bool TryCreateTexture(Image image, Texture out_texture)
+static bool TryCreateTexture(Image image, Texture* out_texture)
 {
 	return TryCreateTextureAdvanced(image, out_texture, DEFAULT_TEXTURE_FORMAT, DEFAULT_TEXTURE_BUFFER_FORMAT, &DefaultTryModifyTexture);
 }

@@ -114,6 +114,10 @@ struct _texture {
 	size_t Width;
 	BufferFormat BufferFormat;
 	TextureFormat Format;
+	/// <summary>
+	/// The texture slot that this texture should be bound to in order to be drawn, default is TEXTURE_0 (1), 0 is NO slot at all and the texture can't be drawn
+	/// </summary>
+	unsigned int Slot;
 };
 
 struct _textureMethods
@@ -126,11 +130,11 @@ struct _textureMethods
 	/// Attempts to create a new texture from the provided image and invokes the given method after the texture has been bound so modifiers such as 
 	/// filters can be applied in-line
 	/// </summary>
-	bool (*TryCreateTextureAdvanced)(Image image, Texture out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle));
+	bool (*TryCreateTextureAdvanced)(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle));
 	/// <summary>
 	/// Attempts to create a new texture from the provided image
 	/// </summary>
-	bool (*TryCreateTexture)(Image, Texture out_texture);
+	bool (*TryCreateTexture)(Image, Texture* out_texture);
 	/// <summary>
 	/// Instances a new copy of the provided texture
 	/// </summary>

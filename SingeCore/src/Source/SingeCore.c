@@ -32,6 +32,7 @@
 #include "singine/time.h"
 #include "helpers/quickmask.h"
 #include "singine/gameobjectHelpers.h"
+#include "graphics/texture.h"
 
 
 // scripts (not intrinsically part of the engine)
@@ -93,13 +94,30 @@ int main()
 
 	Shader shader = LoadShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
-	GLuint uvID;
-	glGenTextures(1, &uvID);
-	glBindTexture(GL_TEXTURE_2D, uvID);
+	int textureId;
+	if (Shaders.TryGetUniform(shader, Uniforms.Texture0, &textureId) is false)
+	{
+		throw(FailedToOpenFileException);
+	}
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, uv->Width, uv->Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, uv->Pixels);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	Texture cubeTexture;
+	if (Textures.TryCreateTexture(uv, &cubeTexture) is false)
+	{
+		throw(FailedToOpenFileException);
+	}
+
+	// test texture disposing
+	for (size_t i = 0; i < 5; i++)
+	{
+		Texture newInstance = Textures.InstanceTexture(cubeTexture);
+
+		Textures.Dispose(newInstance);
+	}
+
+	if (cubeTexture->Buffer->ActiveInstances != 1)
+	{
+		throw(InvalidArgumentException);
+	}
 
 	SetCursorMode(CursorModes.Disabled);
 
@@ -120,6 +138,7 @@ int main()
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
 	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj);
+	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
 
 	//test memory leak
 	for (size_t i = 0; i < 5; i++)
@@ -221,9 +240,7 @@ int main()
 			AddVectors3(position, positionModifier);
 		}
 
-		////glActiveTexture(GL_TEXTURE0);
-		////glBindTexture(GL_TEXTURE_2D, uvID);
-		////glUniform1i(textureID, 0); 
+
 
 		fprintf(stdout, "Position: ");
 		PrintVector3(position, stdout);
@@ -236,6 +253,12 @@ int main()
 		FPSCamera.Update(camera);
 
 		SetPosition(camera->Transform, position);
+
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, cubeTexture->Buffer->Handle);
+		glUniform1i(textureId, 0);
+
+		GameObjects.Draw(cube, camera);
 
 		GameObjects.Draw(car, camera);
 		GameObjects.Draw(ball, camera);
@@ -254,6 +277,9 @@ int main()
 	GameObjects.Destroy(otherBall);
 	GameObjects.Destroy(car);
 	GameObjects.Destroy(room);
+	GameObjects.Destroy(cube);
+
+	Textures.Dispose(cubeTexture);
 
 	camera->Dispose(camera);
 
