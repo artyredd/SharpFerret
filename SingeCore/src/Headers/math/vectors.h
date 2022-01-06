@@ -51,7 +51,7 @@ typedef _declspec(align(16)) vec4 mat4[4];
 
 #define Vectors2CopyTo(left,right) SetVectors2((right), (left));
 #define Vectors3CopyTo(source,destination) SetVectors3((destination),(source))
-#define Vectors4CopyTo(left,right) SetVectors4((right),(left))
+#define Vectors4CopyTo(source,destination) SetVectors4((destination),(source))
 
 #define SubtractVectors3(left,right) left[0] -= right[0]; left[1] -= right[1]; left[2] -= right[2]
 

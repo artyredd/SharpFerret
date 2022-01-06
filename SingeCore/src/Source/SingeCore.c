@@ -32,7 +32,7 @@
 #include "helpers/quickmask.h"
 #include "singine/gameobjectHelpers.h"
 #include "graphics/texture.h"
-
+#include "graphics/colors.h"
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
@@ -242,6 +242,8 @@ int main()
 
 	// orient the camera so we see some geometry without moving the camera
 	Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
+
+	Materials.SetColor(cube->Material, Colors.Red);
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();

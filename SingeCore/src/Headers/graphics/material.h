@@ -4,6 +4,7 @@
 #include "graphics/texture.h"
 #include "graphics/renderMesh.h"
 #include "graphics/camera.h"
+#include "graphics/colors.h"
 
 typedef unsigned int MaterialSetting;
 
@@ -38,14 +39,14 @@ typedef struct _material* Material;
 
 struct _material {
 	Shader Shader;
-	vec4 Color;
+	Color Color;
 	Texture MainTexture;
 	struct _materialState State;
 };
 
 struct _materialMethods {
 	Material(*CreateMaterial)(void);
-	Material(*Create)(Shader, Texture);
+	Material(*Create)(const Shader, const Texture);
 	/// <summary>
 	/// Creates a new instance of the provided material
 	/// </summary>
@@ -57,15 +58,17 @@ struct _materialMethods {
 	/// <summary>
 	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
 	/// </summary>
-	void (*SetMainTexture)(Material, Texture);
+	void (*SetMainTexture)(Material, const Texture);
 	/// <summary>
 	/// Creates a new instance of the provided shade, disposes the old one and reassigns the main texture of the provided shader
 	/// </summary>
-	void (*SetShader)(Material, Shader);
-	void (*DisableSetting)(Material, MaterialSetting);
-	void (*EnableSetting)(Material, MaterialSetting);
-	void (*SetSetting)(Material, MaterialSetting, bool enabled);
-	bool (*HasSetting)(Material, MaterialSetting);
+	void (*SetShader)(Material, const Shader);
+	void (*SetColor)(Material, const Color);
+	void (*SetColors)(Material, const float r, const float g, const float b, const float a);
+	void (*DisableSetting)(Material, const MaterialSetting);
+	void (*EnableSetting)(Material, const MaterialSetting);
+	void (*SetSetting)(Material, const MaterialSetting, const bool enabled);
+	bool (*HasSetting)(Material, const MaterialSetting);
 	void (*Dispose)(Material);
 };
 

@@ -185,6 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\camera.c" />
+    <ClCompile Include="src\Source\colors.c" />
     <ClCompile Include="src\Source\conversions.c" />
     <ClCompile Include="src\Source\cunit.c" />
     <ClCompile Include="src\Source\file.c" />
@@ -215,6 +216,7 @@
     <ClInclude Include="src\Headers\csharp.h" />
     <ClInclude Include="src\Headers\cunit.h" />
     <ClInclude Include="src\Headers\graphics\camera.h" />
+    <ClInclude Include="src\Headers\graphics\colors.h" />
     <ClInclude Include="src\Headers\Graphics\imaging.h" />
     <ClInclude Include="src\Headers\graphics\material.h" />
     <ClInclude Include="src\Headers\graphics\renderMesh.h" />

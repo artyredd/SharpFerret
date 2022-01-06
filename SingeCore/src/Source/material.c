@@ -5,18 +5,21 @@
 #include "helpers/macros.h"
 #include "helpers/quickmask.h"
 #include "cglm/mat4.h"
+#include "math/vectors.h"
 
 static void Dispose(Material material);
-static Material Create(Shader shader, Texture texture);
+static Material Create(const Shader shader, const Texture texture);
 static void Draw(Material, RenderMesh, Camera);
 static Material CreateMaterial(void);
-static Material InstanceMaterial(Material);
+static Material InstanceMaterial(const Material);
 static void SetMainTexture(Material, Texture);
-static void SetShader(Material, Shader);
-static void DisableSetting(Material, MaterialSetting);
-static void EnableSetting(Material, MaterialSetting);
-static void SetSetting(Material, MaterialSetting, bool enabled);
-static bool HasSetting(Material, MaterialSetting);
+static void SetShader(Material, const Shader);
+static void DisableSetting(Material, const MaterialSetting);
+static void EnableSetting(Material, const MaterialSetting);
+static void SetSetting(Material, const MaterialSetting, const bool enabled);
+static bool HasSetting(Material, const MaterialSetting);
+static void SetColor(Material, const Color);
+static void SetColors(Material, const float r, const float g, const float b, const float a);
 
 const struct _materialMethods Materials = {
 	.Dispose = &Dispose,
@@ -28,7 +31,9 @@ const struct _materialMethods Materials = {
 	.HasSetting = &HasSetting,
 	.SetSetting = &SetSetting,
 	.EnableSetting = &EnableSetting,
-	.DisableSetting = &DisableSetting
+	.DisableSetting = &DisableSetting,
+	.SetColor = &SetColor,
+	.SetColors = &SetColors
 };
 
 
@@ -235,4 +240,16 @@ static bool HasSetting(Material material, MaterialSetting setting)
 	GuardNotNull(material);
 
 	return HasFlag(material->State.Settings, setting);
+}
+
+static void SetColor(Material material, const Color color)
+{
+	GuardNotNull(material);
+	Vectors4CopyTo(color, material->Color);
+}
+
+static void SetColors(Material material, const float r, const float g, const float b, const float a)
+{
+	GuardNotNull(material);
+	SetVector4(material->Color, r, g, b, a);
 }
