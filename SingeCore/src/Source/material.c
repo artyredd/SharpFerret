@@ -245,11 +245,13 @@ static bool HasSetting(Material material, MaterialSetting setting)
 static void SetColor(Material material, const Color color)
 {
 	GuardNotNull(material);
+
 	Vectors4CopyTo(color, material->Color);
 }
 
 static void SetColors(Material material, const float r, const float g, const float b, const float a)
 {
 	GuardNotNull(material);
+
 	SetVector4(material->Color, r, g, b, a);
 }
