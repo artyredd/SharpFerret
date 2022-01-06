@@ -43,8 +43,9 @@ static bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 
 	File file;
 
+#pragma warning(disable: 4189)
 	errno_t error = fopen_s(&file, path, fileMode);
-
+#pragma warning(default: 4189)
 	if (file is null)
 	{
 		return false;
@@ -136,7 +137,7 @@ static char* ReadFile(const File file)
 			break;
 		}
 
-		result[i] = c;
+		result[i] = (char)c;
 	}
 
 	return result;
@@ -176,7 +177,7 @@ static bool TryReadFile(const File file, char** out_data)
 			break;
 		}
 
-		result[i] = c;
+		result[i] = (char)c;
 	}
 
 	*out_data = result;
@@ -251,7 +252,7 @@ static bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLen
 		{
 			break;
 		}
-		buffer[offset + index++] = c;
+		buffer[offset + index++] = (char)c;
 	}
 
 	if (c is EOF && index is 0)

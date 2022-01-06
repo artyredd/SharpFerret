@@ -97,6 +97,19 @@ static GameObject Duplicate(GameObject gameobject)
 
 static void SetName(GameObject gameobject, char* name)
 {
+	if (gameobject->Name isnt null)
+	{
+		SafeFree(gameobject->Name);
+	}
+
+	size_t length = min(strlen(name), MAX_GAMEOBJECT_NAME_LENGTH);
+
+	char* newName = SafeAlloc(length);
+
+	strncpy_s(newName, length, name, length);
+
+	gameobject->Name = newName;
+
 	throw(NotImplementedException);
 }
 

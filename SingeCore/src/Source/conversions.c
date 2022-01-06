@@ -10,7 +10,7 @@ void ToLower(char* buffer, size_t bufferLength, size_t offset)
 
 	for (size_t i = offset; i < bufferLength; i++)
 	{
-		buffer[i] = tolower(buffer[i]);
+		buffer[i] = (char)tolower(buffer[i]);
 	}
 }
 
@@ -22,6 +22,6 @@ void ToUpper(char* buffer, size_t bufferLength, size_t offset)
 
 	for (size_t i = offset; i < bufferLength; i++)
 	{
-		buffer[i] = toupper(buffer[i]);
+		buffer[i] = (char)toupper(buffer[i]);
 	}
 }

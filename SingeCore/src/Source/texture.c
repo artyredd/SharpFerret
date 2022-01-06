@@ -86,7 +86,7 @@ static void Dispose(Texture);
 static bool TryCreateTexture(Image, Texture* out_texture);
 static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle));
 static void Modify(TextureSetting setting, TextureSettingValue value);
-Texture InstanceTexture(Texture texture);
+static Texture InstanceTexture(Texture texture);
 
 const struct _textureMethods Textures = {
 	.Dispose = &Dispose,

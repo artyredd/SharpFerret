@@ -50,7 +50,7 @@ GameObject CreateGameObjectFromMesh(Mesh mesh)
 GameObject LoadGameObjectFromModel(char* path, FileFormat format)
 {
 	Model model;
-	if (Importers.TryImport(path, FileFormats.Obj, &model) is false)
+	if (Importers.TryImport(path, format, &model) is false)
 	{
 		throw(FailedToReadFileException);
 	}

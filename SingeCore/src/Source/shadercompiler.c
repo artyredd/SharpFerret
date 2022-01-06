@@ -7,13 +7,9 @@
 #include "graphics/shaders.h"
 #include "graphics/shadercompiler.h"
 
-static bool TryGetUniform(Shader shader, const char* name, int* out_handle);
-static bool TrySetUniform_mat4(Shader shader, int handle, void* value);
 static Shader CompileShader(const char* vertexPath, const char* fragmentPath);
 
 const struct _shaderCompilerMethods ShaderCompilers = {
-	.TryGetUniform = &TryGetUniform,
-	.TrySetUniform_mat4 = &TrySetUniform_mat4,
 	.CompileShader = &CompileShader
 };
 
@@ -53,7 +49,7 @@ static bool VerifyHandle(unsigned int handle)
 		return false;
 	}
 
-	if (handle is ShaderTypes.Invalid)
+	if (handle is(unsigned int)ShaderTypes.Invalid)
 	{
 		return false;
 	}
@@ -68,7 +64,7 @@ static void PrintLog(unsigned int handle, File stream, void(*LogProvider)(unsign
 	GuardNotNull(LogProvider);
 
 	// since the shader failed to compile we should print the error if one exists
-	size_t logLength = 0;
+	int logLength = 0;
 
 	char message[LOG_BUFFER_SIZE];
 
@@ -226,25 +222,6 @@ static bool TryCompileProgram(unsigned int vertexHandle, unsigned int fragmentHa
 	glDeleteShader(vertexHandle);
 
 	*out_handle = programHandle;
-
-	return true;
-}
-
-static bool TryGetUniform(Shader shader, const char* name, int* out_handle)
-{
-	*out_handle = glGetUniformLocation(shader->Handle->Handle, name);
-
-	return *out_handle != -1;
-}
-
-static bool TrySetUniform_mat4(Shader shader, int handle, void* value)
-{
-	if (handle is - 1)
-	{
-		return false;
-	}
-
-	glUniformMatrix4fv(handle, 1, false, value);
 
 	return true;
 }

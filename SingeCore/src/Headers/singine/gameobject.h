@@ -4,6 +4,8 @@
 #include "graphics/camera.h"
 #include "graphics/material.h"
 
+#define MAX_GAMEOBJECT_NAME_LENGTH 512 // in ANSI characters(bytes)
+
 typedef struct _gameObject* GameObject;
 
 struct _gameObject {
