@@ -3,7 +3,6 @@
 #include "math/vectors.h"
 #include "graphics/transform.h"
 #include "graphics/renderMesh.h"
-#include "graphics/material.h"
 
 static float DefaultFieldOfView = 70.0f;
 static float DefaultAspectRatio = 16.0f / 9.0f;
@@ -60,7 +59,10 @@ struct _camera
 
 struct _cameraMethods {
 	Camera(*CreateCamera)();
-	void(*DrawMesh)(Camera, RenderMesh, Material);
+	/// <summary>
+	/// Refreshes the camera's transform
+	/// </summary>
+	vec4* (*Refresh)(Camera camera);
 	/// <summary>
 	/// Forces the camera to recalculate it's fields and members on the next draw call, use the provided methods to modify fields instead of manually
 	/// </summary>

@@ -5,7 +5,6 @@
 #include "graphics/shaders.h"
 #include "graphics/transform.h"
 #include "graphics/sharedBuffer.h"
-#include "material.h"
 
 static unsigned int VertexShaderPosition = 0;
 static unsigned int UVShaderPosition = 1;
@@ -23,7 +22,7 @@ struct _renderMesh {
 };
 
 struct _renderMeshMethods {
-	void(*Draw)(RenderMesh, Material);
+	void(*Draw)(RenderMesh);
 	void(*Dispose)(RenderMesh);
 	// Attempts to register the model with the underlying graphics device
 	bool (*TryBindMesh)(Mesh mesh, RenderMesh* out_model);

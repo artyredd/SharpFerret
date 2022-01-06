@@ -18,7 +18,6 @@
 
 static vec4* RefreshCamera(Camera camera);
 static void Dispose(Camera camera);
-static void DrawMesh(Camera camera, RenderMesh mesh, Material material);
 static void ForceRefresh(Camera camera);
 static void SetFoV(Camera camera, float value);
 static void SetAspectRatio(Camera camera, float value);
@@ -27,8 +26,8 @@ static void SetFarClippingDistance(Camera camera, float value);
 static Camera CreateCamera();
 
 const struct _cameraMethods Cameras = {
+	.Refresh = &RefreshCamera,
 	.CreateCamera = &CreateCamera,
-	.DrawMesh = &DrawMesh,
 	.ForceRefresh = &ForceRefresh,
 	.SetAspectRatio = &SetAspectRatio,
 	.SetFarClippingDistance = &SetFarClippingDistance,
@@ -41,52 +40,6 @@ static void Dispose(Camera camera)
 {
 	Transforms.Dispose(camera->Transform);
 	SafeFree(camera);
-}
-
-static void GetMVPMatrix(Camera camera, RenderMesh mesh, Material material, mat4 out_matrix)
-{
-	// make sure the meshes transform is up to date
-	vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
-
-	// dont calc the camera transform if we are rendering somthing that doesnt need it such as a GUI element
-	if (material->UseCameraPerspective is false)
-	{
-		Matrix4CopyTo(modelMatrix, out_matrix);
-		return;
-	}
-
-	vec4* cameraVP = RefreshCamera(camera);
-
-	glm_mat4_mul(cameraVP, modelMatrix, out_matrix);
-}
-
-static void DrawMesh(Camera camera, RenderMesh mesh, Material material)
-{
-	mat4 MVP;
-	GetMVPMatrix(camera, mesh, material, MVP);
-
-	if (material isnt null)
-	{
-		if (material->Shader isnt null)
-		{
-			Shader shader = material->Shader;
-
-			if (shader->BeforeDraw isnt null)
-			{
-				shader->BeforeDraw(shader, MVP);
-			}
-
-			Materials.Draw(material);
-
-			RenderMeshes.Draw(mesh, material);
-
-			if (shader->AfterDraw isnt null)
-			{
-				shader->AfterDraw(shader);
-			}
-		}
-	}
-
 }
 
 static void RecalculateProjection(Camera camera)

@@ -84,8 +84,6 @@ int main()
 
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	SetCursorMode(CursorModes.Disabled);
 
@@ -142,7 +140,9 @@ int main()
 	Material uvMaterial = Materials.Create(uvShader, null);
 
 	Material guiMaterial = Materials.Create(guiShader, null);
-	guiMaterial->UseCameraPerspective = false;
+	Materials.EnableSetting(guiMaterial, MaterialSettings.Transparency);
+	Materials.DisableSetting(guiMaterial, MaterialSettings.UseCameraPerspective);
+	Materials.DisableSetting(guiMaterial, MaterialSettings.BackfaceCulling);
 
 	Camera camera = Cameras.CreateCamera();
 
@@ -263,7 +263,7 @@ int main()
 
 		Transforms.SetRotationOnAxis(otherBall->Transform, -rotateAmount / (float)GLM_PI, Vector3.Up);
 
-		Transforms.SetPositions(square->Transform, (float)cos(rotateAmount), (float)sin(rotateAmount), 0);
+		Transforms.SetRotationOnAxis(square->Transform, rotateAmount / (float)(GLM_PI * 2.0), Vector3.Right);
 
 		// drive car
 		vec3 carDirection;

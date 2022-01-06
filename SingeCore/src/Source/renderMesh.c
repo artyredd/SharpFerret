@@ -5,7 +5,7 @@
 #include "helpers/macros.h"
 
 static RenderMesh InstanceMesh(RenderMesh mesh);
-static void Draw(RenderMesh model, Material material);
+static void Draw(RenderMesh model);
 static void Dispose(RenderMesh mesh);
 static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model);
 
@@ -34,10 +34,8 @@ static void Dispose(RenderMesh mesh)
 	SafeFree(mesh);
 }
 
-static void Draw(RenderMesh model, Material material)
+static void Draw(RenderMesh model)
 {
-	glUseProgram(material->Shader->Handle->Handle);
-
 	glEnableVertexAttribArray(VertexShaderPosition);
 
 	glBindBuffer(GL_ARRAY_BUFFER, model->VertexBuffer->Handle);
