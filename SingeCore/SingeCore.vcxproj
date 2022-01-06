@@ -127,6 +127,9 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <CompileAs>CompileAsC</CompileAs>
+      <AdditionalOptions>/IGNORE:4324 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4324</DisableSpecificWarnings>
+      <TreatSpecificWarningsAsErrors>4013;</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -152,6 +155,9 @@
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <CompileAs>CompileAsC</CompileAs>
+      <AdditionalOptions>/IGNORE:4324 %(AdditionalOptions)</AdditionalOptions>
+      <DisableSpecificWarnings>4324</DisableSpecificWarnings>
+      <TreatSpecificWarningsAsErrors>4013;</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
