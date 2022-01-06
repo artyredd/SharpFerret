@@ -129,7 +129,7 @@
       <CompileAs>CompileAsC</CompileAs>
       <AdditionalOptions>/IGNORE:4324 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4324</DisableSpecificWarnings>
-      <TreatSpecificWarningsAsErrors>4013;</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4013;4028;</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -157,7 +157,7 @@
       <CompileAs>CompileAsC</CompileAs>
       <AdditionalOptions>/IGNORE:4324 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4324</DisableSpecificWarnings>
-      <TreatSpecificWarningsAsErrors>4013;</TreatSpecificWarningsAsErrors>
+      <TreatSpecificWarningsAsErrors>4013;4028;</TreatSpecificWarningsAsErrors>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

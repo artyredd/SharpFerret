@@ -97,7 +97,7 @@ int main()
 
 	Shader uvShader = LoadShader("SimpleVertexShader.vertexshader", "ColorUV.fragmentshader");
 
-	Shader guiShader = LoadShader("GUIShader.vertexshader", "ColorUV.fragmentshader");
+	Shader guiShader = LoadShader("GUIShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
 	// check shader instancing and disposing
 	for (size_t i = 0; i < 5; i++)
@@ -149,16 +149,15 @@ int main()
 	glBindVertexArray(VertexArrayID);
 
 	GameObject ball = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
-	ball->Material = Materials.Instance(uvMaterial);
+	GameObjects.SetMaterial(ball, uvMaterial);
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
 	GameObject room = GameObjects.Duplicate(ball);//LoadGameObjectFromModel("room.obj", FileFormats.Obj);
 	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
 
-	car->Material = Materials.Instance(uvMaterial);
-	//room->Material = Materials.Instance(uvMaterial);
-	cube->Material = Materials.Instance(texturedMaterial);
+	GameObjects.SetMaterial(car, uvMaterial);
+	GameObjects.SetMaterial(cube, texturedMaterial);
 
 	size_t previosInstanceCount = ball->Material->Shader->Handle->ActiveInstances;
 
@@ -222,7 +221,7 @@ int main()
 
 	SafeFree(squareMesh);
 
-	square->Material = Materials.Instance(guiMaterial);
+	GameObjects.SetMaterial(square, guiMaterial);
 
 	Image debugUv = Images.LoadImage("uv_debug.png");
 

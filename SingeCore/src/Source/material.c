@@ -1,18 +1,23 @@
 #include "graphics/material.h"
 #include "singine/memory.h"
 #include "GL/glew.h"
+#include "singine/guards.h"
 
 static void Dispose(Material material);
 static Material Create(Shader shader, Texture texture);
 static void Draw(Material material);
 static Material CreateMaterial(void);
 static Material InstanceMaterial(Material);
+static void SetMainTexture(Material, Texture);
+static void SetShader(Material, Shader);
 
 const struct _materialMethods Materials = {
 	.Dispose = &Dispose,
 	.Create = &Create,
 	.Draw = &Draw,
-	.Instance = &InstanceMaterial
+	.Instance = &InstanceMaterial,
+	.SetMainTexture = &SetMainTexture,
+	.SetShader = &SetShader
 };
 
 static void Dispose(Material material)
@@ -80,4 +85,18 @@ static void Draw(Material material)
 			glDisable(GL_TEXTURE_2D);
 		}
 	}
+}
+
+static void SetMainTexture(Material material, Texture texture)
+{
+	GuardNotNull(material);
+	Textures.Dispose(material->MainTexture);
+	material->MainTexture = Textures.Instance(texture);
+}
+
+static void SetShader(Material material, Shader shader)
+{
+	GuardNotNull(material);
+	Shaders.Dispose(material->Shader);
+	material->Shader = Shaders.Instance(shader);
 }

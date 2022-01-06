@@ -38,6 +38,10 @@ struct _gameObjectMethods {
 	void (*Draw)(GameObject, Camera);
 	GameObject(*Duplicate)(GameObject);
 	void (*SetName)(GameObject, char* name);
+	/// <summary>
+	/// Creates a new instance of the provided material, disposes the old assigned material, then sets the material, provided material can be null
+	/// </summary>
+	void(*SetMaterial)(GameObject, Material);
 	void (*Destroy)(GameObject);
 };
 

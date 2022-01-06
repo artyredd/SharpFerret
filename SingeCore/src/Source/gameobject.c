@@ -2,19 +2,22 @@
 #include "singine/memory.h"
 #include "helpers/macros.h"
 #include "string.h"
+#include "singine/guards.h"
 
 static GameObject Duplicate(GameObject);
 static void SetName(GameObject, char* name);
 static void Dispose(GameObject);
 static void Draw(GameObject, Camera);
 static GameObject CreateGameObject(void);
+static void SetMaterial(GameObject, Material);
 
 const struct _gameObjectMethods GameObjects = {
 	.Create = &CreateGameObject,
 	.Draw = &Draw,
 	.Duplicate = &Duplicate,
 	.SetName = &SetName,
-	.Destroy = &Dispose
+	.Destroy = &Dispose,
+	.SetMaterial = &SetMaterial
 };
 
 static void Dispose(GameObject gameobject)
@@ -97,9 +100,17 @@ static GameObject Duplicate(GameObject gameobject)
 
 static void SetName(GameObject gameobject, char* name)
 {
+	GuardNotNull(gameobject);
+
 	if (gameobject->Name isnt null)
 	{
 		SafeFree(gameobject->Name);
+	}
+
+	if (name is null)
+	{
+		gameobject->Name = null;
+		return;
 	}
 
 	size_t length = min(strlen(name), MAX_GAMEOBJECT_NAME_LENGTH);
@@ -109,8 +120,18 @@ static void SetName(GameObject gameobject, char* name)
 	strncpy_s(newName, length, name, length);
 
 	gameobject->Name = newName;
+}
 
-	throw(NotImplementedException);
+static void SetMaterial(GameObject gameobject, Material material)
+{
+	GuardNotNull(gameobject);
+
+	// if we dont dispose of the old one we end up with memory leaks becuase the underlying shader AND texture cannot be disposed
+	// until all references to them are disposed themselfs
+	Materials.Dispose(gameobject->Material);
+
+	// never use the actual material reference given make copy so that if the original is disposed we can still use it
+	gameobject->Material = Materials.Instance(material);
 }
 
 static void Draw(GameObject gameobject, Camera camera)
