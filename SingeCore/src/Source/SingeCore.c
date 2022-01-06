@@ -259,12 +259,9 @@ int main()
 
 		Transforms.SetPosition(ball->Transform, ballPosition);
 
-		Quaternion ballRotation;
-		glm_quat(ballRotation, rotateAmount / (float)GLM_PI, 0, 1, 0);
-		Transforms.SetRotation(ball->Transform, ballRotation);
+		Transforms.SetRotationOnAxis(ball->Transform, rotateAmount / (float)GLM_PI, Vector3.Up);
 
-		glm_quat(ballRotation, -(rotateAmount / (float)GLM_PI), 0, 1, 0);
-		Transforms.SetRotation(otherBall->Transform, ballRotation);
+		Transforms.SetRotationOnAxis(otherBall->Transform, -rotateAmount / (float)GLM_PI, Vector3.Up);
 
 		// drive car
 		vec3 carDirection;
@@ -274,10 +271,7 @@ int main()
 
 		Transforms.AddPosition(car->Transform, carDirection);
 
-		Quaternion carRotation;
-		glm_quat(carRotation, ((float)GLM_PI / 8.0f) * modifier, 0, 1, 0);
-
-		Transforms.Rotate(car->Transform, carRotation);
+		Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / 8.0f) * modifier, Vector3.Up);
 
 		if (GetKey(KeyCodes.A))
 		{
@@ -327,7 +321,6 @@ int main()
 		FPSCamera.Update(camera);
 
 		Transforms.SetPosition(camera->Transform, position);
-
 
 
 		GameObjects.Draw(cube, camera);

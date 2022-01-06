@@ -130,6 +130,7 @@ struct _transformMethods {
 	void (*AddPosition)(Transform, vec3 amount);
 	void (*Rotate)(Transform, Quaternion amount);
 	void (*RotateOnAxis)(Transform, float amountInRads, vec3 axis);
+	void (*SetRotationOnAxis)(Transform, float amountInRads, vec3 axis);
 	void (*AddScale)(Transform, vec3 amount);
 
 	// Sets the provided transform's parent as the provided parent

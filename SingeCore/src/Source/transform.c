@@ -28,6 +28,7 @@ static void SetScales(Transform transform, float x, float y, float z);
 static void AddPosition(Transform transform, vec3 amount);
 static void Rotate(Transform transform, Quaternion amount);
 static void RotateOnAxis(Transform, float amountInRads, vec3 axis);
+static void SetRotationOnAxis(Transform, float amountInRads, vec3 axis);
 static void AddScale(Transform transform, vec3 amount);
 static void GetDirection(Transform transform, Direction direction, vec3 out_direction);
 static vec4* RefreshTransform(Transform transform);
@@ -46,6 +47,7 @@ extern const struct _transformMethods Transforms = {
 	.AddPosition = &AddPosition,
 	.Rotate = &Rotate,
 	.RotateOnAxis = &RotateOnAxis,
+	.SetRotationOnAxis = &SetRotationOnAxis,
 	.AddScale = &AddScale,
 	.GetDirection = &GetDirection,
 	.Refresh = &RefreshTransform,
@@ -470,6 +472,15 @@ static void RotateOnAxis(Transform transform, float angleInRads, vec3 axis)
 	glm_quat(rotation, angleInRads, axis[0], axis[1], axis[2]);
 
 	Rotate(transform, rotation);
+	// no need to set flag here since we call the other method that does
+}
+
+static void SetRotationOnAxis(Transform transform, float angleInRads, vec3 axis)
+{
+	Quaternion rotation;
+	glm_quat(rotation, angleInRads, axis[0], axis[1], axis[2]);
+
+	SetRotation(transform, rotation);
 	// no need to set flag here since we call the other method that does
 }
 
