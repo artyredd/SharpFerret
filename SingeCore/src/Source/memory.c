@@ -128,14 +128,26 @@ void SafeFree(void* address)
 
 static void PrintGroupedNumber(FILE* stream, size_t value)
 {
+
+
 	static size_t ByteGroupingDivisors[5] =
 	{
+	#if _WIN32
+		1,
+		1024,
+		1024 * 1024,
+		1024 * 1024 * 1024,
+		(size_t)1024 * 1024 * 1024 * 1024,
+	#else
 		1,
 		1000,
 		1000 * 1000,
 		1000 * 1000 * 1000,
 		(size_t)1000 * 1000 * 1000 * 1000,
+	#endif
 	};
+
+
 
 	static char* ByteGroupingNames[5] = {
 		"bytes",
@@ -151,7 +163,7 @@ static void PrintGroupedNumber(FILE* stream, size_t value)
 
 #if _WIN32
 
-	size_t groupedValue = value >> grouping;
+	size_t groupedValue = value / ByteGroupingDivisors[2];
 
 #else
 
@@ -174,12 +186,13 @@ static void PrintGroupedNumber(FILE* stream, size_t value)
 /// </summary>
 static char GetByteGrouping(size_t value)
 {
+#pragma warning(disable: 4127)
 	if (sizeof(size_t) != 8)
 	{
 		fprintf(stderr, "Failed to get the grouping of value, size_t assumed to be 64 bit unsigned long long int");
 		throw(InvalidArgumentException);
 	}
-
+#pragma warning(default: 4127)
 #if _WIN32
 	// < 1Kb return b
 	if (value < (1 * 1024)) return 0;
