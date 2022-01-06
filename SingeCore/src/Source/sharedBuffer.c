@@ -3,8 +3,10 @@
 #include "csharp.h"
 
 static void Dispose(SharedHandle buffer, void(*OnDispose)(unsigned int handle));
+static SharedHandle CreateSharedHandle(void);
 
-const struct _sharedBufferMethods SharedHandles = {
+const struct _sharedHandleMethods SharedHandles = {
+	.Create = &CreateSharedHandle,
 	.Dispose = &Dispose
 };
 
@@ -24,9 +26,9 @@ static void Dispose(SharedHandle buffer, void(*OnDispose)(unsigned int handle))
 	--(buffer->ActiveInstances);
 }
 
-SharedHandle CreateSharedHandle()
+static SharedHandle CreateSharedHandle()
 {
-	SharedHandle buffer = SafeAlloc(sizeof(struct _sharedBuffer));
+	SharedHandle buffer = SafeAlloc(sizeof(struct _sharedHandle));
 
 	buffer->Handle = 0;
 	buffer->ActiveInstances = 1;

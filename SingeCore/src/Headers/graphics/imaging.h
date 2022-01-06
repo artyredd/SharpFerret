@@ -37,26 +37,27 @@ struct _image {
 	/// The underlying pixels of the image
 	/// </summary>
 	unsigned char* Pixels;
+};
+
+struct _imageMethods {
+	/// Allocates a new image and returns a pointer to it
+	Image(*CreateImage)();
+	/// <summary>
+	/// Attempts to load the provided image, returns the loaded image if it was loaded, otherwise null
+	/// </summary>
+	/// <param name="path"></param>
+	/// <returns></returns>
+	Image(*LoadImage)(const char* path);
+	/// Attempts to load the image's information, returns true if the image was located and info obtained, otherwise false
+	/// Use Dispose to free the object
+	bool (*TryGetImageInfo)(const char* path, Image* out_info);
+	/// Attempts to load the provided image, returns true if it was successfully loaded, otherwise false
+	/// Use Dispose to free the object
+	bool (*TryLoadImage)(const char* path, Image* out_image);
 	/// <summary>
 	/// Disposes the image
 	/// </summary>
 	void(*Dispose)(Image image);
 };
 
-/// Attempts to load the provided image, returns true if it was successfully loaded, otherwise false
-/// Use Dispose to free the object
-static bool TryLoadImage(const char* path, Image* out_image);
-
-/// Attempts to load the image's information, returns true if the image was located and info obtained, otherwise false
-/// Use Dispose to free the object
-static bool TryGetImageInfo(const char* path, Image* out_info);
-
-/// <summary>
-/// Attempts to load the provided image, returns the loaded image if it was loaded, otherwise null
-/// </summary>
-/// <param name="path"></param>
-/// <returns></returns>
-Image LoadImage(const char* path);
-
-/// Allocates a new image and returns a pointer to it
-static Image CreateImage();
+extern const struct _imageMethods Images;

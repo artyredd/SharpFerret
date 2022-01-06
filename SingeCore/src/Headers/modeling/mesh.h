@@ -17,4 +17,9 @@ struct _mesh {
 	Mesh Next;
 };
 
-Mesh CreateMesh();
+struct _meshMethods {
+	Mesh(*Create)(void);
+	void (*Dispose)(Mesh mesh);
+};
+
+extern const struct _meshMethods Meshes;

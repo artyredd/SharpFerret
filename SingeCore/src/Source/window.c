@@ -44,15 +44,31 @@ static void  SetIcon(Window, const Image);
 static void  SetMode(Window, const WindowMode);
 static void  SetSize(Window, const int width, const int height);
 static void  Focus(Window);
+static bool RuntimeStarted();
+static void StartRuntime(void);
+static void StopRuntime();
+static bool ShouldClose(Window window);
+static Window CreateWindow(int width, int height, char* title);
+static void Dispose(Window window);
+static void SetClearColor(float r, float g, float b, float a);
+static void SetHint(int attribute, int value);
 
-const struct _windowMethods sWindow = {
+const struct _windowMethods Windows = {
+	.SetClearColor = &SetClearColor,
+	.SetHint = &SetHint,
+	.RuntimeStarted = &RuntimeStarted,
+	.Create = &CreateWindow,
+	.ShouldClose = &ShouldClose,
+	.StopRuntime = &StopRuntime,
+	.StartRuntime = &StartRuntime,
 	.SetCurrent = &SetCurrent,
 	.GetAttribute = &GetWindowAttribute,
 	.SetAttribute = &SetWindowAttribute,
 	.SetIcon = &SetIcon,
 	.SetMode = &SetMode,
 	.SetSize = &SetSize,
-	.Focus = &Focus
+	.Focus = &Focus,
+	.Dispose = &Dispose
 };
 
 // Ensures that GLFW is Initilized, otherwise throws an exception
@@ -68,7 +84,7 @@ static void Dispose(Window window);
 /// </summary>
 static bool IsRuntimeStarted = false;
 
-Window CreateWindow(int width, int height, char* title)
+static Window CreateWindow(int width, int height, char* title)
 {
 	if (width < 0)
 	{
@@ -94,8 +110,6 @@ Window CreateWindow(int width, int height, char* title)
 
 	window->Title = title;
 
-	window->Dispose = &Dispose;
-
 	window->Transform.x = DEFAULT_WINDOW_X;
 	window->Transform.y = MINIMUM_WINDOW_Y;
 
@@ -107,7 +121,7 @@ Window CreateWindow(int width, int height, char* title)
 	if (window->Handle is null)
 	{
 		StopRuntime();
-		window->Dispose(window);
+		Windows.Dispose(window);
 		throw(FailedToCreateWindowExceptionGLFW);
 	}
 
@@ -120,7 +134,7 @@ Window CreateWindow(int width, int height, char* title)
 
 	if (window->Monitor is null)
 	{
-		window->Dispose(window);
+		Windows.Dispose(window);
 		StopRuntime();
 		throw(FailedToGetWindowMonitorException);
 	}
@@ -129,7 +143,7 @@ Window CreateWindow(int width, int height, char* title)
 
 	if (window->VideoMode is null)
 	{
-		window->Dispose(window);
+		Windows.Dispose(window);
 		StopRuntime();
 		throw(FailedToGetVideoModeException);
 	}
@@ -161,18 +175,18 @@ static void Dispose(Window window)
 	SafeFree(window);
 }
 
-void SetHint(int attribute, int value)
+static void SetHint(int attribute, int value)
 {
 	glfwWindowHint(attribute, value);
 }
 
-void SetClearColor(float r, float g, float b, float a)
+static void SetClearColor(float r, float g, float b, float a)
 {
 	EnsureGlfwInitialized();
 	glClearColor(r, g, b, a);
 }
 
-bool ShouldClose(Window window)
+static bool ShouldClose(Window window)
 {
 	GuardNotNull(window);
 	GuardNotNull(window->Handle);
@@ -180,13 +194,13 @@ bool ShouldClose(Window window)
 }
 
 #pragma region Runtime
-bool RuntimeStarted()
+static bool RuntimeStarted()
 {
 	return IsRuntimeStarted;
 }
 
 // Initializes GLFW and returns true, otherwise throws an exception
-void StartRuntime(void)
+static void StartRuntime(void)
 {
 	if (glfwInit() != true)
 	{
@@ -197,7 +211,7 @@ void StartRuntime(void)
 }
 
 // terminates GLFW and sets Initialized() to false
-void StopRuntime()
+static void StopRuntime()
 {
 	glfwTerminate();
 	IsRuntimeStarted = false;
@@ -232,7 +246,7 @@ static void SetMode(Window window, const WindowMode mode)
 	if (mode is WindowModes.Windowed)
 	{
 		// remove always on top if it's enabled
-		sWindow.SetAttribute(window, WindowHints.AlwaysOnTop, false);
+		Windows.SetAttribute(window, WindowHints.AlwaysOnTop, false);
 
 		// for some reason glfwSetWindowMonitor wont make it windowed if you set the width and height to be the same thing?
 		// so i set it to width and height - 1 then to the desired resolution to work around this
@@ -248,7 +262,7 @@ static void SetMode(Window window, const WindowMode mode)
 		glfwSetWindowMonitor(window->Handle, window->Monitor, 0, 0, videoMode->width, videoMode->height, videoMode->refreshRate);
 
 		// set it to always on top
-		sWindow.SetAttribute(window, WindowHints.AlwaysOnTop, true);
+		Windows.SetAttribute(window, WindowHints.AlwaysOnTop, true);
 	}
 	else
 	{

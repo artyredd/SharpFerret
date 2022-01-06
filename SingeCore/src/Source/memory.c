@@ -182,13 +182,13 @@ static char GetByteGrouping(size_t value)
 
 #if _WIN32
 	// < 1Kb return b
-	if (value < 1 * 1024) return 0;
+	if (value < (1 * 1024)) return 0;
 	// < 1Mb return Kb
-	if (value < 1 * 1024 * 1024) return 1;
+	if (value < (1 * 1024 * 1024)) return 1;
 	// < 1Gb return Mb
-	if (value < 1 * 1024 * 1024 * 1024) return 2;
+	if (value < (1 * 1024 * 1024 * 1024)) return 2;
 	// < 1Tb return Gb
-	if (value < (size_t)1 * 1024 * 1024 * 1024 * 1024) return 3;
+	if (value < ((size_t)1 * 1024 * 1024 * 1024 * 1024)) return 3;
 
 	// if >= TB return TB
 	return 4;

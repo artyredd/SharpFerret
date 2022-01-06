@@ -32,6 +32,7 @@ struct _gameObject {
 };
 
 struct _gameObjectMethods {
+	GameObject(*Create)();
 	void (*Draw)(GameObject, Camera);
 	GameObject(*Duplicate)(GameObject);
 	void (*SetName)(GameObject, char* name);
@@ -39,5 +40,3 @@ struct _gameObjectMethods {
 };
 
 const extern struct _gameObjectMethods GameObjects;
-
-GameObject CreateGameObject();

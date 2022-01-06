@@ -109,16 +109,34 @@ struct _windowObject {
 	/// The refreshrate of the window
 	/// </summary>
 	int RefreshRate;
-	/// <summary>
-	/// Disposes and frees the window
-	/// </summary>
-	void(*Dispose)(Window);
 };
 
-#ifndef _window_methods_
-#define _window_methods_
-
 struct _windowMethods {
+	/// <summary>
+	/// Creates a new window with the provided dimensions and title
+	/// </summary>
+	/// <param name="width">The width(resolution) the window should be in, use 0 for whatever the width of the screen is</param>
+	/// <param name="height">The height(resolution) the window should be in, use 0 for whatever the height of the screen is</param>
+	/// <param name="title">The title of the window</param>
+	/// <returns></returns>
+	Window(*Create)(int width, int height, char* title);
+
+	// returns: true if the underlying window system(glfw) is initiliazed
+	bool (*RuntimeStarted)();
+	// Starts the GLFW runtime, use RuntimeStarted() to determine if the runtime is currently started
+	void (*StartRuntime)();
+	// Stops the GLFW runtime
+	void (*StopRuntime)();
+
+	/// Sets the hint value for the next created window globally
+	void (*SetHint)(int attribute, int value);
+
+	/// <summary>
+	/// Sets the default clear color of the graphics device
+	/// </summary>
+	void (*SetClearColor)(float r, float g, float b, float a);
+
+	bool (*ShouldClose)(Window window);
 	/// <summary>
 	/// Sets the current graphics context to the provided window
 	/// </summary>
@@ -148,33 +166,11 @@ struct _windowMethods {
 	/// Focuses the window for the user
 	/// </summary>
 	void (*Focus)(Window);
+
+	/// <summary>
+	/// Disposes and frees the window
+	/// </summary>
+	void(*Dispose)(Window);
 };
 
-extern const struct _windowMethods sWindow;
-#endif
-
-/// <summary>
-/// Creates a new window with the provided dimensions and title
-/// </summary>
-/// <param name="width">The width(resolution) the window should be in, use 0 for whatever the width of the screen is</param>
-/// <param name="height">The height(resolution) the window should be in, use 0 for whatever the height of the screen is</param>
-/// <param name="title">The title of the window</param>
-/// <returns></returns>
-Window CreateWindow(int width, int height, char* title);
-
-// returns: true if the underlying window system(glfw) is initiliazed
-bool RuntimeStarted();
-// Starts the GLFW runtime, use RuntimeStarted() to determine if the runtime is currently started
-void StartRuntime();
-// Stops the GLFW runtime
-void StopRuntime();
-
-/// Sets the hint value for the next created window globally
-void SetHint(int attribute, int value);
-
-/// <summary>
-/// Sets the default clear color of the graphics device
-/// </summary>
-void SetClearColor(float r, float g, float b, float a);
-
-bool ShouldClose(Window window);
+extern const struct _windowMethods Windows;

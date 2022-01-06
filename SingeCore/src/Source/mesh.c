@@ -2,7 +2,23 @@
 #include "singine/memory.h"
 #include "cglm/mat4.h"
 
-Mesh CreateMesh()
+static Mesh CreateMesh(void);
+static void Dispose(Mesh);
+
+const struct _meshMethods Meshes = {
+	.Create = &CreateMesh,
+	.Dispose = &Dispose
+};
+
+static void Dispose(Mesh mesh)
+{
+	SafeFree(mesh->Vertices);
+	SafeFree(mesh->Normals);
+	SafeFree(mesh->TextureVertices);
+	SafeFree(mesh);
+}
+
+static Mesh CreateMesh(void)
 {
 	Mesh mesh = SafeAlloc(sizeof(struct _mesh));
 

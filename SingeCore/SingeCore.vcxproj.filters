@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\Structures">
-      <UniqueIdentifier>{32a73270-75d3-413e-9f1b-52d85c0c0250}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Singine">
       <UniqueIdentifier>{3359e0e3-3e1f-445e-8a29-f5c23959c42b}</UniqueIdentifier>
     </Filter>
@@ -48,9 +45,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Source\enumerable.c">
-      <Filter>Source Files\Structures</Filter>
-    </ClCompile>
     <ClCompile Include="src\Source\imaging.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
@@ -60,14 +54,8 @@
     <ClCompile Include="src\Source\SingeCore.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Headers\singine\enumerableItem.c">
-      <Filter>Source Files\Structures</Filter>
-    </ClCompile>
     <ClCompile Include="src\Source\cunit.c">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="src\Headers\singine\generics.c">
-      <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Source\window.c">
       <Filter>Source Files\Window</Filter>
@@ -140,9 +128,6 @@
     <ClInclude Include="src\Headers\csharp.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Headers\Singine\enumerable.h">
-      <Filter>Header Files\Singine</Filter>
-    </ClInclude>
     <ClInclude Include="src\Headers\Singine\exceptions.h">
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
@@ -155,19 +140,10 @@
     <ClInclude Include="src\Headers\Graphics\window.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Headers\singine\enumerableItem.h">
-      <Filter>Header Files\Singine</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Headers\singine\generics.h">
-      <Filter>Header Files\Singine</Filter>
-    </ClInclude>
     <ClInclude Include="src\Headers\cunit.h">
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
     <ClInclude Include="src\Headers\math\vectors.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
-    <ClInclude Include="src\Headers\math\shapes.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
     <ClInclude Include="src\Headers\input.h">

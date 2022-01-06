@@ -119,7 +119,7 @@ static Texture CreateTexture(bool allocBuffer)
 
 	if (allocBuffer)
 	{
-		texture->Handle = CreateSharedHandle();
+		texture->Handle = SharedHandles.Create();
 	}
 
 	texture->Height = 0;

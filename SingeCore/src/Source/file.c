@@ -5,7 +5,33 @@
 
 #define NotNull(variableName) if (variableName is null) { fprintf(stderr, #variableName"can not be null"); throw(InvalidArgumentException); }
 
-bool TryOpen(const char* path, FileMode fileMode, File* out_file)
+static bool TryOpen(const char* path, FileMode fileMode, File* out_file);
+static File Open(const char* path, FileMode fileMode);
+static size_t GetFileSize(const File file);
+static char* ReadFile(const File file);
+static bool TryReadFile(const File file, char** out_data);
+static char* ReadAll(const char* path);
+static bool TryReadAll(const char* path, char** out_data);
+static bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength);
+static bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count);
+static bool TryClose(File file);
+static void Close(File file);
+
+extern const struct _fileMethods Files = {
+	.TryOpen = &TryOpen,
+	.Open = &Open,
+	.GetFileSize = &GetFileSize,
+	.ReadFile = &ReadFile,
+	.TryReadFile = &TryReadFile,
+	.ReadAll = &ReadAll,
+	.TryReadAll = &TryReadAll,
+	.TryReadLine = &TryReadLine,
+	.TryGetSequenceCount = &TryGetSequenceCount,
+	.TryClose = &TryClose,
+	.Close = &Close
+};
+
+static bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 {
 	// make sure to set the out value always to it's default value first
 	*out_file = null;
@@ -29,7 +55,7 @@ bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 	return true;
 }
 
-File Open(const char* path, FileMode fileMode)
+static File Open(const char* path, FileMode fileMode)
 {
 	NotNull(path);
 	NotNull(fileMode);
@@ -47,7 +73,7 @@ File Open(const char* path, FileMode fileMode)
 	return file;
 }
 
-size_t GetFileSize(const File file)
+static size_t GetFileSize(const File file)
 {
 	NotNull(file);
 
@@ -77,7 +103,7 @@ size_t GetFileSize(const File file)
 	return count;
 }
 
-char* ReadFile(const File file)
+static char* ReadFile(const File file)
 {
 	size_t length = GetFileSize(file);
 
@@ -116,7 +142,7 @@ char* ReadFile(const File file)
 	return result;
 }
 
-bool TryReadFile(const File file, char** out_data)
+static bool TryReadFile(const File file, char** out_data)
 {
 	*out_data = null;
 
@@ -158,7 +184,7 @@ bool TryReadFile(const File file, char** out_data)
 	return true;
 }
 
-char* ReadAll(const char* path)
+static char* ReadAll(const char* path)
 {
 	File file;
 	if (TryOpen(path, FileModes.Read, &file))
@@ -187,7 +213,7 @@ char* ReadAll(const char* path)
 	return null;
 }
 
-bool TryReadAll(const char* path, char** out_data)
+static bool TryReadAll(const char* path, char** out_data)
 {
 	File file;
 
@@ -208,7 +234,7 @@ bool TryReadAll(const char* path, char** out_data)
 	return false;
 }
 
-bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength)
+static bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength)
 {
 	GuardNotNull(file);
 
@@ -245,7 +271,7 @@ bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, si
 	return true;
 }
 
-bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count)
+static bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count)
 {
 	GuardNotNull(targetSequence);
 	GuardNotZero(targetLength);
@@ -320,12 +346,12 @@ bool TryGetSequenceCount(File file, const char* targetSequence, const size_t tar
 	return true;
 }
 
-bool TryClose(File file)
+static bool TryClose(File file)
 {
 	return fclose(file) != EOF;
 }
 
-void Close(File file)
+static void Close(File file)
 {
 	if (TryClose(file) is false)
 	{

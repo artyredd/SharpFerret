@@ -56,6 +56,10 @@ struct _camera
 	float FarClippingDistance;
 	Transform Transform;
 	struct cameraState State;
+};
+
+struct _cameraMethods {
+	Camera(*CreateCamera)();
 	void(*DrawMesh)(Camera, RenderMesh, Material);
 	/// <summary>
 	/// Forces the camera to recalculate it's fields and members on the next draw call, use the provided methods to modify fields instead of manually
@@ -71,4 +75,5 @@ struct _camera
 	void(*Dispose)(Camera);
 };
 
-Camera CreateCamera();
+extern const struct _cameraMethods Cameras;
+

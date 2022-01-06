@@ -4,21 +4,34 @@
 #include "cglm/mat4.h"
 #include "helpers/macros.h"
 
+static RenderMesh InstanceMesh(RenderMesh mesh);
+static void Draw(RenderMesh model, Material material);
+static void Dispose(RenderMesh mesh);
+static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model);
+
+
+const struct _renderMeshMethods RenderMeshes = {
+	.Dispose = &Dispose,
+	.Draw = &Draw,
+	.TryBindMesh = &TryBindMesh,
+	.Instance = &InstanceMesh
+};
+
 static void OnBufferDispose(unsigned int handle)
 {
 	glDeleteBuffers(1, &handle);
 }
 
-static void Dispose(RenderMesh model)
+static void Dispose(RenderMesh mesh)
 {
 	// never dispose of the shader in the model
-	SharedHandles.Dispose(model->VertexBuffer, &OnBufferDispose);
-	SharedHandles.Dispose(model->UVBuffer, &OnBufferDispose);
-	SharedHandles.Dispose(model->NormalBuffer, &OnBufferDispose);
+	SharedHandles.Dispose(mesh->VertexBuffer, &OnBufferDispose);
+	SharedHandles.Dispose(mesh->UVBuffer, &OnBufferDispose);
+	SharedHandles.Dispose(mesh->NormalBuffer, &OnBufferDispose);
 
-	model->Transform->Dispose(model->Transform);
+	Transforms.Dispose(mesh->Transform);
 
-	SafeFree(model);
+	SafeFree(mesh);
 }
 
 static void Draw(RenderMesh model, Material material)
@@ -63,16 +76,13 @@ static RenderMesh CreateRenderMesh()
 {
 	RenderMesh mesh = SafeAlloc(sizeof(struct _renderMesh));
 
-	mesh->Dispose = &Dispose;
-	mesh->Draw = &Draw;
-
 	mesh->UVBuffer = null;
 	mesh->VertexBuffer = null;
 	mesh->NormalBuffer = null;
 
 	mesh->NumberOfTriangles = 0;
 
-	mesh->Transform = CreateTransform();
+	mesh->Transform = Transforms.Create();
 
 	return mesh;
 }
@@ -102,32 +112,32 @@ static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedHandle destin
 	return true;
 }
 
-bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
+static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 {
 	*out_model = null;
 
 	RenderMesh model = CreateRenderMesh();
 
 	// since this is a new mesh we should create new buffers from scratch
-	model->UVBuffer = CreateSharedHandle();
-	model->VertexBuffer = CreateSharedHandle();
-	model->NormalBuffer = CreateSharedHandle();
+	model->UVBuffer = SharedHandles.Create();
+	model->VertexBuffer = SharedHandles.Create();
+	model->NormalBuffer = SharedHandles.Create();
 
 	if (TryBindBuffer(mesh->Vertices, mesh->VertexCount * sizeof(float), model->VertexBuffer) is false)
 	{
-		model->Dispose(model);
+		RenderMeshes.Dispose(model);
 		return false;
 	}
 
-	if (TryBindBuffer(mesh->TextureVertices, mesh->TextureCount * sizeof(float), model->UVBuffer) is false)
+	if (mesh->TextureCount isnt 0 && TryBindBuffer(mesh->TextureVertices, mesh->TextureCount * sizeof(float), model->UVBuffer) is false)
 	{
-		model->Dispose(model);
+		RenderMeshes.Dispose(model);
 		return false;
 	}
 
-	if (TryBindBuffer(mesh->Normals, mesh->NormalCount * sizeof(float), model->NormalBuffer) is false)
+	if (mesh->NormalCount isnt 0 && TryBindBuffer(mesh->Normals, mesh->NormalCount * sizeof(float), model->NormalBuffer) is false)
 	{
-		model->Dispose(model);
+		RenderMeshes.Dispose(model);
 		return false;
 	}
 
@@ -138,7 +148,7 @@ bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 	return true;
 }
 
-void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
+static void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 {
 	CopyMember(source, destination, VertexBuffer);
 	++source->VertexBuffer->ActiveInstances;
@@ -152,7 +162,7 @@ void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 	CopyMember(source, destination, NumberOfTriangles);
 }
 
-RenderMesh InstanceMesh(RenderMesh mesh)
+static RenderMesh InstanceMesh(RenderMesh mesh)
 {
 	RenderMesh result = CreateRenderMesh();
 

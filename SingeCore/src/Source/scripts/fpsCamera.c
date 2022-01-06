@@ -48,7 +48,7 @@ void Update(Camera camera)
 	glm_quat_mul(FPSCamera.State.HorizontalRotation, FPSCamera.State.VerticalRotation, FPSCamera.State.State);
 
 	// set the camera's rotation to the new rotation
-	SetRotation(camera->Transform, FPSCamera.State.State);
+	Transforms.SetRotation(camera->Transform, FPSCamera.State.State);
 
 	SetMousePosition(0, 0);
 }

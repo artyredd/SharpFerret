@@ -67,6 +67,14 @@ struct _fileBuffer {
 #define BUFFER_SIZE 1024
 #define MAX_OBJECT_NAME_LENGTH 61
 
+static bool TryImportModel(char* path, FileFormat format, Model* out_model);
+static Model ImportModel(char* path, FileFormat format);
+
+extern const struct _modelImporterMethods Importers = {
+	.TryImport = &TryImportModel,
+	.Import = &ImportModel
+};
+
 static void DisposeFileBuffer(FileBuffer buffer)
 {
 	// the character buffer is not alloced by CreateFileBuffer do not free it
@@ -143,7 +151,7 @@ static bool TryGetVectorPattern(File stream,
 		++count;
 	}
 
-	while (TryReadLine(stream, buffer, 0, bufferLength, &length))
+	while (Files.TryReadLine(stream, buffer, 0, bufferLength, &length))
 	{
 		// if we encounter the abort pattern we should stop parsing
 		// this is needed becuase we may want to parse for vector 2's but a vec2 parser wont fail to parse a string
@@ -198,7 +206,7 @@ static bool TryGetIntegerPattern(File stream,
 {
 	// count the number of vertices that we should alloc
 	size_t count;
-	if (TryGetSequenceCount(stream,
+	if (Files.TryGetSequenceCount(stream,
 		pattern, // target
 		strlen(pattern), // target length
 		abortPattern, // abort
@@ -219,7 +227,7 @@ static bool TryGetIntegerPattern(File stream,
 	for (size_t i = 0; i < count; i++)
 	{
 		size_t length;
-		if (TryReadLine(stream, buffer, 0, bufferLength, &length) is false)
+		if (Files.TryReadLine(stream, buffer, 0, bufferLength, &length) is false)
 		{
 			return false;
 		}
@@ -260,7 +268,7 @@ static bool TryCountElements(File stream, char* buffer, size_t bufferLength, siz
 	size_t normalsSequenceLength = strlen(Sequences.NormalVertex);
 
 	size_t lineLength;
-	while (TryReadLine(stream, buffer, 0, bufferLength, &lineLength))
+	while (Files.TryReadLine(stream, buffer, 0, bufferLength, &lineLength))
 	{
 		// dont waste time trying to compare a comment with our sequence strings
 		if (buffer[0] is Tokens.Comment)
@@ -303,7 +311,7 @@ static bool TryCountElements(File stream, char* buffer, size_t bufferLength, siz
 
 static Mesh ComposeFaces(FileBuffer buffer, const  size_t* faces, const  size_t faceCount)
 {
-	Mesh mesh = CreateMesh();
+	Mesh mesh = Meshes.Create();
 
 	// 3 vec3 per face, 3 float per vec3
 	mesh->VertexCount = faceCount * 3 * 3;
@@ -443,7 +451,7 @@ static bool VerifyFormat(FileFormat format)
 	return false;
 }
 
-bool TryImportModel(char* path, FileFormat format, Model* out_model)
+static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 {
 	// make sure the format is supported
 	if (VerifyFormat(format) is false)
@@ -453,7 +461,7 @@ bool TryImportModel(char* path, FileFormat format, Model* out_model)
 
 	// open the path
 	File stream;
-	if (TryOpen(path, FileModes.ReadBinary, &stream) is false)
+	if (Files.TryOpen(path, FileModes.ReadBinary, &stream) is false)
 	{
 		return false;
 	}
@@ -468,7 +476,7 @@ bool TryImportModel(char* path, FileFormat format, Model* out_model)
 
 	if (TryCountElements(stream, streamBuffer, BUFFER_SIZE, &vertexCount, &textureCount, &normalCount) is false)
 	{
-		if (TryClose(stream) is false)
+		if (Files.TryClose(stream) is false)
 		{
 			throw(FailedToCloseFileException);
 		}
@@ -485,7 +493,7 @@ bool TryImportModel(char* path, FileFormat format, Model* out_model)
 
 	// read the file until we find an object to start creating a mesh for
 	size_t lineLength;
-	while (TryReadLine(stream, streamBuffer, 0, BUFFER_SIZE, &lineLength))
+	while (Files.TryReadLine(stream, streamBuffer, 0, BUFFER_SIZE, &lineLength))
 	{
 		int token = streamBuffer[0];
 
@@ -517,7 +525,7 @@ bool TryImportModel(char* path, FileFormat format, Model* out_model)
 
 	buffer->Dispose(buffer);
 
-	if (TryClose(stream) is false)
+	if (Files.TryClose(stream) is false)
 	{
 		model->Dispose(model);
 
@@ -529,7 +537,7 @@ bool TryImportModel(char* path, FileFormat format, Model* out_model)
 	return true;
 }
 
-Model ImportModel(char* path, FileFormat format)
+static Model ImportModel(char* path, FileFormat format)
 {
 	Model model;
 	if (TryImportModel(path, format, &model) is false)

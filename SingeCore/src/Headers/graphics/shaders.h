@@ -53,6 +53,7 @@ struct _shader {
 };
 
 struct _shaderMethods {
+	Shader(*Create)();
 	/// <summary>
 	/// Creates a new instance of the provided shader
 	/// </summary>
@@ -65,5 +66,3 @@ struct _shaderMethods {
 };
 
 const extern struct _shaderMethods Shaders;
-
-Shader CreateShader();

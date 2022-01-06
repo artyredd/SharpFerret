@@ -174,12 +174,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Headers\singine\enumerableItem.c" />
-    <ClCompile Include="src\Headers\singine\generics.c" />
     <ClCompile Include="src\Source\camera.c" />
     <ClCompile Include="src\Source\conversions.c" />
     <ClCompile Include="src\Source\cunit.c" />
-    <ClCompile Include="src\Source\enumerable.c" />
     <ClCompile Include="src\Source\file.c" />
     <ClCompile Include="src\Source\gameobject.c" />
     <ClCompile Include="src\Source\gameobjectHelpers.c" />
@@ -223,20 +220,16 @@
     <ClInclude Include="src\Headers\input.h" />
     <ClInclude Include="src\Headers\math\macros.h" />
     <ClInclude Include="src\Headers\math\quaternions.h" />
-    <ClInclude Include="src\Headers\math\shapes.h" />
     <ClInclude Include="src\Headers\math\vectors.h" />
     <ClInclude Include="src\Headers\modeling\importer.h" />
     <ClInclude Include="src\Headers\modeling\mesh.h" />
     <ClInclude Include="src\Headers\modeling\model.h" />
     <ClInclude Include="src\Headers\scripts\fpsCamera.h" />
     <ClInclude Include="src\Headers\singine\conversions.h" />
-    <ClInclude Include="src\Headers\Singine\enumerable.h" />
-    <ClInclude Include="src\Headers\singine\enumerableItem.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />
     <ClInclude Include="src\Headers\singine\file.h" />
     <ClInclude Include="src\Headers\singine\gameobject.h" />
     <ClInclude Include="src\Headers\singine\gameobjectHelpers.h" />
-    <ClInclude Include="src\Headers\singine\generics.h" />
     <ClInclude Include="src\Headers\singine\guards.h" />
     <ClInclude Include="src\Headers\Singine\memory.h" />
     <ClInclude Include="src\Headers\singine\parsing.h" />

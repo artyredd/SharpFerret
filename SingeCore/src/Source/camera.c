@@ -16,18 +16,37 @@
 
 #define PreventUneccesaryAssignment(left,right,comparison) if((left) comparison (right)) {return;}
 
-static vec4* RefreshCamera(CameracameraVP);
+static vec4* RefreshCamera(Camera camera);
+static void Dispose(Camera camera);
+static void DrawMesh(Camera camera, RenderMesh mesh, Material material);
+static void ForceRefresh(Camera camera);
+static void SetFoV(Camera camera, float value);
+static void SetAspectRatio(Camera camera, float value);
+static void SetNearClippingDistance(Camera camera, float value);
+static void SetFarClippingDistance(Camera camera, float value);
+static Camera CreateCamera();
+
+const struct _cameraMethods Cameras = {
+	.CreateCamera = &CreateCamera,
+	.DrawMesh = &DrawMesh,
+	.ForceRefresh = &ForceRefresh,
+	.SetAspectRatio = &SetAspectRatio,
+	.SetFarClippingDistance = &SetFarClippingDistance,
+	.SetNearClippingDistance = &SetNearClippingDistance,
+	.SetFoV = &SetFoV,
+	.Dispose = &Dispose
+};
 
 static void Dispose(Camera camera)
 {
-	camera->Transform->Dispose(camera->Transform);
+	Transforms.Dispose(camera->Transform);
 	SafeFree(camera);
 }
 
 static void DrawMesh(Camera camera, RenderMesh mesh, Material material)
 {
 	// make sure the meshes transform is up to date
-	vec4* modelMatrix = RefreshTransform(mesh->Transform);
+	vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
 
 	vec4* cameraVP = RefreshCamera(camera);
 
@@ -48,7 +67,7 @@ static void DrawMesh(Camera camera, RenderMesh mesh, Material material)
 
 			Materials.Draw(material);
 
-			mesh->Draw(mesh, material);
+			RenderMeshes.Draw(mesh, material);
 
 			if (shader->AfterDraw isnt null)
 			{
@@ -70,11 +89,7 @@ static void RecalculateProjection(Camera camera)
 
 static void RecalculateView(Camera camera)
 {
-	/*glm_lookat(camera->Position,
-		camera->TargetPosition,
-		camera->UpDirection,
-		camera->State.View);*/
-	RefreshTransform(camera->Transform);
+	Transforms.Refresh(camera->Transform);
 
 	// becuase all objects move around the camera and not the other way around
 	// to move the camera right we must move all objects left
@@ -173,7 +188,7 @@ static void SetFarClippingDistance(Camera camera, float value)
 	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
 }
 
-Camera CreateCamera()
+static Camera CreateCamera()
 {
 	Camera camera = SafeAlloc(sizeof(struct _camera));
 
@@ -182,16 +197,7 @@ Camera CreateCamera()
 	camera->NearClippingDistance = DefaultNearClippingPlane;
 	camera->FarClippingDistance = DefaultFarClippingPlane;
 
-	camera->Dispose = &Dispose;
-	camera->DrawMesh = &DrawMesh;
-
-	camera->ForceRefresh = &ForceRefresh;
-	camera->SetAspectRatio = &SetAspectRatio;
-	camera->SetFarClippingDistance = &SetFarClippingDistance;
-	camera->SetNearClippingDistance = &SetNearClippingDistance;
-	camera->SetFoV = &SetFoV;
-
-	camera->Transform = CreateTransform();
+	camera->Transform = Transforms.Create();
 
 	// since the camera's transform is special we DONT want it to rotate around it's own position since that will
 	// affect all objects in scene

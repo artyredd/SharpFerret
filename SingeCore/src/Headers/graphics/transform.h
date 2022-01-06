@@ -100,38 +100,42 @@ struct _transform {
 	/// The stored state of this transform
 	/// </summary>
 	struct transformState State;
-	void(*Dispose)(Transform);
 };
 
-Transform CreateTransform();
+struct _transformMethods {
+	Transform(*Create)(void);
 
-void TransformCopyTo(Transform source, Transform destination);
+	void (*CopyTo)(Transform source, Transform destination);
 
-Transform DuplicateTransform(Transform);
+	Transform(*DuplicateTransform)(Transform);
 
-/// <summary>
-/// Recalulates the underlying state of the transform
-/// </summary>
-/// <param name=""></param>
-vec4* RefreshTransform(Transform);
+	/// <summary>
+	/// Recalulates the underlying state of the transform
+	/// </summary>
+	/// <param name=""></param>
+	vec4* (*Refresh)(Transform);
 
-/// <summary>
-/// Recalulates the underlying state of the transform ignoring any previously saved state
-/// </summary>
-/// <param name=""></param>
-vec4* ForceRefreshTransform(Transform);
+	/// <summary>
+	/// Recalulates the underlying state of the transform ignoring any previously saved state
+	/// </summary>
+	/// <param name=""></param>
+	vec4* (*ForceRefresh)(Transform);
 
-void SetPosition(Transform, vec3 position);
-void SetPositions(Transform transform, float x, float y, float z);
-void SetRotation(Transform, Quaternion rotation);
-void SetScale(Transform, vec3 scale);
-void SetScales(Transform transform, float x, float y, float z);
+	void (*SetPosition)(Transform, vec3 position);
+	void (*SetPositions)(Transform transform, float x, float y, float z);
+	void (*SetRotation)(Transform, Quaternion rotation);
+	void (*SetScale)(Transform, vec3 scale);
+	void (*SetScales)(Transform transform, float x, float y, float z);
 
-void AddPosition(Transform, vec3 amount);
-void AddRotation(Transform, Quaternion amount);
-void AddScale(Transform, vec3 amount);
+	void (*AddPosition)(Transform, vec3 amount);
+	void (*AddRotation)(Transform, Quaternion amount);
+	void (*AddScale)(Transform, vec3 amount);
 
-// Sets the provided transform's parent as the provided parent
-void SetParent(Transform, Transform parent);
+	// Sets the provided transform's parent as the provided parent
+	void (*SetParent)(Transform, Transform parent);
 
-void GetDirection(Transform transform, Direction directions, vec3 out_direction);
+	void (*GetDirection)(Transform transform, Direction directions, vec3 out_direction);
+	void (*Dispose)(Transform);
+};
+
+extern const struct _transformMethods Transforms;

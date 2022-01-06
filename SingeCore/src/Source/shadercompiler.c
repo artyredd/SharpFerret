@@ -5,6 +5,17 @@
 #include "GL/glew.h"
 #include <stdlib.h>
 #include "graphics/shaders.h"
+#include "graphics/shadercompiler.h"
+
+static bool TryGetUniform(Shader shader, const char* name, int* out_handle);
+static bool TrySetUniform_mat4(Shader shader, int handle, void* value);
+static Shader CompileShader(const char* vertexPath, const char* fragmentPath);
+
+const struct _shaderCompilerMethods ShaderCompilers = {
+	.TryGetUniform = &TryGetUniform,
+	.TrySetUniform_mat4 = &TrySetUniform_mat4,
+	.CompileShader = &CompileShader
+};
 
 #define LOG_BUFFER_SIZE 1024
 
@@ -57,7 +68,7 @@ static void PrintLog(unsigned int handle, File stream, void(*LogProvider)(unsign
 	GuardNotNull(LogProvider);
 
 	// since the shader failed to compile we should print the error if one exists
-	int logLength = 0;
+	size_t logLength = 0;
 
 	char message[LOG_BUFFER_SIZE];
 
@@ -158,7 +169,7 @@ static bool TryCompile(const char* path, ShaderType shaderType, unsigned int* ou
 	// read the file's data
 	char* vertexData;
 
-	if (TryReadAll(path, &vertexData) is false)
+	if (Files.TryReadAll(path, &vertexData) is false)
 	{
 		return false;
 	}
@@ -219,14 +230,14 @@ static bool TryCompileProgram(unsigned int vertexHandle, unsigned int fragmentHa
 	return true;
 }
 
-bool TryGetUniform(Shader shader, const char* name, int* out_handle)
+static bool TryGetUniform(Shader shader, const char* name, int* out_handle)
 {
 	*out_handle = glGetUniformLocation(shader->Handle->Handle, name);
 
 	return *out_handle != -1;
 }
 
-bool TrySetUniform_mat4(Shader shader, int handle, void* value)
+static bool TrySetUniform_mat4(Shader shader, int handle, void* value)
 {
 	if (handle is - 1)
 	{
@@ -238,7 +249,7 @@ bool TrySetUniform_mat4(Shader shader, int handle, void* value)
 	return true;
 }
 
-Shader CompileShader(const char* vertexPath, const char* fragmentPath)
+static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 {
 	GuardNotNull(vertexPath);
 	GuardNotNull(fragmentPath);
@@ -267,7 +278,7 @@ Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 	}
 
 
-	Shader shader = CreateShader();
+	Shader shader = Shaders.Create();
 
 	shader->Handle->Handle = programHandle;
 

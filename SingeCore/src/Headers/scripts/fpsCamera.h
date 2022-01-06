@@ -37,4 +37,3 @@ struct _fpsCameraScript {
 };
 
 extern struct _fpsCameraScript FPSCamera;
-

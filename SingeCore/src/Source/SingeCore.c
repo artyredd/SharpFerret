@@ -10,7 +10,6 @@
 #include "GLFW/glfw3.h"
 
 #include "graphics/window.h"
-#include "singine/enumerable.h"
 
 #include "graphics/window.h"
 #include "graphics/imaging.h"
@@ -44,31 +43,31 @@ Shader LoadShader(const char*, const char*);
 
 int main()
 {
-	StartRuntime();
+	Windows.StartRuntime();
 
-	SetHint(WindowHints.MSAASamples, 4);
+	Windows.SetHint(WindowHints.MSAASamples, 4);
 
 	// use opengl 3.3
-	SetHint(ContextHints.VersionMajor, 3);
-	SetHint(ContextHints.VersionMinor, 3);
+	Windows.SetHint(ContextHints.VersionMajor, 3);
+	Windows.SetHint(ContextHints.VersionMinor, 3);
 
-	SetHint(OpenGLHints.ForwardCompatibility, true); // To make MacOS happy; should not be needed
-	SetHint(OpenGLHints.Profile, GLFW_OPENGL_CORE_PROFILE);
+	Windows.SetHint(OpenGLHints.ForwardCompatibility, true); // To make MacOS happy; should not be needed
+	Windows.SetHint(OpenGLHints.Profile, GLFW_OPENGL_CORE_PROFILE);
 
 	// allow it to be windowed and resize-able
-	SetHint(WindowHints.Resizable, true);
-	SetHint(WindowHints.Decorated, true);
+	Windows.SetHint(WindowHints.Resizable, true);
+	Windows.SetHint(WindowHints.Decorated, true);
 
-	window = CreateWindow(1920, 1080, "Singine");
+	window = Windows.Create(1920, 1080, "Singine");
 
 	SetInputWindow(window);
 
 	//sWindow.SetMode(window, WindowModes.FullScreen);
 
-	SetClearColor(0.4f, 0.4f, 0.0f, 0.0f);
+	Windows.SetClearColor(0.4f, 0.4f, 0.0f, 0.0f);
 
 	// bind graphics card with GDI
-	sWindow.SetCurrent(window);
+	Windows.SetCurrent(window);
 
 	// initiliaze GLEW
 	glewExperimental = true;
@@ -86,15 +85,19 @@ int main()
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
-	Image icon = LoadImage("icon.png");
+	SetCursorMode(CursorModes.Disabled);
 
-	using(icon, sWindow.SetIcon(window, icon));
+	Image icon = Images.LoadImage("icon.png");
 
-	Image uv = LoadImage("cubeuv.png");
+	Windows.SetIcon(window, icon);
+
+	Images.Dispose(icon);
 
 	Shader texturedShader = LoadShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
 
 	Shader uvShader = LoadShader("SimpleVertexShader.vertexshader", "ColorUV.fragmentshader");
+
+	Shader guiShader = LoadShader("GUIShader.vertexshader", "ColorUV.fragmentshader");
 
 	// check shader instancing and disposing
 	for (size_t i = 0; i < 5; i++)
@@ -109,17 +112,15 @@ int main()
 		throw(InvalidArgumentException);
 	}
 
-	int textureId;
-	if (Shaders.TryGetUniform(texturedShader, Uniforms.Texture0, &textureId) is false)
-	{
-		throw(FailedToOpenFileException);
-	}
+	Image uv = Images.LoadImage("cubeuv.png");
 
 	Texture cubeTexture;
 	if (Textures.TryCreateTexture(uv, &cubeTexture) is false)
 	{
 		throw(FailedToOpenFileException);
 	}
+
+	Images.Dispose(uv);
 
 	// test texture disposing
 	for (size_t i = 0; i < 5; i++)
@@ -134,17 +135,13 @@ int main()
 		throw(InvalidArgumentException);
 	}
 
-	SetCursorMode(CursorModes.Disabled);
-
-	uv->Dispose(uv);
-
 	Material texturedMaterial = Materials.Create(texturedShader, cubeTexture);
 
 	Material uvMaterial = Materials.Create(uvShader, null);
 
-	Camera camera = CreateCamera();
+	Material guiMaterial = Materials.Create(guiShader, null);
 
-	vec3 startingPosition = { 3,2,3 };
+	Camera camera = Cameras.CreateCamera();
 
 	// bind a vertex array for OpenGL this is required to render objects
 	GLuint VertexArrayID;
@@ -156,12 +153,14 @@ int main()
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj);
+	GameObject room = GameObjects.Duplicate(ball);//LoadGameObjectFromModel("room.obj", FileFormats.Obj);
 	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
 
 	car->Material = Materials.Instance(uvMaterial);
-	room->Material = Materials.Instance(uvMaterial);
+	//room->Material = Materials.Instance(uvMaterial);
 	cube->Material = Materials.Instance(texturedMaterial);
+
+	size_t previosInstanceCount = ball->Material->Shader->Handle->ActiveInstances;
 
 	//test memory leak
 	for (size_t i = 0; i < 5; i++)
@@ -171,23 +170,73 @@ int main()
 		GameObjects.Destroy(tmp);
 	}
 
+	// check memory leak for GameObjects
+	if (ball->Material->Shader->Handle->ActiveInstances != previosInstanceCount)
+	{
+		throw(InvalidArgumentException);
+	}
+
 	float speed = 10.0f;
 
-	vec4 scaler = { 1,1,1,1 };
-
-	float scaleAmount = 1.0f;
 	float rotateAmount = 0.0f;
 
 	vec3 position = { 3.25f, 0.5f, -3.18f };
 
-	SetPosition(camera->Transform, position);
+	Transforms.SetPosition(camera->Transform, position);
 
 	vec3 positionModifier;
 
-	SetParent(otherBall->Transform, ball->Transform);
-	SetScales(otherBall->Transform, 0.5, 0.5, 0.5);
-	SetPositions(otherBall->Transform, 0, 0, 3);
-	SetPositions(car->Transform, 0, 0, 0);
+	Transforms.SetParent(otherBall->Transform, ball->Transform);
+	Transforms.SetScales(otherBall->Transform, 0.5, 0.5, 0.5);
+	Transforms.SetPositions(otherBall->Transform, 0, 0, 3);
+	Transforms.SetPositions(car->Transform, -7, 0, -7);
+	Transforms.SetPositions(cube->Transform, 3, 3, 3);
+	Transforms.SetPositions(ball->Transform, 5, 1, 5);
+
+	Mesh squareMesh = Meshes.Create();
+
+	float verts[18] = {
+		1, 1, 0,
+		-1, 1, 0,
+		-1, -1, 0,
+		-1, -1, 0,
+		1, -1, 0,
+		1, 1, 0
+	};
+	float textures[12] = {
+		1,1,
+		0,0,
+		0,1,
+		0,0,
+		1,1,
+		0,1
+	};
+
+	squareMesh->VertexCount = 3 * 2 * 3;
+	squareMesh->Vertices = verts;
+
+	squareMesh->TextureCount = 12;
+	squareMesh->TextureVertices = textures;
+
+	GameObject square = CreateGameObjectFromMesh(squareMesh);
+
+	SafeFree(squareMesh);
+
+	square->Material = Materials.Instance(guiMaterial);
+
+	Image debugUv = Images.LoadImage("uv_debug.png");
+
+	Texture debugUvTexture;
+	if (Textures.TryCreateTexture(debugUv, &debugUvTexture) is false)
+	{
+		throw(InvalidArgumentException);
+	}
+
+	Images.Dispose(debugUv);
+
+	square->Material->MainTexture = Textures.Instance(debugUvTexture);
+
+	Textures.Dispose(debugUvTexture);
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -202,80 +251,78 @@ int main()
 
 		rotateAmount += modifier;
 
-		vec3 ballPosition = { 0,(float)sin(rotateAmount), 0 };
+		vec3 ballPosition = { 5,2 + (float)sin(rotateAmount), 5 };
 
-		SetPosition(ball->Transform, ballPosition);
+		Transforms.SetPosition(ball->Transform, ballPosition);
 
 		Quaternion ballRotation;
 		glm_quat(ballRotation, rotateAmount / (float)GLM_PI, 0, 1, 0);
-		SetRotation(ball->Transform, ballRotation);
+		Transforms.SetRotation(ball->Transform, ballRotation);
 
 		glm_quat(ballRotation, -(rotateAmount / (float)GLM_PI), 0, 1, 0);
-		SetRotation(otherBall->Transform, ballRotation);
+		Transforms.SetRotation(otherBall->Transform, ballRotation);
 
 		// drive car
 		vec3 carDirection;
-		GetDirection(car->Transform, Directions.Forward, carDirection);
+		Transforms.GetDirection(car->Transform, Directions.Forward, carDirection);
 
 		ScaleVector3(carDirection, modifier);
 
-		AddPosition(car->Transform, carDirection);
+		Transforms.AddPosition(car->Transform, carDirection);
 
 		Quaternion carRotation;
 		glm_quat(carRotation, ((float)GLM_PI / 8.0f) * modifier, 0, 1, 0);
 
-		AddRotation(car->Transform, carRotation);
+		Transforms.AddRotation(car->Transform, carRotation);
 
 		if (GetKey(KeyCodes.A))
 		{
-			GetDirection(camera->Transform, Directions.Left, positionModifier);
+			Transforms.GetDirection(camera->Transform, Directions.Left, positionModifier);
 			ScaleVector3(positionModifier, modifier);
 			AddVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.D))
 		{
-			GetDirection(camera->Transform, Directions.Right, positionModifier);
+			Transforms.GetDirection(camera->Transform, Directions.Right, positionModifier);
 			ScaleVector3(positionModifier, modifier);
 			AddVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.W))
 		{
-			GetDirection(camera->Transform, Directions.Forward, positionModifier);
+			Transforms.GetDirection(camera->Transform, Directions.Forward, positionModifier);
 			ScaleVector3(positionModifier, modifier);
 			SubtractVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.S))
 		{
-			GetDirection(camera->Transform, Directions.Back, positionModifier);
+			Transforms.GetDirection(camera->Transform, Directions.Back, positionModifier);
 			ScaleVector3(positionModifier, modifier);
 			SubtractVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.Space))
 		{
-			GetDirection(camera->Transform, Directions.Up, positionModifier);
+			Transforms.GetDirection(camera->Transform, Directions.Up, positionModifier);
 			ScaleVector3(positionModifier, modifier);
 			AddVectors3(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.LeftShift))
 		{
-			GetDirection(camera->Transform, Directions.Down, positionModifier);
+			Transforms.GetDirection(camera->Transform, Directions.Down, positionModifier);
 			ScaleVector3(positionModifier, modifier);
 			AddVectors3(position, positionModifier);
 		}
-
-
 
 		fprintf(stdout, "Position: ");
 		PrintVector3(position, stdout);
 		fprintf(stdout, " Rotation: [ x: %0.2fpi, y: %0.2fpi ] Forward: ", FPSCamera.State.HorizontalAngle / GLM_PI, FPSCamera.State.VerticalAngle / GLM_PI);
 		vec3 forwardVector;
-		GetDirection(camera->Transform, Directions.Forward, forwardVector);
+		Transforms.GetDirection(camera->Transform, Directions.Forward, forwardVector);
 		PrintVector3(forwardVector, stdout);
 		fprintf(stdout, NEWLINE);
 
 		FPSCamera.Update(camera);
 
-		SetPosition(camera->Transform, position);
+		Transforms.SetPosition(camera->Transform, position);
 
 		GameObjects.Draw(cube, camera);
 
@@ -284,34 +331,40 @@ int main()
 		GameObjects.Draw(otherBall, camera);
 		GameObjects.Draw(room, camera);
 
+		GameObjects.Draw(square, camera);
+
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
 
 		PollInput();
 
 		//fprintf(stdout,"Total: %0.4fs	FrameTime: %0.4fms"NEWLINE, Time(), FrameTime() * 1000.0);
-	} while (GetKey(KeyCodes.Escape) != true && ShouldClose(window) != true);
+	} while (GetKey(KeyCodes.Escape) != true && Windows.ShouldClose(window) != true);
 
 	GameObjects.Destroy(ball);
 	GameObjects.Destroy(otherBall);
 	GameObjects.Destroy(car);
 	GameObjects.Destroy(room);
 	GameObjects.Destroy(cube);
+	GameObjects.Destroy(square);
 
 	Textures.Dispose(cubeTexture);
 
 	Materials.Dispose(texturedMaterial);
 	Materials.Dispose(uvMaterial);
+	Materials.Dispose(guiMaterial);
 
-	camera->Dispose(camera);
+	Cameras.Dispose(camera);
 
 	Shaders.Dispose(texturedShader);
 
 	Shaders.Dispose(uvShader);
 
-	window->Dispose(window);
+	Shaders.Dispose(guiShader);
 
-	StopRuntime();
+	Windows.Dispose(window);
+
+	Windows.StopRuntime();
 
 	// ensure leak free
 	PrintAlloc(stdout);
@@ -330,20 +383,15 @@ void BeforeDraw(Shader shader, mat4 mvp)
 	int handle;
 	if (Shaders.TryGetUniform(shader, Uniforms.MVP, &handle) is false)
 	{
-		throw(FailedToLocationMVPUniformException);
+		return; //throw(FailedToLocationMVPUniformException);
 	}
 
 	glUniformMatrix4fv(handle, 1, false, &mvp[0][0]);
 }
 
-void AfterDraw(Shader shader)
-{
-
-}
-
 Shader LoadShader(const char* vertexPath, const char* fragmentPath)
 {
-	Shader shader = CompileShader(vertexPath, fragmentPath);
+	Shader shader = ShaderCompilers.CompileShader(vertexPath, fragmentPath);
 
 	if (shader is null)
 	{
@@ -351,7 +399,6 @@ Shader LoadShader(const char* vertexPath, const char* fragmentPath)
 	}
 
 	shader->BeforeDraw = &BeforeDraw;
-	shader->AfterDraw = &AfterDraw;
 
 	return shader;
 }

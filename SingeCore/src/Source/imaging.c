@@ -7,8 +7,20 @@
 #endif
 
 static void Dispose(Image image);
+static bool TryLoadImage(const char* path, Image* out_image);
+static Image LoadImage(const char* path);
+static bool TryGetImageInfo(const char* path, Image* out_info);
+static Image CreateImage(void);
 
-bool TryLoadImage(const char* path, Image* out_image)
+const struct _imageMethods Images = {
+	.CreateImage = &CreateImage,
+	.TryLoadImage = &TryLoadImage,
+	.TryGetImageInfo = &TryGetImageInfo,
+	.LoadImage = &LoadImage,
+	.Dispose = &Dispose
+};
+
+static bool TryLoadImage(const char* path, Image* out_image)
 {
 	*out_image = null;
 
@@ -29,7 +41,7 @@ bool TryLoadImage(const char* path, Image* out_image)
 	return true;
 }
 
-Image LoadImage(const char* path)
+static Image LoadImage(const char* path)
 {
 	Image image = CreateImage();
 
@@ -44,7 +56,7 @@ Image LoadImage(const char* path)
 	return image;
 }
 
-bool TryGetImageInfo(const char* path, Image* out_info)
+static bool TryGetImageInfo(const char* path, Image* out_info)
 {
 	*out_info = null;
 
@@ -53,7 +65,7 @@ bool TryGetImageInfo(const char* path, Image* out_info)
 		return false;
 	}
 
-	Image image = CreateImage();
+	Image image = Images.CreateImage();
 
 	int width = 0;
 	int height = 0;
@@ -70,15 +82,18 @@ bool TryGetImageInfo(const char* path, Image* out_info)
 
 static void Dispose(Image image)
 {
+	if (image is null)
+	{
+		return;
+	}
+
 	SafeFree(image->Pixels);
 	SafeFree(image);
 }
 
-Image CreateImage()
+static Image CreateImage()
 {
 	Image img = SafeAlloc(sizeof(struct _image));
-
-	img->Dispose = &Dispose;
 
 	img->Pixels = null;
 

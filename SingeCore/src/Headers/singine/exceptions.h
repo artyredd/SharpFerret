@@ -27,6 +27,8 @@ static Exception FailedToReadFileException = 0x70000002;
 static Exception FailedToCloseFileException = 0x70000003;
 static Exception FailedToOpenFileException = 0x70000004;
 static Exception FailedToWriteToStreamException = 0x70000005;
+// The outcome where this error is thrown should never occur even by chance, either an edge case was missed or something else weird happend
+static Exception UnexpectedOutcomeException = 0x7FFFFFFF;
 // end custom exceptions
 
 // GLFW Exceptions

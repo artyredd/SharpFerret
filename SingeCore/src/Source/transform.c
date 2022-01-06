@@ -16,16 +16,48 @@
 
 #define AllModifiedFlag (PositionModifiedFlag | RotationModifiedFlag | ScaleModifiedFlag)
 
+static void Dispose(Transform transform);
+static Transform CreateTransform(void);
+static void TransformCopyTo(Transform source, Transform destination);
+static void SetParent(Transform transform, Transform parent);
+static void SetPosition(Transform transform, vec3 position);
+static void SetPositions(Transform transform, float x, float y, float z);
+static void SetRotation(Transform transform, Quaternion rotation);
+static void SetScale(Transform transform, vec3 scale);
+static void SetScales(Transform transform, float x, float y, float z);
+static void AddPosition(Transform transform, vec3 amount);
+static void AddRotation(Transform transform, Quaternion amount);
+static void AddScale(Transform transform, vec3 amount);
+static void GetDirection(Transform transform, Direction direction, vec3 out_direction);
+static vec4* RefreshTransform(Transform transform);
+static vec4* ForceRefreshTransform(Transform transform);
+
+extern const struct _transformMethods Transforms = {
+	.Dispose = &Dispose,
+	.Create = &CreateTransform,
+	.CopyTo = &TransformCopyTo,
+	.SetParent = &SetParent,
+	.SetPosition = &SetPosition,
+	.SetPositions = &SetPositions,
+	.SetRotation = &SetRotation,
+	.SetScale = &SetScale,
+	.SetScales = &SetScales,
+	.AddPosition = &AddPosition,
+	.AddRotation = &AddRotation,
+	.AddScale = &AddScale,
+	.GetDirection = &GetDirection,
+	.Refresh = &RefreshTransform,
+	.ForceRefresh = &ForceRefreshTransform
+};
+
 static void Dispose(Transform transform)
 {
 	SafeFree(transform);
 }
 
-Transform CreateTransform()
+static Transform CreateTransform()
 {
 	Transform transform = SafeAlloc(sizeof(struct _transform));
-
-	transform->Dispose = &Dispose;
 
 	transform->Child = null;
 	transform->LastChild = null;
@@ -87,7 +119,7 @@ void TransformCopyTo(Transform source, Transform destination)
 	StateCopyTo(&source->State, &destination->State);
 }
 
-Transform DuplicateTransform(Transform transform)
+static Transform DuplicateTransform(Transform transform)
 {
 	Transform newTransform = CreateTransform();
 
@@ -110,7 +142,7 @@ static void NotifyChildren(Transform transform)
 	}
 }
 
-vec4* RefreshTransform(Transform transform)
+static vec4* RefreshTransform(Transform transform)
 {
 	unsigned int mask = transform->State.Modified;
 
@@ -139,7 +171,7 @@ vec4* RefreshTransform(Transform transform)
 	// since the transform starts with scale a change to it requires a whole refresh by default
 	if (HasFlag(mask, AllModifiedFlag) || HasFlag(mask, ScaleModifiedFlag))
 	{
-		return ForceRefreshTransform(transform);
+		return Transforms.ForceRefresh(transform);
 	}
 
 	// create a place to store rot and pos for the followup matrix multiplications
@@ -193,7 +225,7 @@ vec4* RefreshTransform(Transform transform)
 	return transform->State.State;
 }
 
-vec4* ForceRefreshTransform(Transform transform)
+static vec4* ForceRefreshTransform(Transform transform)
 {
 	// order must be scale first -> then rotate -> then translate
 	glm_scale_to(Matrix4.Identity, transform->Scale, transform->State.ScaleMatrix);
@@ -334,7 +366,7 @@ static void AttachChild(Transform transform, Transform child)
 	child->Parent = transform;
 }
 
-void SetParent(Transform transform, Transform parent)
+static void SetParent(Transform transform, Transform parent)
 {
 	// make sure to detach the previous parent if there is one
 	if (transform->Parent isnt null)
@@ -350,7 +382,7 @@ void SetParent(Transform transform, Transform parent)
 	SetFlag(transform->State.Modified, ParentModifiedFlag);
 }
 
-void SetPosition(Transform transform, vec3 position)
+static void SetPosition(Transform transform, vec3 position)
 {
 	if (Vector3Equals(position, transform->Position))
 	{
@@ -361,7 +393,7 @@ void SetPosition(Transform transform, vec3 position)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-void SetPositions(Transform transform, float x, float y, float z)
+static void SetPositions(Transform transform, float x, float y, float z)
 {
 	float newPos[3] = { x, y, z };
 
@@ -375,7 +407,7 @@ void SetPositions(Transform transform, float x, float y, float z)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-void SetRotation(Transform transform, Quaternion rotation)
+static void SetRotation(Transform transform, Quaternion rotation)
 {
 	if (Vector4Equals(rotation, transform->Rotation))
 	{
@@ -386,7 +418,7 @@ void SetRotation(Transform transform, Quaternion rotation)
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
-void SetScale(Transform transform, vec3 scale)
+static void SetScale(Transform transform, vec3 scale)
 {
 	if (Vector3Equals(scale, transform->Scale))
 	{
@@ -397,7 +429,7 @@ void SetScale(Transform transform, vec3 scale)
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-void SetScales(Transform transform, float x, float y, float z)
+static void SetScales(Transform transform, float x, float y, float z)
 {
 	float newPos[3] = { x, y, z };
 
@@ -411,7 +443,7 @@ void SetScales(Transform transform, float x, float y, float z)
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-void AddPosition(Transform transform, vec3 amount)
+static void AddPosition(Transform transform, vec3 amount)
 {
 	if (Vector3Equals(amount, Vector3.Zero))
 	{
@@ -422,7 +454,7 @@ void AddPosition(Transform transform, vec3 amount)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-void AddRotation(Transform transform, Quaternion amount)
+static void AddRotation(Transform transform, Quaternion amount)
 {
 	// to add a rotation to a quaterion we multiply, gotta love imaginary number magic
 	glm_quat_mul(transform->Rotation, amount, transform->Rotation);
@@ -430,13 +462,13 @@ void AddRotation(Transform transform, Quaternion amount)
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
-void AddScale(Transform transform, vec3 amount)
+static void AddScale(Transform transform, vec3 amount)
 {
 	AddVectors3(transform->Scale, amount);
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-void GetDirection(Transform transform, Direction direction, vec3 out_direction)
+static void GetDirection(Transform transform, Direction direction, vec3 out_direction)
 {
 	GuardNotNull(transform);
 

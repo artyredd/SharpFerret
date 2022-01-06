@@ -7,8 +7,10 @@ static GameObject Duplicate(GameObject);
 static void SetName(GameObject, char* name);
 static void Dispose(GameObject);
 static void Draw(GameObject, Camera);
+static GameObject CreateGameObject(void);
 
 const struct _gameObjectMethods GameObjects = {
+	.Create = &CreateGameObject,
 	.Draw = &Draw,
 	.Duplicate = &Duplicate,
 	.SetName = &SetName,
@@ -21,13 +23,13 @@ static void Dispose(GameObject gameobject)
 	{
 		for (size_t i = 0; i < gameobject->Count; i++)
 		{
-			gameobject->Meshes[i]->Dispose(gameobject->Meshes[i]);
+			RenderMeshes.Dispose(gameobject->Meshes[i]);
 		}
 
 		SafeFree(gameobject->Meshes);
 	}
 
-	gameobject->Transform->Dispose(gameobject->Transform);
+	Transforms.Dispose(gameobject->Transform);
 
 	if (gameobject->Name isnt null)
 	{
@@ -39,7 +41,7 @@ static void Dispose(GameObject gameobject)
 	SafeFree(gameobject);
 }
 
-GameObject CreateGameObject()
+static GameObject CreateGameObject()
 {
 	GameObject gameObject = SafeAlloc(sizeof(struct _gameObject));
 
@@ -49,7 +51,7 @@ GameObject CreateGameObject()
 	gameObject->Count = 0;
 	gameObject->NameLength = 0;
 
-	gameObject->Transform = CreateTransform();
+	gameObject->Transform = Transforms.Create();
 	gameObject->Material = null;
 
 	return gameObject;
@@ -71,17 +73,17 @@ static void GameObjectCopyTo(GameObject source, GameObject destination)
 
 		for (size_t i = 0; i < source->Count; i++)
 		{
-			destination->Meshes[i] = InstanceMesh(source->Meshes[i]);
+			destination->Meshes[i] = RenderMeshes.Instance(source->Meshes[i]);
 
-			SetParent(destination->Meshes[i]->Transform, destination->Transform);
+			Transforms.SetParent(destination->Meshes[i]->Transform, destination->Transform);
 
-			TransformCopyTo(source->Meshes[i]->Transform, destination->Meshes[i]->Transform);
+			Transforms.CopyTo(source->Meshes[i]->Transform, destination->Meshes[i]->Transform);
 		}
 	}
 
 	destination->Material = Materials.Instance(source->Material);
 
-	TransformCopyTo(source->Transform, destination->Transform);
+	Transforms.CopyTo(source->Transform, destination->Transform);
 }
 
 static GameObject Duplicate(GameObject gameobject)
@@ -102,10 +104,10 @@ static void Draw(GameObject gameobject, Camera camera)
 {
 	// since it's more than  likely the gameobject itself is the parent to all of the transforms
 	// it controls we should refresh it's transform first
-	RefreshTransform(gameobject->Transform);
+	Transforms.Refresh(gameobject->Transform);
 
 	for (size_t i = 0; i < gameobject->Count; i++)
 	{
-		camera->DrawMesh(camera, gameobject->Meshes[i], gameobject->Material);
+		Cameras.DrawMesh(camera, gameobject->Meshes[i], gameobject->Material);
 	}
 }

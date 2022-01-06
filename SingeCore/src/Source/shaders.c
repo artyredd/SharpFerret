@@ -8,6 +8,7 @@
 static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle);
 static Shader Instance(Shader shader);
 static void Dispose(Shader shader);
+static Shader CreateShader(void);
 
 const struct _uniforms Uniforms = {
 	.MVP = {.Index = 0, .Name = UNIFORM_NAME_MVP },
@@ -15,6 +16,7 @@ const struct _uniforms Uniforms = {
 };
 
 const struct _shaderMethods Shaders = {
+	.Create = &CreateShader,
 	.Instance = &Instance,
 	.TryGetUniform = &TryGetUniform,
 	.Dispose = &Dispose
@@ -49,7 +51,7 @@ static Shader CreateShaderWithUniforms(bool allocUniforms)
 
 	if (allocUniforms)
 	{
-		newShader->Handle = CreateSharedHandle();
+		newShader->Handle = SharedHandles.Create();
 
 		newShader->Uniforms = SafeAlloc(sizeof(struct _uniforms));
 
@@ -63,7 +65,7 @@ static Shader CreateShaderWithUniforms(bool allocUniforms)
 	return newShader;
 }
 
-Shader CreateShader()
+static Shader CreateShader()
 {
 	return CreateShaderWithUniforms(true);
 }
