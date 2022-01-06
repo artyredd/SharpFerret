@@ -263,6 +263,8 @@ int main()
 
 		Transforms.SetRotationOnAxis(otherBall->Transform, -rotateAmount / (float)GLM_PI, Vector3.Up);
 
+		Transforms.SetPositions(square->Transform, (float)cos(rotateAmount), (float)sin(rotateAmount), 0);
+
 		// drive car
 		vec3 carDirection;
 		Transforms.GetDirection(car->Transform, Directions.Forward, carDirection);
