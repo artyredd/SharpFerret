@@ -247,6 +247,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ColorUV.fragmentshader" />
+    <None Include="GUIShader.vertexshader" />
     <None Include="SimpleFragmentShader.fragmentshader" />
     <None Include="SimpleVertexShader.vertexshader" />
   </ItemGroup>

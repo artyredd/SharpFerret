@@ -84,6 +84,8 @@ int main()
 
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	SetCursorMode(CursorModes.Disabled);
 
@@ -140,6 +142,7 @@ int main()
 	Material uvMaterial = Materials.Create(uvShader, null);
 
 	Material guiMaterial = Materials.Create(guiShader, null);
+	guiMaterial->UseCameraPerspective = false;
 
 	Camera camera = Cameras.CreateCamera();
 
@@ -152,7 +155,7 @@ int main()
 	GameObjects.SetMaterial(ball, uvMaterial);
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
+	GameObject car = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
 	GameObject room = GameObjects.Duplicate(ball);//LoadGameObjectFromModel("room.obj", FileFormats.Obj);
 	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
 
@@ -179,9 +182,7 @@ int main()
 
 	float rotateAmount = 0.0f;
 
-	vec3 position = { 3.25f, 0.5f, -3.18f };
-
-	Transforms.SetPosition(camera->Transform, position);
+	vec3 position;
 
 	vec3 positionModifier;
 
@@ -195,20 +196,21 @@ int main()
 	Mesh squareMesh = Meshes.Create();
 
 	float verts[18] = {
-		1, 1, 0,
 		-1, 1, 0,
 		-1, -1, 0,
-		-1, -1, 0,
 		1, -1, 0,
-		1, 1, 0
+		1, 1, 0,
+		-1, 1, 0,
+		1, -1, 0
 	};
+
 	float textures[12] = {
-		1,1,
 		0,0,
 		0,1,
+		1,1,
+		1,0,
 		0,0,
 		1,1,
-		0,1
 	};
 
 	squareMesh->VertexCount = 3 * 2 * 3;
@@ -233,9 +235,12 @@ int main()
 
 	Images.Dispose(debugUv);
 
-	square->Material->MainTexture = Textures.Instance(debugUvTexture);
+	Materials.SetMainTexture(square->Material, debugUvTexture);
 
 	Textures.Dispose(debugUvTexture);
+
+	// orient the camera so we see some geometry without moving the camera
+	Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -272,7 +277,7 @@ int main()
 		Quaternion carRotation;
 		glm_quat(carRotation, ((float)GLM_PI / 8.0f) * modifier, 0, 1, 0);
 
-		Transforms.AddRotation(car->Transform, carRotation);
+		Transforms.Rotate(car->Transform, carRotation);
 
 		if (GetKey(KeyCodes.A))
 		{
@@ -322,6 +327,8 @@ int main()
 		FPSCamera.Update(camera);
 
 		Transforms.SetPosition(camera->Transform, position);
+
+
 
 		GameObjects.Draw(cube, camera);
 

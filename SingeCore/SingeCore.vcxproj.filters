@@ -232,5 +232,8 @@
     <None Include="ColorUV.fragmentshader">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="GUIShader.vertexshader">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

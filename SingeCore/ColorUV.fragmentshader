@@ -4,9 +4,9 @@
 in vec2 UV;
 
 // Ouput data
-out vec3 color;
+out vec4 color;
 
 void main(){
 
-	color = vec3(UV.x,UV.y,(UV.x + UV.y)/2);
+	color = vec4(UV.x,UV.y,(UV.x + UV.y)/2, 1);
 }

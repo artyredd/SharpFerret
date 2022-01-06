@@ -9,6 +9,10 @@ struct _material {
 	Shader Shader;
 	vec4 Color;
 	Texture MainTexture;
+	/// <summary>
+	/// Whether or not the camera's transform and perspective are used to draw this material, this most notably used to draw GUI objects
+	/// </summary>
+	bool UseCameraPerspective;
 };
 
 struct _materialMethods {

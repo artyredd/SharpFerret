@@ -26,7 +26,8 @@ static void SetRotation(Transform transform, Quaternion rotation);
 static void SetScale(Transform transform, vec3 scale);
 static void SetScales(Transform transform, float x, float y, float z);
 static void AddPosition(Transform transform, vec3 amount);
-static void AddRotation(Transform transform, Quaternion amount);
+static void Rotate(Transform transform, Quaternion amount);
+static void RotateOnAxis(Transform, float amountInRads, vec3 axis);
 static void AddScale(Transform transform, vec3 amount);
 static void GetDirection(Transform transform, Direction direction, vec3 out_direction);
 static vec4* RefreshTransform(Transform transform);
@@ -43,7 +44,8 @@ extern const struct _transformMethods Transforms = {
 	.SetScale = &SetScale,
 	.SetScales = &SetScales,
 	.AddPosition = &AddPosition,
-	.AddRotation = &AddRotation,
+	.Rotate = &Rotate,
+	.RotateOnAxis = &RotateOnAxis,
 	.AddScale = &AddScale,
 	.GetDirection = &GetDirection,
 	.Refresh = &RefreshTransform,
@@ -454,12 +456,21 @@ static void AddPosition(Transform transform, vec3 amount)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-static void AddRotation(Transform transform, Quaternion amount)
+static void Rotate(Transform transform, Quaternion amount)
 {
 	// to add a rotation to a quaterion we multiply, gotta love imaginary number magic
 	glm_quat_mul(transform->Rotation, amount, transform->Rotation);
 
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
+}
+
+static void RotateOnAxis(Transform transform, float angleInRads, vec3 axis)
+{
+	Quaternion rotation;
+	glm_quat(rotation, angleInRads, axis[0], axis[1], axis[2]);
+
+	Rotate(transform, rotation);
+	// no need to set flag here since we call the other method that does
 }
 
 static void AddScale(Transform transform, vec3 amount)

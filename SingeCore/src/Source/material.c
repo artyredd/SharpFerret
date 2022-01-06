@@ -2,6 +2,7 @@
 #include "singine/memory.h"
 #include "GL/glew.h"
 #include "singine/guards.h"
+#include "helpers/macros.h"
 
 static void Dispose(Material material);
 static Material Create(Shader shader, Texture texture);
@@ -40,6 +41,7 @@ static Material Create(Shader shader, Texture texture)
 
 	material->MainTexture = Textures.Instance(texture);
 	material->Shader = Shaders.Instance(shader);
+	material->UseCameraPerspective = true;
 
 	SetVector3(material->Color, 0, 0, 0);
 
@@ -67,6 +69,7 @@ static Material InstanceMaterial(Material material)
 	newMaterial->MainTexture = mainTexture;
 
 	Vectors3CopyTo(material->Color, newMaterial->Color);
+	CopyMember(material, newMaterial, UseCameraPerspective);
 
 	return newMaterial;
 }

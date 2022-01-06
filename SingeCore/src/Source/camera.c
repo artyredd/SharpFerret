@@ -43,16 +43,27 @@ static void Dispose(Camera camera)
 	SafeFree(camera);
 }
 
-static void DrawMesh(Camera camera, RenderMesh mesh, Material material)
+static void GetMVPMatrix(Camera camera, RenderMesh mesh, Material material, mat4 out_matrix)
 {
 	// make sure the meshes transform is up to date
 	vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
 
+	// dont calc the camera transform if we are rendering somthing that doesnt need it such as a GUI element
+	if (material->UseCameraPerspective is false)
+	{
+		Matrix4CopyTo(modelMatrix, out_matrix);
+		return;
+	}
+
 	vec4* cameraVP = RefreshCamera(camera);
 
-	// create the MVP
+	glm_mat4_mul(cameraVP, modelMatrix, out_matrix);
+}
+
+static void DrawMesh(Camera camera, RenderMesh mesh, Material material)
+{
 	mat4 MVP;
-	glm_mat4_mul(cameraVP, modelMatrix, MVP);
+	GetMVPMatrix(camera, mesh, material, MVP);
 
 	if (material isnt null)
 	{
