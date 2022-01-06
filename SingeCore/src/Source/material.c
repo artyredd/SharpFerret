@@ -66,7 +66,7 @@ static Material Create(Shader shader, Texture texture)
 	material->Shader = Shaders.Instance(shader);
 	material->State.Settings = DEFAULT_MATERIAL_SETTINGS;
 
-	SetVector3(material->Color, 0, 0, 0);
+	SetVector4(material->Color, 1, 1, 1, 1);
 
 	return material;
 }
@@ -107,6 +107,12 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 MVPMatrix)
 		if (shader->BeforeDraw isnt null)
 		{
 			shader->BeforeDraw(shader, MVPMatrix);
+		}
+
+		int colorHandle;
+		if (Shaders.TryGetUniform(material->Shader, Uniforms.Color, &colorHandle))
+		{
+			glUniform4fv(colorHandle, 1, material->Color);
 		}
 
 		// check to see if we need to load a texture into the maintexture

@@ -13,6 +13,7 @@ static Shader CreateShader(void);
 const struct _uniforms Uniforms = {
 	.MVP = {.Index = 0, .Name = UNIFORM_NAME_MVP },
 	.Texture0 = {.Index = 1, .Name = UNIFORM_NAME_Texture0 },
+	.Color = {.Index = 2, .Name = UNIFORM_NAME_Color },
 };
 
 const struct _shaderMethods Shaders = {

@@ -40,6 +40,7 @@
 Window window;
 
 Shader LoadShader(const char*, const char*);
+void DebugCameraPosition(Camera camera);
 
 int main()
 {
@@ -312,18 +313,9 @@ int main()
 			AddVectors3(position, positionModifier);
 		}
 
-		fprintf(stdout, "Position: ");
-		PrintVector3(position, stdout);
-		fprintf(stdout, " Rotation: [ x: %0.2fpi, y: %0.2fpi ] Forward: ", FPSCamera.State.HorizontalAngle / GLM_PI, FPSCamera.State.VerticalAngle / GLM_PI);
-		vec3 forwardVector;
-		Transforms.GetDirection(camera->Transform, Directions.Forward, forwardVector);
-		PrintVector3(forwardVector, stdout);
-		fprintf(stdout, NEWLINE);
-
 		FPSCamera.Update(camera);
 
 		Transforms.SetPosition(camera->Transform, position);
-
 
 		GameObjects.Draw(cube, camera);
 
@@ -375,6 +367,17 @@ int main()
 	{
 		throw(MemoryLeakException);
 	}
+}
+
+void DebugCameraPosition(Camera camera)
+{
+	fprintf(stdout, "Position: ");
+	PrintVector3(camera->Transform->Position, stdout);
+	fprintf(stdout, " Rotation: [ x: %0.2fpi, y: %0.2fpi ] Forward: ", FPSCamera.State.HorizontalAngle / GLM_PI, FPSCamera.State.VerticalAngle / GLM_PI);
+	vec3 forwardVector;
+	Transforms.GetDirection(camera->Transform, Directions.Forward, forwardVector);
+	PrintVector3(forwardVector, stdout);
+	fprintf(stdout, NEWLINE);
 }
 
 void BeforeDraw(Shader shader, mat4 mvp)

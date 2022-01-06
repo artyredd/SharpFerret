@@ -5,6 +5,7 @@
 
 #define UNIFORM_NAME_MVP "MVP"
 #define UNIFORM_NAME_Texture0 "myTextureSampler"
+#define UNIFORM_NAME_Color "mainColor"
 
 typedef const struct _uniform Uniform;
 
@@ -16,6 +17,7 @@ struct _uniform {
 struct _uniforms {
 	Uniform MVP;
 	Uniform Texture0;
+	Uniform Color;
 };
 
 extern const struct _uniforms Uniforms;

@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Scripts">
       <UniqueIdentifier>{cd1941a9-7240-46cd-a22b-201fd88c539b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Graphics\Drawing">
+      <UniqueIdentifier>{360cb393-6b6a-4043-a249-70980cd56b0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\imaging.c">
