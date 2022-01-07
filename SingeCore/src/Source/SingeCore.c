@@ -160,7 +160,9 @@ int main()
 	GameObject room = GameObjects.Duplicate(ball);//LoadGameObjectFromModel("room.obj", FileFormats.Obj);
 	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
 
-	GameObjects.SetMaterial(car, uvMaterial);
+	GameObjects.SetMaterial(car, texturedMaterial);
+	Materials.SetColor(car->Material, Colors.Blue);
+
 	GameObjects.SetMaterial(cube, texturedMaterial);
 
 	size_t previosInstanceCount = ball->Material->Shader->Handle->ActiveInstances;
@@ -220,11 +222,11 @@ int main()
 	squareMesh->TextureCount = 12;
 	squareMesh->TextureVertices = textures;
 
-	GameObject square = CreateGameObjectFromMesh(squareMesh);
+	GameObject guiTexture = CreateGameObjectFromMesh(squareMesh);
 
 	SafeFree(squareMesh);
 
-	GameObjects.SetMaterial(square, guiMaterial);
+	GameObjects.SetMaterial(guiTexture, guiMaterial);
 
 	Image debugUv = Images.LoadImage("uv_debug.png");
 
@@ -236,7 +238,7 @@ int main()
 
 	Images.Dispose(debugUv);
 
-	Materials.SetMainTexture(square->Material, debugUvTexture);
+	Materials.SetMainTexture(guiTexture->Material, debugUvTexture);
 
 	Textures.Dispose(debugUvTexture);
 
@@ -244,6 +246,22 @@ int main()
 	Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
 
 	Materials.SetColor(cube->Material, Colors.Red);
+
+	float width = 1;
+	float height = 0.5;
+
+	Transforms.SetPositions(guiTexture->Transform, (1.0 / width) - 1.0, (1 / height) - 1.0, 0);
+	Transforms.SetScales(guiTexture->Transform, width, height, 1);
+
+
+	GameObject otherGuiTexture = GameObjects.Duplicate(guiTexture);
+
+	Transforms.SetParent(guiTexture->Transform, otherGuiTexture->Transform);
+	Transforms.SetScales(otherGuiTexture->Transform, 1, 1, 1);
+	Transforms.SetPositions(otherGuiTexture->Transform, -0.5, -0.5, 0);
+
+	Materials.SetColor(guiTexture->Material, Colors.Red);
+	Materials.SetColor(otherGuiTexture->Material, Colors.Green);
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -265,8 +283,6 @@ int main()
 		Transforms.SetRotationOnAxis(ball->Transform, rotateAmount / (float)GLM_PI, Vector3.Up);
 
 		Transforms.SetRotationOnAxis(otherBall->Transform, -rotateAmount / (float)GLM_PI, Vector3.Up);
-
-		Transforms.SetRotationOnAxis(square->Transform, rotateAmount / (float)(GLM_PI * 2.0), Vector3.Right);
 
 		// drive car
 		vec3 carDirection;
@@ -326,7 +342,8 @@ int main()
 		GameObjects.Draw(otherBall, camera);
 		GameObjects.Draw(room, camera);
 
-		GameObjects.Draw(square, camera);
+		GameObjects.Draw(guiTexture, camera);
+		GameObjects.Draw(otherGuiTexture, camera);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -341,7 +358,8 @@ int main()
 	GameObjects.Destroy(car);
 	GameObjects.Destroy(room);
 	GameObjects.Destroy(cube);
-	GameObjects.Destroy(square);
+	GameObjects.Destroy(guiTexture);
+	GameObjects.Destroy(otherGuiTexture);
 
 	Textures.Dispose(cubeTexture);
 
