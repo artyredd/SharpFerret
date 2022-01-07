@@ -93,15 +93,15 @@ static FileBuffer CreateFileBuffer(char* streamBuffer, size_t characterBufferSiz
 	buffer->StreamBuffer = streamBuffer;
 	buffer->StreamLength = characterBufferSize;
 
-	buffer->NormalBuffer = SafeAlloc(sizeof(float) * 3 * normals);
+	buffer->NormalBuffer = normals isnt 0 ? SafeAlloc(sizeof(float) * 3 * normals) : null;
 	buffer->NormalsCount = 0;
 	buffer->NormalsLength = normals;
 
-	buffer->TextureBuffer = SafeAlloc(sizeof(float) * 2 * textures);
+	buffer->TextureBuffer = textures isnt 0 ? SafeAlloc(sizeof(float) * 2 * textures) : null;
 	buffer->TexturesCount = 0;
 	buffer->TexturesLength = textures;
 
-	buffer->VertexBuffer = SafeAlloc(sizeof(float) * 3 * vertices);
+	buffer->VertexBuffer = vertices isnt 0 ? SafeAlloc(sizeof(float) * 3 * vertices) : null;
 	buffer->VerticesCount = 0;
 	buffer->VerticesLength = vertices;
 
@@ -112,8 +112,11 @@ static bool CompareStrings(const char* left, size_t leftLength, const char* righ
 {
 	GuardNotNull(left);
 	GuardNotNull(right);
-	GuardNotZero(leftLength);
-	GuardNotZero(rightLength);
+
+	if (leftLength != rightLength)
+	{
+		return false;
+	}
 
 	for (size_t i = 0; i < min(leftLength, rightLength); i++)
 	{
@@ -137,6 +140,7 @@ static bool TryGetVectorPattern(File stream,
 	bool(*Parser)(char* buffer, float* out_values),
 	size_t* out_count)
 {
+	*out_count = 0;
 	// count the number of vertices that we should alloc
 	size_t count = 0;
 
@@ -144,6 +148,12 @@ static bool TryGetVectorPattern(File stream,
 	size_t abortLength = strlen(abortPattern);
 
 	size_t length;
+
+	// this method should never consume buffer lines with these tokens
+	if (buffer[0] is Tokens.Face)
+	{
+		return true;
+	}
 
 	// check to see if there is already a parsable string in the buffer
 	if (Parser(buffer + offset, resultBuffer))
@@ -153,6 +163,23 @@ static bool TryGetVectorPattern(File stream,
 
 	while (Files.TryReadLine(stream, buffer, 0, bufferLength, &length))
 	{
+		int token = buffer[0];
+
+		if (token is Tokens.Comment)
+		{
+			continue;
+		}
+
+		if (token is Tokens.Smoothing)
+		{
+			continue;
+		}
+
+		if (buffer[0] != pattern[0])
+		{
+			break;
+		}
+
 		// if we encounter the abort pattern we should stop parsing
 		// this is needed becuase we may want to parse for vector 2's but a vec2 parser wont fail to parse a string
 		// that contains a vector3 as a vector2
@@ -180,18 +207,62 @@ static bool TryGetVectorPattern(File stream,
 
 static bool TryParseFace(const char* buffer, size_t* out_attributes)
 {
+	// base case assume the file includes normals, uv and vertices
 	int count = sscanf_s(buffer, "%lli/%lli/%lli %lli/%lli/%lli %lli/%lli/%lli",
-		&out_attributes[0],
-		&out_attributes[1],
-		&out_attributes[2],
-		&out_attributes[3],
-		&out_attributes[4],
-		&out_attributes[5],
-		&out_attributes[6],
-		&out_attributes[7],
-		&out_attributes[8]);
+		&out_attributes[0], // vertex
+		&out_attributes[1], // uv
+		&out_attributes[2], // normal
+		&out_attributes[3], // vertex
+		&out_attributes[4], // uv
+		&out_attributes[5], // normal
+		&out_attributes[6], // vertex
+		&out_attributes[7], // uv
+		&out_attributes[8]); // normal
 
-	return count == 9;
+	if (count is 9)
+	{
+		return true;
+	}
+
+	// if there are no normals OR UV's then our count will be 1(the first number)
+	// format: "f 57 56 58"
+	if (count is 1)
+	{
+		count = sscanf_s(buffer, "%lli %lli %lli",
+			&out_attributes[0],
+			&out_attributes[3],
+			&out_attributes[6]);
+
+		if (count is 3)
+		{
+			return true;
+		}
+	}
+
+	// try to import it with vertices and normals but no uv
+	count = sscanf_s(buffer, "%lli//%lli %lli//%lli %lli//%lli",
+		&out_attributes[0], // vertex
+		&out_attributes[2], // normal
+		&out_attributes[3], // vertex
+		&out_attributes[5], // normal
+		&out_attributes[6], // vertex
+		&out_attributes[8]); // normal
+
+	if (count is 6)
+	{
+		return true;
+	}
+
+	// try to import with uv but no normals
+	count = sscanf_s(buffer, "%lli/%lli/ %lli/%lli/ %lli/%lli/",
+		&out_attributes[0], // vertex
+		&out_attributes[1], // uv
+		&out_attributes[3], // vertex
+		&out_attributes[4], // uv
+		&out_attributes[6], // vertex
+		&out_attributes[7]); // uv
+
+	return count == 6;
 }
 
 static bool TryGetIntegerPattern(File stream,
@@ -204,8 +275,12 @@ static bool TryGetIntegerPattern(File stream,
 	size_t** out_integers,
 	size_t* out_count)
 {
+	*out_integers = null;
+	*out_count = 0;
+
 	// count the number of vertices that we should alloc
 	size_t count;
+
 	if (Files.TryGetSequenceCount(stream,
 		pattern, // target
 		strlen(pattern), // target length
@@ -217,6 +292,12 @@ static bool TryGetIntegerPattern(File stream,
 		return false;
 	}
 
+	// check if there is already a valid token in the buffer
+	if (buffer[0] is pattern[0])
+	{
+		++(count);
+	}
+
 	size_t floatCount = integersPerRow * count;
 
 	// alloc the array
@@ -224,11 +305,25 @@ static bool TryGetIntegerPattern(File stream,
 
 	size_t offset = strlen(pattern);
 
-	for (size_t i = 0; i < count; i++)
+	int i = 0;
+
+	// check if there is already a face in the buffer for some odd reason
+	if (buffer[0] is Tokens.Face)
+	{
+		size_t* subarray = result + (i++ * integersPerRow);
+
+		if (Parser(buffer + offset, subarray) is false)
+		{
+			return false;
+		}
+	}
+
+	for (; i < count; i++)
 	{
 		size_t length;
 		if (Files.TryReadLine(stream, buffer, 0, bufferLength, &length) is false)
 		{
+			SafeFree(result);
 			return false;
 		}
 
@@ -236,6 +331,7 @@ static bool TryGetIntegerPattern(File stream,
 
 		if (Parser(buffer + offset, subarray) is false)
 		{
+			SafeFree(result);
 			return false;
 		}
 	}
@@ -318,12 +414,18 @@ static Mesh ComposeFaces(FileBuffer buffer, const  size_t* faces, const  size_t 
 	mesh->Vertices = SafeAlloc(mesh->VertexCount * sizeof(float));
 
 	// 3 vec2 per face, 2 float per vec2
-	mesh->TextureCount = faceCount * 3 * 2;
-	mesh->TextureVertices = SafeAlloc(mesh->TextureCount * sizeof(float));
+	if (buffer->TexturesCount isnt 0)
+	{
+		mesh->TextureCount = faceCount * 3 * 2;
+		mesh->TextureVertices = SafeAlloc(mesh->TextureCount * sizeof(float));
+	}
 
-	// 3 vec3 per face, 3 float per vec3
-	mesh->NormalCount = faceCount * 3 * 3;
-	mesh->Normals = SafeAlloc(mesh->NormalCount * sizeof(float));
+	if (buffer->NormalsCount isnt 0)
+	{
+		// 3 vec3 per face, 3 float per vec3
+		mesh->NormalCount = faceCount * 3 * 3;
+		mesh->Normals = SafeAlloc(mesh->NormalCount * sizeof(float));
+	}
 
 	// go through the faces and append the attributes to the final arrays
 	// each face has 9 integers representing 3 indices of the vertexs, uvs, and normals that represent the face
@@ -349,8 +451,15 @@ static Mesh ComposeFaces(FileBuffer buffer, const  size_t* faces, const  size_t 
 
 		// copy the floats over to their final arrays
 		Vectors3CopyTo(subVertices, mesh->Vertices + (i * 3));
-		Vectors2CopyTo(subUVs, mesh->TextureVertices + (i * 2));
-		Vectors3CopyTo(subNormals, mesh->Normals + (i * 3));
+
+		if (mesh->TextureVertices isnt null)
+		{
+			Vectors2CopyTo(subUVs, mesh->TextureVertices + (i * 2));
+		}
+		if (mesh->Normals isnt null)
+		{
+			Vectors3CopyTo(subNormals, mesh->Normals + (i * 3));
+		}
 	}
 
 	return mesh;
@@ -406,18 +515,10 @@ static bool TryCreateMesh(File stream, FileBuffer buffer, Mesh* out_mesh)
 
 	buffer->NormalsCount += normalVertexCount;
 
-	// check to see if there is smoothing enabled, this is normally preceded by the laast normal vector and should be in the buffer
-	// so we should attemp to parse it
-	bool smoothingEnabled = false;
-
-	if (buffer->StreamBuffer[0] is Tokens.Smoothing)
+	if (buffer->VerticesCount is 0)
 	{
-		if (TryParseBoolean(buffer->StreamBuffer + strlen(Sequences.Smoothing), 3, &smoothingEnabled) is false)
-		{
-			SafeFree(name);
-
-			return false;
-		}
+		SafeFree(name);
+		return false;
 	}
 
 	// at this point the smoothing is still in the buffer, but GetFaceAttributes starts with reading a line so this doesnt matter
@@ -432,7 +533,7 @@ static bool TryCreateMesh(File stream, FileBuffer buffer, Mesh* out_mesh)
 	*out_mesh = ComposeFaces(buffer, faceAttributes, faces);
 
 	(*out_mesh)->Name = name;
-	(*out_mesh)->SmoothingEnabled = smoothingEnabled;
+	(*out_mesh)->SmoothingEnabled = false;
 
 	SafeFree(faceAttributes);
 
@@ -502,8 +603,10 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 			Mesh mesh;
 			if (TryCreateMesh(stream, buffer, &mesh) is false)
 			{
-				model->Dispose(model);
-				buffer->Dispose(buffer);
+				/*model->Dispose(model);
+				buffer->Dispose(buffer);*/
+
+				continue;
 
 				return false;
 			}

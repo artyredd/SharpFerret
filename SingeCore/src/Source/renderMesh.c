@@ -49,17 +49,20 @@ static void Draw(RenderMesh model)
 		null
 	);
 
-	// 2nd attribute buffer : UVs
-	glEnableVertexAttribArray(UVShaderPosition);
-	glBindBuffer(GL_ARRAY_BUFFER, model->UVBuffer->Handle);
-	glVertexAttribPointer(
-		UVShaderPosition,                 // attribute
-		2,                                // size
-		GL_FLOAT,                         // type
-		GL_FALSE,                         // normalized?
-		0,                                // stride
-		null                    // array buffer offset
-	);
+	if (model->UVBuffer isnt null)
+	{
+		// 2nd attribute buffer : UVs
+		glEnableVertexAttribArray(UVShaderPosition);
+		glBindBuffer(GL_ARRAY_BUFFER, model->UVBuffer->Handle);
+		glVertexAttribPointer(
+			UVShaderPosition,                 // attribute
+			2,                                // size
+			GL_FLOAT,                         // type
+			GL_FALSE,                         // normalized?
+			0,                                // stride
+			null                    // array buffer offset
+		);
+	}
 
 	// the entire mesh pipling ive written handles up to size_t
 	// its casted down to int here for DrawArrays
@@ -117,9 +120,8 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 	RenderMesh model = CreateRenderMesh();
 
 	// since this is a new mesh we should create new buffers from scratch
-	model->UVBuffer = SharedHandles.Create();
+
 	model->VertexBuffer = SharedHandles.Create();
-	model->NormalBuffer = SharedHandles.Create();
 
 	if (TryBindBuffer(mesh->Vertices, mesh->VertexCount * sizeof(float), model->VertexBuffer) is false)
 	{
@@ -127,16 +129,27 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 		return false;
 	}
 
-	if (mesh->TextureCount isnt 0 && TryBindBuffer(mesh->TextureVertices, mesh->TextureCount * sizeof(float), model->UVBuffer) is false)
+	if (mesh->TextureCount isnt 0)
 	{
-		RenderMeshes.Dispose(model);
-		return false;
+		model->UVBuffer = SharedHandles.Create();
+
+		if (TryBindBuffer(mesh->TextureVertices, mesh->TextureCount * sizeof(float), model->UVBuffer) is false)
+		{
+			RenderMeshes.Dispose(model);
+			return false;
+		}
 	}
 
-	if (mesh->NormalCount isnt 0 && TryBindBuffer(mesh->Normals, mesh->NormalCount * sizeof(float), model->NormalBuffer) is false)
+
+	if (mesh->NormalCount isnt 0)
 	{
-		RenderMeshes.Dispose(model);
-		return false;
+		model->NormalBuffer = SharedHandles.Create();
+
+		if (TryBindBuffer(mesh->Normals, mesh->NormalCount * sizeof(float), model->NormalBuffer) is false)
+		{
+			RenderMeshes.Dispose(model);
+			return false;
+		}
 	}
 
 	model->NumberOfTriangles = mesh->VertexCount / 3;
@@ -152,10 +165,18 @@ static void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 	++source->VertexBuffer->ActiveInstances;
 
 	CopyMember(source, destination, UVBuffer);
-	++source->UVBuffer->ActiveInstances;
+
+	if (source->UVBuffer isnt null)
+	{
+		++source->UVBuffer->ActiveInstances;
+	}
 
 	CopyMember(source, destination, NormalBuffer);
-	++source->NormalBuffer->ActiveInstances;
+
+	if (source->NormalBuffer isnt null)
+	{
+		++source->NormalBuffer->ActiveInstances;
+	}
 
 	CopyMember(source, destination, NumberOfTriangles);
 }

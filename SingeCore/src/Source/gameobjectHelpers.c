@@ -47,6 +47,19 @@ GameObject CreateGameObjectFromMesh(Mesh mesh)
 	return parent;
 }
 
+GameObject CreateFromRenderMesh(RenderMesh mesh)
+{
+	GameObject parent = GameObjects.Create();
+
+	parent->Meshes = SafeAlloc(sizeof(RenderMesh));
+	parent->Count = 1;
+	parent->Meshes[0] = RenderMeshes.Instance(mesh);;
+
+	Transforms.SetParent(parent->Meshes[0]->Transform, parent->Transform);
+
+	return parent;
+}
+
 GameObject LoadGameObjectFromModel(char* path, FileFormat format)
 {
 	Model model;

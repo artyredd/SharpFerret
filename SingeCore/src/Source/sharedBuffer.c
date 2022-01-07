@@ -12,6 +12,11 @@ const struct _sharedHandleMethods SharedHandles = {
 
 static void Dispose(SharedHandle buffer, void(*OnDispose)(unsigned int handle))
 {
+	if (buffer is null)
+	{
+		return;
+	}
+
 	if (buffer->ActiveInstances <= 1)
 	{
 		if (OnDispose isnt null)

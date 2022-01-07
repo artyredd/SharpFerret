@@ -35,6 +35,7 @@ struct _gameObject {
 
 struct _gameObjectMethods {
 	GameObject(*Create)();
+	void (*DrawMany)(GameObject* array, size_t count, Camera camera);
 	void (*Draw)(GameObject, Camera);
 	GameObject(*Duplicate)(GameObject);
 	void (*SetName)(GameObject, char* name);
@@ -42,6 +43,7 @@ struct _gameObjectMethods {
 	/// Creates a new instance of the provided material, disposes the old assigned material, then sets the material, provided material can be null
 	/// </summary>
 	void(*SetMaterial)(GameObject, Material);
+	void (*DestroyMany)(GameObject* array, size_t count);
 	void (*Destroy)(GameObject);
 };
 

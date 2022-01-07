@@ -141,7 +141,7 @@ int main()
 	Material uvMaterial = Materials.Create(uvShader, null);
 
 	Material guiMaterial = Materials.Create(guiShader, null);
-	Materials.EnableSetting(guiMaterial, MaterialSettings.Transparency);
+	//Materials.EnableSetting(guiMaterial, MaterialSettings.Transparency);
 	Materials.DisableSetting(guiMaterial, MaterialSettings.UseCameraPerspective);
 	Materials.DisableSetting(guiMaterial, MaterialSettings.BackfaceCulling);
 
@@ -151,6 +151,9 @@ int main()
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
+	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
+
+	GameObject font = LoadGameObjectFromModel("ComicMono.obj", FileFormats.Obj);
 
 	GameObject ball = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
 	GameObjects.SetMaterial(ball, uvMaterial);
@@ -158,10 +161,12 @@ int main()
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
 	GameObject room = GameObjects.Duplicate(ball);//LoadGameObjectFromModel("room.obj", FileFormats.Obj);
-	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
+
+	GameObjects.SetMaterial(font, guiMaterial);
+	Materials.SetColor(font->Material, Colors.Red);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
-	Materials.SetColor(car->Material, Colors.Blue);
+	Materials.SetColor(car->Material, Colors.Green);
 
 	GameObjects.SetMaterial(cube, texturedMaterial);
 
@@ -263,6 +268,19 @@ int main()
 	Materials.SetColor(guiTexture->Material, Colors.Red);
 	Materials.SetColor(otherGuiTexture->Material, Colors.Green);
 
+	GameObject* characters = SafeAlloc(sizeof(GameObject) * font->Count);
+
+	for (size_t i = 0; i < font->Count; i++)
+	{
+		characters[i] = CreateFromRenderMesh(font->Meshes[i]);
+		GameObjects.SetMaterial(characters[i], font->Material);
+	}
+
+	size_t character = 0;
+
+	double timer = 0;
+	double timerLength = 0.25f;
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -273,6 +291,13 @@ int main()
 		Vectors3CopyTo(camera->Transform->Position, position);
 
 		float modifier = speed * (float)DeltaTime();
+
+		timer += DeltaTime();
+		if (timer >= timerLength)
+		{
+			timer = 0;
+			character = (character + 1) % (font->Count - 1);
+		}
 
 		rotateAmount += modifier;
 
@@ -342,8 +367,11 @@ int main()
 		GameObjects.Draw(otherBall, camera);
 		GameObjects.Draw(room, camera);
 
-		GameObjects.Draw(guiTexture, camera);
-		GameObjects.Draw(otherGuiTexture, camera);
+		GameObjects.Draw(characters[character], camera);
+
+		//GameObjects.Draw(font, camera);
+		//GameObjects.Draw(guiTexture, camera);
+		//GameObjects.Draw(otherGuiTexture, camera);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -353,6 +381,9 @@ int main()
 		//fprintf(stdout,"Total: %0.4fs	FrameTime: %0.4fms"NEWLINE, Time(), FrameTime() * 1000.0);
 	} while (GetKey(KeyCodes.Escape) != true && Windows.ShouldClose(window) != true);
 
+
+	GameObjects.DestroyMany(characters, font->Count);
+
 	GameObjects.Destroy(ball);
 	GameObjects.Destroy(otherBall);
 	GameObjects.Destroy(car);
@@ -360,6 +391,7 @@ int main()
 	GameObjects.Destroy(cube);
 	GameObjects.Destroy(guiTexture);
 	GameObjects.Destroy(otherGuiTexture);
+	GameObjects.Destroy(font);
 
 	Textures.Dispose(cubeTexture);
 

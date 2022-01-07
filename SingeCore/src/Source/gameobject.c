@@ -10,6 +10,8 @@ static void Dispose(GameObject);
 static void Draw(GameObject, Camera);
 static GameObject CreateGameObject(void);
 static void SetMaterial(GameObject, Material);
+static void DrawMany(GameObject* array, size_t count, Camera camera);
+static void DestroyMany(GameObject* array, size_t count);
 
 const struct _gameObjectMethods GameObjects = {
 	.Create = &CreateGameObject,
@@ -17,7 +19,9 @@ const struct _gameObjectMethods GameObjects = {
 	.Duplicate = &Duplicate,
 	.SetName = &SetName,
 	.Destroy = &Dispose,
-	.SetMaterial = &SetMaterial
+	.SetMaterial = &SetMaterial,
+	.DrawMany = &DrawMany,
+	.DestroyMany = &DestroyMany
 };
 
 static void Dispose(GameObject gameobject)
@@ -143,5 +147,21 @@ static void Draw(GameObject gameobject, Camera camera)
 	for (size_t i = 0; i < gameobject->Count; i++)
 	{
 		Materials.Draw(gameobject->Material, gameobject->Meshes[i], camera);
+	}
+}
+
+static void DrawMany(GameObject* array, size_t count, Camera camera)
+{
+	for (size_t i = 0; i < count; i++)
+	{
+		Draw(array[i], camera);
+	}
+}
+
+static void DestroyMany(GameObject* array, size_t count)
+{
+	for (size_t i = 0; i < count; i++)
+	{
+		Dispose(array[i]);
 	}
 }
