@@ -4,6 +4,8 @@
 #include "string.h"
 #include "singine/guards.h"
 
+Material DefaultMaterial = null;
+
 static GameObject Duplicate(GameObject);
 static void SetName(GameObject, char* name);
 static void Dispose(GameObject);
@@ -12,6 +14,8 @@ static GameObject CreateGameObject(void);
 static void SetMaterial(GameObject, Material);
 static void DrawMany(GameObject* array, size_t count, Camera camera);
 static void DestroyMany(GameObject* array, size_t count);
+static Material GetDefaultMaterial(void);
+static void SetDefaultMaterial(Material);
 
 const struct _gameObjectMethods GameObjects = {
 	.Create = &CreateGameObject,
@@ -21,7 +25,9 @@ const struct _gameObjectMethods GameObjects = {
 	.Destroy = &Dispose,
 	.SetMaterial = &SetMaterial,
 	.DrawMany = &DrawMany,
-	.DestroyMany = &DestroyMany
+	.DestroyMany = &DestroyMany,
+	.SetDefaultMaterial = &SetDefaultMaterial,
+	.GetDefaultMaterial = &GetDefaultMaterial
 };
 
 static void Dispose(GameObject gameobject)
@@ -59,7 +65,7 @@ static GameObject CreateGameObject()
 	gameObject->NameLength = 0;
 
 	gameObject->Transform = Transforms.Create();
-	gameObject->Material = null;
+	gameObject->Material = Materials.Instance(DefaultMaterial);
 
 	return gameObject;
 }
@@ -88,7 +94,7 @@ static void GameObjectCopyTo(GameObject source, GameObject destination)
 		}
 	}
 
-	destination->Material = Materials.Instance(source->Material);
+	SetMaterial(destination, source->Material);
 
 	Transforms.CopyTo(source->Transform, destination->Transform);
 }
@@ -164,4 +170,14 @@ static void DestroyMany(GameObject* array, size_t count)
 	{
 		Dispose(array[i]);
 	}
+}
+
+static Material GetDefaultMaterial(void)
+{
+	return Materials.Instance(DefaultMaterial);
+}
+
+static void SetDefaultMaterial(Material material)
+{
+	DefaultMaterial = material;
 }

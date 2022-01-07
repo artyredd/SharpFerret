@@ -249,6 +249,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ColorUV.fragmentshader" />
+    <None Include="DistanceGlow.fragmentshader" />
+    <None Include="DistanceGlow.vertexshader" />
     <None Include="GUIShader.vertexshader" />
     <None Include="SimpleFragmentShader.fragmentshader" />
     <None Include="SimpleVertexShader.vertexshader" />

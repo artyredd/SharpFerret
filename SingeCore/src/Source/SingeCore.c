@@ -99,6 +99,7 @@ int main()
 	Shader uvShader = LoadShader("SimpleVertexShader.vertexshader", "ColorUV.fragmentshader");
 
 	Shader guiShader = LoadShader("GUIShader.vertexshader", "SimpleFragmentShader.fragmentshader");
+	Shader glowShader = LoadShader("DistanceGlow.vertexshader", "DistanceGlow.fragmentshader");
 
 	// check shader instancing and disposing
 	for (size_t i = 0; i < 5; i++)
@@ -141,9 +142,17 @@ int main()
 	Material uvMaterial = Materials.Create(uvShader, null);
 
 	Material guiMaterial = Materials.Create(guiShader, null);
-	//Materials.EnableSetting(guiMaterial, MaterialSettings.Transparency);
+
+	Material glowMaterial = Materials.Create(glowShader, null);
+
+	Materials.EnableSetting(guiMaterial, MaterialSettings.Transparency);
 	Materials.DisableSetting(guiMaterial, MaterialSettings.UseCameraPerspective);
 	Materials.DisableSetting(guiMaterial, MaterialSettings.BackfaceCulling);
+
+	Materials.DisableSetting(glowMaterial, MaterialSettings.UseCameraPerspective);
+	Materials.DisableSetting(glowMaterial, MaterialSettings.BackfaceCulling);
+
+	GameObjects.SetDefaultMaterial(uvMaterial);
 
 	Camera camera = Cameras.CreateCamera();
 
@@ -159,10 +168,10 @@ int main()
 	GameObjects.SetMaterial(ball, uvMaterial);
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
-	GameObject room = GameObjects.Duplicate(ball);//LoadGameObjectFromModel("room.obj", FileFormats.Obj);
+	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
+	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj); //GameObjects.Duplicate(ball);// //
 
-	GameObjects.SetMaterial(font, guiMaterial);
+	GameObjects.SetMaterial(font, glowMaterial);
 	Materials.SetColor(font->Material, Colors.Red);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
@@ -398,12 +407,15 @@ int main()
 	Materials.Dispose(texturedMaterial);
 	Materials.Dispose(uvMaterial);
 	Materials.Dispose(guiMaterial);
+	Materials.Dispose(glowMaterial);
 
 	Cameras.Dispose(camera);
 
 	Shaders.Dispose(texturedShader);
 
 	Shaders.Dispose(uvShader);
+
+	Shaders.Dispose(glowShader);
 
 	Shaders.Dispose(guiShader);
 

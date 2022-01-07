@@ -244,5 +244,11 @@
     <None Include="GUIShader.vertexshader">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="DistanceGlow.fragmentshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="DistanceGlow.vertexshader">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

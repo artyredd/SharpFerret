@@ -34,6 +34,15 @@ struct _gameObject {
 };
 
 struct _gameObjectMethods {
+	/// <summary>
+	/// Retrieves a new instance of the default material
+	/// </summary>
+	Material(*GetDefaultMaterial)(void);
+	/// <summary>
+	/// Sets the default material all gameobjects start with, unless a material is provided on their creation, this only stores a pointer to the provided material
+	/// the material is not instanced and will not be Disposed any of these methods, it's the callers responsibility to dispose of the provided material
+	/// </summary>
+	void(*SetDefaultMaterial)(Material);
 	GameObject(*Create)();
 	void (*DrawMany)(GameObject* array, size_t count, Camera camera);
 	void (*Draw)(GameObject, Camera);
