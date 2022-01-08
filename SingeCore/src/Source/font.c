@@ -77,7 +77,7 @@ static void CalculateAndAssignFontSizes(Font font)
 	{
 		font->EmSize = hCharacter->MaxY - hCharacter->MinY;
 
-		font->SpaceWidth = 0.7f * font->EmSize;
+		font->SpaceWidth = 0.35f * font->EmSize;
 	}
 	else
 	{
@@ -252,7 +252,7 @@ static FontCharacter CreateCharacter(Mesh mesh)
 		return null;
 	}
 
-	Transforms.SetPositions(newMesh->Transform, -(character->Advance / 2), 0, 0);
+	//Transforms.SetPositions(newMesh->Transform, -(character->Advance / 2), 0, 0);
 
 	character->Mesh = newMesh;
 
@@ -302,8 +302,8 @@ static GameObject CreateLine(Font font, char* buffer, size_t bufferLength)
 	line->Meshes = SafeAlloc(sizeof(RenderMesh) * bufferLength);
 	line->Count = bufferLength;
 
-	// track where we should place the next character
-	double cursor = 0.0;
+	FontCharacter previousCharacter = null;
+	Transform previousTransform = line->Transform;
 
 	for (size_t i = 0; i < bufferLength; i++)
 	{
@@ -315,13 +315,17 @@ static GameObject CreateLine(Font font, char* buffer, size_t bufferLength)
 
 		line->Meshes[i] = instance;
 
-		Transforms.SetParent(instance->Transform, line->Transform);
+		Transforms.SetParent(instance->Transform, previousTransform);
 
-		// move the character over to the cursor position
-		Transforms.TranslateX(instance->Transform, (float)cursor);
+		previousTransform = instance->Transform;
 
-		// move the cursor position over by the width of the character
-		cursor += character->Advance;
+		if (previousCharacter isnt null)
+		{
+			// move the character over to the cursor position
+			Transforms.TranslateX(instance->Transform, previousCharacter->Advance);
+		}
+
+		previousCharacter = character;
 	}
 
 	return line;

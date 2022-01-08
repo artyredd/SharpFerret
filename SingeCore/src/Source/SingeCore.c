@@ -397,7 +397,7 @@ int main()
 			++fontSize;
 		}
 
-		Fonts.SetCharacter(helloWorld, ttf, (unsigned int)fontSize % strlen(word), 'X');
+		//Fonts.SetCharacter(helloWorld, ttf, (unsigned int)fontSize % strlen(word), 'X');
 
 		FPSCamera.Update(camera);
 
