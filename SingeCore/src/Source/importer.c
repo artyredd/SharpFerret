@@ -65,7 +65,7 @@ struct _fileBuffer {
 #define ToString(s) TO_STRING(s)
 
 #define BUFFER_SIZE 1024
-#define MAX_OBJECT_NAME_LENGTH 61
+#define MAX_OBJECT_NAME_LENGTH 128
 
 static bool TryImportModel(char* path, FileFormat format, Model* out_model);
 static Model ImportModel(char* path, FileFormat format);
@@ -472,8 +472,8 @@ static bool TryCreateMesh(File stream, FileBuffer buffer, Mesh* out_mesh)
 	// read the name of the object
 	char* name;
 
-	// offset the buffer by the sequence so we dont use the object sequence as the name lmao
-	if (TryParseString(buffer->StreamBuffer + strlen(Sequences.Object), buffer->StreamLength, MAX_OBJECT_NAME_LENGTH + 1, &name) is false)
+	// offset the buffer by the sequence so we dont use the object sequence as the name
+	if (TryParseLine(buffer->StreamBuffer + strlen(Sequences.Object), buffer->StreamLength, MAX_OBJECT_NAME_LENGTH + 1, &name) is false)
 	{
 		return false;
 	}
@@ -603,12 +603,11 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 			Mesh mesh;
 			if (TryCreateMesh(stream, buffer, &mesh) is false)
 			{
+				fprintf_s(stderr, "Failed to create a mesh within %s", path);
 				/*model->Dispose(model);
 				buffer->Dispose(buffer);*/
 
 				continue;
-
-				return false;
 			}
 
 			// append the new mesh to end the of then linked list of meshes on the model

@@ -8,13 +8,14 @@ static RenderMesh InstanceMesh(RenderMesh mesh);
 static void Draw(RenderMesh model);
 static void Dispose(RenderMesh mesh);
 static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model);
-
+static RenderMesh Duplicate(RenderMesh mesh);
 
 const struct _renderMeshMethods RenderMeshes = {
 	.Dispose = &Dispose,
 	.Draw = &Draw,
 	.TryBindMesh = &TryBindMesh,
-	.Instance = &InstanceMesh
+	.Instance = &InstanceMesh,
+	.Duplicate = &Duplicate
 };
 
 static void OnBufferDispose(unsigned int handle)
@@ -186,6 +187,15 @@ static RenderMesh InstanceMesh(RenderMesh mesh)
 	RenderMesh result = CreateRenderMesh();
 
 	RenderMeshCopyTo(mesh, result);
+
+	return result;
+}
+
+static RenderMesh Duplicate(RenderMesh mesh)
+{
+	RenderMesh result = InstanceMesh(mesh);
+
+	Transforms.CopyTo(mesh->Transform, result->Transform);
 
 	return result;
 }

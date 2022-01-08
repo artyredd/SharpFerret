@@ -43,6 +43,7 @@ struct _gameObjectMethods {
 	/// the material is not instanced and will not be Disposed any of these methods, it's the callers responsibility to dispose of the provided material
 	/// </summary>
 	void(*SetDefaultMaterial)(Material);
+	GameObject(*CreateWithMaterial)(Material);
 	GameObject(*Create)();
 	void (*DrawMany)(GameObject* array, size_t count, Camera camera);
 	void (*Draw)(GameObject, Camera);

@@ -26,6 +26,10 @@ static void SetRotation(Transform transform, Quaternion rotation);
 static void SetScale(Transform transform, vec3 scale);
 static void SetScales(Transform transform, float x, float y, float z);
 static void AddPosition(Transform transform, vec3 amount);
+static void Translate(Transform, float x, float y, float z);
+static void TranslateX(Transform, float x);
+static void TranslateY(Transform, float y);
+static void TranslateZ(Transform, float z);
 static void Rotate(Transform transform, Quaternion amount);
 static void RotateOnAxis(Transform, float amountInRads, vec3 axis);
 static void SetRotationOnAxis(Transform, float amountInRads, vec3 axis);
@@ -34,7 +38,7 @@ static void GetDirection(Transform transform, Direction direction, vec3 out_dire
 static vec4* RefreshTransform(Transform transform);
 static vec4* ForceRefreshTransform(Transform transform);
 
-extern const struct _transformMethods Transforms = {
+const struct _transformMethods Transforms = {
 	.Dispose = &Dispose,
 	.Create = &CreateTransform,
 	.CopyTo = &TransformCopyTo,
@@ -51,7 +55,11 @@ extern const struct _transformMethods Transforms = {
 	.AddScale = &AddScale,
 	.GetDirection = &GetDirection,
 	.Refresh = &RefreshTransform,
-	.ForceRefresh = &ForceRefreshTransform
+	.ForceRefresh = &ForceRefreshTransform,
+	.Translate = &Translate,
+	.TranslateX = &TranslateX,
+	.TranslateY = &TranslateY,
+	.TranslateZ = &TranslateZ
 };
 
 static void Dispose(Transform transform)
@@ -455,6 +463,49 @@ static void AddPosition(Transform transform, vec3 amount)
 	}
 
 	AddVectors3(transform->Position, amount);
+	SetFlag(transform->State.Modified, PositionModifiedFlag);
+}
+
+static void Translate(Transform transform, float x, float y, float z)
+{
+	vec3 amount = { x, y, z };
+
+	AddPosition(transform, amount);
+}
+
+static void TranslateX(Transform transform, float x)
+{
+	if (x is transform->Position[0])
+	{
+		return;
+	}
+
+	transform->Position[0] += x;
+
+	SetFlag(transform->State.Modified, PositionModifiedFlag);
+}
+
+static void TranslateY(Transform transform, float y)
+{
+	if (y is transform->Position[1])
+	{
+		return;
+	}
+
+	transform->Position[1] += y;
+
+	SetFlag(transform->State.Modified, PositionModifiedFlag);
+}
+
+static void TranslateZ(Transform transform, float z)
+{
+	if (z is transform->Position[2])
+	{
+		return;
+	}
+
+	transform->Position[2] += z;
+
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 

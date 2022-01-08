@@ -16,9 +16,11 @@ static void DrawMany(GameObject* array, size_t count, Camera camera);
 static void DestroyMany(GameObject* array, size_t count);
 static Material GetDefaultMaterial(void);
 static void SetDefaultMaterial(Material);
+static GameObject CreateWithMaterial(Material);
 
 const struct _gameObjectMethods GameObjects = {
 	.Create = &CreateGameObject,
+	.CreateWithMaterial = &CreateWithMaterial,
 	.Draw = &Draw,
 	.Duplicate = &Duplicate,
 	.SetName = &SetName,
@@ -56,6 +58,12 @@ static void Dispose(GameObject gameobject)
 
 static GameObject CreateGameObject()
 {
+	return CreateWithMaterial(DefaultMaterial);
+}
+
+
+static GameObject CreateWithMaterial(Material material)
+{
 	GameObject gameObject = SafeAlloc(sizeof(struct _gameObject));
 
 	gameObject->Id = 0;
@@ -65,7 +73,7 @@ static GameObject CreateGameObject()
 	gameObject->NameLength = 0;
 
 	gameObject->Transform = Transforms.Create();
-	gameObject->Material = Materials.Instance(DefaultMaterial);
+	gameObject->Material = Materials.Instance(material);
 
 	return gameObject;
 }
@@ -171,6 +179,7 @@ static void DestroyMany(GameObject* array, size_t count)
 		Dispose(array[i]);
 	}
 }
+
 
 static Material GetDefaultMaterial(void)
 {

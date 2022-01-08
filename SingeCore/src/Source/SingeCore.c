@@ -33,6 +33,8 @@
 #include "singine/gameobjectHelpers.h"
 #include "graphics/texture.h"
 #include "graphics/colors.h"
+#include "graphics/font.h"
+#include <string.h>
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
@@ -162,14 +164,17 @@ int main()
 	glBindVertexArray(VertexArrayID);
 	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
 
+	Font ttf = Fonts.Import("ComicMono.obj", FileFormats.Obj);
+	Fonts.SetMaterial(ttf, glowMaterial);
+
 	GameObject font = LoadGameObjectFromModel("ComicMono.obj", FileFormats.Obj);
 
 	GameObject ball = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
 	GameObjects.SetMaterial(ball, uvMaterial);
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj); //GameObjects.Duplicate(ball);// //
+	GameObject car = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
+	GameObject room = LoadGameObjectFromModel("ball.obj", FileFormats.Obj); //GameObjects.Duplicate(ball);// //
 
 	GameObjects.SetMaterial(font, glowMaterial);
 	Materials.SetColor(font->Material, Colors.Red);
@@ -290,6 +295,8 @@ int main()
 	double timer = 0;
 	double timerLength = 0.25f;
 
+	GameObject helloWorld = Fonts.CreateLine(ttf, "Hello World!", strlen("Hello World!"));
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -364,6 +371,14 @@ int main()
 			ScaleVector3(positionModifier, modifier);
 			AddVectors3(position, positionModifier);
 		}
+		if (GetAxis(Axes.Horizontal) < 0)
+		{
+			Transforms.TranslateX(helloWorld->Transform, -modifier);
+		}
+		else if (GetAxis(Axes.Horizontal) > 0)
+		{
+			Transforms.TranslateX(helloWorld->Transform, modifier);
+		}
 
 		FPSCamera.Update(camera);
 
@@ -376,7 +391,9 @@ int main()
 		GameObjects.Draw(otherBall, camera);
 		GameObjects.Draw(room, camera);
 
-		GameObjects.Draw(characters[character], camera);
+		//Fonts.Draw(ttf, 'D', camera);
+		GameObjects.Draw(helloWorld, camera);
+		//GameObjects.Draw(characters[character], camera);
 
 		//GameObjects.Draw(font, camera);
 		//GameObjects.Draw(guiTexture, camera);
@@ -390,6 +407,9 @@ int main()
 		//fprintf(stdout,"Total: %0.4fs	FrameTime: %0.4fms"NEWLINE, Time(), FrameTime() * 1000.0);
 	} while (GetKey(KeyCodes.Escape) != true && Windows.ShouldClose(window) != true);
 
+	Fonts.Dispose(ttf);
+
+	GameObjects.Destroy(helloWorld);
 
 	GameObjects.DestroyMany(characters, font->Count);
 

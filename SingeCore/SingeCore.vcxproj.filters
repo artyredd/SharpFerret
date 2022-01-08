@@ -129,6 +129,9 @@
     <ClCompile Include="src\Source\colors.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Source\font.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">
@@ -229,6 +232,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\graphics\colors.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\graphics\font.h">
+      <Filter>Header Files\Singine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -28,6 +28,8 @@ struct _renderMeshMethods {
 	bool (*TryBindMesh)(Mesh mesh, RenderMesh* out_model);
 	// Creates a new instance of the provided rendermesh with it's own transform
 	RenderMesh(*Instance)(RenderMesh);
+	// Creates a new instance of the provided rendermesh with it's own transform that shares the same attributes as the provided rendermesh
+	RenderMesh(*Duplicate)(RenderMesh);
 };
 
 extern const struct _renderMeshMethods RenderMeshes;

@@ -128,6 +128,10 @@ struct _transformMethods {
 	void (*SetScales)(Transform transform, float x, float y, float z);
 
 	void (*AddPosition)(Transform, vec3 amount);
+	void (*Translate)(Transform, float x, float y, float z);
+	void (*TranslateX)(Transform, float x);
+	void (*TranslateY)(Transform, float y);
+	void (*TranslateZ)(Transform, float z);
 	void (*Rotate)(Transform, Quaternion amount);
 	void (*RotateOnAxis)(Transform, float amountInRads, vec3 axis);
 	void (*SetRotationOnAxis)(Transform, float amountInRads, vec3 axis);

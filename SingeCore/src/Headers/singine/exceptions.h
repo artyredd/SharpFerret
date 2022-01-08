@@ -27,6 +27,8 @@ static Exception FailedToReadFileException = 0x70000002;
 static Exception FailedToCloseFileException = 0x70000003;
 static Exception FailedToOpenFileException = 0x70000004;
 static Exception FailedToWriteToStreamException = 0x70000005;
+static Exception FailedToImportModelException = 0x70000006;
+static Exception MissingCharacterException = 0x70000007;
 // The outcome where this error is thrown should never occur even by chance, either an edge case was missed or something else weird happend
 static Exception UnexpectedOutcomeException = 0x7FFFFFFF;
 // end custom exceptions
@@ -44,4 +46,5 @@ static Exception NoActiveWindowException = 0x60000006;
 // GL Exceptions
 static Exception FailedToCompileShaderException = 0x50000001;
 static Exception FailedToLocationMVPUniformException = 0x50000002;
+static Exception FailedToBindMeshException = 0x50000003;
 //
