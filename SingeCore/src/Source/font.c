@@ -1,6 +1,8 @@
 #include "graphics/font.h"
 #include "singine/memory.h"
 #include <string.h>
+#include <float.h>
+#include <ctype.h>
 
 static Font Create(Model);
 static void Dispose(Font);
@@ -31,6 +33,8 @@ static Font Create(Model model)
 	Font font = SafeAlloc(sizeof(struct _font));
 
 	font->Material = null;
+	font->MinY = FLT_MAX;
+	font->MaxY = FLT_MIN;
 
 	// memset null into the entire character array so consumers can rely on unavailable characters being null and not garbage
 	//memset(font->Characters, 0, MAX_SUPPORTED_CHARACTERS);
@@ -63,6 +67,16 @@ static Font Create(Model model)
 			}
 			font->EndCharacter = character->Id;
 
+			if (font->MinY > character->MinY)
+			{
+				font->MinY = character->MinY;
+			}
+
+			if (font->MaxY < character->MaxY)
+			{
+				font->MaxY = character->MaxY;
+			}
+
 			++(count);
 		}
 
@@ -73,6 +87,23 @@ static Font Create(Model model)
 	{
 		Fonts.Dispose(font);
 		return null;
+	}
+
+	font->LineHeight = font->MaxY - font->MinY;
+
+	// the space width should be 1/4th the EM
+	// the EM is 0.7 the height of H
+	FontCharacter hCharacter = font->Characters['H'];
+
+	if (hCharacter isnt null)
+	{
+		float height = hCharacter->MaxY - hCharacter->MinY;
+
+		font->SpaceWidth = 0.7f * height;
+	}
+	else
+	{
+		font->SpaceWidth = 0.125f;
 	}
 
 	return font;
@@ -170,9 +201,7 @@ static FontCharacter CreateCharacter(Mesh mesh)
 		return null;
 	}
 
-	float height = character->MaxY - character->MinY;
-
-	Transforms.SetPositions(newMesh->Transform, -(character->Advance / 2), -height / 2, 0);
+	Transforms.SetPositions(newMesh->Transform, -(character->Advance / 2), 0, 0);
 
 	character->Mesh = newMesh;
 
@@ -204,6 +233,23 @@ static GameObject CreateLine(Font font, char* buffer, size_t bufferLength)
 	for (size_t i = 0; i < bufferLength; i++)
 	{
 		unsigned int c = buffer[i];
+
+		// if c is white space dont render anything just move the cursor
+		if (isspace(c))
+		{
+			if (c is '\t')
+			{
+				cursor += (4.0 * (double)font->SpaceWidth);
+			}
+			else
+			{
+				cursor += font->SpaceWidth;
+			}
+
+			line->Meshes[i] = null;
+
+			continue;
+		}
 
 		FontCharacter character = font->Characters[c];
 

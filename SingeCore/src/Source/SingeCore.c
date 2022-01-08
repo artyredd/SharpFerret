@@ -295,7 +295,9 @@ int main()
 	double timer = 0;
 	double timerLength = 0.25f;
 
-	GameObject helloWorld = Fonts.CreateLine(ttf, "Hello World!", strlen("Hello World!"));
+	char* word = "The quick brown fox jumped over the fence!";
+
+	GameObject helloWorld = Fonts.CreateLine(ttf, word, strlen(word));
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();

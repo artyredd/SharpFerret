@@ -160,7 +160,14 @@ static void Draw(GameObject gameobject, Camera camera)
 
 	for (size_t i = 0; i < gameobject->Count; i++)
 	{
-		Materials.Draw(gameobject->Material, gameobject->Meshes[i], camera);
+		RenderMesh mesh = gameobject->Meshes[i];
+
+		if (mesh is null)
+		{
+			continue;
+		}
+
+		Materials.Draw(gameobject->Material, mesh, camera);
 	}
 }
 

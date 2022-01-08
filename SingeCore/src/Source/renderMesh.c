@@ -25,6 +25,11 @@ static void OnBufferDispose(unsigned int handle)
 
 static void Dispose(RenderMesh mesh)
 {
+	if (mesh is null)
+	{
+		return;
+	}
+
 	// never dispose of the shader in the model
 	SharedHandles.Dispose(mesh->VertexBuffer, &OnBufferDispose);
 	SharedHandles.Dispose(mesh->UVBuffer, &OnBufferDispose);

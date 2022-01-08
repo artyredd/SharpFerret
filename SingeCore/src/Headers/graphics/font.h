@@ -59,6 +59,22 @@ struct _font {
 	/// </summary>
 	size_t Count;
 	/// <summary>
+	/// The lowest point in the font
+	/// </summary>
+	float MinY;
+	/// <summary>
+	/// The tallest point in the font
+	/// </summary>
+	float MaxY;
+	/// <summary>
+	/// This is distance between the lowest and highest mesh point in the font
+	/// </summary>
+	float LineHeight;
+	/// <summary>
+	/// The width of a white space character, tab is 4 of these
+	/// </summary>
+	float SpaceWidth;
+	/// <summary>
 	/// The font material that should be used to render this font
 	/// </summary>
 	Material Material;
