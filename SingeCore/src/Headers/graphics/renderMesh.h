@@ -30,6 +30,8 @@ struct _renderMeshMethods {
 	RenderMesh(*Instance)(RenderMesh);
 	// Creates a new instance of the provided rendermesh with it's own transform that shares the same attributes as the provided rendermesh
 	RenderMesh(*Duplicate)(RenderMesh);
+	// Creates a render mesh object with no buffers or populated fields
+	RenderMesh(*Create)(void);
 };
 
 extern const struct _renderMeshMethods RenderMeshes;

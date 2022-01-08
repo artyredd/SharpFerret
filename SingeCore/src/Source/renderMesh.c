@@ -9,13 +9,15 @@ static void Draw(RenderMesh model);
 static void Dispose(RenderMesh mesh);
 static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model);
 static RenderMesh Duplicate(RenderMesh mesh);
+static RenderMesh CreateRenderMesh(void);
 
 const struct _renderMeshMethods RenderMeshes = {
 	.Dispose = &Dispose,
 	.Draw = &Draw,
 	.TryBindMesh = &TryBindMesh,
 	.Instance = &InstanceMesh,
-	.Duplicate = &Duplicate
+	.Duplicate = &Duplicate,
+	.Create = &CreateRenderMesh
 };
 
 static void OnBufferDispose(unsigned int handle)
@@ -42,18 +44,21 @@ static void Dispose(RenderMesh mesh)
 
 static void Draw(RenderMesh model)
 {
-	glEnableVertexAttribArray(VertexShaderPosition);
+	if (model->VertexBuffer isnt null)
+	{
+		glEnableVertexAttribArray(VertexShaderPosition);
 
-	glBindBuffer(GL_ARRAY_BUFFER, model->VertexBuffer->Handle);
+		glBindBuffer(GL_ARRAY_BUFFER, model->VertexBuffer->Handle);
 
-	glVertexAttribPointer(
-		VertexShaderPosition,
-		3,
-		GL_FLOAT,
-		false,
-		0,
-		null
-	);
+		glVertexAttribPointer(
+			VertexShaderPosition,
+			3,
+			GL_FLOAT,
+			false,
+			0,
+			null
+		);
+	}
 
 	if (model->UVBuffer isnt null)
 	{
@@ -168,7 +173,11 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 static void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 {
 	CopyMember(source, destination, VertexBuffer);
-	++source->VertexBuffer->ActiveInstances;
+
+	if (source->VertexBuffer isnt null)
+	{
+		++source->VertexBuffer->ActiveInstances;
+	}
 
 	CopyMember(source, destination, UVBuffer);
 

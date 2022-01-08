@@ -10,6 +10,7 @@ static Font Import(char* path, FileFormat format);
 static void Draw(Font font, unsigned short character, Camera camera);
 static void SetMaterial(Font, Material);
 static GameObject CreateLine(Font, char* buffer, size_t bufferLength);
+static void SetCharacter(GameObject guiString, Font font, unsigned int index, unsigned int newCharacter);
 
 const struct _fontMethods Fonts = {
 	.Draw = &Draw,
@@ -17,7 +18,8 @@ const struct _fontMethods Fonts = {
 	.Dispose = &Dispose,
 	.Import = &Import,
 	.SetMaterial = &SetMaterial,
-	.CreateLine = &CreateLine
+	.CreateLine = &CreateLine,
+	.SetCharacter = &SetCharacter
 };
 
 static FontCharacter CreateCharacter(Mesh);
@@ -28,25 +30,63 @@ const struct _fontCharacterMethods FontCharacters = {
 	.Dispose = &DisposeCharacter
 };
 
-static Font Create(Model model)
+
+static FontCharacter CreateWhiteSpaceCharacter(Font font, size_t width)
 {
-	Font font = SafeAlloc(sizeof(struct _font));
+	FontCharacter newCharacter = SafeAlloc(sizeof(struct _fontCharacter));
 
-	font->Material = null;
-	font->MinY = FLT_MAX;
-	font->MaxY = FLT_MIN;
+	RenderMesh emptyMesh = RenderMeshes.Create();
 
-	// memset null into the entire character array so consumers can rely on unavailable characters being null and not garbage
-	//memset(font->Characters, 0, MAX_SUPPORTED_CHARACTERS);
-	// apprently memset doesn't set over 10,000 characters on my system so i did it manually
-	for (size_t i = 0; i < MAX_SUPPORTED_CHARACTERS; i++)
+	newCharacter->Advance = width * font->SpaceWidth;
+
+	newCharacter->MinY = font->Characters['H']->MinY;
+	newCharacter->MaxY = font->Characters['H']->MaxY;
+	newCharacter->LeftBearing = 0;
+	newCharacter->RightBearing = newCharacter->Advance;
+
+	newCharacter->Mesh = emptyMesh;
+
+	Transforms.TranslateX(emptyMesh->Transform, newCharacter->Advance);
+
+	return newCharacter;
+}
+
+static void AssignWhiteSpaceCharacters(Font font)
+{
+	font->Characters['\t'] = CreateWhiteSpaceCharacter(font, 4);
+	font->Characters[' '] = CreateWhiteSpaceCharacter(font, 1);
+
+	// becuase this is a small character and not visible it's likely that it's undefined within a charset
+	// and becuase we dispose of a font using the start character we should make sure to move the start index
+	// to '\t' if it's not already so we dispose of it correctly
+	if ('\t' < font->StartCharacter)
 	{
-		font->Characters[i] = null;
+		font->StartCharacter = '\t';
 	}
+}
 
-	// instead of trusting the models count as chaarcter size count as they are processed
-	// since not all characters are gaurunteed to have all attriute required to draw them and are thrown out
+static void CalculateAndAssignFontSizes(Font font)
+{
+	font->LineHeight = font->MaxY - font->MinY;
 
+	// the space width should be 1/4th the EM
+	// the EM is 0.7 the height of H
+	FontCharacter hCharacter = font->Characters['H'];
+
+	if (hCharacter isnt null)
+	{
+		font->EmSize = hCharacter->MaxY - hCharacter->MinY;
+
+		font->SpaceWidth = 0.7f * font->EmSize;
+	}
+	else
+	{
+		font->SpaceWidth = 0.125f;
+	}
+}
+
+static void CreateCharactersFromModel(Font font, Model model)
+{
 	size_t count = 0;
 	Mesh mesh = model->Head;
 
@@ -83,28 +123,39 @@ static Font Create(Model model)
 		mesh = mesh->Next;
 	}
 
-	if (count == 0)
+	font->Count = count;
+}
+
+static Font Create(Model model)
+{
+	Font font = SafeAlloc(sizeof(struct _font));
+
+	font->Material = null;
+	font->MinY = FLT_MAX;
+	font->MaxY = FLT_MIN;
+
+	// memset null into the entire character array so consumers can rely on unavailable characters being null and not garbage
+	//memset(font->Characters, 0, MAX_SUPPORTED_CHARACTERS);
+	// apprently memset doesn't set over 10,000 characters on my system so i did it manually
+	for (size_t i = 0; i < MAX_SUPPORTED_CHARACTERS; i++)
 	{
-		Fonts.Dispose(font);
+		font->Characters[i] = null;
+	}
+
+	// instead of trusting the models count as chaarcter size count as they are processed
+	// since not all characters are gaurunteed to have all attriute required to draw them and are thrown out
+	CreateCharactersFromModel(font, model);
+
+	// if we were not able to get any characters from the model we should return null
+	if (font->Count is 0)
+	{
+		Dispose(font);
 		return null;
 	}
 
-	font->LineHeight = font->MaxY - font->MinY;
+	CalculateAndAssignFontSizes(font);
 
-	// the space width should be 1/4th the EM
-	// the EM is 0.7 the height of H
-	FontCharacter hCharacter = font->Characters['H'];
-
-	if (hCharacter isnt null)
-	{
-		float height = hCharacter->MaxY - hCharacter->MinY;
-
-		font->SpaceWidth = 0.7f * height;
-	}
-	else
-	{
-		font->SpaceWidth = 0.125f;
-	}
+	AssignWhiteSpaceCharacters(font);
 
 	return font;
 }
@@ -220,6 +271,30 @@ static void DisposeCharacter(FontCharacter character)
 	SafeFree(character);
 }
 
+static FontCharacter GetFontCharacter(Font font, unsigned int desiredCharacter)
+{
+	FontCharacter character = font->Characters[desiredCharacter];
+
+	// default any missing characters to a question mark this is standard
+	if (character is null)
+	{
+		if (isspace(desiredCharacter))
+		{
+			// if it's generic whitespace that's not space or tab just return space
+			return font->Characters[' '];
+		}
+
+		character = font->Characters['?'];
+
+		if (character is null)
+		{
+			throw(MissingCharacterException);
+		}
+	}
+
+	return character;
+}
+
 static GameObject CreateLine(Font font, char* buffer, size_t bufferLength)
 {
 	GameObject line = GameObjects.CreateWithMaterial(font->Material);
@@ -234,35 +309,7 @@ static GameObject CreateLine(Font font, char* buffer, size_t bufferLength)
 	{
 		unsigned int c = buffer[i];
 
-		// if c is white space dont render anything just move the cursor
-		if (isspace(c))
-		{
-			if (c is '\t')
-			{
-				cursor += (4.0 * (double)font->SpaceWidth);
-			}
-			else
-			{
-				cursor += font->SpaceWidth;
-			}
-
-			line->Meshes[i] = null;
-
-			continue;
-		}
-
-		FontCharacter character = font->Characters[c];
-
-		// default any missing characters to a question mark this is standard
-		if (character is null)
-		{
-			character = font->Characters['?'];
-
-			if (character is null)
-			{
-				throw(MissingCharacterException);
-			}
-		}
+		FontCharacter character = GetFontCharacter(font, c);
 
 		RenderMesh instance = RenderMeshes.Duplicate(character->Mesh);
 
@@ -278,4 +325,37 @@ static GameObject CreateLine(Font font, char* buffer, size_t bufferLength)
 	}
 
 	return line;
+}
+
+#define clamp(value, lower, upper) (value) < (lower) ? (lower) : (value) > (upper) ? (upper) : (value)
+
+static void SetCharacter(GameObject guiString, Font font, unsigned int index, unsigned int newCharacter)
+{
+	if (index >= guiString->Count)
+	{
+		throw(IndexOutOfRangeException);
+	}
+
+	FontCharacter character = GetFontCharacter(font, newCharacter);
+
+	RenderMesh oldCharacter = guiString->Meshes[index];
+
+	float cursor = 0.0;
+
+	if (oldCharacter isnt null)
+	{
+		cursor = oldCharacter->Transform->Position[0];
+
+		Transforms.SetParent(oldCharacter->Transform, null);
+
+		RenderMeshes.Dispose(oldCharacter);
+	}
+
+	RenderMesh instance = RenderMeshes.Duplicate(character->Mesh);
+
+	Transforms.SetParent(instance->Transform, guiString->Transform);
+
+	Transforms.TranslateX(instance->Transform, cursor);
+
+	guiString->Meshes[index] = instance;
 }

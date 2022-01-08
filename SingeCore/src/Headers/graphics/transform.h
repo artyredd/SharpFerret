@@ -124,6 +124,7 @@ struct _transformMethods {
 	void (*SetPosition)(Transform, vec3 position);
 	void (*SetPositions)(Transform transform, float x, float y, float z);
 	void (*SetRotation)(Transform, Quaternion rotation);
+	void (*ScaleAll)(Transform, float scaler);
 	void (*SetScale)(Transform, vec3 scale);
 	void (*SetScales)(Transform transform, float x, float y, float z);
 

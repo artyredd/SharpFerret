@@ -71,6 +71,10 @@ struct _font {
 	/// </summary>
 	float LineHeight;
 	/// <summary>
+	/// The fonts base EM size which is 70% the height of the largest capital letter
+	/// </summary>
+	float EmSize;
+	/// <summary>
 	/// The width of a white space character, tab is 4 of these
 	/// </summary>
 	float SpaceWidth;
@@ -87,6 +91,7 @@ struct _fontMethods {
 	Font(*Create)(Model);
 	Font(*Import)(char* path, FileFormat format);
 	void (*Dispose)(Font);
+	void (*SetCharacter)(GameObject guiString, Font font, unsigned int index, unsigned int newCharacter);
 };
 
 extern const struct _fontMethods Fonts;

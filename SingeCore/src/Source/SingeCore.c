@@ -145,7 +145,7 @@ int main()
 
 	Material guiMaterial = Materials.Create(guiShader, null);
 
-	Material glowMaterial = Materials.Create(glowShader, null);
+	Material glowMaterial = Materials.Create(guiShader, null);
 
 	Materials.EnableSetting(guiMaterial, MaterialSettings.Transparency);
 	Materials.DisableSetting(guiMaterial, MaterialSettings.UseCameraPerspective);
@@ -266,11 +266,11 @@ int main()
 
 	Materials.SetColor(cube->Material, Colors.Red);
 
-	float width = 1;
+	/*float width = 1;
 	float height = 0.5;
 
 	Transforms.SetPositions(guiTexture->Transform, (1.0 / width) - 1.0, (1 / height) - 1.0, 0);
-	Transforms.SetScales(guiTexture->Transform, width, height, 1);
+	Transforms.SetScales(guiTexture->Transform, width, height, 1);*/
 
 
 	GameObject otherGuiTexture = GameObjects.Duplicate(guiTexture);
@@ -298,6 +298,13 @@ int main()
 	char* word = "The quick brown fox jumped over the fence!";
 
 	GameObject helloWorld = Fonts.CreateLine(ttf, word, strlen(word));
+
+	float width = 1.0f / window->Transform.Width;
+	float height = 1.0f / window->Transform.Height;
+
+	float fontSize = 72;
+
+
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -381,10 +388,23 @@ int main()
 		{
 			Transforms.TranslateX(helloWorld->Transform, modifier);
 		}
+		if (GetAxis(Axes.Vertical) < 0)
+		{
+			--fontSize;
+		}
+		else if (GetAxis(Axes.Vertical) > 0)
+		{
+			++fontSize;
+		}
+
+		Fonts.SetCharacter(helloWorld, ttf, (unsigned int)fontSize % strlen(word), 'X');
 
 		FPSCamera.Update(camera);
 
 		Transforms.SetPosition(camera->Transform, position);
+
+		Transforms.SetScales(helloWorld->Transform, width * fontSize, height * fontSize, 1);
+		GameObjects.Draw(helloWorld, camera);
 
 		GameObjects.Draw(cube, camera);
 
@@ -393,8 +413,7 @@ int main()
 		GameObjects.Draw(otherBall, camera);
 		GameObjects.Draw(room, camera);
 
-		//Fonts.Draw(ttf, 'D', camera);
-		GameObjects.Draw(helloWorld, camera);
+
 		//GameObjects.Draw(characters[character], camera);
 
 		//GameObjects.Draw(font, camera);

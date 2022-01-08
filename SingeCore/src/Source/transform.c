@@ -37,6 +37,7 @@ static void AddScale(Transform transform, vec3 amount);
 static void GetDirection(Transform transform, Direction direction, vec3 out_direction);
 static vec4* RefreshTransform(Transform transform);
 static vec4* ForceRefreshTransform(Transform transform);
+static void ScaleAll(Transform, float scaler);
 
 const struct _transformMethods Transforms = {
 	.Dispose = &Dispose,
@@ -46,6 +47,7 @@ const struct _transformMethods Transforms = {
 	.SetPosition = &SetPosition,
 	.SetPositions = &SetPositions,
 	.SetRotation = &SetRotation,
+	.ScaleAll = &ScaleAll,
 	.SetScale = &SetScale,
 	.SetScales = &SetScales,
 	.AddPosition = &AddPosition,
@@ -64,6 +66,11 @@ const struct _transformMethods Transforms = {
 
 static void Dispose(Transform transform)
 {
+	if (transform is null)
+	{
+		return;
+	}
+
 	SafeFree(transform);
 }
 
@@ -354,6 +361,8 @@ static void DetachChild(Transform transform, Transform child)
 
 			break;
 		}
+
+		current = current->Next;
 	}
 }
 
@@ -428,6 +437,17 @@ static void SetRotation(Transform transform, Quaternion rotation)
 
 	SetVectors4(transform->Rotation, rotation);
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
+}
+
+static void ScaleAll(Transform transform, float scaler)
+{
+	float* scale = transform->Scale;
+
+	scale[0] *= scaler;
+	scale[1] *= scaler;
+	scale[2] *= scaler;
+
+	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
 static void SetScale(Transform transform, vec3 scale)
