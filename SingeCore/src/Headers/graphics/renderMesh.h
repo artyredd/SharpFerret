@@ -13,6 +13,7 @@ static unsigned int NormalShaderPosition = 2;
 typedef struct _renderMesh* RenderMesh;
 
 struct _renderMesh {
+	size_t Id;
 	SharedHandle VertexBuffer;
 	SharedHandle UVBuffer;
 	SharedHandle NormalBuffer;

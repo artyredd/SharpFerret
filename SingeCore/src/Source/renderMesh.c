@@ -88,6 +88,8 @@ static RenderMesh CreateRenderMesh()
 {
 	RenderMesh mesh = SafeAlloc(sizeof(struct _renderMesh));
 
+	mesh->Id = 0;
+
 	mesh->UVBuffer = null;
 	mesh->VertexBuffer = null;
 	mesh->NormalBuffer = null;
@@ -210,6 +212,8 @@ static RenderMesh Duplicate(RenderMesh mesh)
 	RenderMesh result = InstanceMesh(mesh);
 
 	Transforms.CopyTo(mesh->Transform, result->Transform);
+
+	CopyMember(mesh, result, Id);
 
 	return result;
 }

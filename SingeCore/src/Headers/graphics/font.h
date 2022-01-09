@@ -30,7 +30,13 @@ struct _fontCharacter {
 	/// ones.
 	/// </summary>
 	float Advance;
+	/// <summary>
+	/// The lowest part of the character
+	/// </summary>
 	float MinY;
+	/// <summary>
+	/// The largest part of of the character
+	/// </summary>
 	float MaxY;
 	/// <summary>
 	/// The render mesh for this character
@@ -82,16 +88,20 @@ struct _font {
 	/// The font material that should be used to render this font
 	/// </summary>
 	Material Material;
+	/// <summary>
+	/// The number of instances of this font, when this reaches 1 or less any following calls to dispose actually disposes the object itself
+	/// </summary>
+	size_t ActiveInstances;
 };
 
 struct _fontMethods {
-	GameObject(*CreateLine)(Font, char* buffer, size_t bufferLength);
 	void(*Draw)(Font, unsigned short character, Camera camera);
 	void(*SetMaterial)(Font, Material);
 	Font(*Create)(Model);
 	Font(*Import)(char* path, FileFormat format);
 	void (*Dispose)(Font);
-	void (*SetCharacter)(GameObject guiString, Font font, unsigned int index, unsigned int newCharacter);
+	Font(*Instance)(Font);
+	FontCharacter(*GetCharacter)(Font, unsigned int character);
 };
 
 extern const struct _fontMethods Fonts;

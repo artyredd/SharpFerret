@@ -9,8 +9,8 @@ static void Dispose(Font);
 static Font Import(char* path, FileFormat format);
 static void Draw(Font font, unsigned short character, Camera camera);
 static void SetMaterial(Font, Material);
-static GameObject CreateLine(Font, char* buffer, size_t bufferLength);
-static void SetCharacter(GameObject guiString, Font font, unsigned int index, unsigned int newCharacter);
+static FontCharacter GetFontCharacter(Font, unsigned int character);
+static Font Instance(Font);
 
 const struct _fontMethods Fonts = {
 	.Draw = &Draw,
@@ -18,8 +18,8 @@ const struct _fontMethods Fonts = {
 	.Dispose = &Dispose,
 	.Import = &Import,
 	.SetMaterial = &SetMaterial,
-	.CreateLine = &CreateLine,
-	.SetCharacter = &SetCharacter
+	.Instance = &Instance,
+	.GetCharacter = &GetFontCharacter
 };
 
 static FontCharacter CreateCharacter(Mesh);
@@ -133,6 +133,7 @@ static Font Create(Model model)
 	font->Material = null;
 	font->MinY = FLT_MAX;
 	font->MaxY = FLT_MIN;
+	font->ActiveInstances = 1;
 
 	// memset null into the entire character array so consumers can rely on unavailable characters being null and not garbage
 	//memset(font->Characters, 0, MAX_SUPPORTED_CHARACTERS);
@@ -164,6 +165,12 @@ static void Dispose(Font font)
 {
 	if (font is null)
 	{
+		return;
+	}
+
+	if (font->ActiveInstances > 1)
+	{
+		--(font->ActiveInstances);
 		return;
 	}
 
@@ -295,71 +302,16 @@ static FontCharacter GetFontCharacter(Font font, unsigned int desiredCharacter)
 	return character;
 }
 
-static GameObject CreateLine(Font font, char* buffer, size_t bufferLength)
+static Font Instance(Font font)
 {
-	GameObject line = GameObjects.CreateWithMaterial(font->Material);
-
-	line->Meshes = SafeAlloc(sizeof(RenderMesh) * bufferLength);
-	line->Count = bufferLength;
-
-	FontCharacter previousCharacter = null;
-	Transform previousTransform = line->Transform;
-
-	for (size_t i = 0; i < bufferLength; i++)
+	if (font is null)
 	{
-		unsigned int c = buffer[i];
-
-		FontCharacter character = GetFontCharacter(font, c);
-
-		RenderMesh instance = RenderMeshes.Duplicate(character->Mesh);
-
-		line->Meshes[i] = instance;
-
-		Transforms.SetParent(instance->Transform, previousTransform);
-
-		previousTransform = instance->Transform;
-
-		if (previousCharacter isnt null)
-		{
-			// move the character over to the cursor position
-			Transforms.TranslateX(instance->Transform, previousCharacter->Advance);
-		}
-
-		previousCharacter = character;
+		return null;
 	}
 
-	return line;
-}
+	Font newFont = font;
 
-#define clamp(value, lower, upper) (value) < (lower) ? (lower) : (value) > (upper) ? (upper) : (value)
+	++(font->ActiveInstances);
 
-static void SetCharacter(GameObject guiString, Font font, unsigned int index, unsigned int newCharacter)
-{
-	if (index >= guiString->Count)
-	{
-		throw(IndexOutOfRangeException);
-	}
-
-	FontCharacter character = GetFontCharacter(font, newCharacter);
-
-	RenderMesh oldCharacter = guiString->Meshes[index];
-
-	float cursor = 0.0;
-
-	if (oldCharacter isnt null)
-	{
-		cursor = oldCharacter->Transform->Position[0];
-
-		Transforms.SetParent(oldCharacter->Transform, null);
-
-		RenderMeshes.Dispose(oldCharacter);
-	}
-
-	RenderMesh instance = RenderMeshes.Duplicate(character->Mesh);
-
-	Transforms.SetParent(instance->Transform, guiString->Transform);
-
-	Transforms.TranslateX(instance->Transform, cursor);
-
-	guiString->Meshes[index] = instance;
+	return newFont;
 }

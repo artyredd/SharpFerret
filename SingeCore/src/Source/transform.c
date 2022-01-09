@@ -38,6 +38,7 @@ static void GetDirection(Transform transform, Direction direction, vec3 out_dire
 static vec4* RefreshTransform(Transform transform);
 static vec4* ForceRefreshTransform(Transform transform);
 static void ScaleAll(Transform, float scaler);
+static void ClearChildren(Transform);
 
 const struct _transformMethods Transforms = {
 	.Dispose = &Dispose,
@@ -61,7 +62,8 @@ const struct _transformMethods Transforms = {
 	.Translate = &Translate,
 	.TranslateX = &TranslateX,
 	.TranslateY = &TranslateY,
-	.TranslateZ = &TranslateZ
+	.TranslateZ = &TranslateZ,
+	.ClearChildren = &ClearChildren,
 };
 
 static void Dispose(Transform transform)
@@ -401,6 +403,23 @@ static void SetParent(Transform transform, Transform parent)
 	// mark the child transform as modified since there is a new parent that
 	// will affect it's transform
 	SetFlag(transform->State.Modified, ParentModifiedFlag);
+}
+
+static void ClearChildren(Transform transform)
+{
+	Transform child = transform->Child;
+
+	while (child isnt null)
+	{
+		child->Parent = null;
+		SetFlag(child->State.Modified, ParentModifiedFlag);
+
+		child = child->Next;
+	}
+
+	transform->Child = null;
+	transform->LastChild = null;
+	transform->Count = 0;
 }
 
 static void SetPosition(Transform transform, vec3 position)

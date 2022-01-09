@@ -35,6 +35,7 @@
 #include "graphics/colors.h"
 #include "graphics/font.h"
 #include <string.h>
+#include "graphics/text.h"
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
@@ -164,10 +165,9 @@ int main()
 	glBindVertexArray(VertexArrayID);
 	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
 
-	Font ttf = Fonts.Import("ComicMono.obj", FileFormats.Obj);
-	Fonts.SetMaterial(ttf, glowMaterial);
-
-	GameObject font = LoadGameObjectFromModel("ComicMono.obj", FileFormats.Obj);
+	Font font = Fonts.Import("ComicMono.obj", FileFormats.Obj);
+	Fonts.SetMaterial(font, glowMaterial);
+	Materials.SetColor(font->Material, Colors.Red);
 
 	GameObject ball = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
 	GameObjects.SetMaterial(ball, uvMaterial);
@@ -176,8 +176,6 @@ int main()
 	GameObject car = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
 	GameObject room = LoadGameObjectFromModel("ball.obj", FileFormats.Obj); //GameObjects.Duplicate(ball);// //
 
-	GameObjects.SetMaterial(font, glowMaterial);
-	Materials.SetColor(font->Material, Colors.Red);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
 	Materials.SetColor(car->Material, Colors.Green);
@@ -282,29 +280,17 @@ int main()
 	Materials.SetColor(guiTexture->Material, Colors.Red);
 	Materials.SetColor(otherGuiTexture->Material, Colors.Green);
 
-	GameObject* characters = SafeAlloc(sizeof(GameObject) * font->Count);
-
-	for (size_t i = 0; i < font->Count; i++)
-	{
-		characters[i] = CreateFromRenderMesh(font->Meshes[i]);
-		GameObjects.SetMaterial(characters[i], font->Material);
-	}
-
-	size_t character = 0;
-
-	double timer = 0;
-	double timerLength = 0.25f;
-
 	char* word = "The quick brown fox jumped over the fence!";
 
-	GameObject helloWorld = Fonts.CreateLine(ttf, word, strlen(word));
+	Text text = Texts.CreateText(font, word, strlen(word));
 
-	float width = 1.0f / window->Transform.Width;
-	float height = 1.0f / window->Transform.Height;
+	char* largerWord = "The quick orange fox jumped over the fence!";
+	Texts.SetText(text, largerWord, strlen(largerWord));
 
-	float fontSize = 72;
+	Texts.SetText(text, word, strlen(word));
 
-
+	int count = sprintf_s(text->Text, text->Length, "%0.4f", 69.884848484f);
+	Texts.SetText(text, text->Text, count);
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -316,13 +302,6 @@ int main()
 		Vectors3CopyTo(camera->Transform->Position, position);
 
 		float modifier = speed * (float)DeltaTime();
-
-		timer += DeltaTime();
-		if (timer >= timerLength)
-		{
-			timer = 0;
-			character = (character + 1) % (font->Count - 1);
-		}
 
 		rotateAmount += modifier;
 
@@ -382,29 +361,24 @@ int main()
 		}
 		if (GetAxis(Axes.Horizontal) < 0)
 		{
-			Transforms.TranslateX(helloWorld->Transform, -modifier);
+			Transforms.TranslateX(text->GameObject->Transform, -modifier);
 		}
 		else if (GetAxis(Axes.Horizontal) > 0)
 		{
-			Transforms.TranslateX(helloWorld->Transform, modifier);
+			Transforms.TranslateX(text->GameObject->Transform, modifier);
 		}
 		if (GetAxis(Axes.Vertical) < 0)
 		{
-			--fontSize;
+
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
 		{
-			++fontSize;
-		}
 
-		//Fonts.SetCharacter(helloWorld, ttf, (unsigned int)fontSize % strlen(word), 'X');
+		}
 
 		FPSCamera.Update(camera);
 
 		Transforms.SetPosition(camera->Transform, position);
-
-		Transforms.SetScales(helloWorld->Transform, width * fontSize, height * fontSize, 1);
-		GameObjects.Draw(helloWorld, camera);
 
 		GameObjects.Draw(cube, camera);
 
@@ -413,12 +387,7 @@ int main()
 		GameObjects.Draw(otherBall, camera);
 		GameObjects.Draw(room, camera);
 
-
-		//GameObjects.Draw(characters[character], camera);
-
-		//GameObjects.Draw(font, camera);
-		//GameObjects.Draw(guiTexture, camera);
-		//GameObjects.Draw(otherGuiTexture, camera);
+		Texts.Draw(text, camera);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -428,11 +397,9 @@ int main()
 		//fprintf(stdout,"Total: %0.4fs	FrameTime: %0.4fms"NEWLINE, Time(), FrameTime() * 1000.0);
 	} while (GetKey(KeyCodes.Escape) != true && Windows.ShouldClose(window) != true);
 
-	Fonts.Dispose(ttf);
+	Texts.Dispose(text);
 
-	GameObjects.Destroy(helloWorld);
-
-	GameObjects.DestroyMany(characters, font->Count);
+	Fonts.Dispose(font);
 
 	GameObjects.Destroy(ball);
 	GameObjects.Destroy(otherBall);
@@ -441,7 +408,6 @@ int main()
 	GameObjects.Destroy(cube);
 	GameObjects.Destroy(guiTexture);
 	GameObjects.Destroy(otherGuiTexture);
-	GameObjects.Destroy(font);
 
 	Textures.Dispose(cubeTexture);
 

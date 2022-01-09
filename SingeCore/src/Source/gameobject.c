@@ -17,6 +17,9 @@ static void DestroyMany(GameObject* array, size_t count);
 static Material GetDefaultMaterial(void);
 static void SetDefaultMaterial(Material);
 static GameObject CreateWithMaterial(Material);
+static GameObject CreateEmpty(size_t size);
+static void Clear(GameObject);
+static void Resize(GameObject, size_t count);
 
 const struct _gameObjectMethods GameObjects = {
 	.Create = &CreateGameObject,
@@ -29,10 +32,13 @@ const struct _gameObjectMethods GameObjects = {
 	.DrawMany = &DrawMany,
 	.DestroyMany = &DestroyMany,
 	.SetDefaultMaterial = &SetDefaultMaterial,
-	.GetDefaultMaterial = &GetDefaultMaterial
+	.GetDefaultMaterial = &GetDefaultMaterial,
+	.Clear = &Clear,
+	.Resize = &Resize,
+	.CreateEmpty = &CreateEmpty
 };
 
-static void Dispose(GameObject gameobject)
+static void DisposeRenderMeshArray(GameObject gameobject)
 {
 	if (gameobject->Meshes isnt null)
 	{
@@ -43,6 +49,11 @@ static void Dispose(GameObject gameobject)
 
 		SafeFree(gameobject->Meshes);
 	}
+}
+
+static void Dispose(GameObject gameobject)
+{
+	DisposeRenderMeshArray(gameobject);
 
 	Transforms.Dispose(gameobject->Transform);
 
@@ -76,6 +87,22 @@ static GameObject CreateWithMaterial(Material material)
 	gameObject->Material = Materials.Instance(material);
 
 	return gameObject;
+}
+
+static GameObject CreateEmpty(size_t count)
+{
+	GameObject gameobject = CreateWithMaterial(null);
+
+	if (count isnt 0)
+	{
+		gameobject->Count = count;
+		gameobject->Meshes = SafeAlloc(sizeof(RenderMesh) * count);
+
+		// set all values to null
+		memset(gameobject->Meshes, 0, sizeof(RenderMesh) * count);
+	}
+
+	return gameobject;
 }
 
 static void GameObjectCopyTo(GameObject source, GameObject destination)
@@ -196,4 +223,39 @@ static Material GetDefaultMaterial(void)
 static void SetDefaultMaterial(Material material)
 {
 	DefaultMaterial = material;
+}
+
+static void Clear(GameObject gameobject)
+{
+	for (size_t i = 0; i < gameobject->Count; i++)
+	{
+		RenderMesh mesh = gameobject->Meshes[i];
+
+		if (mesh isnt null)
+		{
+			Transforms.SetParent(mesh->Transform, null);
+			RenderMeshes.Dispose(mesh);
+		}
+
+		gameobject->Meshes[i] = null;
+	}
+}
+
+static void Resize(GameObject gameobject, size_t count)
+{
+	DisposeRenderMeshArray(gameobject);
+
+	if (gameobject->Count is count)
+	{
+		return;
+	}
+
+	gameobject->Count = count;
+
+	gameobject->Meshes = SafeAlloc(sizeof(RenderMesh) * count);
+
+	for (size_t i = 0; i < count; i++)
+	{
+		gameobject->Meshes[i] = null;
+	}
 }

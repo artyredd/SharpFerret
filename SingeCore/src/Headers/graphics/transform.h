@@ -142,6 +142,7 @@ struct _transformMethods {
 	void (*SetParent)(Transform, Transform parent);
 
 	void (*GetDirection)(Transform transform, Direction directions, vec3 out_direction);
+	void (*ClearChildren)(Transform transform);
 	void (*Dispose)(Transform);
 };
 

@@ -207,6 +207,7 @@
     <ClCompile Include="src\Source\shaders.c" />
     <ClCompile Include="src\Source\sharedBuffer.c" />
     <ClCompile Include="src\Source\SingeCore.c" />
+    <ClCompile Include="src\Source\text.c" />
     <ClCompile Include="src\Source\texture.c" />
     <ClCompile Include="src\Source\time.c" />
     <ClCompile Include="src\Source\transform.c" />
@@ -226,6 +227,7 @@
     <ClInclude Include="src\Headers\graphics\shadercompiler.h" />
     <ClInclude Include="src\Headers\graphics\shaders.h" />
     <ClInclude Include="src\Headers\graphics\sharedBuffer.h" />
+    <ClInclude Include="src\Headers\graphics\text.h" />
     <ClInclude Include="src\Headers\graphics\texture.h" />
     <ClInclude Include="src\Headers\graphics\transform.h" />
     <ClInclude Include="src\Headers\Graphics\window.h" />

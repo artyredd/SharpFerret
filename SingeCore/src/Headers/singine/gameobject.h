@@ -45,6 +45,18 @@ struct _gameObjectMethods {
 	void(*SetDefaultMaterial)(Material);
 	GameObject(*CreateWithMaterial)(Material);
 	GameObject(*Create)();
+	/// <summary>
+	/// Creates an empty gameobject with no material with the given size of rendermeshes
+	/// </summary>
+	GameObject(*CreateEmpty)(size_t count);
+	/// <summary>
+	/// Clears the provided gameobject's rendermesh array
+	/// </summary>
+	void (*Clear)(GameObject);
+	/// <summary>
+	/// Clears and changes the length of the rendermesh array to the provided count
+	/// </summary>
+	void (*Resize)(GameObject, size_t count);
 	void (*DrawMany)(GameObject* array, size_t count, Camera camera);
 	void (*Draw)(GameObject, Camera);
 	GameObject(*Duplicate)(GameObject);
