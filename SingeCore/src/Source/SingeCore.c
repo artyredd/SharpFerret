@@ -95,6 +95,12 @@ int main()
 
 	Windows.SetIcon(window, icon);
 
+	Windows.SetMode(window, WindowModes.FullScreen);
+
+	glfwSwapInterval(0);
+
+	Windows.SetHint(WindowHints.RefreshRate, 30);
+
 	Images.Dispose(icon);
 
 	Shader texturedShader = LoadShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
@@ -173,8 +179,8 @@ int main()
 	GameObjects.SetMaterial(ball, uvMaterial);
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("ball.obj", FileFormats.Obj); //GameObjects.Duplicate(ball);// //
+	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
+	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj); //GameObjects.Duplicate(ball);// //
 
 
 	GameObjects.SetMaterial(car, texturedMaterial);
@@ -292,9 +298,13 @@ int main()
 	int count = sprintf_s(text->Text, text->Length, "%0.4f", 69.884848484f);
 	Texts.SetText(text, text->Text, count);*/
 
-	Text text = Texts.CreateEmpty(font, 256);
+	Text text = Texts.CreateEmpty(font, 512);
 
-	Transforms.ScaleAll(text->GameObject->Transform, 0.25f);
+	float fontSize = 0.06125f;
+
+	Transforms.ScaleAll(text->GameObject->Transform, fontSize);
+
+	Transforms.SetPositions(text->GameObject->Transform, -(1 / fontSize), (1 / fontSize) - text->Font->LineHeight, 0);
 
 	float amount = 0;
 
@@ -382,7 +392,7 @@ int main()
 			--amount;
 		}
 
-		int count = sprintf_s(text->Text, text->Length, "%1.8lf TBF\n%2.4lf ms\n%4.1lf FPS", DeltaTime(), FrameTime(), 1.0 / FrameTime());//, );
+		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime());//, );
 		Texts.SetText(text, text->Text, count);
 
 		FPSCamera.Update(camera);

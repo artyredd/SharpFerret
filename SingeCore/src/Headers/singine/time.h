@@ -1,5 +1,10 @@
 #pragma once
 
+/// when this is defined the frame time is calculated, otherwise it's not
+#define CALCULATE_FRAME_TIME
+// when this is defined the limits (lowest, highest) are calculated
+#define CALCULATE_FRAME_TIME_LIMITS 
+
 // The smallest value DeltaTime can be, generally no purpose to this
 #define DELTA_TIME_MIN 0.0
 // The largest value DeltaTime can be, used to prevent time issues on low-end hardware or when the engine's thread is frozen etc..
@@ -31,3 +36,9 @@ double FrameTime();
 
 // Sets the length of time, in seconds, that frametime should be benchmarked
 void SetFrameTimePollingLength(double length);
+
+double LowestFrameTime();
+
+double HighestFrameTime();
+
+double AverageFrameTime();
