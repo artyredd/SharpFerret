@@ -46,8 +46,6 @@ static void DisposeRenderMeshArray(GameObject gameobject)
 		{
 			RenderMeshes.Dispose(gameobject->Meshes[i]);
 		}
-
-		SafeFree(gameobject->Meshes);
 	}
 }
 
@@ -56,6 +54,8 @@ static void Dispose(GameObject gameobject)
 	Transforms.Dispose(gameobject->Transform);
 
 	DisposeRenderMeshArray(gameobject);
+
+	SafeFree(gameobject->Meshes);
 
 	if (gameobject->Name isnt null)
 	{
@@ -245,14 +245,14 @@ static void Resize(GameObject gameobject, size_t count)
 {
 	DisposeRenderMeshArray(gameobject);
 
-	if (gameobject->Count is count)
+	if (gameobject->Count isnt count)
 	{
-		return;
+		SafeFree(gameobject->Meshes);
+
+		gameobject->Count = count;
+
+		gameobject->Meshes = SafeAlloc(sizeof(RenderMesh) * count);
 	}
-
-	gameobject->Count = count;
-
-	gameobject->Meshes = SafeAlloc(sizeof(RenderMesh) * count);
 
 	for (size_t i = 0; i < count; i++)
 	{

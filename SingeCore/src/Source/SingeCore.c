@@ -280,7 +280,7 @@ int main()
 	Materials.SetColor(guiTexture->Material, Colors.Red);
 	Materials.SetColor(otherGuiTexture->Material, Colors.Green);
 
-	char* word = "The quick brown fox jumped over the fence!";
+	/*char* word = "The quick brown fox jumped over the fence!";
 
 	Text text = Texts.CreateText(font, word, strlen(word));
 
@@ -290,7 +290,11 @@ int main()
 	Texts.SetText(text, word, strlen(word));
 
 	int count = sprintf_s(text->Text, text->Length, "%0.4f", 69.884848484f);
-	Texts.SetText(text, text->Text, count);
+	Texts.SetText(text, text->Text, count);*/
+
+	Text text = Texts.CreateEmpty(font, 256);
+
+	Transforms.ScaleAll(text->GameObject->Transform, 0.25f);
 
 	float amount = 0;
 
@@ -378,7 +382,7 @@ int main()
 			--amount;
 		}
 
-		count = sprintf_s(text->Text, text->Length, "%0.4f", amount);
+		int count = sprintf_s(text->Text, text->Length, "0.0145ms %lf abc\nNNew Line", 1.0 / FrameTime());//, );
 		Texts.SetText(text, text->Text, count);
 
 		FPSCamera.Update(camera);

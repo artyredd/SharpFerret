@@ -30,6 +30,10 @@ struct _text {
 	/// </summary>
 	Font Font;
 	/// <summary>
+	/// Whether or not text should be rendered top-to-botton(true) or bottom-to-top(false)
+	/// </summary>
+	bool AlignTop;
+	/// <summary>
 	/// The underlying gameobject that should be drawn
 	/// </summary>
 	GameObject GameObject;
@@ -39,6 +43,7 @@ struct _text {
 struct _textMethods {
 	Text(*Create)(void);
 	Text(*CreateText)(Font font, char* string, size_t size);
+	Text(*CreateEmpty)(Font font, size_t size);
 	void (*Dispose)(Text);
 	void (*Draw)(Text, Camera);
 	void(*SetDefaultFont)(Font);

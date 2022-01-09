@@ -54,7 +54,13 @@ static FontCharacter CreateWhiteSpaceCharacter(Font font, size_t width)
 static void AssignWhiteSpaceCharacters(Font font)
 {
 	font->Characters['\t'] = CreateWhiteSpaceCharacter(font, 4);
+	font->Characters['\t']->Id = '\t';
+
 	font->Characters[' '] = CreateWhiteSpaceCharacter(font, 1);
+	font->Characters[' ']->Id = ' ';
+
+	font->Characters['\n'] = CreateWhiteSpaceCharacter(font, 1);
+	font->Characters['\n']->Id = '\n';
 
 	// becuase this is a small character and not visible it's likely that it's undefined within a charset
 	// and becuase we dispose of a font using the start character we should make sure to move the start index
