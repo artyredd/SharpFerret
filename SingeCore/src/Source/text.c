@@ -142,6 +142,8 @@ static void GenerateCharacters(Text text)
 
 	float newLineAmount = text->AlignTop ? -text->Font->LineHeight : text->Font->LineHeight;
 
+	size_t line = 0;
+
 	for (size_t i = 0; i < text->Count; i++)
 	{
 		unsigned int c = buffer[i];
@@ -159,7 +161,8 @@ static void GenerateCharacters(Text text)
 			// check to see if we should move horizontally or vertically
 			if (previousCharacter->Id is '\n')
 			{
-				Transforms.TranslateY(instance->Transform, newLineAmount);
+				++(line);
+				Transforms.TranslateY(instance->Transform, line * newLineAmount);
 
 				Transforms.SetParent(instance->Transform, gameobject->Transform);
 			}
@@ -197,7 +200,7 @@ static void RefreshCharacters(Text text)
 
 	// abc
 	// agc
-
+	size_t line = 0;
 	for (size_t i = 0; i < text->Count; i++)
 	{
 		unsigned int c = buffer[i];
@@ -217,10 +220,11 @@ static void RefreshCharacters(Text text)
 				Transforms.SetPositions(currentMesh->Transform, advance, 0, 0);
 			}
 
-			if (previousMesh isnt null && previousMesh->Id is '\n')
+			if (currentMesh->Id is '\n')
 			{
 				previousTransform = gameobject->Transform;
 				advance = 0.0f;
+				++(line);
 			}
 			else
 			{
@@ -255,7 +259,7 @@ static void RefreshCharacters(Text text)
 			// check to see if we should move horizontally or vertically
 			if (previousMesh->Id is '\n')
 			{
-				Transforms.TranslateY(instance->Transform, newLineAmount);
+				Transforms.TranslateY(instance->Transform, line * newLineAmount);
 
 				Transforms.SetParent(instance->Transform, gameobject->Transform);
 			}
@@ -278,6 +282,11 @@ static void RefreshCharacters(Text text)
 		previousMesh = instance;
 
 		advance = character->Advance;
+
+		if (c is '\n')
+		{
+			++(line);
+		}
 	}
 
 	// if the string we are refreshing to is smaller than our old string that's still in the same buffer we should

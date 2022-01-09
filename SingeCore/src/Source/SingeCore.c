@@ -382,7 +382,7 @@ int main()
 			--amount;
 		}
 
-		int count = sprintf_s(text->Text, text->Length, "0.0145ms %lf abc\nNNew Line", 1.0 / FrameTime());//, );
+		int count = sprintf_s(text->Text, text->Length, "%1.8lf TBF\n%2.4lf ms\n%4.1lf FPS", DeltaTime(), FrameTime(), 1.0 / FrameTime());//, );
 		Texts.SetText(text, text->Text, count);
 
 		FPSCamera.Update(camera);
