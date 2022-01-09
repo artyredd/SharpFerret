@@ -36,6 +36,7 @@
 #include "graphics/font.h"
 #include <string.h>
 #include "graphics/text.h"
+#include "graphics/recttransform.h"
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
@@ -95,11 +96,9 @@ int main()
 
 	Windows.SetIcon(window, icon);
 
-	Windows.SetMode(window, WindowModes.FullScreen);
+	Windows.SetMode(window, WindowModes.Windowed);
 
 	glfwSwapInterval(0);
-
-	Windows.SetHint(WindowHints.RefreshRate, 30);
 
 	Images.Dispose(icon);
 
@@ -179,8 +178,8 @@ int main()
 	GameObjects.SetMaterial(ball, uvMaterial);
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = LoadGameObjectFromModel("car.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("room.obj", FileFormats.Obj); //GameObjects.Duplicate(ball);// //
+	GameObject car = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
+	GameObject room = LoadGameObjectFromModel("ball.obj", FileFormats.Obj); //GameObjects.Duplicate(ball);// //
 
 
 	GameObjects.SetMaterial(car, texturedMaterial);
@@ -281,30 +280,20 @@ int main()
 
 	Transforms.SetParent(guiTexture->Transform, otherGuiTexture->Transform);
 	Transforms.SetScales(otherGuiTexture->Transform, 1, 1, 1);
-	Transforms.SetPositions(otherGuiTexture->Transform, -0.5, -0.5, 0);
+	Transforms.SetPositions(otherGuiTexture->Transform, 0, 0, 0);
 
 	Materials.SetColor(guiTexture->Material, Colors.Red);
 	Materials.SetColor(otherGuiTexture->Material, Colors.Green);
 
-	/*char* word = "The quick brown fox jumped over the fence!";
+	//Transforms.SetScales(guiTexture->Transform, 0.25, 0.25, 1);
 
-	Text text = Texts.CreateText(font, word, strlen(word));
-
-	char* largerWord = "The quick orange fox jumped over the fence!";
-	Texts.SetText(text, largerWord, strlen(largerWord));
-
-	Texts.SetText(text, word, strlen(word));
-
-	int count = sprintf_s(text->Text, text->Length, "%0.4f", 69.884848484f);
-	Texts.SetText(text, text->Text, count);*/
+	RectTransforms.SetTransform(guiTexture->Transform, Anchors.UpperLeft, Pivots.UpperLeft, 0, 0, 0.25, 0.25);
 
 	Text text = Texts.CreateEmpty(font, 512);
 
 	float fontSize = 0.06125f;
 
-	Transforms.ScaleAll(text->GameObject->Transform, fontSize);
-
-	Transforms.SetPositions(text->GameObject->Transform, -(1 / fontSize), (1 / fontSize) - text->Font->LineHeight, 0);
+	RectTransforms.SetTransform(text->GameObject->Transform, Anchors.UpperLeft, Pivots.UpperLeft, 0, 0, fontSize, fontSize);
 
 	float amount = 0;
 

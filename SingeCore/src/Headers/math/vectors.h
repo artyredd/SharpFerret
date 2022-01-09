@@ -97,12 +97,19 @@ static struct _directionIndex {
 };
 
 static struct _vectorDirections {
+	// { 0, 0, 0 }
 	vec3 Zero;
+	// { -1, 0, 0 }
 	vec3 Left;
+	// { 1, 0, 0 }
 	vec3 Right;
+	// { 0, 1, 0 }
 	vec3 Up;
+	// { 0, -1, 0 }
 	vec3 Down;
+	// { 0, 0, 1 }
 	vec3 Forward;
+	// { 0, 0, -1 }
 	vec3 Back;
 } Vector3 = {
 	.Zero = { 0, 0, 0 },

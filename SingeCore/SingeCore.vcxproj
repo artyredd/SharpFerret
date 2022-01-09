@@ -201,6 +201,7 @@
     <ClCompile Include="src\Source\model.c" />
     <ClCompile Include="src\Source\parsing.c" />
     <ClCompile Include="src\Source\quaternions.c" />
+    <ClCompile Include="src\Source\recttransform.c" />
     <ClCompile Include="src\Source\renderMesh.c" />
     <ClCompile Include="src\Source\scripts\fpsCamera.c" />
     <ClCompile Include="src\Source\shadercompiler.c" />
@@ -222,6 +223,7 @@
     <ClInclude Include="src\Headers\graphics\font.h" />
     <ClInclude Include="src\Headers\Graphics\imaging.h" />
     <ClInclude Include="src\Headers\graphics\material.h" />
+    <ClInclude Include="src\Headers\graphics\recttransform.h" />
     <ClInclude Include="src\Headers\graphics\renderMesh.h" />
     <ClInclude Include="src\Headers\graphics\renderModel.h" />
     <ClInclude Include="src\Headers\graphics\shadercompiler.h" />

@@ -135,6 +135,9 @@
     <ClCompile Include="src\Source\text.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Source\recttransform.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">
@@ -240,6 +243,9 @@
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
     <ClInclude Include="src\Headers\graphics\text.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\graphics\recttransform.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
