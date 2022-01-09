@@ -53,9 +53,9 @@ static void DisposeRenderMeshArray(GameObject gameobject)
 
 static void Dispose(GameObject gameobject)
 {
-	DisposeRenderMeshArray(gameobject);
-
 	Transforms.Dispose(gameobject->Transform);
+
+	DisposeRenderMeshArray(gameobject);
 
 	if (gameobject->Name isnt null)
 	{

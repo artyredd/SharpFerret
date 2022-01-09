@@ -292,6 +292,8 @@ int main()
 	int count = sprintf_s(text->Text, text->Length, "%0.4f", 69.884848484f);
 	Texts.SetText(text, text->Text, count);
 
+	float amount = 0;
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -369,12 +371,15 @@ int main()
 		}
 		if (GetAxis(Axes.Vertical) < 0)
 		{
-
+			++amount;
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
 		{
-
+			--amount;
 		}
+
+		count = sprintf_s(text->Text, text->Length, "%0.4f", amount);
+		Texts.SetText(text, text->Text, count);
 
 		FPSCamera.Update(camera);
 

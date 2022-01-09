@@ -163,7 +163,103 @@ static void GenerateCharacters(Text text)
 
 static void RefreshCharacters(Text text)
 {
+	char* buffer = text->Text;
+	GameObject gameobject = text->GameObject;
 
+	Transform previousTransform = text->GameObject->Transform;
+
+	RenderMesh previousMesh = null;
+
+	float advance = 0.0f;
+	bool previousCharacterChanged = false;
+
+	// abc
+	// agc
+
+	for (size_t i = 0; i < text->Count; i++)
+	{
+		unsigned int c = buffer[i];
+
+		RenderMesh currentMesh = gameobject->Meshes[i];
+
+		if (currentMesh is null)
+		{
+			break;
+		}
+
+		// if the character is wrong regenerate it
+		FontCharacter character = Fonts.GetCharacter(text->Font, c);
+
+		// check to see if the correct character is already in that spot
+		if (currentMesh->Id is c)
+		{
+			// check to see if we need to update the position of this character
+			if (previousCharacterChanged)
+			{
+				Transforms.SetParent(currentMesh->Transform, previousTransform);
+				Transforms.TranslateX(currentMesh->Transform, currentMesh->Transform->Position[0] - advance);
+			}
+
+			previousMesh = currentMesh;
+
+			if (c is '\n')
+			{
+				previousTransform = gameobject->Transform;
+				advance = 0;
+			}
+			else
+			{
+				previousTransform = currentMesh->Transform;
+
+				advance = character->Advance;
+			}
+
+			previousCharacterChanged = false;
+
+			continue;
+		}
+
+		previousCharacterChanged = true;
+
+		RenderMesh instance = RenderMeshes.Duplicate(character->Mesh);
+
+		instance->Id = c;
+
+		Transforms.SetParent(currentMesh->Transform, null);
+		Transforms.ClearChildren(currentMesh->Transform);
+		RenderMeshes.Dispose(currentMesh);
+
+		gameobject->Meshes[i] = instance;
+
+		if (previousMesh isnt null)
+		{
+			// check to see if we should move horizontally or vertically
+			if (previousMesh->Id is '\n')
+			{
+				Transforms.TranslateY(instance->Transform, text->Font->LineHeight);
+
+				Transforms.SetParent(instance->Transform, gameobject->Transform);
+			}
+			else
+			{
+				Transforms.SetParent(instance->Transform, previousTransform);
+
+				Transforms.TranslateX(instance->Transform, advance);
+			}
+		}
+		else
+		{
+#pragma warning(disable: 28182) // I broken the compiler with this algo, it thinks im dereferencing previousMesh here?
+			Transforms.SetParent(instance->Transform, gameobject->Transform);
+#pragma warning(default: 28182)
+		}
+
+		previousTransform = instance->Transform;
+
+		previousMesh = instance;
+
+		advance = character->Advance;
+	}
 }
 
 static void RefreshText(Text text)
@@ -229,6 +325,8 @@ static void Draw(Text text, Camera camera)
 static void SetCharacter(Text text, size_t index, unsigned int newCharacter)
 {
 	SetFlag(text->State.Modified, CharactersModifiedFlag);
+
+	text->Text[index] = (char)newCharacter;
 }
 
 

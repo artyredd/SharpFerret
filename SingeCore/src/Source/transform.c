@@ -73,6 +73,16 @@ static void Dispose(Transform transform)
 		return;
 	}
 
+	if (transform->Count isnt 0)
+	{
+		ClearChildren(transform);
+	}
+
+	if (transform->Parent isnt null)
+	{
+		SetParent(transform, null);
+	}
+
 	SafeFree(transform);
 }
 
