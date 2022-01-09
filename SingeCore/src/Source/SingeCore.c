@@ -179,8 +179,7 @@ int main()
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("ball.obj", FileFormats.Obj); //GameObjects.Duplicate(ball);// //
-
+	GameObject room = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
 	Materials.SetColor(car->Material, Colors.Green);
@@ -268,26 +267,6 @@ int main()
 	Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
 
 	Materials.SetColor(cube->Material, Colors.Red);
-
-	/*float width = 1;
-	float height = 0.5;
-
-	Transforms.SetPositions(guiTexture->Transform, (1.0 / width) - 1.0, (1 / height) - 1.0, 0);
-	Transforms.SetScales(guiTexture->Transform, width, height, 1);*/
-
-
-	GameObject otherGuiTexture = GameObjects.Duplicate(guiTexture);
-
-	Transforms.SetParent(guiTexture->Transform, otherGuiTexture->Transform);
-	Transforms.SetScales(otherGuiTexture->Transform, 1, 1, 1);
-	Transforms.SetPositions(otherGuiTexture->Transform, 0, 0, 0);
-
-	Materials.SetColor(guiTexture->Material, Colors.Red);
-	Materials.SetColor(otherGuiTexture->Material, Colors.Green);
-
-	//Transforms.SetScales(guiTexture->Transform, 0.25, 0.25, 1);
-
-	RectTransforms.SetTransform(guiTexture->Transform, Anchors.UpperLeft, Pivots.UpperLeft, 0, 0, 0.25, 0.25);
 
 	Text text = Texts.CreateEmpty(font, 512);
 
@@ -415,7 +394,6 @@ int main()
 	GameObjects.Destroy(room);
 	GameObjects.Destroy(cube);
 	GameObjects.Destroy(guiTexture);
-	GameObjects.Destroy(otherGuiTexture);
 
 	Textures.Dispose(cubeTexture);
 
