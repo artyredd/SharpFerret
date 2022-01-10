@@ -249,4 +249,30 @@
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\ColorUV.fragmentshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\shaders\DistanceGlow.fragmentshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\shaders\DistanceGlow.vertexshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\shaders\GUIShader.vertexshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\shaders\SimpleFragmentShader.fragmentshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\shaders\SimpleVertexShader.vertexshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\shaders\toon.fragmentshader">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="assets\shaders\toon.vertexshader">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
 </Project>

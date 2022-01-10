@@ -43,37 +43,37 @@ static void Dispose(RenderMesh mesh)
 	SafeFree(mesh);
 }
 
+static void LoadAttributeBuffer(unsigned int Position, unsigned int Handle, unsigned int dimensions)
+{
+	glEnableVertexAttribArray(Position);
+
+	glBindBuffer(GL_ARRAY_BUFFER, Handle);
+
+	glVertexAttribPointer(
+		Position,
+		dimensions,
+		GL_FLOAT,
+		false,
+		0,
+		null
+	);
+}
+
 static void Draw(RenderMesh model)
 {
 	if (model->VertexBuffer isnt null)
 	{
-		glEnableVertexAttribArray(VertexShaderPosition);
-
-		glBindBuffer(GL_ARRAY_BUFFER, model->VertexBuffer->Handle);
-
-		glVertexAttribPointer(
-			VertexShaderPosition,
-			3,
-			GL_FLOAT,
-			false,
-			0,
-			null
-		);
+		LoadAttributeBuffer(VertexShaderPosition, model->VertexBuffer->Handle, 3);
 	}
 
 	if (model->UVBuffer isnt null)
 	{
-		// 2nd attribute buffer : UVs
-		glEnableVertexAttribArray(UVShaderPosition);
-		glBindBuffer(GL_ARRAY_BUFFER, model->UVBuffer->Handle);
-		glVertexAttribPointer(
-			UVShaderPosition,                 // attribute
-			2,                                // size
-			GL_FLOAT,                         // type
-			GL_FALSE,                         // normalized?
-			0,                                // stride
-			null                    // array buffer offset
-		);
+		LoadAttributeBuffer(UVShaderPosition, model->UVBuffer->Handle, 2);
+	}
+
+	if (model->NormalBuffer isnt null)
+	{
+		LoadAttributeBuffer(NormalShaderPosition, model->NormalBuffer->Handle, 3);
 	}
 
 	// the entire mesh pipling ive written handles up to size_t
@@ -83,6 +83,7 @@ static void Draw(RenderMesh model)
 
 	glDisableVertexAttribArray(VertexShaderPosition);
 	glDisableVertexAttribArray(UVShaderPosition);
+	glDisableVertexAttribArray(NormalShaderPosition);
 }
 
 static RenderMesh CreateRenderMesh()
