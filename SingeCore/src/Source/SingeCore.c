@@ -92,7 +92,7 @@ int main()
 
 	SetCursorMode(CursorModes.Disabled);
 
-	Image icon = Images.LoadImage("icon.png");
+	Image icon = Images.LoadImage("assets/textures/icon.png");
 
 	Windows.SetIcon(window, icon);
 
@@ -102,12 +102,12 @@ int main()
 
 	Images.Dispose(icon);
 
-	Shader texturedShader = LoadShader("SimpleVertexShader.vertexshader", "SimpleFragmentShader.fragmentshader");
+	Shader texturedShader = LoadShader("assets/shaders/SimpleVertexShader.vertexshader", "assets/shaders/SimpleFragmentShader.fragmentshader");
 
-	Shader uvShader = LoadShader("SimpleVertexShader.vertexshader", "ColorUV.fragmentshader");
+	Shader uvShader = LoadShader("assets/shaders/SimpleVertexShader.vertexshader", "assets/shaders/ColorUV.fragmentshader");
 
-	Shader guiShader = LoadShader("GUIShader.vertexshader", "SimpleFragmentShader.fragmentshader");
-	Shader glowShader = LoadShader("DistanceGlow.vertexshader", "DistanceGlow.fragmentshader");
+	Shader guiShader = LoadShader("assets/shaders/GUIShader.vertexshader", "assets/shaders/SimpleFragmentShader.fragmentshader");
+	Shader glowShader = LoadShader("assets/shaders/DistanceGlow.vertexshader", "assets/shaders/DistanceGlow.fragmentshader");
 
 	// check shader instancing and disposing
 	for (size_t i = 0; i < 5; i++)
@@ -122,7 +122,7 @@ int main()
 		throw(InvalidArgumentException);
 	}
 
-	Image uv = Images.LoadImage("cubeuv.png");
+	Image uv = Images.LoadImage("assets/textures/cubeuv.png");
 
 	Texture cubeTexture;
 	if (Textures.TryCreateTexture(uv, &cubeTexture) is false)
@@ -168,18 +168,18 @@ int main()
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-	GameObject cube = LoadGameObjectFromModel("cube.obj", FileFormats.Obj);
+	GameObject cube = LoadGameObjectFromModel("assets/models/cube.obj", FileFormats.Obj);
 
-	Font font = Fonts.Import("ComicMono.obj", FileFormats.Obj);
+	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
 	Fonts.SetMaterial(font, glowMaterial);
 	Materials.SetColor(font->Material, Colors.Red);
 
-	GameObject ball = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
+	GameObject ball = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
 	GameObjects.SetMaterial(ball, uvMaterial);
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("ball.obj", FileFormats.Obj);
+	GameObject car = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
+	GameObject room = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
 	Materials.SetColor(car->Material, Colors.Green);
@@ -249,7 +249,7 @@ int main()
 
 	GameObjects.SetMaterial(guiTexture, guiMaterial);
 
-	Image debugUv = Images.LoadImage("uv_debug.png");
+	Image debugUv = Images.LoadImage("assets/textures/uv_debug.png");
 
 	Texture debugUvTexture;
 	if (Textures.TryCreateTexture(debugUv, &debugUvTexture) is false)

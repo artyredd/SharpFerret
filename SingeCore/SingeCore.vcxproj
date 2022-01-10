@@ -257,14 +257,6 @@
     <ClInclude Include="src\Headers\singine\parsing.h" />
     <ClInclude Include="src\Headers\singine\time.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="ColorUV.fragmentshader" />
-    <None Include="DistanceGlow.fragmentshader" />
-    <None Include="DistanceGlow.vertexshader" />
-    <None Include="GUIShader.vertexshader" />
-    <None Include="SimpleFragmentShader.fragmentshader" />
-    <None Include="SimpleVertexShader.vertexshader" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

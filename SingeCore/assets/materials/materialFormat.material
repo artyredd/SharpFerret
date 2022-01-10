@@ -1,0 +1,15 @@
+# the name of this material
+"name":"value"
+# the array of shaders that should be loaded for this material
+"shaders": [
+    "simpleShader",
+    "toonShader",
+    "glassShader"
+]
+# the material base color
+"color": {
+    "r": 0.012,
+    "g": 1.0,
+    "b": 1.0,
+    "a": 1.0
+}
