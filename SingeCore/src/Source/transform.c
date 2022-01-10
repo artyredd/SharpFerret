@@ -8,6 +8,7 @@
 #include "helpers/quickmask.h"
 #include "singine/guards.h"
 #include "math/vectors.h"
+#include <stdlib.h>
 
 #define PositionModifiedFlag FLAG_0
 #define RotationModifiedFlag FLAG_1
@@ -90,12 +91,11 @@ static Transform CreateTransform()
 {
 	Transform transform = SafeAlloc(sizeof(struct _transform));
 
-	transform->Child = null;
-	transform->LastChild = null;
+	transform->Children = null;
 	transform->Parent = null;
-	transform->Next = null;
-	transform->Previous = null;
+	transform->Length = 0;
 	transform->Count = 0;
+	transform->FreeIndex = 0;
 	transform->RotateAroundCenter = false;
 	transform->InvertTransform = false;
 
@@ -165,11 +165,14 @@ static Transform DuplicateTransform(Transform transform)
 /// <param name="transform"></param>
 static void NotifyChildren(Transform transform)
 {
-	Transform child = transform->Child;
-	while (child != null)
+	for (size_t i = 0; i < transform->Count; i++)
 	{
-		SetFlag(child->State.Modified, ParentModifiedFlag);
-		child = child->Next;
+		Transform child = transform->Children[i];
+
+		if (child isnt null)
+		{
+			SetFlag(child->State.Modified, ParentModifiedFlag);
+		}
 	}
 }
 
@@ -318,6 +321,11 @@ static void DetachChild(Transform transform, Transform child)
 {
 	GuardNotNull(transform);
 
+	if (child is null)
+	{
+		return;
+	}
+
 	// while it doesnt make sense to call this with a null child
 	// the expected result of removing nothing, is nothing.. so just return
 	if (child is null)
@@ -325,78 +333,118 @@ static void DetachChild(Transform transform, Transform child)
 		return;
 	}
 
-	// traverse all children and remove in-place
-
-	Transform current = transform->Child;
-
-	while (current != null)
+	for (size_t i = 0; i < transform->Count; i++)
 	{
-		// perform reference check
+		Transform current = transform->Children[i];
+		
 		if (current is child)
 		{
-			// since this is the child remove it,
-			// transforms are a doubly linked list
-
-			// store the next and previous so we can link them
-			Transform next = current->Next;
-			Transform previous = current->Previous;
-
-			// reset the child's links
+			// detach the child
+			transform->Children[i] = null;
 			current->Parent = null;
-			current->Next = null;
-			current->Previous = null;
 
-			// make sure if the child is the head or tail we drop the references
-			if (current is transform->Child)
-			{
-				// set the new head to either next or previous with preference to next
-				transform->Child = NullCoalesce(next, previous);
-			}
-			if (current is transform->LastChild)
-			{
-				// set the new tail to either next or previous with preference to previous
-				transform->LastChild = NullCoalesce(previous, next);;
-			}
+			// mark the child so it's next refresh removes the parents transform
+			SetFlag(current->State.Modified, ParentModifiedFlag);
 
-			// link next and previous if they exist
-			if (next isnt null)
-			{
-				next->Previous = previous;
-			}
-			if (previous isnt null)
-			{
-				previous->Next = next;
-			}
-
-			// reduce the number of children
+			// decrement the count
 			--(transform->Count);
 
 			break;
 		}
-
-		current = current->Next;
 	}
+}
+
+static void AttachChildAtIndex(Transform transform, Transform child, size_t index)
+{
+	transform->Children[index] = child;
+
+	// check to see if there is an open spot that we can place the next child
+	++(index);
+
+	if (index < transform->Length && transform->Children[index] is null)
+	{
+		transform->FreeIndex = index;
+	}
+	else
+	{
+		transform->FreeIndex = 0;
+	}
+}
+
+static void ReallocChildren(Transform transform)
+{
+	// try to realloc the space otherwise manually move it, alloc 25% more space, or + 1
+	size_t newLength = max((size_t)((transform->Length * 125) / 100), transform->Length + 1);
+
+	size_t sizeInBytes = newLength * sizeof(Transform);
+
+	// if we fail to realloc the array make a new one =(
+	if (TryRealloc(transform->Children, sizeInBytes, (void**)&transform->Children) is false)
+	{
+		Transform* newArray = SafeAlloc(sizeInBytes);
+
+		for (size_t i = 0; i < transform->Length; i++)
+		{
+			newArray[i] = transform->Children[i];
+		}
+
+		SafeFree(transform->Children);
+
+		transform->Children = newArray;
+	}
+
+	// since we know the first index of the extended portion is null we can set the lastchild index
+	// to that value so we dont have to search for it later
+	transform->FreeIndex = transform->Length;
+
+	// since we are extending the array we should set the new values to null
+	for (size_t i = transform->Length; i < newLength; i++)
+	{
+		transform->Children[i] = null;
+	}
+
+	// update the length
+	transform->Length = newLength;
 }
 
 static void AttachChild(Transform transform, Transform child)
 {
-	if (transform isnt null)
+	if (transform is null or child is null)
 	{
-		++(transform->Count);
+		return;
+	}
 
-		if (transform->LastChild is null)
+	// make sure there is enough room, if there isn't move the array
+	if ((transform->Count) + 1 > transform->Length)
+	{
+		// try to realloc the array if not make a new one and copy the children over
+		ReallocChildren(transform);
+	}
+
+	// if we extended the array lastchild will now be non-zero
+	if (transform->Children[transform->FreeIndex] is null)
+	{
+		AttachChildAtIndex(transform, child, transform->FreeIndex);
+	}
+	else
+	{
+		// linearly search for open spot
+		for (size_t i = 0; i < transform->Length; i++)
 		{
-			transform->Child = transform->LastChild = child;
-		}
-		else
-		{
-			transform->LastChild->Next = child;
-			child->Previous = transform->LastChild;
-			transform->LastChild = child;
+			if (transform->Children[i] is null)
+			{
+				// attach the child and check to see if we can save some time
+				// next call by checking for null spot next to the index
+				AttachChildAtIndex(transform, child, i);
+				break;
+			}
 		}
 	}
 
+	//attach the parent to the child
 	child->Parent = transform;
+
+	++(transform->Count);
 }
 
 static void SetParent(Transform transform, Transform parent)
@@ -417,18 +465,18 @@ static void SetParent(Transform transform, Transform parent)
 
 static void ClearChildren(Transform transform)
 {
-	Transform child = transform->Child;
-
-	while (child isnt null)
+	for (size_t i = 0; i < transform->Count; i++)
 	{
-		child->Parent = null;
-		SetFlag(child->State.Modified, ParentModifiedFlag);
+		Transform child = transform->Children[i];
 
-		child = child->Next;
+		if (child isnt null)
+		{
+			child->Parent = null;
+			SetFlag(child->State.Modified, ParentModifiedFlag);
+		}
 	}
 
-	transform->Child = null;
-	transform->LastChild = null;
+	transform->FreeIndex = 0;
 	transform->Count = 0;
 }
 

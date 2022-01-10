@@ -130,6 +130,7 @@
       <AdditionalOptions>/IGNORE:4324 %(AdditionalOptions)</AdditionalOptions>
       <DisableSpecificWarnings>4324</DisableSpecificWarnings>
       <TreatSpecificWarningsAsErrors>4013;4028;4133;</TreatSpecificWarningsAsErrors>
+      <BrowseInformation>true</BrowseInformation>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -142,6 +143,9 @@
       </IgnoreSpecificDefaultLibraries>
       <Profile>false</Profile>
     </Link>
+    <Bscmake>
+      <PreserveSbr>true</PreserveSbr>
+    </Bscmake>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>

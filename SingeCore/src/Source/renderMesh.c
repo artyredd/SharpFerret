@@ -32,7 +32,8 @@ static void Dispose(RenderMesh mesh)
 		return;
 	}
 
-	// never dispose of the shader in the model
+	// since these handles are shared among possibly many instances we only want to actually
+	// clear the buffer when the final instance has been disposed
 	SharedHandles.Dispose(mesh->VertexBuffer, &OnBufferDispose);
 	SharedHandles.Dispose(mesh->UVBuffer, &OnBufferDispose);
 	SharedHandles.Dispose(mesh->NormalBuffer, &OnBufferDispose);

@@ -126,6 +126,13 @@ void SafeFree(void* address)
 	++FREE_COUNT;
 }
 
+bool TryRealloc(void* address, size_t size, void** out_address)
+{
+	*out_address = realloc(address, size);
+
+	return *out_address isnt null;
+}
+
 static void PrintGroupedNumber(FILE* stream, size_t value)
 {
 

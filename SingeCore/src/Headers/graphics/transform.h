@@ -55,26 +55,19 @@ struct _transform {
 	/// The parent of this transform
 	/// </summary>
 	Transform Parent;
+	Transform* Children;
 	/// <summary>
-	/// The head of the children of this transform
+	/// The length of the children array, should always be >= count
 	/// </summary>
-	Transform Child;
-	/// <summary>
-	/// The tail of the children of this transform
-	/// </summary>
-	Transform LastChild;
-	/// <summary>
-	/// The next child of the parent of this transform
-	/// </summary>
-	Transform Next;
-	/// <summary>
-	/// The previous child of the parent of this transform
-	/// </summary>
-	Transform Previous;
+	size_t Length;
 	/// <summary>
 	/// The number of children in this transform
 	/// </summary>
 	size_t Count;
+	/// <summary>
+	/// The index of an open child spot within the children array, this is 0 when there is no known spot
+	/// </summary>
+	size_t FreeIndex;
 	// transform members
 	/// <summary>
 	/// The position of this transform in world space

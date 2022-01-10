@@ -14,6 +14,7 @@
 #define false 0
 #define is ==
 #define isnt !=
+#define or ||
 
 // expression that provides either left or right, whichever isn't value, if both are value returns value
 #define Coalesce(left,right,operator,value) (left operator value ? left : right)

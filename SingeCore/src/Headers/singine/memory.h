@@ -60,3 +60,6 @@ void* SafeCalloc(size_t nitems, size_t size);
 /// use AllocCount() for the number of calls to this method, use AllocSize() for the amount of memory allocated using this method
 /// </summary>
 void* SafeAllocAligned(size_t alignment, size_t size);
+
+// Attempts to realloc the address to the new size, returns true if successfull, otherwise false
+int TryRealloc(void* address, size_t size, void** out_address);
