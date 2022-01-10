@@ -79,6 +79,8 @@ static Text CreateEmpty(Font font, size_t size)
 
 	text->GameObject = GameObjects.CreateEmpty(size);
 
+	GameObjects.SetMaterial(text->GameObject, font->Material);
+
 	return text;
 }
 

@@ -84,7 +84,7 @@ void* SafeCalloc(size_t nitems, size_t size)
 
 void* SafeAlloc(size_t size)
 {
-	void* ptr = malloc(size);
+	void* ptr = calloc(1,size);
 
 	if (ptr is null)
 	{
