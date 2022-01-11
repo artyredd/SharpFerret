@@ -6,31 +6,11 @@
 #include "graphics/camera.h"
 #include "graphics/colors.h"
 
-typedef unsigned int MaterialSetting;
-
-struct _materialSettings
-{
-	/// <summary>
-	/// Whether or not the material should cull it's back faces when it's drawn
-	/// </summary>
-	MaterialSetting BackfaceCulling;
-	/// <summary>
-	/// Whether or not the material should be rendered with blending that will allow the alpha layer to be drawn
-	/// </summary>
-	MaterialSetting Transparency;
-	/// <summary>
-	/// Whether or not the material should use the camera's perspective to change the rendered object's shape, 
-	/// this should be enabled for 3d object and disabled for 2d like GUI
-	/// </summary>
-	MaterialSetting UseCameraPerspective;
-};
-
-extern const struct _materialSettings MaterialSettings;
-
 struct _materialState
 {
 	/// <summary>
-	/// This is a quick mask that stores advanced toggles for this material and how it should be drawn
+	/// This is a quick mask that stores advanced toggles for this material and how it should be drawn, these are applied to all shaders that are used
+	/// for this material
 	/// </summary>
 	unsigned int Settings;
 };
@@ -66,10 +46,10 @@ struct _materialMethods {
 	void (*SetShader)(Material, const Shader, size_t index);
 	void (*SetColor)(Material, const Color);
 	void (*SetColors)(Material, const float r, const float g, const float b, const float a);
-	void (*DisableSetting)(Material, const MaterialSetting);
-	void (*EnableSetting)(Material, const MaterialSetting);
-	void (*SetSetting)(Material, const MaterialSetting, const bool enabled);
-	bool (*HasSetting)(Material, const MaterialSetting);
+	void (*DisableSetting)(Material, const ShaderSetting);
+	void (*EnableSetting)(Material, const ShaderSetting);
+	void (*SetSetting)(Material, const ShaderSetting, const bool enabled);
+	bool (*HasSetting)(Material, const ShaderSetting);
 	void (*Dispose)(Material);
 };
 

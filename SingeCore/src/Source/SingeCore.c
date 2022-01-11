@@ -109,6 +109,8 @@ int main()
 	Shader guiShader = LoadShader("assets/shaders/GUIShader.vertexshader", "assets/shaders/SimpleFragmentShader.fragmentshader");
 	Shader glowShader = LoadShader("assets/shaders/DistanceGlow.vertexshader", "assets/shaders/DistanceGlow.fragmentshader");
 
+	Shader toonShader = LoadShader("assets/shaders/toon.vertexshader", "assets/shaders/toon.fragmentshader");
+
 	// check shader instancing and disposing
 	for (size_t i = 0; i < 5; i++)
 	{
@@ -147,20 +149,22 @@ int main()
 
 	Material texturedMaterial = Materials.Create(texturedShader, cubeTexture);
 
-	Material uvMaterial = Materials.Create(uvShader, null);
+	Material uvMaterial = Materials.Create(toonShader, null);
 
 	Material guiMaterial = Materials.Create(guiShader, null);
 
 	Material glowMaterial = Materials.Create(guiShader, null);
 
-	Materials.EnableSetting(guiMaterial, MaterialSettings.Transparency);
-	Materials.DisableSetting(guiMaterial, MaterialSettings.UseCameraPerspective);
-	Materials.DisableSetting(guiMaterial, MaterialSettings.BackfaceCulling);
+	Materials.EnableSetting(guiMaterial, ShaderSettings.Transparency);
+	Materials.DisableSetting(guiMaterial, ShaderSettings.UseCameraPerspective);
+	Materials.DisableSetting(guiMaterial, ShaderSettings.BackfaceCulling);
 
-	Materials.DisableSetting(glowMaterial, MaterialSettings.UseCameraPerspective);
-	Materials.DisableSetting(glowMaterial, MaterialSettings.BackfaceCulling);
+	Materials.DisableSetting(glowMaterial, ShaderSettings.UseCameraPerspective);
+	Materials.DisableSetting(glowMaterial, ShaderSettings.BackfaceCulling);
 
 	GameObjects.SetDefaultMaterial(uvMaterial);
+
+	Materials.SetShader(uvMaterial, uvShader, 1);
 
 	Camera camera = Cameras.CreateCamera();
 
@@ -179,7 +183,7 @@ int main()
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
+	GameObject room = LoadGameObjectFromModel("assets/models/room.obj", FileFormats.Obj);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
 	Materials.SetColor(car->Material, Colors.Green);
@@ -403,6 +407,8 @@ int main()
 	Materials.Dispose(glowMaterial);
 
 	Cameras.Dispose(camera);
+
+	Shaders.Dispose(toonShader);
 
 	Shaders.Dispose(texturedShader);
 

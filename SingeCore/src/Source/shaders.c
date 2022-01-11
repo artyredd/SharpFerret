@@ -23,6 +23,18 @@ const struct _shaderMethods Shaders = {
 	.Dispose = &Dispose
 };
 
+#define UseCameraPerspectiveFlag FLAG_0
+#define UseCullingFlag FLAG_1
+#define UseTransparencyFlag FLAG_2
+
+#define DEFAULT_SHADER_SETTINGS (UseCameraPerspectiveFlag | UseCullingFlag)
+
+const struct _shaderSettings ShaderSettings = {
+	.UseCameraPerspective = UseCameraPerspectiveFlag,
+	.BackfaceCulling = UseCullingFlag,
+	.Transparency = UseTransparencyFlag
+};
+
 static void OnDispose(unsigned int handle)
 {
 	glDeleteProgram(handle);
@@ -59,6 +71,8 @@ static Shader CreateShaderWithUniforms(bool allocUniforms)
 		ResetFlags(newShader->Uniforms->AvailableUniforms);
 		ResetFlags(newShader->Uniforms->UnavailableUniforms);
 	}
+
+	newShader->Settings = DEFAULT_SHADER_SETTINGS;
 
 	newShader->AfterDraw = null;
 	newShader->BeforeDraw = null;

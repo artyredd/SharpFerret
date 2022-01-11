@@ -38,11 +38,36 @@ struct _shaderUniforms {
 	int Handles[16];
 };
 
+typedef unsigned int ShaderSetting;
+
+struct _shaderSettings
+{
+	/// <summary>
+	/// Whether or not the material should cull it's back faces when it's drawn
+	/// </summary>
+	ShaderSetting BackfaceCulling;
+	/// <summary>
+	/// Whether or not the material should be rendered with blending that will allow the alpha layer to be drawn
+	/// </summary>
+	ShaderSetting Transparency;
+	/// <summary>
+	/// Whether or not the material should use the camera's perspective to change the rendered object's shape, 
+	/// this should be enabled for 3d object and disabled for 2d like GUI
+	/// </summary>
+	ShaderSetting UseCameraPerspective;
+};
+
+extern const struct _shaderSettings ShaderSettings;
+
 typedef struct _shader* Shader;
 
 struct _shader {
 	SharedHandle Handle;
 	struct _shaderUniforms* Uniforms;
+	/// <summary>
+	/// This is a quick mask that stores advanced toggles for this shader and how it should be drawn, these are applied to only this shader
+	/// </summary>
+	unsigned int Settings;
 	/// <summary>
 	/// The method that is ran before the mesh using this shader is ran, 
 	/// mat4 is the MVP for the mesh being rendered, can be NULL
@@ -61,6 +86,10 @@ struct _shaderMethods {
 	/// </summary>
 	Shader(*Instance)(Shader);
 	bool (*TryGetUniform)(Shader, Uniform, int* out_handle);
+	void (*DisableSetting)(Shader, const ShaderSetting);
+	void (*EnableSetting)(Shader, const ShaderSetting);
+	void (*SetSetting)(Shader, const ShaderSetting, const bool enabled);
+	bool (*HasSetting)(Shader, const ShaderSetting);
 	/// <summary>
 	/// Disposes and frees this shader and any managed resources it controls
 	/// </summary>

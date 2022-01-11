@@ -14,10 +14,10 @@ static Material CreateMaterial(void);
 static Material InstanceMaterial(const Material);
 static void SetMainTexture(Material, Texture);
 static void SetShader(Material, const Shader, size_t index);
-static void DisableSetting(Material, const MaterialSetting);
-static void EnableSetting(Material, const MaterialSetting);
-static void SetSetting(Material, const MaterialSetting, const bool enabled);
-static bool HasSetting(Material, const MaterialSetting);
+static void DisableSetting(Material, const ShaderSetting);
+static void EnableSetting(Material, const ShaderSetting);
+static void SetSetting(Material, const ShaderSetting, const bool enabled);
+static bool HasSetting(Material, const ShaderSetting);
 static void SetColor(Material, const Color);
 static void SetColors(Material, const float r, const float g, const float b, const float a);
 
@@ -36,18 +36,7 @@ const struct _materialMethods Materials = {
 	.SetColors = &SetColors
 };
 
-
-#define UseCameraPerspectiveFlag FLAG_0
-#define UseCullingFlag FLAG_1
-#define UseTransparencyFlag FLAG_2
-
-const struct _materialSettings MaterialSettings = {
-	.UseCameraPerspective = UseCameraPerspectiveFlag,
-	.BackfaceCulling = UseCullingFlag,
-	.Transparency = UseTransparencyFlag
-};
-
-#define DEFAULT_MATERIAL_SETTINGS (UseCameraPerspectiveFlag | UseCullingFlag)
+#define DEFAULT_MATERIAL_SETTINGS (ShaderSettings.UseCameraPerspective | ShaderSettings.BackfaceCulling)
 
 static void Dispose(Material material)
 {
@@ -174,13 +163,46 @@ static Material InstanceMaterial(Material material)
 	return newMaterial;
 }
 
+static void PrepareSettings(unsigned int settings)
+{
+	// check to see if we need to DISABLE back face culling(by default it's on)
+	if (HasFlag(settings, ShaderSettings.BackfaceCulling) is false)
+	{
+		glDisable(GL_CULL_FACE);
+	}
+
+	// check to see if we should enable transparency
+	if (HasFlag(settings, ShaderSettings.Transparency))
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	}
+}
+
+static void CleanupSettings(unsigned int settings)
+{
+	// re-enable culling
+	if (HasFlag(settings, ShaderSettings.BackfaceCulling) is false)
+	{
+		glEnable(GL_CULL_FACE);
+	}
+
+	if (HasFlag(settings, ShaderSettings.Transparency))
+	{
+		glDisable(GL_BLEND);
+	}
+}
+
 static void PerformDraw(Material material, RenderMesh mesh, mat4 MVPMatrix)
 {
 	for (size_t i = 0; i < material->Count; i++)
 	{
 		Shader shader = material->Shaders[i];
+
 		if (shader isnt null)
 		{
+			PrepareSettings(shader->Settings);
+
 			// perform any shader setup if we need to
 			if (shader->BeforeDraw isnt null)
 			{
@@ -215,6 +237,8 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 MVPMatrix)
 			{
 				shader->AfterDraw(shader);
 			}
+
+			CleanupSettings(shader->Settings);
 		}
 	}
 }
@@ -225,7 +249,7 @@ static void Draw(Material material, RenderMesh mesh, Camera camera)
 
 	// check if we should use the camera's perspective
 	vec4* MVP;
-	if (HasFlag(settings, MaterialSettings.UseCameraPerspective))
+	if (HasFlag(settings, ShaderSettings.UseCameraPerspective))
 	{
 		vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
 
@@ -241,36 +265,12 @@ static void Draw(Material material, RenderMesh mesh, Camera camera)
 		MVP = Transforms.Refresh(mesh->Transform);
 	}
 
-	// check to see if we need to DISABLE back face culling(by default it's on)
-	bool shouldDisableCulling = HasFlag(settings, MaterialSettings.BackfaceCulling) is false;
-
-	if (shouldDisableCulling)
-	{
-		glDisable(GL_CULL_FACE);
-	}
-
-	// check to see if we should enable transparency
-	bool shouldEnableTransparency = HasFlag(settings, MaterialSettings.Transparency);
-
-	if (shouldEnableTransparency)
-	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
+	PrepareSettings(settings);
 
 	// actually draw the mesh
 	PerformDraw(material, mesh, MVP);
 
-	// re-enable culling
-	if (shouldDisableCulling)
-	{
-		glEnable(GL_CULL_FACE);
-	}
-
-	if (shouldEnableTransparency)
-	{
-		glDisable(GL_BLEND);
-	}
+	CleanupSettings(settings);
 }
 
 
@@ -292,28 +292,28 @@ static void SetShader(Material material, Shader shader, size_t index)
 	material->Shaders[index] = Shaders.Instance(shader);
 }
 
-static void DisableSetting(Material material, MaterialSetting setting)
+static void DisableSetting(Material material, ShaderSetting setting)
 {
 	GuardNotNull(material);
 
 	ClearFlag(material->State.Settings, setting);
 }
 
-static void EnableSetting(Material material, MaterialSetting setting)
+static void EnableSetting(Material material, ShaderSetting setting)
 {
 	GuardNotNull(material);
 
 	SetFlag(material->State.Settings, setting);
 }
 
-static void SetSetting(Material material, MaterialSetting setting, bool enabled)
+static void SetSetting(Material material, ShaderSetting setting, bool enabled)
 {
 	GuardNotNull(material);
 
 	AssignFlag(material->State.Settings, setting, enabled);
 }
 
-static bool HasSetting(Material material, MaterialSetting setting)
+static bool HasSetting(Material material, ShaderSetting setting)
 {
 	GuardNotNull(material);
 
