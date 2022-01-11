@@ -84,7 +84,7 @@ void* SafeCalloc(size_t nitems, size_t size)
 
 void* SafeAlloc(size_t size)
 {
-	void* ptr = calloc(1,size);
+	void* ptr = calloc(1, size);
 
 	if (ptr is null)
 	{
@@ -131,6 +131,11 @@ bool TryRealloc(void* address, size_t size, void** out_address)
 	*out_address = realloc(address, size);
 
 	return *out_address isnt null;
+}
+
+void ZeroArray(void* address, size_t size)
+{
+	memset(address, 0, size);
 }
 
 static void PrintGroupedNumber(FILE* stream, size_t value)

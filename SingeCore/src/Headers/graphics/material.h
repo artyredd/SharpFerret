@@ -38,7 +38,8 @@ struct _materialState
 typedef struct _material* Material;
 
 struct _material {
-	Shader Shader;
+	Shader* Shaders;
+	size_t Count;
 	Color Color;
 	Texture MainTexture;
 	struct _materialState State;
@@ -62,7 +63,7 @@ struct _materialMethods {
 	/// <summary>
 	/// Creates a new instance of the provided shade, disposes the old one and reassigns the main texture of the provided shader
 	/// </summary>
-	void (*SetShader)(Material, const Shader);
+	void (*SetShader)(Material, const Shader, size_t index);
 	void (*SetColor)(Material, const Color);
 	void (*SetColors)(Material, const float r, const float g, const float b, const float a);
 	void (*DisableSetting)(Material, const MaterialSetting);

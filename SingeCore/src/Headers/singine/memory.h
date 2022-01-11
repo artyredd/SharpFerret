@@ -63,3 +63,6 @@ void* SafeAllocAligned(size_t alignment, size_t size);
 
 // Attempts to realloc the address to the new size, returns true if successfull, otherwise false
 int TryRealloc(void* address, size_t size, void** out_address);
+
+// Fills the array with zeros
+void ZeroArray(void* address, size_t size);

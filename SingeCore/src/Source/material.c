@@ -13,7 +13,7 @@ static void Draw(Material, RenderMesh, Camera);
 static Material CreateMaterial(void);
 static Material InstanceMaterial(const Material);
 static void SetMainTexture(Material, Texture);
-static void SetShader(Material, const Shader);
+static void SetShader(Material, const Shader, size_t index);
 static void DisableSetting(Material, const MaterialSetting);
 static void EnableSetting(Material, const MaterialSetting);
 static void SetSetting(Material, const MaterialSetting, const bool enabled);
@@ -56,7 +56,13 @@ static void Dispose(Material material)
 		return;
 	}
 
-	Shaders.Dispose(material->Shader);
+	for (size_t i = 0; i < material->Count; i++)
+	{
+		Shader shader = material->Shaders[i];
+		Shaders.Dispose(shader);
+	}
+
+	SafeFree(material->Shaders);
 
 	Textures.Dispose(material->MainTexture);
 
@@ -68,7 +74,9 @@ static Material Create(Shader shader, Texture texture)
 	Material material = SafeAlloc(sizeof(struct _material));
 
 	material->MainTexture = Textures.Instance(texture);
-	material->Shader = Shaders.Instance(shader);
+	material->Shaders = SafeAlloc(sizeof(Shader));
+	material->Shaders[0] = Shaders.Instance(shader);
+	material->Count = 1;
 	material->State.Settings = DEFAULT_MATERIAL_SETTINGS;
 
 	SetVector4(material->Color, 1, 1, 1, 1);
@@ -81,6 +89,70 @@ static Material CreateMaterial()
 	return Create(null, null);
 }
 
+static void CopyShadersTo(Shader* source, size_t sourceSize, Shader* destination, size_t destinationSize)
+{
+	for (size_t i = 0; i < min(sourceSize, destinationSize); i++)
+	{
+		destination[i] = source[i];
+	}
+}
+
+static void ResizeShaders(Material material, size_t desiredCount)
+{
+	if (material->Count < desiredCount)
+	{
+		size_t newSize = desiredCount * sizeof(Shader);
+
+		if (TryRealloc(material->Shaders, newSize, (void**)&material->Shaders) is false)
+		{
+			Shader* newArray = SafeAlloc(newSize);
+
+			CopyShadersTo(material->Shaders, material->Count, newArray, desiredCount);
+
+			SafeFree(material->Shaders);
+			material->Shaders = newArray;
+		}
+		else
+		{
+			// if we realloced non-zero bytes are at the end of the array
+			// set them to 0
+			for (size_t i = material->Count; i < desiredCount; i++)
+			{
+				material->Shaders[i] = null;
+			}
+		}
+
+		material->Count = desiredCount;
+	}
+}
+
+static void InstanceShadersTo(Material source, Material destination)
+{
+	// make sure to dispose of any old ones if they exist
+	if (destination->Shaders isnt null)
+	{
+		for (size_t i = 0; i < destination->Count; i++)
+		{
+			Shader shader = destination->Shaders[i];
+			Shaders.Dispose(shader);
+		}
+	}
+
+	// check to see if the array is big enough
+	ResizeShaders(destination, source->Count);
+
+	if (destination->Shaders is null)
+	{
+		throw(UnexpectedOutcomeException);
+	}
+
+	// instance the shaders to the destination array
+	for (size_t i = 0; i < source->Count; i++)
+	{
+		destination->Shaders[i] = Shaders.Instance(source->Shaders[i]);
+	}
+}
+
 static Material InstanceMaterial(Material material)
 {
 	if (material is null)
@@ -88,12 +160,12 @@ static Material InstanceMaterial(Material material)
 		return null;
 	}
 
-	Shader shader = Shaders.Instance(material->Shader);
 	Texture mainTexture = Textures.Instance(material->MainTexture);
 
 	Material newMaterial = Create(null, null);
 
-	newMaterial->Shader = shader;
+	InstanceShadersTo(material, newMaterial);
+
 	newMaterial->MainTexture = mainTexture;
 
 	Vectors3CopyTo(material->Color, newMaterial->Color);
@@ -104,43 +176,45 @@ static Material InstanceMaterial(Material material)
 
 static void PerformDraw(Material material, RenderMesh mesh, mat4 MVPMatrix)
 {
-	if (material->Shader isnt null)
+	for (size_t i = 0; i < material->Count; i++)
 	{
-		Shader shader = material->Shader;
-
-		// perform any shader setup if we need to
-		if (shader->BeforeDraw isnt null)
+		Shader shader = material->Shaders[i];
+		if (shader isnt null)
 		{
-			shader->BeforeDraw(shader, MVPMatrix);
-		}
-
-		int colorHandle;
-		if (Shaders.TryGetUniform(material->Shader, Uniforms.Color, &colorHandle))
-		{
-			glUniform4fv(colorHandle, 1, material->Color);
-		}
-
-		// check to see if we need to load a texture into the maintexture
-		if (material->MainTexture isnt null)
-		{
-			int textureHandle;
-			if (Shaders.TryGetUniform(material->Shader, Uniforms.Texture0, &textureHandle))
+			// perform any shader setup if we need to
+			if (shader->BeforeDraw isnt null)
 			{
-				glEnable(GL_TEXTURE_2D);
-				glActiveTexture(GL_TEXTURE0);
-				glBindTexture(GL_TEXTURE_2D, material->MainTexture->Handle->Handle);
-				glUniform1i(textureHandle, 0);
-				glDisable(GL_TEXTURE_2D);
+				shader->BeforeDraw(shader, MVPMatrix);
 			}
-		}
 
-		// draw the triangles
-		RenderMeshes.Draw(mesh);
+			int colorHandle;
+			if (Shaders.TryGetUniform(shader, Uniforms.Color, &colorHandle))
+			{
+				glUniform4fv(colorHandle, 1, material->Color);
+			}
 
-		// perform shader cleanup if needed
-		if (shader->AfterDraw isnt null)
-		{
-			shader->AfterDraw(shader);
+			// check to see if we need to load a texture into the maintexture
+			if (material->MainTexture isnt null)
+			{
+				int textureHandle;
+				if (Shaders.TryGetUniform(shader, Uniforms.Texture0, &textureHandle))
+				{
+					glEnable(GL_TEXTURE_2D);
+					glActiveTexture(GL_TEXTURE0);
+					glBindTexture(GL_TEXTURE_2D, material->MainTexture->Handle->Handle);
+					glUniform1i(textureHandle, 0);
+					glDisable(GL_TEXTURE_2D);
+				}
+			}
+
+			// draw the triangles
+			RenderMeshes.Draw(mesh);
+
+			// perform shader cleanup if needed
+			if (shader->AfterDraw isnt null)
+			{
+				shader->AfterDraw(shader);
+			}
 		}
 	}
 }
@@ -207,11 +281,15 @@ static void SetMainTexture(Material material, Texture texture)
 	material->MainTexture = Textures.Instance(texture);
 }
 
-static void SetShader(Material material, Shader shader)
+static void SetShader(Material material, Shader shader, size_t index)
 {
 	GuardNotNull(material);
-	Shaders.Dispose(material->Shader);
-	material->Shader = Shaders.Instance(shader);
+
+	ResizeShaders(material, index + 1);
+
+	Shaders.Dispose(material->Shaders[index]);
+
+	material->Shaders[index] = Shaders.Instance(shader);
 }
 
 static void DisableSetting(Material material, MaterialSetting setting)

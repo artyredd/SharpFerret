@@ -186,7 +186,7 @@ int main()
 
 	GameObjects.SetMaterial(cube, texturedMaterial);
 
-	size_t previosInstanceCount = ball->Material->Shader->Handle->ActiveInstances;
+	size_t previosInstanceCount = ball->Material->Shaders[0]->Handle->ActiveInstances;
 
 	//test memory leak
 	for (size_t i = 0; i < 5; i++)
@@ -197,7 +197,7 @@ int main()
 	}
 
 	// check memory leak for GameObjects
-	if (ball->Material->Shader->Handle->ActiveInstances != previosInstanceCount)
+	if (ball->Material->Shaders[0]->Handle->ActiveInstances != previosInstanceCount)
 	{
 		throw(InvalidArgumentException);
 	}
