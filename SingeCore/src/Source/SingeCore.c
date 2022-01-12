@@ -183,7 +183,7 @@ int main()
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("assets/models/room.obj", FileFormats.Obj);
+	GameObject room = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
 	Materials.SetColor(car->Material, Colors.Green);

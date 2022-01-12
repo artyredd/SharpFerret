@@ -2,41 +2,120 @@
 #include <stdio.h>
 #include "singine/file.h"
 #include "cunit.h"
+#include "string.h"
 
+static bool TryParseVector3(const char* buffer, const size_t length, float* out_vector3);
+static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector);
 
-bool TryParseVector3(char* buffer, float* out_vector)
+const struct _vector3Methods Vector3s = {
+	.TryDeserialize = &TryParseVector3,
+	.TrySerialize = &TrySerializeVec3,
+};
+
+static bool TryParseVector2(const char* buffer, const size_t length, float* out_vector2);
+static bool TrySerializeVec2(char* buffer, const size_t length, const float* vector);
+
+const struct _vector2Methods Vector2s = {
+	.TryDeserialize = &TryParseVector2,
+	.TrySerialize = &TrySerializeVec2
+};
+
+static bool TryDeserializeVec4(const char* buffer, const size_t length, float* out_vector2);
+static bool TrySerializeVec4(char* buffer, const size_t length, const float* vector);
+
+const struct _vector4Methods Vector4s = {
+	.TryDeserialize = &TryDeserializeVec4,
+	.TrySerialize = &TrySerializeVec4
+};
+
+#define Vector2SerializationFormat "%f %f"
+#define Vector3SerializationFormat "%f %f %f"
+#define Vector4SerializationFormat "%f %f %f %f"
+
+static bool TryParseVector3(const char* buffer, size_t length, float* out_vector3)
 {
-	float x, y, z;
-
-	int count = sscanf_s(buffer, "%f %f %f", &x, &y, &z);
-
-	if (count != 3)
+	if (length is 0)
 	{
 		return false;
 	}
 
-	out_vector[0] = x;
-	out_vector[1] = y;
-	out_vector[2] = z;
+	int count = sscanf_s(buffer, "%f %f %f", &out_vector3[0],
+		&out_vector3[1],
+		&out_vector3[2]);
 
-	return true;
+	return count == 3;
 }
 
-bool TryParseVector2(char* buffer, float* out_vector)
+static bool TryParseVector2(const char* buffer, size_t length, float* out_vector2)
 {
-	float x, y;
-
-	int count = sscanf_s(buffer, "%f %f", &x, &y);
-
-	if (count != 2)
+	if (length is 0)
 	{
 		return false;
 	}
 
-	out_vector[0] = x;
-	out_vector[1] = y;
+	int count = sscanf_s(buffer, "%f %f", 
+		&out_vector2[0], 
+		&out_vector2[1]);
 
-	return true;
+	return count == 2;
+}
+
+static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector) 
+{
+	if (length is 0)
+	{
+		return false;
+	}
+
+	int result = sprintf_s(buffer, length, Vector3SerializationFormat, vector[0], vector[1], vector[2]);
+
+	// 0 is runtime error, negative is encoding error
+	return result > 0;
+}
+
+static bool TrySerializeVec2(char* buffer, const size_t length, const float* vector)
+{
+	if (length is 0)
+	{
+		return false;
+	}
+
+	int result = sprintf_s(buffer, length, Vector2SerializationFormat, vector[0], vector[1]);
+
+	// 0 is runtime error, negative is encoding error
+	return result > 0;
+}
+
+static bool TryDeserializeVec4(const char* buffer, const size_t length, float* out_vector4) 
+{
+	if (length is 0)
+	{
+		return false;
+	}
+
+	int count = sscanf_s(buffer, Vector4SerializationFormat, &out_vector4[0],
+		&out_vector4[1],
+		&out_vector4[2], 
+		&out_vector4[3]);
+
+	return count == 4;
+}
+
+static bool TrySerializeVec4(char* buffer, const size_t length, const float* vector)
+{
+	if (length is 0)
+	{
+		return false;
+	}
+
+	int result = sprintf_s(buffer, length, Vector4SerializationFormat,
+		vector[0], 
+		vector[1], 
+		vector[2], 
+		vector[3]);
+
+	// 0 is runtime error, negative is encoding error
+	return result > 0;
 }
 
 static bool Test_TryGetVector3(File stream)
@@ -47,7 +126,7 @@ static bool Test_TryGetVector3(File stream)
 
 	vec3 actual;
 
-	Assert(TryParseVector3(buffer, actual));
+	Assert(TryParseVector3(buffer, strlen(buffer), actual));
 
 	Assert(Vector3Equals(expected, actual));
 
@@ -62,7 +141,7 @@ static bool Test_TryGetVector2(File stream)
 
 	vec2 actual;
 
-	Assert(TryParseVector2(buffer, actual));
+	Assert(TryParseVector2(buffer, strlen(buffer), actual));
 
 	Assert(Vector2Equals(expected, actual));
 

@@ -137,7 +137,7 @@ static bool TryGetVectorPattern(File stream,
 	const char* abortPattern,
 	size_t floatsPerRow,
 	float* resultBuffer,
-	bool(*Parser)(char* buffer, float* out_values),
+	bool(*Parser)(char* buffer, size_t bufferLength, float* out_values),
 	size_t* out_count)
 {
 	*out_count = 0;
@@ -156,7 +156,7 @@ static bool TryGetVectorPattern(File stream,
 	}
 
 	// check to see if there is already a parsable string in the buffer
-	if (Parser(buffer + offset, resultBuffer))
+	if (Parser(buffer + offset, bufferLength,resultBuffer))
 	{
 		++count;
 	}
@@ -190,7 +190,7 @@ static bool TryGetVectorPattern(File stream,
 
 		float* subarray = resultBuffer + (count * floatsPerRow);
 
-		if (Parser(buffer + offset, subarray) is false)
+		if (Parser(buffer + offset, bufferLength, subarray) is false)
 		{
 			break;
 		}
@@ -482,7 +482,7 @@ static bool TryCreateMesh(File stream, FileBuffer buffer, Mesh* out_mesh)
 	size_t offset = buffer->VerticesCount * 3;
 
 	size_t vertexCount;
-	if (TryGetVectorPattern(stream, buffer->StreamBuffer, buffer->StreamLength, Sequences.Vertex, Sequences.TextureVertex, 3, buffer->VertexBuffer + offset, TryParseVector3, &vertexCount) is false)
+	if (TryGetVectorPattern(stream, buffer->StreamBuffer, buffer->StreamLength, Sequences.Vertex, Sequences.TextureVertex, 3, buffer->VertexBuffer + offset, Vector3s.TryDeserialize, &vertexCount) is false)
 	{
 		SafeFree(name);
 
@@ -495,7 +495,7 @@ static bool TryCreateMesh(File stream, FileBuffer buffer, Mesh* out_mesh)
 	offset = buffer->TexturesCount * 2;
 
 	size_t textureVertexCount;
-	if (TryGetVectorPattern(stream, buffer->StreamBuffer, buffer->StreamLength, Sequences.TextureVertex, Sequences.NormalVertex, 2, buffer->TextureBuffer + offset, TryParseVector2, &textureVertexCount) is false)
+	if (TryGetVectorPattern(stream, buffer->StreamBuffer, buffer->StreamLength, Sequences.TextureVertex, Sequences.NormalVertex, 2, buffer->TextureBuffer + offset, Vector2s.TryDeserialize, &textureVertexCount) is false)
 	{
 		SafeFree(name);
 
@@ -507,7 +507,7 @@ static bool TryCreateMesh(File stream, FileBuffer buffer, Mesh* out_mesh)
 	offset = buffer->NormalsCount * 3;
 
 	size_t normalVertexCount;
-	if (TryGetVectorPattern(stream, buffer->StreamBuffer, buffer->StreamLength, Sequences.NormalVertex, Sequences.Smoothing, 3, buffer->NormalBuffer + offset, TryParseVector3, &normalVertexCount) is false)
+	if (TryGetVectorPattern(stream, buffer->StreamBuffer, buffer->StreamLength, Sequences.NormalVertex, Sequences.Smoothing, 3, buffer->NormalBuffer + offset, Vector3s.TryDeserialize, &normalVertexCount) is false)
 	{
 		SafeFree(name);
 		return false;

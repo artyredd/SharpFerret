@@ -28,6 +28,7 @@ struct _material {
 struct _materialMethods {
 	Material(*CreateMaterial)(void);
 	Material(*Create)(const Shader, const Texture);
+	Material(*Load)(const char* path);
 	/// <summary>
 	/// Creates a new instance of the provided material
 	/// </summary>

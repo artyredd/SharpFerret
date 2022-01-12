@@ -121,6 +121,27 @@ static struct _vectorDirections {
 	.Back = { 0, 0, -1 }
 };
 
+struct _vector3Methods {
+	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec3);
+	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
+};
+
+extern const struct _vector3Methods Vector3s;
+
+struct _vector2Methods {
+	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec2);
+	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
+};
+
+extern const struct _vector2Methods Vector2s;
+
+struct _vector4Methods {
+	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec4);
+	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
+};
+
+extern const struct _vector4Methods Vector4s;
+
 static struct _matrixConstants {
 	mat4 Identity;
 	mat4 Zero;
@@ -128,9 +149,5 @@ static struct _matrixConstants {
 	.Identity = GLM_MAT4_IDENTITY_INIT,
 	.Zero = GLM_MAT4_ZERO_INIT
 };
-
-bool TryParseVector3(char* buffer, vec3 out_vector);
-
-bool TryParseVector2(char* buffer, vec3 out_vector);
 
 bool RunVectorUnitTests();

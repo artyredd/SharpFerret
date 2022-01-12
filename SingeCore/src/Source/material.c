@@ -6,6 +6,7 @@
 #include "helpers/quickmask.h"
 #include "cglm/mat4.h"
 #include "math/vectors.h"
+#include "singine/file.h"
 
 static void Dispose(Material material);
 static Material Create(const Shader shader, const Texture texture);
@@ -20,10 +21,12 @@ static void SetSetting(Material, const ShaderSetting, const bool enabled);
 static bool HasSetting(Material, const ShaderSetting);
 static void SetColor(Material, const Color);
 static void SetColors(Material, const float r, const float g, const float b, const float a);
+static Material Load(const char* path);
 
 const struct _materialMethods Materials = {
 	.Dispose = &Dispose,
 	.Create = &Create,
+	.Load = &Load,
 	.Draw = &Draw,
 	.Instance = &InstanceMaterial,
 	.SetMainTexture = &SetMainTexture,
@@ -332,4 +335,16 @@ static void SetColors(Material material, const float r, const float g, const flo
 	GuardNotNull(material);
 
 	SetVector4(material->Color, r, g, b, a);
+}
+
+static Material Load(const char* path)
+{
+	File file;
+	if (Files.TryOpen(path, FileModes.ReadBinary, &file) is false)
+	{
+		fprintf(stderr, "Failed to load material definitin at path: %s", path);
+		return null;
+	}
+
+
 }
