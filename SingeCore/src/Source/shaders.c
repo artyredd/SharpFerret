@@ -4,6 +4,8 @@
 #include "GL/glew.h"
 #include "helpers/quickmask.h"
 #include "helpers/macros.h"
+#include "singine/config.h"
+#include "singine/parsing.h"
 
 static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle);
 static Shader Instance(Shader shader);
@@ -51,6 +53,8 @@ static void Dispose(Shader shader)
 	if (shader->Handle->ActiveInstances <= 1)
 	{
 		SafeFree(shader->Uniforms);
+		SafeFree(shader->VertexPath);
+		SafeFree(shader->FragmentPath);
 	}
 
 	SharedHandles.Dispose(shader->Handle, &OnDispose);
@@ -143,4 +147,3 @@ static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle)
 
 	return true;
 }
-

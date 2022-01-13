@@ -345,12 +345,12 @@ static void SetColors(Material material, const float r, const float g, const flo
 #define ShaderToken "shaders"
 #define ColorToken "color"
 
-const char* Tokens[TokenCount] = {
+static const char* Tokens[TokenCount] = {
 	ShaderToken,
 	ColorToken
 };
 
-const size_t TokenLengths[TokenCount] = {
+static const size_t TokenLengths[TokenCount] = {
 	sizeof(ShaderToken),
 	sizeof(ColorToken)
 };
@@ -385,6 +385,8 @@ static Material Load(const char* path)
 	{
 		return material;
 	}
+
+	fprintf(stderr, "Filed to load the material from path: %s", path);
 
 	Materials.Dispose(material);
 

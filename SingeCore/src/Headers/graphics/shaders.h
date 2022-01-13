@@ -62,6 +62,8 @@ extern const struct _shaderSettings ShaderSettings;
 typedef struct _shader* Shader;
 
 struct _shader {
+	char* VertexPath;
+	char* FragmentPath;
 	SharedHandle Handle;
 	struct _shaderUniforms* Uniforms;
 	/// <summary>

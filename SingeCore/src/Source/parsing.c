@@ -27,27 +27,28 @@ char* ValidFalseBooleans[] = {
 	"DISABLED"
 };
 
-bool TryParseBoolean(char* buffer, size_t bufferLength, bool* out_bool)
+bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool* out_bool)
 {
 	*out_bool = false;
 
-	char* value;
+	char copiedString[11];
 
-	if (TryParseString(buffer, bufferLength, 10, &value) is false)
-	{
-		return false;
-	}
+	copiedString[10] = '\0';
+
+	sscanf_s(buffer, "%10s", &copiedString, 10);
+
+	size_t length = strlen(copiedString) - 1;
 
 	bool parsed = false;
 
-	ToUpper(value, strlen(value), 0);
+	ToUpper(copiedString, strlen(copiedString), 0);
 
 	// this is probably platform dependent, 
 	// this assumes the size of a pointer address is the same size as size_t
 	// on this architexture (amdx64) ptrs are x64 and so is the size of the DWORD
 	for (size_t i = 0; i < (sizeof(ValidTrueBooleans) / sizeof(size_t)); i++)
 	{
-		if (strcmp(value, ValidTrueBooleans[i]) is 0)
+		if (memcmp(copiedString, ValidTrueBooleans[i], min(length, bufferLength)) is 0)
 		{
 			parsed = true;
 			*out_bool = true;
@@ -59,7 +60,7 @@ bool TryParseBoolean(char* buffer, size_t bufferLength, bool* out_bool)
 	{
 		for (size_t i = 0; i < (sizeof(ValidFalseBooleans) / sizeof(size_t)); i++)
 		{
-			if (strcmp(value, ValidFalseBooleans[i]) is 0)
+			if (memcmp(copiedString, ValidFalseBooleans[i], min(length, bufferLength)) is 0)
 			{
 				parsed = true;
 				*out_bool = false;
@@ -68,12 +69,10 @@ bool TryParseBoolean(char* buffer, size_t bufferLength, bool* out_bool)
 		}
 	}
 
-	SafeFree(value);
-
 	return parsed;
 }
 
-bool TryParseLine(char* buffer, size_t bufferLength, size_t maxStringLength, char** out_string)
+bool TryParseLine(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string)
 {
 	*out_string = null;
 
@@ -118,7 +117,7 @@ bool TryParseLine(char* buffer, size_t bufferLength, size_t maxStringLength, cha
 	return true;
 }
 
-bool TryParseString(char* buffer, size_t bufferLength, size_t maxStringLength, char** out_string)
+bool TryParseString(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string)
 {
 	*out_string = null;
 

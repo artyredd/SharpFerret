@@ -6,11 +6,16 @@
 #include <stdlib.h>
 #include "graphics/shaders.h"
 #include "graphics/shadercompiler.h"
+#include "singine/config.h"
+#include "helpers/quickmask.h"
+#include "singine/parsing.h"
 
 static Shader CompileShader(const char* vertexPath, const char* fragmentPath);
+static Shader Load(const char* path);
 
 const struct _shaderCompilerMethods ShaderCompilers = {
-	.CompileShader = &CompileShader
+	.CompileShader = &CompileShader,
+	.Load = &Load
 };
 
 #define LOG_BUFFER_SIZE 1024
@@ -260,4 +265,107 @@ static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 	shader->Handle->Handle = programHandle;
 
 	return shader;
+}
+
+
+#define MaxPathLength 512
+
+struct _shaderInfo {
+	char* FragmentPath;
+	char* VertexPath;
+	unsigned int Settings;
+};
+
+#define TokenCount 5
+
+#define VertexShaderToken "vertexShader"
+#define FragmentShaderToken "fragmentShader"
+#define UseBackfaceCullingToken "enableBackfaceCulling"
+#define UseCameraPerspectiveToken "useCameraPerspective"
+#define UseTransparencyToken "enableBlending"
+
+static const char* Tokens[TokenCount] = {
+	VertexShaderToken,
+	FragmentShaderToken,
+	UseBackfaceCullingToken,
+	UseCameraPerspectiveToken,
+	UseTransparencyToken
+};
+
+static const size_t TokenLengths[TokenCount] = {
+	sizeof(VertexShaderToken),
+	sizeof(FragmentShaderToken),
+	sizeof(UseBackfaceCullingToken),
+	sizeof(UseCameraPerspectiveToken),
+	sizeof(UseTransparencyToken),
+};
+
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _shaderInfo* state)
+{
+	bool enabled;
+	switch (index)
+	{
+	case 0: // vertex path
+		return TryParseString(buffer, length, MaxPathLength, &state->VertexPath);
+	case 1: // fragment path
+		return TryParseString(buffer, length, MaxPathLength, &state->FragmentPath);
+	case 2: // backface culling
+		if (TryParseBoolean(buffer, length, &enabled))
+		{
+			AssignFlag(state->Settings, ShaderSettings.BackfaceCulling, enabled);
+			return true;
+		}
+		return false;
+	case 3: // use camera perspective
+		if (TryParseBoolean(buffer, length, &enabled))
+		{
+			AssignFlag(state->Settings, ShaderSettings.UseCameraPerspective, enabled);
+			return true;
+		}
+		return false;
+	case 4: // use transparency
+		if (TryParseBoolean(buffer, length, &enabled))
+		{
+			AssignFlag(state->Settings, ShaderSettings.Transparency, enabled);
+			return true;
+		}
+		return false;
+	default:
+		return false;
+	}
+}
+
+const struct _configDefinition ShaderConfigDefinition = {
+	.Tokens = (const char**)&Tokens,
+	.TokenLengths = (const size_t*)&TokenLengths,
+	.CommentCharacter = '#',
+	.Count = sizeof(Tokens) / sizeof(&Tokens), // tokens is an array of pointers to the total bytes/sizeof pointer is the count
+	.OnTokenFound = &OnTokenFound
+};
+
+static Shader Load(const char* path)
+{
+	// create a place to store info needed to compile shader
+	struct _shaderInfo info = {
+		.Settings = 0
+	};
+
+	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &info))
+	{
+		Shader compiledShader = CompileShader(info.VertexPath, info.FragmentPath);
+
+		compiledShader->FragmentPath = info.FragmentPath;
+		compiledShader->VertexPath = info.VertexPath;
+
+		compiledShader->Settings = info.Settings;
+
+		return compiledShader;
+	}
+
+	SafeFree(info.FragmentPath);
+	SafeFree(info.VertexPath);
+
+	fprintf(stderr, "Filed to load the shader from path: %s", path);
+
+	return null;
 }

@@ -280,7 +280,7 @@ int main()
 
 	float amount = 0;
 
-	Material result = Materials.Load("assets/materials/test.material");
+	Shader loadedShader = ShaderCompilers.Load("assets/shaders/shaderFormat.shader");
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -409,6 +409,8 @@ int main()
 	Materials.Dispose(glowMaterial);
 
 	Cameras.Dispose(camera);
+
+	Shaders.Dispose(loadedShader);
 
 	Shaders.Dispose(toonShader);
 
