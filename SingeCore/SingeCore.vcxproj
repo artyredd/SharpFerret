@@ -190,6 +190,7 @@
   <ItemGroup>
     <ClCompile Include="src\Source\camera.c" />
     <ClCompile Include="src\Source\colors.c" />
+    <ClCompile Include="src\Source\config.c" />
     <ClCompile Include="src\Source\conversions.c" />
     <ClCompile Include="src\Source\cunit.c" />
     <ClCompile Include="src\Source\file.c" />
@@ -247,6 +248,7 @@
     <ClInclude Include="src\Headers\modeling\mesh.h" />
     <ClInclude Include="src\Headers\modeling\model.h" />
     <ClInclude Include="src\Headers\scripts\fpsCamera.h" />
+    <ClInclude Include="src\Headers\singine\config.h" />
     <ClInclude Include="src\Headers\singine\conversions.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />
     <ClInclude Include="src\Headers\singine\file.h" />

@@ -17,7 +17,7 @@ static bool TryGetSequenceCount(File file, const char* targetSequence, const siz
 static bool TryClose(File file);
 static void Close(File file);
 
-extern const struct _fileMethods Files = {
+const struct _fileMethods Files = {
 	.TryOpen = &TryOpen,
 	.Open = &Open,
 	.GetFileSize = &GetFileSize,

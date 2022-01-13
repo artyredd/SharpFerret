@@ -8,6 +8,7 @@
 #include "math/vectors.h"
 #include "singine/file.h"
 #include "string.h"
+#include "singine/config.h"
 
 static void Dispose(Material material);
 static Material Create(const Shader shader, const Texture texture);
@@ -43,24 +44,6 @@ const struct _materialMethods Materials = {
 #define DEFAULT_MATERIAL_SETTINGS (ShaderSettings.UseCameraPerspective | ShaderSettings.BackfaceCulling)
 
 #define MATERIAL_LOADER_BUFFER_SIZE 1024
-
-typedef const char* Token;
-
-static const struct _materialTokens {
-	Token Shaders;
-	Token Color;
-	Token UseBackfaceCulling;
-	Token UseCameraPerspective;
-	Token EnableTransparency;
-	int Comment;
-} Tokens = {
-	.Shaders = "shaders",
-	.Color = "color",
-	.UseBackfaceCulling = "useBackfaceCulling",
-	.UseCameraPerspective = "useCameraPerspective",
-	.EnableTransparency = "enableTransparency",
-	.Comment = '#'
-};
 
 static void Dispose(Material material)
 {
@@ -357,48 +340,53 @@ static void SetColors(Material material, const float r, const float g, const flo
 	SetVector4(material->Color, r, g, b, a);
 }
 
+#define TokenCount 2
+
+#define ShaderToken "shaders"
+#define ColorToken "color"
+
+const char* Tokens[TokenCount] = {
+	ShaderToken,
+	ColorToken
+};
+
+const size_t TokenLengths[TokenCount] = {
+	sizeof(ShaderToken),
+	sizeof(ColorToken)
+};
+
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, Material state)
+{
+	switch (index)
+	{
+	case 0: // shader token
+		return true;
+	case 1:
+		return Vector4s.TryDeserialize(buffer, length, state->Color);
+	default:
+		return false;
+	}
+}
+
+const struct _configDefinition MaterialConfigDefinition = {
+	.Tokens = (const char**)&Tokens,
+	.TokenLengths = (const size_t*)&TokenLengths,
+	.CommentCharacter = '#',
+	.Count = sizeof(Tokens) / sizeof(&Tokens), // tokens is an array of pointers to the total bytes/sizeof pointer is the count
+	.OnTokenFound = &OnTokenFound
+};
+
 static Material Load(const char* path)
 {
-	File file;
-	if (Files.TryOpen(path, FileModes.ReadBinary, &file) is false)
-	{
-		fprintf(stderr, "Failed to load material definitin at path: %s", path);
-		return null;
-	}
-
 	// create an empty material
 	Material material = CreateMaterial();
 
-	char buffer[MATERIAL_LOADER_BUFFER_SIZE];
-	
-	size_t bufferLength = MATERIAL_LOADER_BUFFER_SIZE;
-
-	size_t lineLength;
-	while (Files.TryReadLine(file, buffer, 0, bufferLength, &lineLength))
+	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, material))
 	{
-		// ignore comments
-		if (buffer[0] is Tokens.Comment)
-		{
-			continue;
-		}
-
-		// load any shaders
-		if (memcmp(buffer, Tokens.Shaders, min(strlen(Tokens.Shaders), bufferLength)) is 0)
-		{
-			// load the shaders into the material
-		}
-
-		// try to load the color
-		if (memcmp(buffer, Tokens.Color, min(strlen(Tokens.Color), bufferLength)) is 0)
-		{
-			const char* offset = buffer + strlen(Tokens.Color) + 1;
-
-			if (Vector4s.TryDeserialize(offset, bufferLength, material->Color) is false)
-			{
-				fprintf(stderr, "Failed to deserialize color for material: %s", path);
-			}
-		}
+		return material;
 	}
 
-	return material;
+	Materials.Dispose(material);
+
+	return null;
 }
