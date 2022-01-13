@@ -7,6 +7,7 @@
 #include "cglm/mat4.h"
 #include "math/vectors.h"
 #include "singine/file.h"
+#include "string.h"
 
 static void Dispose(Material material);
 static Material Create(const Shader shader, const Texture texture);
@@ -40,6 +41,26 @@ const struct _materialMethods Materials = {
 };
 
 #define DEFAULT_MATERIAL_SETTINGS (ShaderSettings.UseCameraPerspective | ShaderSettings.BackfaceCulling)
+
+#define MATERIAL_LOADER_BUFFER_SIZE 1024
+
+typedef const char* Token;
+
+static const struct _materialTokens {
+	Token Shaders;
+	Token Color;
+	Token UseBackfaceCulling;
+	Token UseCameraPerspective;
+	Token EnableTransparency;
+	int Comment;
+} Tokens = {
+	.Shaders = "shaders",
+	.Color = "color",
+	.UseBackfaceCulling = "useBackfaceCulling",
+	.UseCameraPerspective = "useCameraPerspective",
+	.EnableTransparency = "enableTransparency",
+	.Comment = '#'
+};
 
 static void Dispose(Material material)
 {
@@ -276,7 +297,6 @@ static void Draw(Material material, RenderMesh mesh, Camera camera)
 	CleanupSettings(settings);
 }
 
-
 static void SetMainTexture(Material material, Texture texture)
 {
 	GuardNotNull(material);
@@ -346,5 +366,39 @@ static Material Load(const char* path)
 		return null;
 	}
 
+	// create an empty material
+	Material material = CreateMaterial();
 
+	char buffer[MATERIAL_LOADER_BUFFER_SIZE];
+	
+	size_t bufferLength = MATERIAL_LOADER_BUFFER_SIZE;
+
+	size_t lineLength;
+	while (Files.TryReadLine(file, buffer, 0, bufferLength, &lineLength))
+	{
+		// ignore comments
+		if (buffer[0] is Tokens.Comment)
+		{
+			continue;
+		}
+
+		// load any shaders
+		if (memcmp(buffer, Tokens.Shaders, min(strlen(Tokens.Shaders), bufferLength)) is 0)
+		{
+			// load the shaders into the material
+		}
+
+		// try to load the color
+		if (memcmp(buffer, Tokens.Color, min(strlen(Tokens.Color), bufferLength)) is 0)
+		{
+			const char* offset = buffer + strlen(Tokens.Color) + 1;
+
+			if (Vector4s.TryDeserialize(offset, bufferLength, material->Color) is false)
+			{
+				fprintf(stderr, "Failed to deserialize color for material: %s", path);
+			}
+		}
+	}
+
+	return material;
 }
