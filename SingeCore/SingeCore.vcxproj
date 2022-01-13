@@ -197,6 +197,7 @@
     <ClCompile Include="src\Source\font.c" />
     <ClCompile Include="src\Source\gameobject.c" />
     <ClCompile Include="src\Source\gameobjectHelpers.c" />
+    <ClCompile Include="src\Source\hashing.c" />
     <ClCompile Include="src\Source\imaging.c" />
     <ClCompile Include="src\Source\importer.c" />
     <ClCompile Include="src\Source\input.c" />
@@ -255,6 +256,7 @@
     <ClInclude Include="src\Headers\singine\gameobject.h" />
     <ClInclude Include="src\Headers\singine\gameobjectHelpers.h" />
     <ClInclude Include="src\Headers\singine\guards.h" />
+    <ClInclude Include="src\Headers\singine\hashing.h" />
     <ClInclude Include="src\Headers\Singine\memory.h" />
     <ClInclude Include="src\Headers\singine\parsing.h" />
     <ClInclude Include="src\Headers\singine\time.h" />
