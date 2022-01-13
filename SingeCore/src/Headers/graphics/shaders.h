@@ -70,20 +70,11 @@ struct _shader {
 	/// This is a quick mask that stores advanced toggles for this shader and how it should be drawn, these are applied to only this shader
 	/// </summary>
 	unsigned int Settings;
-	/// <summary>
-	/// The method that is ran before the mesh using this shader is ran, 
-	/// mat4 is the MVP for the mesh being rendered, can be NULL
-	/// </summary>
-	void(*BeforeDraw)(Shader, mat4 mvpMatrix);
-	/// <summary>
-	/// Invoked after any given mesh is drawn
-	/// </summary>
-	void(*AfterDraw)(Shader);
 };
 
 struct _shaderMethods {
-	Shader(*CreateEmpty)();
-	Shader(*Create)();
+	Shader(*CreateEmpty)(void);
+	Shader(*Create)(void);
 	/// <summary>
 	/// Creates a new instance of the provided shader
 	/// </summary>
@@ -97,6 +88,8 @@ struct _shaderMethods {
 	/// Disposes and frees this shader and any managed resources it controls
 	/// </summary>
 	void (*Dispose)(Shader);
+	void (*Enable)(Shader);
+	void (*Disable)(Shader);
 };
 
 const extern struct _shaderMethods Shaders;

@@ -281,8 +281,6 @@ int main()
 
 	float amount = 0;
 
-	Shader loadedShader = ShaderCompilers.Load("assets/shaders/shaderFormat.shader");
-
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -411,8 +409,6 @@ int main()
 
 	Cameras.Dispose(camera);
 
-	Shaders.Dispose(loadedShader);
-
 	Shaders.Dispose(toonShader);
 
 	Shaders.Dispose(texturedShader);
@@ -471,8 +467,6 @@ Shader LoadShader(const char* vertexPath, const char* fragmentPath)
 	{
 		throw(FailedToCompileShaderException);
 	}
-
-	shader->BeforeDraw = &BeforeDraw;
 
 	return shader;
 }

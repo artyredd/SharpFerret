@@ -12,6 +12,8 @@ static Shader Instance(Shader shader);
 static void Dispose(Shader shader);
 static Shader CreateShader(void);
 static Shader CreateEmpty(void);
+static void Enable(Shader);
+static void Disable(Shader);
 
 const struct _uniforms Uniforms = {
 	.MVP = {.Index = 0, .Name = UNIFORM_NAME_MVP },
@@ -24,14 +26,16 @@ const struct _shaderMethods Shaders = {
 	.Instance = &Instance,
 	.TryGetUniform = &TryGetUniform,
 	.Dispose = &Dispose,
-	.CreateEmpty = &CreateEmpty
+	.CreateEmpty = &CreateEmpty,
+	.Enable = &Enable,
+	.Disable = &Disable
 };
 
 #define UseCameraPerspectiveFlag FLAG_0
 #define UseCullingFlag FLAG_1
 #define UseTransparencyFlag FLAG_2
 
-#define DEFAULT_SHADER_SETTINGS (UseCameraPerspectiveFlag | UseCullingFlag)
+#define DEFAULT_SHADER_SETTINGS 0 //(UseCameraPerspectiveFlag | UseCullingFlag)
 
 const struct _shaderSettings ShaderSettings = {
 	.UseCameraPerspective = UseCameraPerspectiveFlag,
@@ -80,9 +84,6 @@ static Shader CreateShaderWithUniforms(bool allocUniforms)
 
 	newShader->Settings = DEFAULT_SHADER_SETTINGS;
 
-	newShader->AfterDraw = null;
-	newShader->BeforeDraw = null;
-
 	return newShader;
 }
 
@@ -108,9 +109,6 @@ static Shader Instance(Shader shader)
 	CopyMember(shader, newShader, Handle);
 
 	++(shader->Handle->ActiveInstances);
-
-	CopyMember(shader, newShader, AfterDraw);
-	CopyMember(shader, newShader, BeforeDraw);
 
 	CopyMember(shader, newShader, Uniforms);
 	CopyMember(shader, newShader, VertexPath);
@@ -156,3 +154,12 @@ static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle)
 
 	return true;
 }
+
+static void Enable(Shader shader)
+{
+	glUseProgram(shader->Handle->Handle);
+}
+
+#pragma warning(disable: 4100)
+static void Disable(Shader shader) {/* reserved */ }
+#pragma warning(default: 4100)

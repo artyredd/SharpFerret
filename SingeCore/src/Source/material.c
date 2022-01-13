@@ -202,10 +202,12 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 MVPMatrix)
 		{
 			PrepareSettings(shader->Settings);
 
-			// perform any shader setup if we need to
-			if (shader->BeforeDraw isnt null)
+			Shaders.Enable(shader);
+
+			int handle;
+			if (Shaders.TryGetUniform(shader, Uniforms.MVP, &handle))
 			{
-				shader->BeforeDraw(shader, MVPMatrix);
+				glUniformMatrix4fv(handle, 1, false, &MVPMatrix[0][0]);
 			}
 
 			int colorHandle;
@@ -231,11 +233,7 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 MVPMatrix)
 			// draw the triangles
 			RenderMeshes.Draw(mesh);
 
-			// perform shader cleanup if needed
-			if (shader->AfterDraw isnt null)
-			{
-				shader->AfterDraw(shader);
-			}
+			Shaders.Disable(shader);
 
 			CleanupSettings(shader->Settings);
 		}
