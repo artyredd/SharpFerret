@@ -97,9 +97,10 @@ static void ResizeShaders(Material material, size_t desiredCount)
 {
 	if (material->Count < desiredCount)
 	{
+		size_t previousSize = material->Count * sizeof(Shader);
 		size_t newSize = desiredCount * sizeof(Shader);
 
-		if (TryRealloc(material->Shaders, newSize, (void**)&material->Shaders) is false)
+		if (TryRealloc(material->Shaders, previousSize, newSize, (void**)&material->Shaders) is false)
 		{
 			Shader* newArray = SafeAlloc(newSize);
 
@@ -107,15 +108,6 @@ static void ResizeShaders(Material material, size_t desiredCount)
 
 			SafeFree(material->Shaders);
 			material->Shaders = newArray;
-		}
-		else
-		{
-			// if we realloced non-zero bytes are at the end of the array
-			// set them to 0
-			for (size_t i = material->Count; i < desiredCount; i++)
-			{
-				material->Shaders[i] = null;
-			}
 		}
 
 		material->Count = desiredCount;

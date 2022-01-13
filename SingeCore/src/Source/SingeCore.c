@@ -110,6 +110,7 @@ int main()
 	Shader glowShader = LoadShader("assets/shaders/DistanceGlow.vertexshader", "assets/shaders/DistanceGlow.fragmentshader");
 
 	Shader toonShader = LoadShader("assets/shaders/toon.vertexshader", "assets/shaders/toon.fragmentshader");
+	Shader otherToon = LoadShader("assets/shaders/toon.vertexshader", "assets/shaders/toon.fragmentshader");
 
 	// check shader instancing and disposing
 	for (size_t i = 0; i < 5; i++)
@@ -421,6 +422,8 @@ int main()
 	Shaders.Dispose(glowShader);
 
 	Shaders.Dispose(guiShader);
+	
+	Shaders.Dispose(otherToon);
 
 	Windows.Dispose(window);
 

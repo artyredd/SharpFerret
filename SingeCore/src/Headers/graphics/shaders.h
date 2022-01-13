@@ -82,6 +82,7 @@ struct _shader {
 };
 
 struct _shaderMethods {
+	Shader(*CreateEmpty)();
 	Shader(*Create)();
 	/// <summary>
 	/// Creates a new instance of the provided shader

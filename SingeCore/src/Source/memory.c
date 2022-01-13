@@ -126,11 +126,26 @@ void SafeFree(void* address)
 	++FREE_COUNT;
 }
 
-bool TryRealloc(void* address, size_t size, void** out_address)
+bool TryRealloc(void* address, size_t previousSize, size_t newSize, void** out_address)
 {
-	*out_address = realloc(address, size);
+	void* newAddress = realloc(address, newSize);
+	
+	*out_address = newAddress;
 
-	return *out_address isnt null;
+
+	if (newAddress isnt null)
+	{
+		// set new bytes to zero
+		if (previousSize < newSize)
+		{
+			char* offset = (char*)newAddress + previousSize;
+			memset(offset, 0, newSize - previousSize);
+		}
+
+		return true;
+	}
+	
+	return false;
 }
 
 void ZeroArray(void* address, size_t size)

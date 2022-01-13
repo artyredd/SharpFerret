@@ -374,12 +374,13 @@ static void AttachChildAtIndex(Transform transform, Transform child, size_t inde
 static void ReallocChildren(Transform transform)
 {
 	// try to realloc the space otherwise manually move it, alloc 25% more space, or + 1
+	size_t previousLength = transform->Length * sizeof(Transform);
 	size_t newLength = max((size_t)((transform->Length * 125) / 100), transform->Length + 1);
 
 	size_t sizeInBytes = newLength * sizeof(Transform);
 
 	// if we fail to realloc the array make a new one =(
-	if (TryRealloc(transform->Children, sizeInBytes, (void**)&transform->Children) is false)
+	if (TryRealloc(transform->Children, previousLength, sizeInBytes, (void**)&transform->Children) is false)
 	{
 		Transform* newArray = SafeAlloc(sizeInBytes);
 
@@ -396,12 +397,6 @@ static void ReallocChildren(Transform transform)
 	// since we know the first index of the extended portion is null we can set the lastchild index
 	// to that value so we dont have to search for it later
 	transform->FreeIndex = transform->Length;
-
-	// since we are extending the array we should set the new values to null
-	for (size_t i = transform->Length; i < newLength; i++)
-	{
-		transform->Children[i] = null;
-	}
 
 	// update the length
 	transform->Length = newLength;

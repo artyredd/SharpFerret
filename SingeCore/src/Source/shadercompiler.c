@@ -9,6 +9,7 @@
 #include "singine/config.h"
 #include "helpers/quickmask.h"
 #include "singine/parsing.h"
+#include "singine/hashing.h"
 
 static Shader CompileShader(const char* vertexPath, const char* fragmentPath);
 static Shader Load(const char* path);
@@ -47,6 +48,58 @@ static struct _shaderTypes
 	GL_GEOMETRY_SHADER
 };
 
+#define CompiledHandleDictionarySize 1024
+
+Shader CompiledShaders[CompiledHandleDictionarySize];
+/// <summary>
+/// The number of handles within the compiled handles dict
+/// </summary>
+size_t HandleDictionaryCount = 0;
+size_t HandleDictionaryLength = CompiledHandleDictionarySize;
+
+// checks if the combination of the two shader souce files have already been compiled
+// if they are a handle is returned
+static bool TryGetStoredShader(const char* vertexPath, const char* fragmentPath, Shader* out_shader)
+{
+	// hash the two paths
+	size_t hash = Hashing.Hash(vertexPath);
+
+	hash = Hashing.ChainHash(fragmentPath, hash);
+
+	// mod the hash with the array size
+	size_t index = hash % CompiledHandleDictionarySize;
+
+	Shader storedShader = CompiledShaders[index];
+	
+	*out_shader = storedShader;
+
+	return storedShader isnt null;
+}
+
+// stored the given handle within the compiled handle dictionary, returns true when no collision occurs
+static bool TryStoreShader(const char* vertexPath, const char* fragmentPath, Shader shader)
+{
+	// hash the two paths
+	size_t hash = Hashing.Hash(vertexPath);
+
+	hash = Hashing.ChainHash(fragmentPath, hash);
+
+	// mod the hash with the array size
+	size_t index = hash % CompiledHandleDictionarySize;
+
+	Shader* position = &CompiledShaders[index];
+
+	// this may cause issues with disposed handles, we'll see
+	if (*position is null)
+	{
+		*position = shader;
+
+		return true;
+	}
+
+	return false;
+}
+
 static bool VerifyHandle(unsigned int handle)
 {
 	if (handle is 0)
@@ -61,7 +114,6 @@ static bool VerifyHandle(unsigned int handle)
 
 	return true;
 }
-
 
 static void PrintLog(unsigned int handle, File stream, void(*LogProvider)(unsigned int, int, int*, char*))
 {
@@ -236,6 +288,13 @@ static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 	GuardNotNull(vertexPath);
 	GuardNotNull(fragmentPath);
 
+	// check to see if we have already compiled these shaders
+	Shader shader;
+	if (TryGetStoredShader(vertexPath, fragmentPath, &shader))
+	{
+		return Shaders.Instance(shader);
+	}
+
 	// compile the vertex shader
 	unsigned int vertexHandle;
 	if (TryCompile(vertexPath, ShaderTypes.Vertex, &vertexHandle) is false)
@@ -259,10 +318,17 @@ static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 		throw(FailedToCompileShaderException);
 	}
 
-
-	Shader shader = Shaders.Create();
+	shader = Shaders.Create();
 
 	shader->Handle->Handle = programHandle;
+
+	// since we didnt find the shader in the dictionary store it
+	if (TryStoreShader(vertexPath, fragmentPath, shader) is false)
+	{
+		// this should never fail becuase in order for this block to be executed
+		// we must not have previously stored the shader
+		throw(UnexpectedOutcomeException);
+	}
 
 	return shader;
 }
@@ -352,16 +418,35 @@ static Shader Load(const char* path)
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &info))
 	{
-		Shader compiledShader = CompileShader(info.VertexPath, info.FragmentPath);
+		// check to see if we already compiled a shader similar to this one
+		Shader shader = CompileShader(info.VertexPath, info.FragmentPath);
 
-		compiledShader->FragmentPath = info.FragmentPath;
-		compiledShader->VertexPath = info.VertexPath;
+		// if we created the shader we should save the strings, otherwise throw them out
+		if (shader->VertexPath is null)
+		{
+			shader->VertexPath = info.VertexPath;
+		}
+		else
+		{
+			SafeFree(info.VertexPath);
+		}
 
-		compiledShader->Settings = info.Settings;
+		// if we created the shader we should save the strings, otherwise throw them out
+		if (shader->FragmentPath is null)
+		{
+			shader->FragmentPath = info.FragmentPath;
+		}
+		else
+		{
+			SafeFree(info.FragmentPath);
+		}
 
-		return compiledShader;
+		shader->Settings = info.Settings;
+
+		return shader;
 	}
 
+	// if something went wrong free the strings and return null
 	SafeFree(info.FragmentPath);
 	SafeFree(info.VertexPath);
 

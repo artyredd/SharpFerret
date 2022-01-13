@@ -11,6 +11,7 @@ static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle);
 static Shader Instance(Shader shader);
 static void Dispose(Shader shader);
 static Shader CreateShader(void);
+static Shader CreateEmpty(void);
 
 const struct _uniforms Uniforms = {
 	.MVP = {.Index = 0, .Name = UNIFORM_NAME_MVP },
@@ -22,7 +23,8 @@ const struct _shaderMethods Shaders = {
 	.Create = &CreateShader,
 	.Instance = &Instance,
 	.TryGetUniform = &TryGetUniform,
-	.Dispose = &Dispose
+	.Dispose = &Dispose,
+	.CreateEmpty = &CreateEmpty
 };
 
 #define UseCameraPerspectiveFlag FLAG_0
@@ -89,6 +91,11 @@ static Shader CreateShader()
 	return CreateShaderWithUniforms(true);
 }
 
+static Shader CreateEmpty()
+{
+	return  CreateShaderWithUniforms(false);
+}
+
 static Shader Instance(Shader shader)
 {
 	if (shader is null)
@@ -106,6 +113,8 @@ static Shader Instance(Shader shader)
 	CopyMember(shader, newShader, BeforeDraw);
 
 	CopyMember(shader, newShader, Uniforms);
+	CopyMember(shader, newShader, VertexPath);
+	CopyMember(shader, newShader, FragmentPath);
 
 	return newShader;
 }
