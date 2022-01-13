@@ -10,13 +10,16 @@
 #include "helpers/quickmask.h"
 #include "singine/parsing.h"
 #include "singine/hashing.h"
+#include <string.h>
 
 static Shader CompileShader(const char* vertexPath, const char* fragmentPath);
 static Shader Load(const char* path);
+static bool Save(Shader shader, const char* path);
 
 const struct _shaderCompilerMethods ShaderCompilers = {
 	.CompileShader = &CompileShader,
-	.Load = &Load
+	.Load = &Load,
+	.Save = &Save
 };
 
 #define LOG_BUFFER_SIZE 1024
@@ -330,6 +333,16 @@ static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 		throw(UnexpectedOutcomeException);
 	}
 
+	// make a copy of the provided strings
+	size_t vertexSize = strlen(vertexPath)+1;
+	size_t fragmentSize = strlen(fragmentPath)+1;
+
+	shader->VertexPath = SafeAlloc(vertexSize);
+	shader->FragmentPath = SafeAlloc(fragmentSize);
+
+	strcpy_s(shader->VertexPath, vertexSize, vertexPath);
+	strcpy_s(shader->FragmentPath, fragmentSize,fragmentPath);
+
 	return shader;
 }
 
@@ -344,10 +357,17 @@ struct _shaderInfo {
 
 #define TokenCount 5
 
+#define ExportTokenFormat "\n%s: %s\n"
+
+#define VertexShaderComment "# The path to the vertex shader that should be used for this shader"
 #define VertexShaderToken "vertexShader"
+#define FragmentShaderComment "# The path to the fragment shader that should be used for this shader"
 #define FragmentShaderToken "fragmentShader"
+#define UseBackfaceCullingComment "# whether or not backface culling should be enabled for this shader"
 #define UseBackfaceCullingToken "enableBackfaceCulling"
+#define UseCameraPerspectiveComment "# whether or not this shader should use camera perspective, (GUI elements for example shouldnt)"
 #define UseCameraPerspectiveToken "useCameraPerspective"
+#define UseTransparencyComment "# whether or not blending (transparency) should be enabled"
 #define UseTransparencyToken "enableBlending"
 
 static const char* Tokens[TokenCount] = {
@@ -453,4 +473,39 @@ static Shader Load(const char* path)
 	fprintf(stderr, "Filed to load the shader from path: %s", path);
 
 	return null;
+}
+
+static bool Save(Shader shader, const char* path)
+{
+	File file;
+	if (Files.TryOpen(path, FileModes.Create, &file) is false)
+	{
+		return false;
+	}
+
+	fprintf(file, VertexShaderComment);
+	fprintf(file, ExportTokenFormat, VertexShaderToken, shader->VertexPath);
+
+	fprintf(file, FragmentShaderComment);
+	fprintf(file, ExportTokenFormat, FragmentShaderToken, shader->FragmentPath);
+
+	if (HasFlag(shader->Settings, ShaderSettings.BackfaceCulling))
+	{
+		fprintf(file, UseBackfaceCullingComment);
+		fprintf(file, ExportTokenFormat, UseBackfaceCullingToken, "true");
+	}
+	
+	if (HasFlag(shader->Settings, ShaderSettings.UseCameraPerspective))
+	{
+		fprintf(file, UseCameraPerspectiveComment);
+		fprintf(file, ExportTokenFormat, UseCameraPerspectiveToken, "true");
+	}
+
+	if (HasFlag(shader->Settings, ShaderSettings.Transparency))
+	{
+		fprintf(file, UseTransparencyComment);
+		fprintf(file, ExportTokenFormat, UseTransparencyToken, "true");
+	}
+
+	return Files.TryClose(file);
 }
