@@ -119,6 +119,8 @@ static Shader Instance(Shader shader)
 
 static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle)
 {
+	if (shader is null) return false;
+
 	// check to see if the shader has already loaded the uniform's handle
 	if (HasFlag(shader->Uniforms->AvailableUniforms, FlagN(uniform.Index)))
 	{

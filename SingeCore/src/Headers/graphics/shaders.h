@@ -88,7 +88,13 @@ struct _shaderMethods {
 	/// Disposes and frees this shader and any managed resources it controls
 	/// </summary>
 	void (*Dispose)(Shader);
+	/// <summary>
+	/// Enables the provided shader on the graphics device
+	/// </summary>
 	void (*Enable)(Shader);
+	/// <summary>
+	/// Disables the shader on the graphics device
+	/// </summary>
 	void (*Disable)(Shader);
 };
 

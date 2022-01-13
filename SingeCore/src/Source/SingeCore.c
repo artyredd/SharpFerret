@@ -446,19 +446,6 @@ void DebugCameraPosition(Camera camera)
 	fprintf(stdout, NEWLINE);
 }
 
-void BeforeDraw(Shader shader, mat4 mvp)
-{
-	glUseProgram(shader->Handle->Handle);
-
-	int handle;
-	if (Shaders.TryGetUniform(shader, Uniforms.MVP, &handle) is false)
-	{
-		return; //throw(FailedToLocationMVPUniformException);
-	}
-
-	glUniformMatrix4fv(handle, 1, false, &mvp[0][0]);
-}
-
 Shader LoadShader(const char* vertexPath, const char* fragmentPath)
 {
 	Shader shader = ShaderCompilers.CompileShader(vertexPath, fragmentPath);

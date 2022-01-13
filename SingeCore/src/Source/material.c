@@ -162,8 +162,21 @@ static Material InstanceMaterial(Material material)
 	return newMaterial;
 }
 
-static void PrepareSettings(unsigned int settings)
+static void PrepareSettings(unsigned int settings, Shader shader, mat4 modelMatrix, mat4 mvpMatrix)
 {
+	int handle;
+	if (Shaders.TryGetUniform(shader, Uniforms.MVP, &handle))
+	{
+		if (HasFlag(settings, ShaderSettings.UseCameraPerspective))
+		{
+			glUniformMatrix4fv(handle, 1, false, &mvpMatrix[0][0]);
+		}
+		else
+		{
+			glUniformMatrix4fv(handle, 1, false, &modelMatrix[0][0]);
+		}
+	}
+
 	// check to see if we need to DISABLE back face culling(by default it's on)
 	if (HasFlag(settings, ShaderSettings.BackfaceCulling) is false)
 	{
@@ -192,7 +205,7 @@ static void CleanupSettings(unsigned int settings)
 	}
 }
 
-static void PerformDraw(Material material, RenderMesh mesh, mat4 MVPMatrix)
+static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, mat4 MVPMatrix)
 {
 	for (size_t i = 0; i < material->Count; i++)
 	{
@@ -200,15 +213,9 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 MVPMatrix)
 
 		if (shader isnt null)
 		{
-			PrepareSettings(shader->Settings);
-
 			Shaders.Enable(shader);
 
-			int handle;
-			if (Shaders.TryGetUniform(shader, Uniforms.MVP, &handle))
-			{
-				glUniformMatrix4fv(handle, 1, false, &MVPMatrix[0][0]);
-			}
+			PrepareSettings(shader->Settings, shader, modelMatrix, MVPMatrix);
 
 			int colorHandle;
 			if (Shaders.TryGetUniform(shader, Uniforms.Color, &colorHandle))
@@ -245,27 +252,24 @@ static void Draw(Material material, RenderMesh mesh, Camera camera)
 	unsigned int settings = material->State.Settings;
 
 	// check if we should use the camera's perspective
-	vec4* MVP;
+	vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
+
+	vec4* cameraVP = Cameras.Refresh(camera);
+
+	mat4 mvp;
+	glm_mat4_mul(cameraVP, modelMatrix, mvp);
+
+	// if the material requires perspective then force all shaders to use the mvp
+	// if not allow individual shaders to choose perspective
 	if (HasFlag(settings, ShaderSettings.UseCameraPerspective))
 	{
-		vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
-
-		vec4* cameraVP = Cameras.Refresh(camera);
-
-		mat4 mvp;
-		glm_mat4_mul(cameraVP, modelMatrix, mvp);
-
-		MVP = mvp;
-	}
-	else
-	{
-		MVP = Transforms.Refresh(mesh->Transform);
+		modelMatrix = mvp;
 	}
 
-	PrepareSettings(settings);
+	PrepareSettings(settings, null, modelMatrix, mvp);
 
 	// actually draw the mesh
-	PerformDraw(material, mesh, MVP);
+	PerformDraw(material, mesh, modelMatrix, mvp);
 
 	CleanupSettings(settings);
 }
