@@ -102,15 +102,15 @@ int main()
 
 	Images.Dispose(icon);
 
-	Shader texturedShader = LoadShader("assets/shaders/SimpleVertexShader.vertexshader", "assets/shaders/SimpleFragmentShader.fragmentshader");
+	Shader texturedShader = ShaderCompilers.Load("assets/shaders/texturedShader");
 
-	Shader uvShader = LoadShader("assets/shaders/SimpleVertexShader.vertexshader", "assets/shaders/ColorUV.fragmentshader");
+	Shader uvShader = ShaderCompilers.Load("assets/shaders/uvShader");
 
-	Shader guiShader = LoadShader("assets/shaders/GUIShader.vertexshader", "assets/shaders/SimpleFragmentShader.fragmentshader");
-	Shader glowShader = LoadShader("assets/shaders/DistanceGlow.vertexshader", "assets/shaders/DistanceGlow.fragmentshader");
+	Shader guiShader = ShaderCompilers.Load("assets/shaders/guiShader");
 
-	Shader toonShader = LoadShader("assets/shaders/toon.vertexshader", "assets/shaders/toon.fragmentshader");
-	Shader otherToon = LoadShader("assets/shaders/toon.vertexshader", "assets/shaders/toon.fragmentshader");
+	Shader toonShader = ShaderCompilers.Load("assets/shaders/toonShader");
+
+	Shader otherToon = ShaderCompilers.Load("assets/shaders/toonShader");
 
 	// check shader instancing and disposing
 	for (size_t i = 0; i < 5; i++)
@@ -414,8 +414,6 @@ int main()
 	Shaders.Dispose(texturedShader);
 
 	Shaders.Dispose(uvShader);
-
-	Shaders.Dispose(glowShader);
 
 	Shaders.Dispose(guiShader);
 	
