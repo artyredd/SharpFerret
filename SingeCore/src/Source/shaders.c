@@ -6,7 +6,13 @@
 #include "helpers/macros.h"
 #include "singine/config.h"
 #include "singine/parsing.h"
+#include "singine/guards.h"
 
+
+static void DisableSetting(Shader shader, ShaderSetting setting);
+static void EnableSetting(Shader shader, ShaderSetting setting);
+static void SetSetting(Shader shader, ShaderSetting setting, bool enabled);
+static bool HasSetting(Shader shader, ShaderSetting setting);
 static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle);
 static Shader Instance(Shader shader);
 static void Dispose(Shader shader);
@@ -28,7 +34,11 @@ const struct _shaderMethods Shaders = {
 	.Dispose = &Dispose,
 	.CreateEmpty = &CreateEmpty,
 	.Enable = &Enable,
-	.Disable = &Disable
+	.Disable = &Disable,
+	.DisableSetting = &DisableSetting,
+	.EnableSetting = &EnableSetting,
+	.SetSetting = &SetSetting,
+	.HasSetting = &HasSetting
 };
 
 #define UseCameraPerspectiveFlag FLAG_0
@@ -165,3 +175,31 @@ static void Enable(Shader shader)
 #pragma warning(disable: 4100)
 static void Disable(Shader shader) {/* reserved */ }
 #pragma warning(default: 4100)
+
+static void DisableSetting(Shader shader, ShaderSetting setting)
+{
+	GuardNotNull(shader);
+
+	ClearFlag(shader->Settings, setting);
+}
+
+static void EnableSetting(Shader shader, ShaderSetting setting)
+{
+	GuardNotNull(shader);
+
+	SetFlag(shader->Settings, setting);
+}
+
+static void SetSetting(Shader shader, ShaderSetting setting, bool enabled)
+{
+	GuardNotNull(shader);
+
+	AssignFlag(shader->Settings, setting, enabled);
+}
+
+static bool HasSetting(Shader shader, ShaderSetting setting)
+{
+	GuardNotNull(shader);
+
+	return HasFlag(shader->Settings, setting);
+}
