@@ -17,8 +17,6 @@ void ToLower(char* buffer, size_t bufferLength, size_t offset)
 void ToUpper(char* buffer, size_t bufferLength, size_t offset)
 {
 	GuardNotNull(buffer);
-	GuardNotZero(bufferLength);
-	GuardLessThan(offset, bufferLength);
 
 	for (size_t i = offset; i < bufferLength; i++)
 	{
