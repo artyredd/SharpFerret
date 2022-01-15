@@ -37,6 +37,7 @@
 #include <string.h>
 #include "graphics/text.h"
 #include "graphics/recttransform.h"
+#include "singine/conversions.h"
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
@@ -179,7 +180,9 @@ int main()
 
 	//Materials.SetColor(font->Material, Colors.White);
 
-	GameObject ball = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
+	char ballPath[] = "assets/models/ball.obj";
+
+	GameObject ball = LoadGameObjectFromModel(ballPath, FileFormats.Obj);
 	GameObjects.SetMaterial(ball, uvMaterial);
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
