@@ -191,7 +191,7 @@
     <ClCompile Include="src\Source\camera.c" />
     <ClCompile Include="src\Source\colors.c" />
     <ClCompile Include="src\Source\config.c" />
-    <ClCompile Include="src\Source\conversions.c" />
+    <ClCompile Include="src\Source\strings.c" />
     <ClCompile Include="src\Source\cunit.c" />
     <ClCompile Include="src\Source\file.c" />
     <ClCompile Include="src\Source\font.c" />
@@ -252,7 +252,6 @@
     <ClInclude Include="src\Headers\modeling\model.h" />
     <ClInclude Include="src\Headers\scripts\fpsCamera.h" />
     <ClInclude Include="src\Headers\singine\config.h" />
-    <ClInclude Include="src\Headers\singine\conversions.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />
     <ClInclude Include="src\Headers\singine\file.h" />
     <ClInclude Include="src\Headers\singine\gameobject.h" />
@@ -261,6 +260,7 @@
     <ClInclude Include="src\Headers\singine\hashing.h" />
     <ClInclude Include="src\Headers\Singine\memory.h" />
     <ClInclude Include="src\Headers\singine\parsing.h" />
+    <ClInclude Include="src\Headers\singine\strings.h" />
     <ClInclude Include="src\Headers\singine\time.h" />
   </ItemGroup>
   <ItemGroup>

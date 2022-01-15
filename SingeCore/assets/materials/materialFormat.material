@@ -1,6 +1,5 @@
 # the array of shaders that should be loaded for this material
-shaders: default, toonShader, glassShader, outlineShader
+shaders: assets/shaders/toon, assets/shaders/guiShader
+
 # the material base color
-color: 0.0 0.0 0.0 1.0
-# whether or not backface culling should be used for this material
-backfaceCulling: true
+color: 1.0 0.5 0.25 1.0

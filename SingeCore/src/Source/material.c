@@ -10,6 +10,9 @@
 #include "string.h"
 #include "singine/config.h"
 #include "graphics/graphicsDevice.h"
+#include "singine/parsing.h"
+#include "graphics/shadercompiler.h"
+#include "singine/strings.h"
 
 static void Dispose(Material material);
 static Material Create(const Shader shader, const Texture texture);
@@ -279,6 +282,14 @@ static void SetColors(Material material, const float r, const float g, const flo
 #define ShaderToken "shaders"
 #define ColorToken "color"
 
+struct _materialDefinition
+{
+	char** ShaderPaths;
+	size_t* ShaderPathLengths;
+	size_t ShaderCount;
+	Color Color;
+};
+
 static const char* Tokens[TokenCount] = {
 	ShaderToken,
 	ColorToken
@@ -289,12 +300,12 @@ static const size_t TokenLengths[TokenCount] = {
 	sizeof(ColorToken)
 };
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, Material state)
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _materialDefinition* state)
 {
 	switch (index)
 	{
 	case 0: // shader token
-		return true;
+		return TryParseStringArray(buffer, length, &state->ShaderPaths, &state->ShaderPathLengths, &state->ShaderCount);
 	case 1:
 		return Vector4s.TryDeserialize(buffer, length, state->Color);
 	default:
@@ -313,16 +324,56 @@ const struct _configDefinition MaterialConfigDefinition = {
 static Material Load(const char* path)
 {
 	// create an empty material
-	Material material = CreateMaterial();
+	Material material = null;
 
-	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, material))
+	struct _materialDefinition state = {
+		.Color = {1, 1, 1, 1},
+		.ShaderCount = 0,
+		.ShaderPathLengths = null,
+		.ShaderPaths = null
+	};
+
+	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, &state))
 	{
-		return material;
+		// no point of having a material with no shader
+		if (state.ShaderCount isnt 0)
+		{
+			material = CreateMaterial();
+
+			Vectors4CopyTo(state.Color, material->Color);
+
+			material->Shaders = SafeAlloc(sizeof(Shader) * state.ShaderCount);
+			material->Count = state.ShaderCount;
+
+			// import each shader
+			for (size_t i = 0; i < state.ShaderCount; i++)
+			{
+				char* shaderPath = state.ShaderPaths[i];
+				size_t shaderPathLength = state.ShaderPathLengths[i];
+
+				// trim path
+				Strings.Trim(shaderPath, shaderPathLength);
+
+				Shader shader = ShaderCompilers.Load(shaderPath);
+
+				material->Shaders[i] = shader;
+			}
+		}
 	}
 
-	fprintf(stderr, "Filed to load the material from path: %s", path);
+	if (material is null)
+	{
+		fprintf(stderr, "Filed to load the material from path: %s", path);
+	}
 
-	Materials.Dispose(material);
+	SafeFree(state.ShaderPathLengths);
 
-	return null;
+	for (size_t i = 0; i < state.ShaderCount; i++)
+	{
+		SafeFree(state.ShaderPaths[i]);
+	}
+
+	SafeFree(state.ShaderPaths);
+
+	return material;
 }

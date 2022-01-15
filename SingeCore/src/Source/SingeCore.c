@@ -37,7 +37,7 @@
 #include <string.h>
 #include "graphics/text.h"
 #include "graphics/recttransform.h"
-#include "singine/conversions.h"
+#include "singine/strings.h"
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"

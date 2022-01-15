@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "singine/memory.h"
-#include "singine/conversions.h"
+#include "singine/strings.h"
 #include "cunit.h"
 #include "singine/file.h"
 #include "csharp.h"
@@ -42,7 +42,7 @@ bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool* out_bo
 
 	bool parsed = false;
 
-	ToUpper(copiedString, strlen(copiedString), 0);
+	Strings.ToUpper(copiedString, strlen(copiedString), 0);
 
 	// this is probably platform dependent, 
 	// this assumes the size of a pointer address is the same size as size_t

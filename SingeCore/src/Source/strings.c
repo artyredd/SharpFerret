@@ -1,10 +1,20 @@
-#include "singine/conversions.h"
+#include "singine/strings.h"
 #include "singine/guards.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
 
-void ToLower(char* buffer, size_t bufferLength, size_t offset)
+static void ToLower(char* buffer, size_t bufferLength, size_t offset);
+static void ToUpper(char* buffer, size_t bufferLength, size_t offset);
+static size_t Trim(char* buffer, const size_t bufferLength);
+
+const struct _stringMethods Strings = {
+	.ToUpper = &ToUpper,
+	.ToLower = &ToLower,
+	.Trim = &Trim
+};
+
+static void ToLower(char* buffer, size_t bufferLength, size_t offset)
 {
 	GuardNotNull(buffer);
 	GuardNotZero(bufferLength);
@@ -16,7 +26,7 @@ void ToLower(char* buffer, size_t bufferLength, size_t offset)
 	}
 }
 
-void ToUpper(char* buffer, size_t bufferLength, size_t offset)
+static void ToUpper(char* buffer, size_t bufferLength, size_t offset)
 {
 	GuardNotNull(buffer);
 
@@ -26,7 +36,7 @@ void ToUpper(char* buffer, size_t bufferLength, size_t offset)
 	}
 }
 
-size_t Trim(char* buffer, const size_t bufferLength)
+static size_t Trim(char* buffer, const size_t bufferLength)
 {
 	size_t startIndex = 0;
 	size_t endIndex = bufferLength - 1;
