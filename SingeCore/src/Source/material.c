@@ -24,11 +24,13 @@ static void SetShader(Material, const Shader, size_t index);
 static void SetColor(Material, const Color);
 static void SetColors(Material, const float r, const float g, const float b, const float a);
 static Material Load(const char* path);
+static bool Save(const Material material, const char* path);
 
 const struct _materialMethods Materials = {
 	.Dispose = &Dispose,
 	.Create = &Create,
 	.Load = &Load,
+	.Save = &Save,
 	.Draw = &Draw,
 	.Instance = &InstanceMaterial,
 	.SetMainTexture = &SetMainTexture,
@@ -277,10 +279,19 @@ static void SetColors(Material material, const float r, const float g, const flo
 	SetVector4(material->Color, r, g, b, a);
 }
 
-#define TokenCount 2
+#define TokenCount 3
 
+#define ExportTokenFormat "%s: %s\n"
+#define ExportCommentFormat "%s\n"
+
+#define ShaderTokenComment "# the array of shaders that should be loaded for this material"
 #define ShaderToken "shaders"
+#define ColorTokenComment "# the material base color"
 #define ColorToken "color"
+#define MainTextureComment "# the main UV texture that should be used for this material"
+#define MainTextureToken "mainTexture"
+
+#define MAX_PATH_LENGTH 512
 
 struct _materialDefinition
 {
@@ -288,16 +299,19 @@ struct _materialDefinition
 	size_t* ShaderPathLengths;
 	size_t ShaderCount;
 	Color Color;
+	char* MainTexturePath;
 };
 
 static const char* Tokens[TokenCount] = {
 	ShaderToken,
-	ColorToken
+	ColorToken,
+	MainTextureToken
 };
 
 static const size_t TokenLengths[TokenCount] = {
 	sizeof(ShaderToken),
-	sizeof(ColorToken)
+	sizeof(ColorToken),
+	sizeof(MainTextureToken)
 };
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _materialDefinition* state)
@@ -306,8 +320,10 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 	{
 	case 0: // shader token
 		return TryParseStringArray(buffer, length, &state->ShaderPaths, &state->ShaderPathLengths, &state->ShaderCount);
-	case 1:
+	case 1: // color
 		return Vector4s.TryDeserialize(buffer, length, state->Color);
+	case 2: //  main texture
+		return TryParseString(buffer, length, MAX_PATH_LENGTH, &state->MainTexturePath);
 	default:
 		return false;
 	}
@@ -330,7 +346,8 @@ static Material Load(const char* path)
 		.Color = {1, 1, 1, 1},
 		.ShaderCount = 0,
 		.ShaderPathLengths = null,
-		.ShaderPaths = null
+		.ShaderPaths = null,
+		.MainTexturePath = null
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, &state))
@@ -358,6 +375,24 @@ static Material Load(const char* path)
 
 				material->Shaders[i] = shader;
 			}
+
+			// load any textures that were included in the material
+			if (state.MainTexturePath isnt null)
+			{
+				Image image;
+				if (Images.TryLoadImage(state.MainTexturePath, &image))
+				{
+					Texture texture;
+					if (Textures.TryCreateTexture(image, &texture))
+					{
+						Materials.SetMainTexture(material, texture);
+					}
+
+					Textures.Dispose(texture);
+				}
+
+				Images.Dispose(image);
+			}
 		}
 	}
 
@@ -376,4 +411,21 @@ static Material Load(const char* path)
 	SafeFree(state.ShaderPaths);
 
 	return material;
+}
+
+static bool Save(const Material material, const char* path)
+{
+	GuardNotNull(material);
+	GuardNotNull(path);
+
+	File file;
+	if (Files.TryOpen(path, FileModes.Create, &file) is false)
+	{
+		return false;
+	}
+
+	fprintf(file, ExportCommentFormat, ShaderTokenComment);
+	fprintf();
+
+	return Files.TryClose(file);
 }

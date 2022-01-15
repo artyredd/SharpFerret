@@ -18,7 +18,11 @@ struct _material {
 struct _materialMethods {
 	Material(*CreateMaterial)(void);
 	Material(*Create)(const Shader, const Texture);
+	// Attempts to load the material definition at the given path
 	Material(*Load)(const char* path);
+	// Saves the provided  material to a material definition file at the given path so it can be loaded with Materials.Load, returns true 
+	// when export was successful, otherwise false
+	bool (*Save)(const Material, const char* path);
 	/// <summary>
 	/// Creates a new instance of the provided material
 	/// </summary>

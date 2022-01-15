@@ -286,6 +286,8 @@ int main()
 
 	float amount = 0;
 
+	Material test = Materials.Load("assets/materials/test.material");
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -412,6 +414,7 @@ int main()
 	Materials.Dispose(uvMaterial);
 	Materials.Dispose(guiMaterial);
 	Materials.Dispose(textMaterial);
+	Materials.Dispose(test);
 
 	Cameras.Dispose(camera);
 
