@@ -13,7 +13,7 @@ uniform vec4 mainColor;
 void main(){
 
 	// Output color = color of the texture at the specified UV
-	color = texture( myTextureSampler, UV ) * mainColor;
+	//color = texture( myTextureSampler, UV ) * mainColor;
 	//color = vec4(1,0,0,1);
-	//color = mainColor;
+	color = mainColor;
 }

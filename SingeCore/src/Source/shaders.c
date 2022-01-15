@@ -123,6 +123,7 @@ static Shader Instance(Shader shader)
 	CopyMember(shader, newShader, Uniforms);
 	CopyMember(shader, newShader, VertexPath);
 	CopyMember(shader, newShader, FragmentPath);
+	CopyMember(shader, newShader, Settings);
 
 	return newShader;
 }

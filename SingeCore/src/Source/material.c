@@ -9,6 +9,7 @@
 #include "singine/file.h"
 #include "string.h"
 #include "singine/config.h"
+#include "graphics/graphicsDevice.h"
 
 static void Dispose(Material material);
 static Material Create(const Shader shader, const Texture texture);
@@ -17,10 +18,6 @@ static Material CreateMaterial(void);
 static Material InstanceMaterial(const Material);
 static void SetMainTexture(Material, Texture);
 static void SetShader(Material, const Shader, size_t index);
-static void DisableSetting(Material, const ShaderSetting);
-static void EnableSetting(Material, const ShaderSetting);
-static void SetSetting(Material, const ShaderSetting, const bool enabled);
-static bool HasSetting(Material, const ShaderSetting);
 static void SetColor(Material, const Color);
 static void SetColors(Material, const float r, const float g, const float b, const float a);
 static Material Load(const char* path);
@@ -33,10 +30,6 @@ const struct _materialMethods Materials = {
 	.Instance = &InstanceMaterial,
 	.SetMainTexture = &SetMainTexture,
 	.SetShader = &SetShader,
-	.HasSetting = &HasSetting,
-	.SetSetting = &SetSetting,
-	.EnableSetting = &EnableSetting,
-	.DisableSetting = &DisableSetting,
 	.SetColor = &SetColor,
 	.SetColors = &SetColors
 };
@@ -73,7 +66,6 @@ static Material Create(Shader shader, Texture texture)
 	material->Shaders = SafeAlloc(sizeof(Shader));
 	material->Shaders[0] = Shaders.Instance(shader);
 	material->Count = 1;
-	material->State.Settings = DEFAULT_MATERIAL_SETTINGS;
 
 	SetVector4(material->Color, 1, 1, 1, 1);
 
@@ -157,7 +149,6 @@ static Material InstanceMaterial(Material material)
 	newMaterial->MainTexture = mainTexture;
 
 	Vectors3CopyTo(material->Color, newMaterial->Color);
-	CopyMember(material, newMaterial, State.Settings);
 
 	return newMaterial;
 }
@@ -178,30 +169,23 @@ static void PrepareSettings(unsigned int settings, Shader shader, mat4 modelMatr
 	}
 
 	// check to see if we need to DISABLE back face culling(by default it's on)
-	if (HasFlag(settings, ShaderSettings.BackfaceCulling) is false)
+	if (HasFlag(settings, ShaderSettings.BackfaceCulling))
 	{
-		glDisable(GL_CULL_FACE);
+		GraphicsDevice.EnableCulling();
+	}
+	else
+	{
+		GraphicsDevice.DisableCulling();
 	}
 
 	// check to see if we should enable transparency
 	if (HasFlag(settings, ShaderSettings.Transparency))
 	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		GraphicsDevice.EnableBlending();
 	}
-}
-
-static void CleanupSettings(unsigned int settings)
-{
-	// re-enable culling
-	if (HasFlag(settings, ShaderSettings.BackfaceCulling) is false)
+	else
 	{
-		glEnable(GL_CULL_FACE);
-	}
-
-	if (HasFlag(settings, ShaderSettings.Transparency))
-	{
-		glDisable(GL_BLEND);
+		GraphicsDevice.DisableBlending();
 	}
 }
 
@@ -241,16 +225,12 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, ma
 			RenderMeshes.Draw(mesh);
 
 			Shaders.Disable(shader);
-
-			CleanupSettings(shader->Settings);
 		}
 	}
 }
 
 static void Draw(Material material, RenderMesh mesh, Camera camera)
 {
-	unsigned int settings = material->State.Settings;
-
 	// check if we should use the camera's perspective
 	vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
 
@@ -259,19 +239,7 @@ static void Draw(Material material, RenderMesh mesh, Camera camera)
 	mat4 mvp;
 	glm_mat4_mul(cameraVP, modelMatrix, mvp);
 
-	// if the material requires perspective then force all shaders to use the mvp
-	// if not allow individual shaders to choose perspective
-	if (HasFlag(settings, ShaderSettings.UseCameraPerspective))
-	{
-		modelMatrix = mvp;
-	}
-
-	PrepareSettings(settings, null, modelMatrix, mvp);
-
-	// actually draw the mesh
 	PerformDraw(material, mesh, modelMatrix, mvp);
-
-	CleanupSettings(settings);
 }
 
 static void SetMainTexture(Material material, Texture texture)
@@ -290,34 +258,6 @@ static void SetShader(Material material, Shader shader, size_t index)
 	Shaders.Dispose(material->Shaders[index]);
 
 	material->Shaders[index] = Shaders.Instance(shader);
-}
-
-static void DisableSetting(Material material, ShaderSetting setting)
-{
-	GuardNotNull(material);
-
-	ClearFlag(material->State.Settings, setting);
-}
-
-static void EnableSetting(Material material, ShaderSetting setting)
-{
-	GuardNotNull(material);
-
-	SetFlag(material->State.Settings, setting);
-}
-
-static void SetSetting(Material material, ShaderSetting setting, bool enabled)
-{
-	GuardNotNull(material);
-
-	AssignFlag(material->State.Settings, setting, enabled);
-}
-
-static bool HasSetting(Material material, ShaderSetting setting)
-{
-	GuardNotNull(material);
-
-	return HasFlag(material->State.Settings, setting);
 }
 
 static void SetColor(Material material, const Color color)

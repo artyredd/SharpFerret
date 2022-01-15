@@ -192,7 +192,19 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureF
 
 static bool TryCreateTexture(Image image, Texture* out_texture)
 {
-	return TryCreateTextureAdvanced(image, out_texture, DEFAULT_TEXTURE_FORMAT, DEFAULT_TEXTURE_BUFFER_FORMAT, &DefaultTryModifyTexture);
+	// check the channels available, if there are 4 the format is RGBA, if 3 RGB
+	TextureFormat format = DEFAULT_TEXTURE_FORMAT;
+
+	if (image->Channels is 3)
+	{
+		format = TextureFormats.RGB;
+	}
+	else if (image->Channels is 4)
+	{
+		format = TextureFormats.RGBA;
+	}
+
+	return TryCreateTextureAdvanced(image, out_texture, format, DEFAULT_TEXTURE_BUFFER_FORMAT, &DefaultTryModifyTexture);
 }
 
 static Texture InstanceTexture(Texture texture)

@@ -2,5 +2,4 @@
 vertexShader: assets/shaders/GUIShader.vertexshader
 # The path to the fragment shader that should be used for this shader
 fragmentShader: assets/shaders/SimpleFragmentShader.fragmentshader
-# whether or not blending (transparency) should be enabled
 enableBlending: true

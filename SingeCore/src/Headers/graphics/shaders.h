@@ -40,6 +40,8 @@ struct _shaderUniforms {
 
 typedef unsigned int ShaderSetting;
 
+#define MAX_SHADER_SETTINGS 3
+
 struct _shaderSettings
 {
 	/// <summary>

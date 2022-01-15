@@ -112,6 +112,8 @@ int main()
 
 	Shader otherToon = ShaderCompilers.Load("assets/shaders/toonShader");
 
+	Shader textShader = ShaderCompilers.Load("assets/shaders/TextShader");
+
 	// check shader instancing and disposing
 	for (size_t i = 0; i < 5; i++)
 	{
@@ -148,20 +150,17 @@ int main()
 		throw(InvalidArgumentException);
 	}
 
+	Shaders.EnableSetting(guiShader, ShaderSettings.Transparency);
+	/*Shaders.DisableSetting(guiShader, ShaderSettings.UseCameraPerspective);
+	Shaders.DisableSetting(guiShader, ShaderSettings.BackfaceCulling); */
+
 	Material texturedMaterial = Materials.Create(texturedShader, cubeTexture);
 
 	Material uvMaterial = Materials.Create(toonShader, null);
 
 	Material guiMaterial = Materials.Create(guiShader, null);
 
-	Material glowMaterial = Materials.Create(guiShader, null);
-
-	Materials.EnableSetting(guiMaterial, ShaderSettings.Transparency);
-	Materials.DisableSetting(guiMaterial, ShaderSettings.UseCameraPerspective);
-	Materials.DisableSetting(guiMaterial, ShaderSettings.BackfaceCulling);
-
-	Materials.DisableSetting(glowMaterial, ShaderSettings.UseCameraPerspective);
-	Materials.DisableSetting(glowMaterial, ShaderSettings.BackfaceCulling);
+	Material textMaterial = Materials.Create(textShader, null);
 
 	GameObjects.SetDefaultMaterial(uvMaterial);
 
@@ -176,15 +175,16 @@ int main()
 	GameObject cube = LoadGameObjectFromModel("assets/models/cube.obj", FileFormats.Obj);
 
 	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
-	Fonts.SetMaterial(font, glowMaterial);
-	Materials.SetColor(font->Material, Colors.Red);
+	Fonts.SetMaterial(font, textMaterial);
+
+	//Materials.SetColor(font->Material, Colors.White);
 
 	GameObject ball = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
 	GameObjects.SetMaterial(ball, uvMaterial);
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = LoadGameObjectFromModel("assets/models/car.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("assets/models/room.obj", FileFormats.Obj);
+	GameObject car = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
+	GameObject room = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
 	Materials.SetColor(car->Material, Colors.Green);
@@ -250,11 +250,13 @@ int main()
 
 	GameObject guiTexture = CreateGameObjectFromMesh(squareMesh);
 
+	Transforms.ScaleAll(guiTexture->Transform, 0.5f);
+
 	SafeFree(squareMesh);
 
 	GameObjects.SetMaterial(guiTexture, guiMaterial);
 
-	Image debugUv = Images.LoadImage("assets/textures/uv_debug.png");
+	Image debugUv = Images.LoadImage("assets/textures/rainbowGradient.png");
 
 	Texture debugUvTexture;
 	if (Textures.TryCreateTexture(debugUv, &debugUvTexture) is false)
@@ -264,7 +266,7 @@ int main()
 
 	Images.Dispose(debugUv);
 
-	Materials.SetMainTexture(guiTexture->Material, debugUvTexture);
+	Materials.SetMainTexture(guiMaterial, debugUvTexture);
 
 	Textures.Dispose(debugUvTexture);
 
@@ -380,6 +382,7 @@ int main()
 		GameObjects.Draw(room, camera);
 
 		Texts.Draw(text, camera);
+		//GameObjects.Draw(guiTexture, camera);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -405,7 +408,7 @@ int main()
 	Materials.Dispose(texturedMaterial);
 	Materials.Dispose(uvMaterial);
 	Materials.Dispose(guiMaterial);
-	Materials.Dispose(glowMaterial);
+	Materials.Dispose(textMaterial);
 
 	Cameras.Dispose(camera);
 
@@ -418,6 +421,8 @@ int main()
 	Shaders.Dispose(guiShader);
 
 	Shaders.Dispose(otherToon);
+
+	Shaders.Dispose(textShader);
 
 	Windows.Dispose(window);
 
