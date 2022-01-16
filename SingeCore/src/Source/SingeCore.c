@@ -39,6 +39,8 @@
 #include "graphics/recttransform.h"
 #include "singine/strings.h"
 
+#include "tests.h"
+
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
 
@@ -49,6 +51,8 @@ void DebugCameraPosition(Camera camera);
 
 int main()
 {
+	Tests.RunAll();
+
 	Windows.StartRuntime();
 
 	Windows.SetHint(WindowHints.MSAASamples, 4);
@@ -103,69 +107,15 @@ int main()
 
 	Images.Dispose(icon);
 
-	Shader texturedShader = ShaderCompilers.Load("assets/shaders/texturedShader");
+	Material texturedMaterial = Materials.Load("assets/materials/textureMaterial.material");
 
-	Shader uvShader = ShaderCompilers.Load("assets/shaders/uvShader");
+	Material uvMaterial = Materials.Load("assets/materials/uvMaterial.material");
 
-	Shader guiShader = ShaderCompilers.Load("assets/shaders/guiShader");
+	Material guiMaterial = Materials.Load("assets/materials/guiMaterial.material");
 
-	Shader toonShader = ShaderCompilers.Load("assets/shaders/toonShader");
-
-	Shader otherToon = ShaderCompilers.Load("assets/shaders/toonShader");
-
-	Shader textShader = ShaderCompilers.Load("assets/shaders/TextShader");
-
-	// check shader instancing and disposing
-	for (size_t i = 0; i < 5; i++)
-	{
-		Shader instance = Shaders.Instance(texturedShader);
-
-		Shaders.Dispose(instance);
-	}
-
-	if (texturedShader->Handle->ActiveInstances != 1)
-	{
-		throw(InvalidArgumentException);
-	}
-
-	Image uv = Images.LoadImage("assets/textures/cubeuv.png");
-
-	Texture cubeTexture;
-	if (Textures.TryCreateTexture(uv, &cubeTexture) is false)
-	{
-		throw(FailedToOpenFileException);
-	}
-
-	Images.Dispose(uv);
-
-	// test texture disposing
-	for (size_t i = 0; i < 5; i++)
-	{
-		Texture newInstance = Textures.Instance(cubeTexture);
-
-		Textures.Dispose(newInstance);
-	}
-
-	if (cubeTexture->Handle->ActiveInstances != 1)
-	{
-		throw(InvalidArgumentException);
-	}
-
-	Shaders.EnableSetting(guiShader, ShaderSettings.Transparency);
-	/*Shaders.DisableSetting(guiShader, ShaderSettings.UseCameraPerspective);
-	Shaders.DisableSetting(guiShader, ShaderSettings.BackfaceCulling); */
-
-	Material texturedMaterial = Materials.Create(texturedShader, cubeTexture);
-
-	Material uvMaterial = Materials.Create(toonShader, null);
-
-	Material guiMaterial = Materials.Create(guiShader, null);
-
-	Material textMaterial = Materials.Create(textShader, null);
+	Material textMaterial = Materials.Load("assets/materials/textMaterial.material");
 
 	GameObjects.SetDefaultMaterial(uvMaterial);
-
-	Materials.SetShader(uvMaterial, uvShader, 1);
 
 	Camera camera = Cameras.CreateCamera();
 
@@ -173,24 +123,22 @@ int main()
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
-	GameObject cube = LoadGameObjectFromModel("assets/models/cube.obj", FileFormats.Obj);
 
 	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
 	Fonts.SetMaterial(font, textMaterial);
 
 	//Materials.SetColor(font->Material, Colors.White);
 
-	char ballPath[] = "assets/models/ball.obj";
+	GameObject ball = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
 
-	GameObject ball = LoadGameObjectFromModel(ballPath, FileFormats.Obj);
 	GameObjects.SetMaterial(ball, uvMaterial);
 
+	GameObject cube = LoadGameObjectFromModel("assets/models/cube.obj", FileFormats.Obj);
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
 	GameObject room = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
-	Materials.SetColor(car->Material, Colors.Green);
 
 	GameObjects.SetMaterial(cube, texturedMaterial);
 
@@ -259,24 +207,8 @@ int main()
 
 	GameObjects.SetMaterial(guiTexture, guiMaterial);
 
-	Image debugUv = Images.LoadImage("assets/textures/rainbowGradient.png");
-
-	Texture debugUvTexture;
-	if (Textures.TryCreateTexture(debugUv, &debugUvTexture) is false)
-	{
-		throw(InvalidArgumentException);
-	}
-
-	Images.Dispose(debugUv);
-
-	Materials.SetMainTexture(guiMaterial, debugUvTexture);
-
-	Textures.Dispose(debugUvTexture);
-
 	// orient the camera so we see some geometry without moving the camera
 	Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
-
-	Materials.SetColor(cube->Material, Colors.Red);
 
 	Text text = Texts.CreateEmpty(font, 512);
 
@@ -285,10 +217,6 @@ int main()
 	RectTransforms.SetTransform(text->GameObject->Transform, Anchors.UpperLeft, Pivots.UpperLeft, 0, 0, fontSize, fontSize);
 
 	float amount = 0;
-
-	Material test = Materials.Load("assets/materials/test.material");
-
-	Materials.Save(test, "assets/materials/testSave.material");
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -410,27 +338,12 @@ int main()
 	GameObjects.Destroy(cube);
 	GameObjects.Destroy(guiTexture);
 
-	Textures.Dispose(cubeTexture);
-
 	Materials.Dispose(texturedMaterial);
 	Materials.Dispose(uvMaterial);
 	Materials.Dispose(guiMaterial);
 	Materials.Dispose(textMaterial);
-	Materials.Dispose(test);
 
 	Cameras.Dispose(camera);
-
-	Shaders.Dispose(toonShader);
-
-	Shaders.Dispose(texturedShader);
-
-	Shaders.Dispose(uvShader);
-
-	Shaders.Dispose(guiShader);
-
-	Shaders.Dispose(otherToon);
-
-	Shaders.Dispose(textShader);
 
 	Windows.Dispose(window);
 

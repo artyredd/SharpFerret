@@ -1,5 +1,6 @@
 #pragma once
 #include "csharp.h"
+#include "singine/file.h"
 
 #ifndef cglm_types_h
 typedef _declspec(align(16)) float vec4[4];
@@ -138,6 +139,7 @@ extern const struct _vector2Methods Vector2s;
 struct _vector4Methods {
 	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec4);
 	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
+	bool (*TrySerializeStream)(File stream, const float* vector);
 };
 
 extern const struct _vector4Methods Vector4s;

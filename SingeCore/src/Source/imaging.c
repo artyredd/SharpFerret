@@ -30,16 +30,9 @@ static bool TryLoadImage(const char* path, Image* out_image)
 		return false;
 	}
 
-	Image image = LoadImage(path);
+	*out_image = LoadImage(path);
 
-	if (image is null)
-	{
-		return false;
-	}
-
-	*out_image = image;
-
-	return true;
+	return *out_image isnt null;
 }
 
 static Image LoadImage(const char* path)
@@ -52,7 +45,8 @@ static Image LoadImage(const char* path)
 
 	if (image->Pixels is null)
 	{
-		SafeFree(image);
+		Dispose(image);
+
 		return null;
 	}
 
@@ -80,6 +74,8 @@ static bool TryGetImageInfo(const char* path, Image* out_info)
 	image->Height = (size_t)height;
 	image->Channels = (size_t)channels;
 
+	*out_info = image;
+
 	return result;
 }
 
@@ -91,7 +87,8 @@ static void Dispose(Image image)
 	}
 
 	SafeFree(image->Path);
-	SafeFree(image->Pixels);
+	// these pixels are provided by stbi and are freed using free() instead to keep acccurate SafeAlloc stats
+	free(image->Pixels);
 	SafeFree(image);
 }
 

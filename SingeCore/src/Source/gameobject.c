@@ -77,12 +77,6 @@ static GameObject CreateWithMaterial(Material material)
 {
 	GameObject gameObject = SafeAlloc(sizeof(struct _gameObject));
 
-	gameObject->Id = 0;
-	gameObject->Name = null;
-	gameObject->Meshes = null;
-	gameObject->Count = 0;
-	gameObject->NameLength = 0;
-
 	gameObject->Transform = Transforms.Create();
 	gameObject->Material = Materials.Instance(material);
 

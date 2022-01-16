@@ -66,6 +66,8 @@ static bool RunSuite(TestSuite suite)
 
 	, suite->OutputStream);
 
+	fprintf(suite->OutputStream, "%c", '\n\n');
+
 	return passCount >= suite->Count;
 }
 

@@ -46,6 +46,9 @@
     <Filter Include="Header Files\Graphics\Drawing">
       <UniqueIdentifier>{360cb393-6b6a-4043-a249-70980cd56b0e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Tests">
+      <UniqueIdentifier>{3f7e5151-65f1-4741-8e0e-babdcd98c041}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\imaging.c">
@@ -146,6 +149,15 @@
     </ClCompile>
     <ClCompile Include="src\Source\graphicsDevice.c">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\tests_material.c">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\tests.c">
+      <Filter>Source Files\Tests</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\tests_shader.c">
+      <Filter>Source Files\Tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -265,6 +277,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\singine\strings.h">
       <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\tests.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

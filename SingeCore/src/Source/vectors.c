@@ -22,10 +22,12 @@ const struct _vector2Methods Vector2s = {
 
 static bool TryDeserializeVec4(const char* buffer, const size_t length, float* out_vector2);
 static bool TrySerializeVec4(char* buffer, const size_t length, const float* vector);
+static bool TrySerializeVec4Stream(File stream, const float* vector);
 
 const struct _vector4Methods Vector4s = {
 	.TryDeserialize = &TryDeserializeVec4,
-	.TrySerialize = &TrySerializeVec4
+	.TrySerialize = &TrySerializeVec4,
+	.TrySerializeStream = &TrySerializeVec4Stream
 };
 
 #define Vector2SerializationFormat "%f %f"
@@ -53,14 +55,14 @@ static bool TryParseVector2(const char* buffer, size_t length, float* out_vector
 		return false;
 	}
 
-	int count = sscanf_s(buffer, "%f %f", 
-		&out_vector2[0], 
+	int count = sscanf_s(buffer, "%f %f",
+		&out_vector2[0],
 		&out_vector2[1]);
 
 	return count == 2;
 }
 
-static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector) 
+static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector)
 {
 	if (length is 0)
 	{
@@ -86,7 +88,7 @@ static bool TrySerializeVec2(char* buffer, const size_t length, const float* vec
 	return result > 0;
 }
 
-static bool TryDeserializeVec4(const char* buffer, const size_t length, float* out_vector4) 
+static bool TryDeserializeVec4(const char* buffer, const size_t length, float* out_vector4)
 {
 	if (length is 0)
 	{
@@ -95,10 +97,27 @@ static bool TryDeserializeVec4(const char* buffer, const size_t length, float* o
 
 	int count = sscanf_s(buffer, Vector4SerializationFormat, &out_vector4[0],
 		&out_vector4[1],
-		&out_vector4[2], 
+		&out_vector4[2],
 		&out_vector4[3]);
 
 	return count == 4;
+}
+
+static bool TrySerializeVec4Stream(File stream, const float* vector)
+{
+	if (stream is null)
+	{
+		return false;
+	}
+
+	int result = fprintf_s(stream, Vector4SerializationFormat,
+		vector[0],
+		vector[1],
+		vector[2],
+		vector[3]);
+
+	// 0 is runtime error, negative is encoding error
+	return result > 0;
 }
 
 static bool TrySerializeVec4(char* buffer, const size_t length, const float* vector)
@@ -109,9 +128,9 @@ static bool TrySerializeVec4(char* buffer, const size_t length, const float* vec
 	}
 
 	int result = sprintf_s(buffer, length, Vector4SerializationFormat,
-		vector[0], 
-		vector[1], 
-		vector[2], 
+		vector[0],
+		vector[1],
+		vector[2],
 		vector[3]);
 
 	// 0 is runtime error, negative is encoding error

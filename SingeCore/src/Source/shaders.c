@@ -60,7 +60,10 @@ static void OnDispose(Shader shader)
 	SafeFree(shader->FragmentPath);
 	SafeFree(shader->Name);
 
-	glDeleteProgram(shader->Handle->Handle);
+	if (shader->Handle->Handle > 0)
+	{
+		glDeleteProgram(shader->Handle->Handle);
+	}
 }
 
 static void Dispose(Shader shader)
@@ -114,15 +117,21 @@ static Shader Instance(Shader shader)
 
 	Shader newShader = CreateShaderWithUniforms(false);
 
-	CopyMember(shader, newShader, Handle);
-
-	++(shader->Handle->ActiveInstances);
-
+	// value types
 	CopyMember(shader, newShader, Uniforms);
+	CopyMember(shader, newShader, Settings);
+
+	// references
+	CopyMember(shader, newShader, Name);
 	CopyMember(shader, newShader, VertexPath);
 	CopyMember(shader, newShader, FragmentPath);
-	CopyMember(shader, newShader, Name);
-	CopyMember(shader, newShader, Settings);
+	CopyMember(shader, newShader, Handle);
+
+	// if the shader were given is an empty shader that doesn't have a handle we dont need to increment the instance count
+	if (shader->Handle isnt null)
+	{
+		++(shader->Handle->ActiveInstances);
+	}
 
 	return newShader;
 }

@@ -326,6 +326,10 @@ static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 
 	shader->Handle->Handle = programHandle;
 
+	// make a copy of the provided strings
+	shader->VertexPath = Strings.DuplicateTerminated(vertexPath);
+	shader->FragmentPath = Strings.DuplicateTerminated(fragmentPath);
+
 	// since we didnt find the shader in the dictionary store it
 	if (TryStoreShader(vertexPath, fragmentPath, shader) is false)
 	{
@@ -333,10 +337,6 @@ static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 		// we must not have previously stored the shader
 		throw(UnexpectedOutcomeException);
 	}
-
-	// make a copy of the provided strings
-	shader->VertexPath = Strings.DuplicateTerminated(vertexPath);
-	shader->FragmentPath = Strings.DuplicateTerminated(fragmentPath);
 
 	return shader;
 }
@@ -432,54 +432,40 @@ static Shader Load(const char* path)
 		throw(InvalidArgumentException);
 	}
 
+	Shader shader = null;
+
 	// create a place to store info needed to compile shader
 	struct _shaderInfo info = {
+		.FragmentPath = null,
+		.VertexPath = null,
 		.Settings = 0
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &info))
 	{
 		// check to see if we already compiled a shader similar to this one
-		Shader shader = CompileShader(info.VertexPath, info.FragmentPath);
+		shader = CompileShader(info.VertexPath, info.FragmentPath);
 
+		// if we didn't load the shader but compiled it instead, set the name to the path given
 		if (shader->Name is null)
 		{
 			// copy the path as the shader name
 			shader->Name = Strings.DuplicateTerminated(path);
 		}
 
-		// if we created the shader we should save the strings, otherwise throw them out
-		if (shader->VertexPath is null)
-		{
-			shader->VertexPath = info.VertexPath;
-		}
-		else
-		{
-			SafeFree(info.VertexPath);
-		}
-
-		// if we created the shader we should save the strings, otherwise throw them out
-		if (shader->FragmentPath is null)
-		{
-			shader->FragmentPath = info.FragmentPath;
-		}
-		else
-		{
-			SafeFree(info.FragmentPath);
-		}
-
 		shader->Settings = info.Settings;
-
-		return shader;
 	}
 
-	// if something went wrong free the strings and return null
+	// always free these strings, CompileShader will make copies if it needs to
 	SafeFree(info.FragmentPath);
 	SafeFree(info.VertexPath);
 
-	fprintf(stderr, "Failed to load the shader from path: %s", path);
+	if (shader is null)
+	{
+		fprintf(stderr, "Failed to load the shader from path: %s", path);
+	}
 
-	return null;
+	return shader;
 }
 
 static bool Save(Shader shader, const char* path)

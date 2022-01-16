@@ -125,7 +125,6 @@ static Texture CreateTexture(bool allocBuffer)
 {
 	Texture texture = SafeAlloc(sizeof(struct _texture));
 
-
 	if (allocBuffer)
 	{
 		texture->Handle = SharedHandles.Create();
@@ -232,7 +231,6 @@ static Texture InstanceTexture(Texture texture)
 	// increment the number of instances that are active for the texture so when dispose is called on the texture the underlying
 	// buffer handle does not get disposed until the last texture that references it is diposed
 	++(texture->Handle->ActiveInstances);
-
 
 	// reference types
 	CopyMember(texture, newTexture, Path);

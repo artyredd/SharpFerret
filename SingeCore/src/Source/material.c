@@ -29,6 +29,7 @@ static bool Save(const Material material, const char* path);
 const struct _materialMethods Materials = {
 	.Dispose = &Dispose,
 	.Create = &Create,
+	.CreateMaterial = &CreateMaterial,
 	.Load = &Load,
 	.Save = &Save,
 	.Draw = &Draw,
@@ -68,9 +69,13 @@ static Material Create(Shader shader, Texture texture)
 	Material material = SafeAlloc(sizeof(struct _material));
 
 	material->MainTexture = Textures.Instance(texture);
-	material->Shaders = SafeAlloc(sizeof(Shader));
-	material->Shaders[0] = Shaders.Instance(shader);
-	material->Count = 1;
+
+	if (shader isnt null)
+	{
+		material->Shaders = SafeAlloc(sizeof(Shader));
+		material->Shaders[0] = Shaders.Instance(shader);
+		material->Count = 1;
+	}
 
 	SetVector4(material->Color, 1, 1, 1, 1);
 
@@ -113,6 +118,9 @@ static void ResizeShaders(Material material, size_t desiredCount)
 
 static void InstanceShadersTo(Material source, Material destination)
 {
+	// if there are no shaders to instance return
+	if (source->Shaders is null or source->Count is 0) { return; }
+
 	// make sure to dispose of any old ones if they exist
 	if (destination->Shaders isnt null)
 	{
@@ -359,8 +367,30 @@ static Material Load(const char* path)
 
 			Vectors4CopyTo(state.Color, material->Color);
 
-			material->Shaders = SafeAlloc(sizeof(Shader) * state.ShaderCount);
-			material->Count = state.ShaderCount;
+			size_t shaderCount = state.ShaderCount;
+
+			// iterate the shader path array and trim each one
+			for (size_t i = 0; i < state.ShaderCount; i++)
+			{
+				char* shaderPath = state.ShaderPaths[i];
+				size_t shaderPathLength = state.ShaderPathLengths[i];
+
+				shaderPathLength = Strings.Trim(shaderPath, shaderPathLength);
+
+				state.ShaderPathLengths[i] = shaderPathLength;
+
+				// if the string is only whitespace or empty we should not alloc space for a shader there
+				if (shaderPathLength is 0)
+				{
+					shaderCount--;
+				}
+			}
+
+			material->Shaders = SafeAlloc(sizeof(Shader) * shaderCount);
+			material->Count = shaderCount;
+
+			// becuase we might not add each shader into the array we have to keep i and currentIndex
+			size_t currentIndex = 0;
 
 			// import each shader
 			for (size_t i = 0; i < state.ShaderCount; i++)
@@ -368,16 +398,13 @@ static Material Load(const char* path)
 				char* shaderPath = state.ShaderPaths[i];
 				size_t shaderPathLength = state.ShaderPathLengths[i];
 
-				// trim path
-				size_t newLength = Strings.Trim(shaderPath, shaderPathLength);
-
 				// try not to load empty paths
 				// this is a valid path array for example ",,,,,,,,,,,,,,,,,,,"
-				if (newLength isnt 0)
+				if (shaderPathLength isnt 0)
 				{
 					Shader shader = ShaderCompilers.Load(shaderPath);
 
-					material->Shaders[i] = shader;
+					material->Shaders[currentIndex++] = shader;
 				}
 			}
 
@@ -405,6 +432,8 @@ static Material Load(const char* path)
 	{
 		fprintf(stderr, "Failed to load the material from path: %s", path);
 	}
+
+	SafeFree(state.MainTexturePath);
 
 	SafeFree(state.ShaderPathLengths);
 
@@ -446,7 +475,14 @@ static bool Save(const Material material, const char* path)
 	fprintf(file, "\n");
 
 	fprintf(file, ExportCommentFormat, ColorTokenComment);
-	fprintf(file, "%s: %f %f %f\n", ColorToken, material->Color[0], material->Color[1], material->Color[2]);
+	fprintf(file, "%s: ", ColorToken);
+
+	if (Vector4s.TrySerializeStream(file, material->Color) is false)
+	{
+		return false;
+	}
+
+	fprintf(file, "%c", '\n');
 
 	if (material->MainTexture isnt null)
 	{
