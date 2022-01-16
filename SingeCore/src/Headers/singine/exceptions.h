@@ -1,5 +1,19 @@
 #pragma once
 
+/*
+				EXCEPTION FILE
+	KEY:
+		0x00000000 NORMAL OPERATION
+
+	ERROR TIERS:
+		0x5.......	OPEN_GL SPECIFIC
+		0x6.......	GLFW SPECIFIC
+		0x7.......	APPLICATION SPECIFIC
+		0x8.......	MICROSOFT STANDARD
+		0xDEADADD.  CRITICAL; DEAD ADDRESS; EITHER PROGRAMMER OR SECURITY THREAT
+		0xDEADBEEF  RESERVED
+*/
+
 #ifndef _exceptions_h_
 #define _exceptions_h_
 #endif // !_exceptions_h_
@@ -21,6 +35,11 @@ static Exception FileNotFoundException = 0x80070002;
 
 // custom exceptions
 
+// CRITICAL: A NULL reference was encountered
+// this is a critical error that should never be encountered
+// most notably thrown by allocation, memory, or disposal methods
+static Exception NullReferenceException = 0xDEADADD0;
+
 // A possible memory leak was detected
 static Exception MemoryLeakException = 0x70000001;
 static Exception FailedToReadFileException = 0x70000002;
@@ -29,6 +48,9 @@ static Exception FailedToOpenFileException = 0x70000004;
 static Exception FailedToWriteToStreamException = 0x70000005;
 static Exception FailedToImportModelException = 0x70000006;
 static Exception MissingCharacterException = 0x70000007;
+// The logic path or branching that lead to this error needs to be evaluated or tested more thoroughly.
+// This error denotes and exception that may or may not be dangerous but is unexpected and clearly unintended.
+static Exception InvalidLogicException = 0x70000008;
 // The outcome where this error is thrown should never occur even by chance, either an edge case was missed or something else weird happend
 static Exception UnexpectedOutcomeException = 0x7FFFFFFF;
 // end custom exceptions

@@ -109,15 +109,15 @@ extern const struct _textureWrapModes WrapModes;
 typedef struct _texture* Texture;
 
 struct _texture {
+	/// <summary>
+	/// The path of this texture
+	/// </summary>
+	char* Path;
 	SharedHandle Handle;
 	size_t Height;
 	size_t Width;
 	BufferFormat BufferFormat;
 	TextureFormat Format;
-	/// <summary>
-	/// The texture slot that this texture should be bound to in order to be drawn, default is TEXTURE_0 (1), 0 is NO slot at all and the texture can't be drawn
-	/// </summary>
-	unsigned int Slot;
 };
 
 struct _textureMethods

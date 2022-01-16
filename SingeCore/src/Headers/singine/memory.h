@@ -62,7 +62,15 @@ void* SafeCalloc(size_t nitems, size_t size);
 void* SafeAllocAligned(size_t alignment, size_t size);
 
 // Attempts to realloc the address to the new size, returns true if successfull, otherwise false
-int TryRealloc(void* address, size_t previousSize, size_t newSize, void** out_address);
+int TryRealloc(void* address, const size_t previousSize, const size_t newSize, void** out_address);
 
 // Fills the array with zeros
-void ZeroArray(void* address, size_t size);
+void ZeroArray(void* address, const size_t size);
+
+// Duplicates the provided address with length, allocs a new address with newLength bytes and copies length bytes to the new address,
+// returns the new address
+void* DuplicateAddress(const void* address, const size_t length, const size_t newLength);
+
+// Attempts to realloc, or copy previousLength bytes to a new address, sets the pointer provided to the new address
+// returns TRUE(1) when realloced, FALSE(0) when the bytes were copied
+int ReallocOrCopy(void** address, size_t previousLength, size_t newLength);

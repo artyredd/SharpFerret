@@ -22,6 +22,10 @@ typedef struct _image* Image;
 
 struct _image {
 	/// <summary>
+	/// The path that was used to load the image
+	/// </summary>
+	char* Path;
+	/// <summary>
 	/// The width in pixels of the image
 	/// </summary>
 	int Width;

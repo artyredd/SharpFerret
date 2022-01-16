@@ -1,6 +1,7 @@
 #include "graphics/imaging.h"
 #include "csharp.h"
 #include "singine/memory.h"
+#include "singine/strings.h"
 
 #ifndef STBI_INCLUDE_STB_IMAGE_H
 #include "stb_image.h"
@@ -45,6 +46,8 @@ static Image LoadImage(const char* path)
 {
 	Image image = CreateImage();
 
+	image->Path = Strings.DuplicateTerminated(path);
+
 	image->Pixels = stbi_load(path, &image->Width, &image->Height, &image->Channels, 0);
 
 	if (image->Pixels is null)
@@ -87,15 +90,12 @@ static void Dispose(Image image)
 		return;
 	}
 
+	SafeFree(image->Path);
 	SafeFree(image->Pixels);
 	SafeFree(image);
 }
 
 static Image CreateImage()
 {
-	Image img = SafeAlloc(sizeof(struct _image));
-
-	img->Pixels = null;
-
-	return img;
+	return SafeAlloc(sizeof(struct _image));
 }

@@ -3,6 +3,7 @@
 #include "singine/memory.h"
 #include "singine/guards.h"
 #include "helpers/macros.h"
+#include "singine/strings.h"
 
 const struct _textureFormats TextureFormats = {
 	.Red = GL_RED,
@@ -96,9 +97,14 @@ const struct _textureMethods Textures = {
 	.Modify = &Modify
 };
 
-static void OnTextureBufferDispose(unsigned int handle)
+// this is only ran when there is only one remaining instance of the texture being disposed
+static void OnTextureBufferDispose(Texture texture)
 {
-	glDeleteTextures(1, &handle);
+	// delete the GDI texture
+	glDeleteTextures(1, &texture->Handle->Handle);
+
+	// free the string
+	SafeFree(texture->Path);
 }
 
 static void Dispose(Texture texture)
@@ -107,7 +113,10 @@ static void Dispose(Texture texture)
 	{
 		return;
 	}
-	SharedHandles.Dispose(texture->Handle, &OnTextureBufferDispose);
+
+	// most of the logic is handled by the callback for the handle disposal
+	// the handle disposal is ONLY ran when a single instance remains of the provided texture
+	SharedHandles.Dispose(texture->Handle, texture, &OnTextureBufferDispose);
 
 	SafeFree(texture);
 }
@@ -122,13 +131,8 @@ static Texture CreateTexture(bool allocBuffer)
 		texture->Handle = SharedHandles.Create();
 	}
 
-	texture->Height = 0;
-	texture->Width = 0;
-
 	texture->BufferFormat = BufferFormats.None;
 	texture->Format = TextureFormats.None;
-
-	texture->Slot = 0;
 
 	return texture;
 }
@@ -185,6 +189,8 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureF
 	texture->BufferFormat = bufferFormat;
 	texture->Format = format;
 
+	texture->Path = Strings.DuplicateTerminated(image->Path);
+
 	*out_texture = texture;
 
 	return true;
@@ -216,17 +222,21 @@ static Texture InstanceTexture(Texture texture)
 
 	Texture newTexture = CreateTexture(false);
 
+	// value types
 	CopyMember(texture, newTexture, Height);
 	CopyMember(texture, newTexture, Width);
+	CopyMember(texture, newTexture, BufferFormat);
+	CopyMember(texture, newTexture, Format);
 
-	CopyMember(texture, newTexture, Handle);
 
 	// increment the number of instances that are active for the texture so when dispose is called on the texture the underlying
 	// buffer handle does not get disposed until the last texture that references it is diposed
 	++(texture->Handle->ActiveInstances);
 
-	CopyMember(texture, newTexture, BufferFormat);
-	CopyMember(texture, newTexture, Format);
+
+	// reference types
+	CopyMember(texture, newTexture, Path);
+	CopyMember(texture, newTexture, Handle);
 
 	return newTexture;
 }

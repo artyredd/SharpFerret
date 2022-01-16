@@ -1,0 +1,6 @@
+# the array of shaders that should be loaded for this material
+shaders: assets/shaders/toonShader,assets/shaders/guiShader,
+# the material base color
+color: 1.000000 0.500000 0.250000
+# the main UV texture that should be used for this material
+mainTexture: assets/textures/rainbowGradient.png

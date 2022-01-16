@@ -8,11 +8,11 @@ static char GetByteGrouping(size_t value);
 static void PrintGroupedNumber(FILE* stream, size_t value);
 
 // Total amount of memory (bytes) allocated
-static size_t ALLOC_SIZE;
+size_t ALLOC_SIZE;
 // Total amount of calls made to malloc()
-static size_t ALLOC_COUNT;
+size_t ALLOC_COUNT;
 // Total amount of calls made to free()
-static size_t FREE_COUNT;
+size_t FREE_COUNT;
 
 /// <summary>
 /// The number of calls made to free
@@ -126,10 +126,10 @@ void SafeFree(void* address)
 	++FREE_COUNT;
 }
 
-bool TryRealloc(void* address, size_t previousSize, size_t newSize, void** out_address)
+bool TryRealloc(void* address, const size_t previousSize, const size_t newSize, void** out_address)
 {
 	void* newAddress = realloc(address, newSize);
-	
+
 	*out_address = newAddress;
 
 
@@ -144,13 +144,51 @@ bool TryRealloc(void* address, size_t previousSize, size_t newSize, void** out_a
 
 		return true;
 	}
-	
+
 	return false;
 }
 
-void ZeroArray(void* address, size_t size)
+void ZeroArray(void* address, const size_t size)
 {
 	memset(address, 0, size);
+}
+
+void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength)
+{
+	if (address is null)
+	{
+		throw(NullReferenceException);
+	}
+
+	// gaurd sensless duplications
+	if (length is 0 or newLength is 0)
+	{
+		throw(InvalidLogicException);
+	}
+
+	void* newAddress = SafeAlloc(newLength);
+
+	memcpy(newAddress, address, min(length, newLength));
+
+	return newAddress;
+}
+
+bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength)
+{
+	if (TryRealloc(address, previousLength, newLength, address))
+	{
+		return true;
+	}
+
+	// since we couldn't realloc to the right size alloc new space and copy the bytes
+	void* newAddress = DuplicateAddress(address, previousLength, newLength);
+
+	// free the old address
+	SafeFree(*address);
+
+	*address = newAddress;
+
+	return false;
 }
 
 static void PrintGroupedNumber(FILE* stream, size_t value)

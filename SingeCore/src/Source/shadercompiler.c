@@ -11,6 +11,7 @@
 #include "singine/parsing.h"
 #include "singine/hashing.h"
 #include <string.h>
+#include "singine/strings.h"
 
 static Shader CompileShader(const char* vertexPath, const char* fragmentPath);
 static Shader Load(const char* path);
@@ -73,7 +74,7 @@ static bool TryGetStoredShader(const char* vertexPath, const char* fragmentPath,
 	size_t index = hash % CompiledHandleDictionarySize;
 
 	Shader storedShader = CompiledShaders[index];
-	
+
 	*out_shader = storedShader;
 
 	return storedShader isnt null;
@@ -334,14 +335,8 @@ static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 	}
 
 	// make a copy of the provided strings
-	size_t vertexSize = strlen(vertexPath)+1;
-	size_t fragmentSize = strlen(fragmentPath)+1;
-
-	shader->VertexPath = SafeAlloc(vertexSize);
-	shader->FragmentPath = SafeAlloc(fragmentSize);
-
-	strcpy_s(shader->VertexPath, vertexSize, vertexPath);
-	strcpy_s(shader->FragmentPath, fragmentSize,fragmentPath);
+	shader->VertexPath = Strings.DuplicateTerminated(vertexPath);
+	shader->FragmentPath = Strings.DuplicateTerminated(fragmentPath);
 
 	return shader;
 }
@@ -431,6 +426,12 @@ const struct _configDefinition ShaderConfigDefinition = {
 
 static Shader Load(const char* path)
 {
+	if (path is null)
+	{
+		fprintf(stderr, "Shader path was null");
+		throw(InvalidArgumentException);
+	}
+
 	// create a place to store info needed to compile shader
 	struct _shaderInfo info = {
 		.Settings = 0
@@ -440,6 +441,12 @@ static Shader Load(const char* path)
 	{
 		// check to see if we already compiled a shader similar to this one
 		Shader shader = CompileShader(info.VertexPath, info.FragmentPath);
+
+		if (shader->Name is null)
+		{
+			// copy the path as the shader name
+			shader->Name = Strings.DuplicateTerminated(path);
+		}
 
 		// if we created the shader we should save the strings, otherwise throw them out
 		if (shader->VertexPath is null)
@@ -470,7 +477,7 @@ static Shader Load(const char* path)
 	SafeFree(info.FragmentPath);
 	SafeFree(info.VertexPath);
 
-	fprintf(stderr, "Filed to load the shader from path: %s", path);
+	fprintf(stderr, "Failed to load the shader from path: %s", path);
 
 	return null;
 }
@@ -494,7 +501,7 @@ static bool Save(Shader shader, const char* path)
 		fprintf(file, UseBackfaceCullingComment);
 		fprintf(file, ExportTokenFormat, UseBackfaceCullingToken, "true");
 	}
-	
+
 	if (HasFlag(shader->Settings, ShaderSettings.UseCameraPerspective))
 	{
 		fprintf(file, UseCameraPerspectiveComment);

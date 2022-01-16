@@ -369,11 +369,16 @@ static Material Load(const char* path)
 				size_t shaderPathLength = state.ShaderPathLengths[i];
 
 				// trim path
-				Strings.Trim(shaderPath, shaderPathLength);
+				size_t newLength = Strings.Trim(shaderPath, shaderPathLength);
 
-				Shader shader = ShaderCompilers.Load(shaderPath);
+				// try not to load empty paths
+				// this is a valid path array for example ",,,,,,,,,,,,,,,,,,,"
+				if (newLength isnt 0)
+				{
+					Shader shader = ShaderCompilers.Load(shaderPath);
 
-				material->Shaders[i] = shader;
+					material->Shaders[i] = shader;
+				}
 			}
 
 			// load any textures that were included in the material
@@ -398,7 +403,7 @@ static Material Load(const char* path)
 
 	if (material is null)
 	{
-		fprintf(stderr, "Filed to load the material from path: %s", path);
+		fprintf(stderr, "Failed to load the material from path: %s", path);
 	}
 
 	SafeFree(state.ShaderPathLengths);
@@ -425,7 +430,29 @@ static bool Save(const Material material, const char* path)
 	}
 
 	fprintf(file, ExportCommentFormat, ShaderTokenComment);
-	fprintf();
+	fprintf(file, "%s: ", ShaderToken);
+
+	// print string array
+	for (size_t i = 0; i < material->Count; i++)
+	{
+		Shader shader = material->Shaders[i];
+
+		if (shader isnt null)
+		{
+			fprintf(file, "%s,", shader->Name);
+		}
+	}
+
+	fprintf(file, "\n");
+
+	fprintf(file, ExportCommentFormat, ColorTokenComment);
+	fprintf(file, "%s: %f %f %f\n", ColorToken, material->Color[0], material->Color[1], material->Color[2]);
+
+	if (material->MainTexture isnt null)
+	{
+		fprintf(file, ExportCommentFormat, MainTextureComment);
+		fprintf(file, ExportTokenFormat, MainTextureToken, material->MainTexture->Path);
+	}
 
 	return Files.TryClose(file);
 }

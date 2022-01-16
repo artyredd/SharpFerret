@@ -20,9 +20,9 @@ const struct _renderMeshMethods RenderMeshes = {
 	.Create = &CreateRenderMesh
 };
 
-static void OnBufferDispose(unsigned int handle)
+static void OnBufferDispose(SharedHandle handle)
 {
-	glDeleteBuffers(1, &handle);
+	glDeleteBuffers(1, &handle->Handle);
 }
 
 static void Dispose(RenderMesh mesh)
@@ -34,9 +34,9 @@ static void Dispose(RenderMesh mesh)
 
 	// since these handles are shared among possibly many instances we only want to actually
 	// clear the buffer when the final instance has been disposed
-	SharedHandles.Dispose(mesh->VertexBuffer, &OnBufferDispose);
-	SharedHandles.Dispose(mesh->UVBuffer, &OnBufferDispose);
-	SharedHandles.Dispose(mesh->NormalBuffer, &OnBufferDispose);
+	SharedHandles.Dispose(mesh->VertexBuffer, mesh->VertexBuffer, &OnBufferDispose);
+	SharedHandles.Dispose(mesh->UVBuffer, mesh->UVBuffer, &OnBufferDispose);
+	SharedHandles.Dispose(mesh->NormalBuffer, mesh->NormalBuffer, &OnBufferDispose);
 
 	Transforms.Dispose(mesh->Transform);
 

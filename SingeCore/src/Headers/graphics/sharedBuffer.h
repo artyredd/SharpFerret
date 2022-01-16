@@ -13,9 +13,10 @@ struct _sharedHandleMethods
 {
 	SharedHandle(*Create)(void);
 	/// <summary>
-	/// Disposes the handle if the active instances of this object is less than or equal to 0, if it diposes OnDipose is invoked with the handle of the buffer
+	/// Disposes the handle if the active instances of this object is less than or equal to 0, if it diposes OnDipose is invoked with the provided state allowing last minute cleanup before the 
+	/// handle is cleared and the object is disposed
 	/// </summary>
-	void (*Dispose)(SharedHandle, void(*OnDispose)(unsigned int handle));
+	void (*Dispose)(SharedHandle, void* state, void(*OnDispose)(void* state));
 };
 
 extern const struct _sharedHandleMethods SharedHandles;

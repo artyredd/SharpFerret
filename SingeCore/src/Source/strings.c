@@ -3,15 +3,20 @@
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
+#include "singine/memory.h"
 
 static void ToLower(char* buffer, size_t bufferLength, size_t offset);
 static void ToUpper(char* buffer, size_t bufferLength, size_t offset);
 static size_t Trim(char* buffer, const size_t bufferLength);
+static char* Duplicate(const char* source, size_t length);
+static char* DuplicateTerminated(const char* source);
 
 const struct _stringMethods Strings = {
 	.ToUpper = &ToUpper,
 	.ToLower = &ToLower,
-	.Trim = &Trim
+	.Trim = &Trim,
+	.Duplicate = &Duplicate,
+	.DuplicateTerminated = &DuplicateTerminated
 };
 
 static void ToLower(char* buffer, size_t bufferLength, size_t offset)
@@ -77,4 +82,22 @@ static size_t Trim(char* buffer, const size_t bufferLength)
 	buffer[length] = '\0';
 
 	return length;
+}
+
+static char* Duplicate(const char* source, size_t length)
+{
+	return DuplicateAddress(source, length, length);
+}
+
+static char* DuplicateTerminated(const char* source)
+{
+	size_t length = strlen(source) + 1;
+
+	char* result = DuplicateAddress(source, length, length);
+
+	// duplicate address uses zero initilization, this shouldn;'t be necessary since '\0' is 0
+	//// nul terminate
+	//result[length] = '\0';
+
+	return result;
 }

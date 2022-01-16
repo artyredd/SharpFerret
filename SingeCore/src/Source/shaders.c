@@ -53,9 +53,14 @@ const struct _shaderSettings ShaderSettings = {
 	.Transparency = UseTransparencyFlag
 };
 
-static void OnDispose(unsigned int handle)
+static void OnDispose(Shader shader)
 {
-	glDeleteProgram(handle);
+	SafeFree(shader->Uniforms);
+	SafeFree(shader->VertexPath);
+	SafeFree(shader->FragmentPath);
+	SafeFree(shader->Name);
+
+	glDeleteProgram(shader->Handle->Handle);
 }
 
 static void Dispose(Shader shader)
@@ -65,15 +70,8 @@ static void Dispose(Shader shader)
 		return;
 	}
 
-	// only free the uniforms if we are closing the shader program all together
-	if (shader->Handle->ActiveInstances <= 1)
-	{
-		SafeFree(shader->Uniforms);
-		SafeFree(shader->VertexPath);
-		SafeFree(shader->FragmentPath);
-	}
-
-	SharedHandles.Dispose(shader->Handle, &OnDispose);
+	// see OnDispose
+	SharedHandles.Dispose(shader->Handle, shader, &OnDispose);
 
 	SafeFree(shader);
 }
@@ -123,6 +121,7 @@ static Shader Instance(Shader shader)
 	CopyMember(shader, newShader, Uniforms);
 	CopyMember(shader, newShader, VertexPath);
 	CopyMember(shader, newShader, FragmentPath);
+	CopyMember(shader, newShader, Name);
 	CopyMember(shader, newShader, Settings);
 
 	return newShader;
