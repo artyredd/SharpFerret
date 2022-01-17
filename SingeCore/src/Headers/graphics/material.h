@@ -9,9 +9,25 @@
 typedef struct _material* Material;
 
 struct _material {
+	/// <summary>
+	/// The name, or path of this material
+	/// </summary>
+	char* Name;
+	/// <summary>
+	/// The array of shaders that should be used to render this material
+	/// </summary>
 	Shader* Shaders;
+	/// <summary>
+	/// The number of shaders within this material
+	/// </summary>
 	size_t Count;
+	/// <summary>
+	/// The base color for this material, default is Colors.White
+	/// </summary>
 	Color Color;
+	/// <summary>
+	/// The main texture for the object, this is synonomous with TEXTURE0 and is typically the UV texture for the object
+	/// </summary>
 	Texture MainTexture;
 };
 

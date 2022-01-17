@@ -127,8 +127,6 @@ int main()
 	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
 	Fonts.SetMaterial(font, textMaterial);
 
-	//Materials.SetColor(font->Material, Colors.White);
-
 	GameObject ball = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
 
 	GameObjects.SetMaterial(ball, uvMaterial);
@@ -217,6 +215,9 @@ int main()
 	RectTransforms.SetTransform(text->GameObject->Transform, Anchors.UpperLeft, Pivots.UpperLeft, 0, 0, fontSize, fontSize);
 
 	float amount = 0;
+
+	Materials.SetColor(cube->Material, Colors.Red);
+	Materials.SetColor(car->Material, Colors.Green);
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();

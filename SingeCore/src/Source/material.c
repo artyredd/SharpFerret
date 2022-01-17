@@ -59,6 +59,8 @@ static void Dispose(Material material)
 
 	SafeFree(material->Shaders);
 
+	SafeFree(material->Name);
+
 	Textures.Dispose(material->MainTexture);
 
 	SafeFree(material);
@@ -161,13 +163,21 @@ static Material InstanceMaterial(Material material)
 
 	newMaterial->MainTexture = mainTexture;
 
+	if (material->Name isnt null)
+	{
+		newMaterial->Name = Strings.DuplicateTerminated(material->Name);
+	}
+
 	Vectors3CopyTo(material->Color, newMaterial->Color);
 
 	return newMaterial;
 }
 
-static void PrepareSettings(unsigned int settings, Shader shader, mat4 modelMatrix, mat4 mvpMatrix)
+// Enables or disables graphics and matrix settings based on what settings are provided by the shader
+static void PrepareSettings(Shader shader, mat4 modelMatrix, mat4 mvpMatrix)
 {
+	unsigned int settings = shader->Settings;
+
 	int handle;
 	if (Shaders.TryGetUniform(shader, Uniforms.MVP, &handle))
 	{
@@ -212,7 +222,7 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, ma
 		{
 			Shaders.Enable(shader);
 
-			PrepareSettings(shader->Settings, shader, modelMatrix, MVPMatrix);
+			PrepareSettings(shader, modelMatrix, MVPMatrix);
 
 			int colorHandle;
 			if (Shaders.TryGetUniform(shader, Uniforms.Color, &colorHandle))
@@ -431,6 +441,10 @@ static Material Load(const char* path)
 	if (material is null)
 	{
 		fprintf(stderr, "Failed to load the material from path: %s", path);
+	}
+	else if (material->Name is null)
+	{
+		material->Name = Strings.DuplicateTerminated(path);
 	}
 
 	SafeFree(state.MainTexturePath);
