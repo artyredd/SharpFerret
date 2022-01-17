@@ -1,0 +1,16 @@
+# the id of the gameobject at runtime
+id: 42
+
+# the model of this object
+model: assets/models/cube.obj
+
+# the material of this object
+material: assets/materials/uvMaterial.material
+
+transform:
+# the transform of this object
+position: 0.0 0.5 1.0
+rotation: 0.0 0.0 0.0 1.0
+scale: 1.0 1.0 1.0
+rotateAroundCenter: false
+invertTransform: false

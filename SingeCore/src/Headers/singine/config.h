@@ -22,6 +22,11 @@ struct _configDefinition {
 	/// </summary>
 	const int CommentCharacter;
 	/// <summary>
+	/// A token, when encountered causes parsing to abort, useful for stopping mid-stream to to do business logic
+	/// </summary>
+	const char* AbortToken;
+	const size_t AbortTokenLength;
+	/// <summary>
 	/// The method that should be invoked when a token is found, the buffer received does NOT include the token and only the data for the token
 	/// </summary>
 	bool (*OnTokenFound)(size_t tokenIndex, const char* buffer, size_t length, void* state);

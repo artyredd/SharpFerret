@@ -159,6 +159,9 @@
     <ClCompile Include="src\Tests\tests_shader.c">
       <Filter>Source Files\Tests</Filter>
     </ClCompile>
+    <ClCompile Include="src\Source\ints.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">
@@ -280,6 +283,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\tests.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\math\ints.h">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

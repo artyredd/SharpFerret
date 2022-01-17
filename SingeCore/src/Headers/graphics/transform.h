@@ -134,6 +134,9 @@ struct _transformMethods {
 	// Sets the provided transform's parent as the provided parent
 	void (*SetParent)(Transform, Transform parent);
 
+	// Resizes the child array to fit count elements
+	void (*SetChildCapacity)(Transform, size_t count);
+
 	void (*GetDirection)(Transform transform, Direction directions, vec3 out_direction);
 	void (*ClearChildren)(Transform transform);
 	void (*Dispose)(Transform);

@@ -3,6 +3,7 @@
 #include "GL/glew.h"
 #include "cglm/mat4.h"
 #include "helpers/macros.h"
+#include "singine/strings.h"
 
 static RenderMesh InstanceMesh(RenderMesh mesh);
 static void Draw(RenderMesh model);
@@ -10,11 +11,13 @@ static void Dispose(RenderMesh mesh);
 static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model);
 static RenderMesh Duplicate(RenderMesh mesh);
 static RenderMesh CreateRenderMesh(void);
+static bool TryBindModel(Model model, RenderMesh** out_meshArray);
 
 const struct _renderMeshMethods RenderMeshes = {
 	.Dispose = &Dispose,
 	.Draw = &Draw,
 	.TryBindMesh = &TryBindMesh,
+	.TryBindModel = &TryBindModel,
 	.Instance = &InstanceMesh,
 	.Duplicate = &Duplicate,
 	.Create = &CreateRenderMesh
@@ -30,6 +33,15 @@ static void Dispose(RenderMesh mesh)
 	if (mesh is null)
 	{
 		return;
+	}
+
+	if (mesh->Name isnt null)
+	{
+		// if we're the last instance dispose the name
+		if (mesh->VertexBuffer isnt null && mesh->VertexBuffer->ActiveInstances <= 1)
+		{
+			SafeFree(mesh->Name);
+		}
 	}
 
 	// since these handles are shared among possibly many instances we only want to actually
@@ -198,6 +210,8 @@ static void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 	}
 
 	CopyMember(source, destination, NumberOfTriangles);
+
+	CopyMember(source, destination, Name);
 }
 
 static RenderMesh InstanceMesh(RenderMesh mesh)
@@ -218,4 +232,39 @@ static RenderMesh Duplicate(RenderMesh mesh)
 	CopyMember(mesh, result, Id);
 
 	return result;
+}
+
+static bool TryBindModel(Model model, RenderMesh** out_meshArray)
+{
+	RenderMesh* meshesArray = SafeAlloc(sizeof(RenderMesh) * model->Count);
+
+	// all sub-meshes within a model share the same name
+	char* sharedName = Strings.DuplicateTerminated(model->Name);
+
+	Mesh next = model->Head;
+	size_t index = 0;
+	while (next != null)
+	{
+		if (index >= model->Count)
+		{
+			throw(IndexOutOfRangeException);
+		}
+
+		RenderMesh newMesh;
+		if (RenderMeshes.TryBindMesh(next, &newMesh) is false)
+		{
+			SafeFree(meshesArray);
+			return false;
+		}
+
+		newMesh->Name = sharedName;
+
+		meshesArray[index++] = newMesh;
+
+		next = next->Next;
+	}
+
+	*out_meshArray = meshesArray;
+
+	return true;
 }

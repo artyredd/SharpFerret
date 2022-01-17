@@ -28,6 +28,21 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 			continue;
 		}
 
+		if (config->AbortToken isnt null)
+		{
+			const char* token = config->AbortToken;
+			const size_t tokenLength = max(config->AbortTokenLength - 1, 0);
+
+			if (buffer[0] is token[0])
+			{
+				// compare the whole token, if the abort token was found abort
+				if (memcmp(buffer, token, min(tokenLength, lineLength)) is 0)
+				{
+					break;
+				}
+			}
+		}
+
 		for (size_t i = 0; i < config->Count; i++)
 		{
 			// check the first character to avoid comparing whole string

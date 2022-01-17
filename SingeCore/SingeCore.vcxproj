@@ -190,6 +190,7 @@
     <ClCompile Include="src\Source\camera.c" />
     <ClCompile Include="src\Source\colors.c" />
     <ClCompile Include="src\Source\config.c" />
+    <ClCompile Include="src\Source\ints.c" />
     <ClCompile Include="src\Source\strings.c" />
     <ClCompile Include="src\Source\cunit.c" />
     <ClCompile Include="src\Source\file.c" />
@@ -246,6 +247,7 @@
     <ClInclude Include="src\Headers\helpers\macros.h" />
     <ClInclude Include="src\Headers\helpers\quickmask.h" />
     <ClInclude Include="src\Headers\input.h" />
+    <ClInclude Include="src\Headers\math\ints.h" />
     <ClInclude Include="src\Headers\math\macros.h" />
     <ClInclude Include="src\Headers\math\quaternions.h" />
     <ClInclude Include="src\Headers\math\vectors.h" />

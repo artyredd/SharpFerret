@@ -175,6 +175,13 @@ void* DuplicateAddress(const void* address, const  size_t length, const  size_t 
 
 bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength)
 {
+	if (*address is null)
+	{
+		*address = SafeAlloc(newLength);
+
+		return true;
+	}
+
 	if (TryRealloc(address, previousLength, newLength, address))
 	{
 		return true;
@@ -210,7 +217,7 @@ static void PrintGroupedNumber(FILE* stream, size_t value)
 		1000 * 1000 * 1000,
 		(size_t)1000 * 1000 * 1000 * 1000,
 	#endif
-	};
+};
 
 
 

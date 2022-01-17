@@ -17,7 +17,6 @@ struct _gameObject {
 	/// A pointer to the name of this object
 	/// </summary>
 	char* Name;
-	size_t NameLength;
 	/// <summary>
 	/// The transform for this object
 	/// </summary>
@@ -67,6 +66,8 @@ struct _gameObjectMethods {
 	void(*SetMaterial)(GameObject, Material);
 	void (*DestroyMany)(GameObject* array, size_t count);
 	void (*Destroy)(GameObject);
+	GameObject(*Load)(const char* path);
+	bool (*Save)(GameObject, const char* path);
 };
 
 const extern struct _gameObjectMethods GameObjects;

@@ -14,6 +14,12 @@ typedef struct _renderMesh* RenderMesh;
 
 struct _renderMesh {
 	size_t Id;
+
+	/// <summary>
+	/// The shared name for all render meshes from a single model, all render meshes loaded from the same model share this reference
+	/// </summary>
+	char* Name;
+
 	SharedHandle VertexBuffer;
 	SharedHandle UVBuffer;
 	SharedHandle NormalBuffer;
@@ -25,8 +31,12 @@ struct _renderMesh {
 struct _renderMeshMethods {
 	void(*Draw)(RenderMesh);
 	void(*Dispose)(RenderMesh);
-	// Attempts to register the model with the underlying graphics device
-	bool (*TryBindMesh)(Mesh mesh, RenderMesh* out_model);
+	// Attempts to register the mesh with the underlying graphics device
+	bool (*TryBindMesh)(Mesh mesh, RenderMesh* out_mesh);
+	/// <summary>
+	/// Attempts to register all meshes within the model
+	/// </summary>
+	bool (*TryBindModel)(Model model, RenderMesh** out_meshArray);
 	// Creates a new instance of the provided rendermesh with it's own transform
 	RenderMesh(*Instance)(RenderMesh);
 	// Creates a new instance of the provided rendermesh with it's own transform that shares the same attributes as the provided rendermesh

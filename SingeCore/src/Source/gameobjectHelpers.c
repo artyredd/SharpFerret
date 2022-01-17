@@ -1,33 +1,6 @@
 #include "singine/gameobjectHelpers.h"
 #include "singine/memory.h"
 
-static RenderMesh* BindMeshes(Model model)
-{
-	RenderMesh* meshesArray = SafeAlloc(sizeof(RenderMesh) * model->Count);
-
-	Mesh next = model->Head;
-	size_t index = 0;
-	while (next != null)
-	{
-		if (index >= model->Count)
-		{
-			throw(IndexOutOfRangeException);
-		}
-
-		RenderMesh newMesh;
-		if (RenderMeshes.TryBindMesh(next, &newMesh) is false)
-		{
-			throw(NotImplementedException);
-		}
-
-		meshesArray[index++] = newMesh;
-
-		next = next->Next;
-	}
-
-	return meshesArray;
-}
-
 GameObject CreateGameObjectFromMesh(Mesh mesh)
 {
 	RenderMesh newMesh;
@@ -70,11 +43,16 @@ GameObject LoadGameObjectFromModel(char* path, FileFormat format)
 
 	if (model->Count is 0)
 	{
-		model->Dispose(model);
+		Models.Dispose(model);
 		throw(FailedToReadFileException);
 	}
 
-	RenderMesh* meshes = BindMeshes(model);
+	RenderMesh* meshes;
+	if (RenderMeshes.TryBindModel(model, &meshes) is false)
+	{
+		Models.Dispose(model);
+		throw(FailedToBindMeshException);
+	}
 
 	GameObject parent = GameObjects.Create();
 
@@ -87,7 +65,7 @@ GameObject LoadGameObjectFromModel(char* path, FileFormat format)
 		Transforms.SetParent(meshes[i]->Transform, parent->Transform);
 	}
 
-	model->Dispose(model);
+	Models.Dispose(model);
 
 	return parent;
 }

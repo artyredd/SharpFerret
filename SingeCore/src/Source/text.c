@@ -79,6 +79,9 @@ static Text CreateEmpty(Font font, size_t size)
 
 	text->GameObject = GameObjects.CreateEmpty(size);
 
+	// becuase create empty produces an empty(except when size is provided) gameobject we need to manually create a transform
+	text->GameObject->Transform = Transforms.Create();
+
 	GameObjects.SetMaterial(text->GameObject, font->Material);
 
 	return text;
@@ -95,6 +98,8 @@ static Text CreateText(Font font, char* string, size_t size)
 	text->Count = text->Length = size;
 
 	text->GameObject = GameObjects.CreateEmpty(size);
+	// becuase create empty produces an empty(except when size is provided) gameobject we need to manually create a transform
+	text->GameObject->Transform = Transforms.Create();
 
 	return text;
 }
@@ -118,6 +123,8 @@ static void Dispose(Text text)
 static void CreateGameObject(Text text)
 {
 	text->GameObject = GameObjects.CreateEmpty(text->Length);
+	// becuase create empty produces an empty(except when size is provided) gameobject we need to manually create a transform
+	text->GameObject->Transform = Transforms.Create();
 	text->GameObject->Material = Materials.Instance(text->Font->Material);
 }
 

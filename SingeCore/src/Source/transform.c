@@ -44,6 +44,7 @@ static void ScaleAll(Transform, float scaler);
 static void ClearChildren(Transform);
 static Transform Load(File);
 static void Save(Transform, File);
+static void SetChildCapacity(Transform, size_t count);
 
 const struct _transformMethods Transforms = {
 	.Dispose = &Dispose,
@@ -70,7 +71,8 @@ const struct _transformMethods Transforms = {
 	.TranslateZ = &TranslateZ,
 	.ClearChildren = &ClearChildren,
 	.Save = &Save,
-	.Load = &Load
+	.Load = &Load,
+	.SetChildCapacity = &SetChildCapacity
 };
 
 static void Dispose(Transform transform)
@@ -377,18 +379,16 @@ static void AttachChildAtIndex(Transform transform, Transform child, size_t inde
 	}
 }
 
-static void ReallocChildren(Transform transform)
+static void ReallocChildren(Transform transform, size_t newCount)
 {
 	// try to realloc the space otherwise manually move it, alloc 25% more space, or + 1
 	size_t previousLength = transform->Length * sizeof(Transform);
-	size_t newLength = max((size_t)((transform->Length * 125) / 100), transform->Length + 1);
-
-	size_t sizeInBytes = newLength * sizeof(Transform);
+	size_t newLength = newCount * sizeof(Transform);
 
 	// if we fail to realloc the array make a new one =(
-	if (TryRealloc(transform->Children, previousLength, sizeInBytes, (void**)&transform->Children) is false)
+	if (TryRealloc(transform->Children, previousLength, newLength, (void**)&transform->Children) is false)
 	{
-		Transform* newArray = SafeAlloc(sizeInBytes);
+		Transform* newArray = SafeAlloc(newLength);
 
 		for (size_t i = 0; i < transform->Length; i++)
 		{
@@ -405,7 +405,27 @@ static void ReallocChildren(Transform transform)
 	transform->FreeIndex = transform->Length;
 
 	// update the length
-	transform->Length = newLength;
+	transform->Length = newCount;
+}
+
+static void SetChildCapacity(Transform transform, size_t count)
+{
+	GuardNotNull(transform);
+	GuardNotZero(count);
+
+	if (transform->Length is 0)
+	{
+		transform->Children = SafeAlloc(sizeof(Transform) * count);
+		transform->Length = count;
+		transform->FreeIndex = 0;
+
+		return;
+	}
+
+	if (transform->Length < count)
+	{
+		ReallocChildren(transform, count);
+	}
 }
 
 static void AttachChild(Transform transform, Transform child)
@@ -419,7 +439,11 @@ static void AttachChild(Transform transform, Transform child)
 	if ((transform->Count) + 1 > transform->Length)
 	{
 		// try to realloc the array if not make a new one and copy the children over
-		ReallocChildren(transform);
+
+		// make it 25% larger to allow for future attachments
+		size_t newCount = max((size_t)((transform->Length * 125) / 100), transform->Length + 1);
+
+		ReallocChildren(transform, newCount);
 	}
 
 	// if we extended the array lastchild will now be non-zero
@@ -475,6 +499,8 @@ static void ClearChildren(Transform transform)
 			child->Parent = null;
 			SetFlag(child->State.Modified, ParentModifiedFlag);
 		}
+
+		transform->Children[i] = null;
 	}
 
 	transform->FreeIndex = 0;
@@ -710,7 +736,7 @@ static const size_t TokenLengths[] = {
 	sizeof(RotateAroundCenterToken)
 };
 
-struct _transformInfo {
+struct _gameObjectInfo {
 	vec3 Position;
 	vec4 Rotation;
 	vec3 Scale;
@@ -718,7 +744,7 @@ struct _transformInfo {
 	bool InvertTransform;
 };
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _transformInfo* state);
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _gameObjectInfo* state);
 
 struct _configDefinition TransformConfigDefinition = {
 	.Tokens = (const char**)&Tokens,
@@ -728,7 +754,7 @@ struct _configDefinition TransformConfigDefinition = {
 	.OnTokenFound = &OnTokenFound
 };
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _transformInfo* state)
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _gameObjectInfo* state)
 {
 	switch (index)
 	{
@@ -738,14 +764,14 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 		return Vector4s.TryDeserialize(buffer, length, state->Rotation);
 	case 2: // scale
 		return Vector3s.TryDeserialize(buffer, length, state->Scale);
-	case 4: // InvertTransform
+	case 3: // InvertTransform
 		bool shouldInvert = false;
 		if (TryParseBoolean(buffer, length, &shouldInvert))
 		{
 			state->InvertTransform = shouldInvert;
 		}
 		return true;
-	case 5: // RotateAroundCenter
+	case 4: // RotateAroundCenter
 		bool shouldRotateAroundCenter = false;
 		if (TryParseBoolean(buffer, length, &shouldRotateAroundCenter))
 		{
@@ -761,7 +787,7 @@ static Transform Load(File stream)
 {
 	Transform transform = null;
 
-	struct _transformInfo state = {
+	struct _gameObjectInfo state = {
 		.InvertTransform = false,
 		.RotateAroundCenter = false,
 		.Position = { 0, 0, 0},

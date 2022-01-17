@@ -10,6 +10,7 @@
 #include "cunit.h"
 #include "math/vectors.h"
 #include "singine/parsing.h"
+#include "singine/strings.h"
 
 typedef int Token;
 typedef const char* Sequence;
@@ -156,7 +157,7 @@ static bool TryGetVectorPattern(File stream,
 	}
 
 	// check to see if there is already a parsable string in the buffer
-	if (Parser(buffer + offset, bufferLength,resultBuffer))
+	if (Parser(buffer + offset, bufferLength, resultBuffer))
 	{
 		++count;
 	}
@@ -590,7 +591,7 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 	// create a portable way to pass around the global file buffers
 	FileBuffer buffer = CreateFileBuffer(streamBuffer, BUFFER_SIZE, vertexCount, textureCount, normalCount);
 
-	Model model = CreateModel();
+	Model model = Models.Create();
 
 	// read the file until we find an object to start creating a mesh for
 	size_t lineLength;
@@ -629,10 +630,13 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 
 	if (Files.TryClose(stream) is false)
 	{
-		model->Dispose(model);
+		Models.Dispose(model);
 
 		return false;
 	}
+
+	// set the name of the model as the path that was used to load it
+	model->Name = Strings.DuplicateTerminated(path);
 
 	*out_model = model;
 
@@ -646,5 +650,6 @@ static Model ImportModel(char* path, FileFormat format)
 	{
 		return null;
 	}
+
 	return model;
 }

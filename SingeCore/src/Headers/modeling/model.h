@@ -12,7 +12,11 @@ struct _model {
 	size_t Count;
 	Mesh Head;
 	Mesh Tail;
-	void(*Dispose)(Model);
 };
 
-Model CreateModel();
+struct _modelMethods {
+	void (*Dispose)(Model);
+	Model(*Create)(void);
+};
+
+extern const struct _modelMethods Models;

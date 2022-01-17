@@ -1,6 +1,14 @@
 #include "modeling/model.h"
 #include "singine/memory.h"
 
+static Model CreateModel(void);
+static void DisposeModel(Model model);
+
+const struct _modelMethods Models = {
+	.Create = &CreateModel,
+	.Dispose = &DisposeModel
+};
+
 static void DisposeModel(Model model)
 {
 	if (model->Head != null)
@@ -21,17 +29,12 @@ static void DisposeModel(Model model)
 		}
 	}
 
+	SafeFree(model->Name);
+
 	SafeFree(model);
 }
 
-Model CreateModel()
+static Model CreateModel()
 {
-	Model model = SafeAlloc(sizeof(struct _model));
-
-	model->Head = model->Tail = null;
-	model->Name = null;
-	model->Dispose = &DisposeModel;
-	model->Count = 0;
-
-	return model;
+	return SafeAlloc(sizeof(struct _model));
 }

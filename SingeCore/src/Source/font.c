@@ -200,13 +200,13 @@ static Font Import(char* path, FileFormat format)
 
 	if (model->Count is 0)
 	{
-		model->Dispose(model);
+		Models.Dispose(model);
 		throw(FailedToImportModelException);
 	}
 
 	Font font = Create(model);
 
-	model->Dispose(model);
+	Models.Dispose(model);
 
 	return font;
 }
