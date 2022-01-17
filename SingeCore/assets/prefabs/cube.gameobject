@@ -1,16 +1,17 @@
 # the id of the gameobject at runtime
 id: 42
-
-# the model of this object
+# the model path that should be loaded for this gameobject
 model: assets/models/cube.obj
-
-# the material of this object
-material: assets/materials/uvMaterial.material
-
+# the material definition path of this gameobject
+material: assets/materials/textureMaterial.material
 transform:
-# the transform of this object
-position: 0.0 0.5 1.0
-rotation: 0.0 0.0 0.0 1.0
-scale: 1.0 1.0 1.0
-rotateAroundCenter: false
+# the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective
+position: 3.000000 3.000000 3.000000
+# the rotation of the object
+rotation: 0.000000 0.000000 0.000000 1.000000
+# the scale of the object
+scale: 1.000000 1.000000 1.000000
+# whether or not the values listed are inverted before the object is rendered
 invertTransform: false
+# whether or not the object is rotated around world center or it's position in world/screen space
+rotateAroundCenter: false

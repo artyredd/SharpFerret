@@ -439,6 +439,9 @@ static bool Save(GameObject gameobject, const char* path)
 	fprintf(stream, TokenFormat, MaterialToken);
 	fprintf(stream, "%s\n", gameobject->Material->Name);
 
+
+	// make sure to put the abort token before the transform so we dont have to rewind the stream to deserialize the transform
+	fprintf(stream, "%s:\n", StreamAbortToken);
 	Transforms.Save(gameobject->Transform, stream);
 
 	return Files.TryClose(stream);

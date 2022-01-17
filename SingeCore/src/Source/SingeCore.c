@@ -222,6 +222,8 @@ int main()
 	Materials.SetColor(cube->Material, Colors.Red);
 	Materials.SetColor(car->Material, Colors.Green);
 
+	GameObjects.Save(cube, "assets/prefabs/cube.gameobject");
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
