@@ -136,8 +136,8 @@ int main()
 	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
+	GameObject car = LoadGameObjectFromModel("assets/models/car.obj", FileFormats.Obj);
+	GameObject room = LoadGameObjectFromModel("assets/models/room.obj", FileFormats.Obj);
 
 	GameObjects.SetMaterial(car, texturedMaterial);
 

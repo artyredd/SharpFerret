@@ -244,11 +244,7 @@ static bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLen
 
 	while ((c = fgetc(file)) != EOF && index < bufferLength)
 	{
-		if (c is '\0')
-		{
-			break;
-		}
-		if (c is '\n')
+		if (c is '\0' or c is '\n')
 		{
 			break;
 		}

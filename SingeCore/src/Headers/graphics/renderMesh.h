@@ -5,6 +5,7 @@
 #include "graphics/shaders.h"
 #include "graphics/transform.h"
 #include "graphics/sharedBuffer.h"
+#include "singine/InstancedResource.h"
 
 static unsigned int VertexShaderPosition = 0;
 static unsigned int UVShaderPosition = 1;
@@ -15,10 +16,7 @@ typedef struct _renderMesh* RenderMesh;
 struct _renderMesh {
 	size_t Id;
 
-	/// <summary>
-	/// The shared name for all render meshes from a single model, all render meshes loaded from the same model share this reference
-	/// </summary>
-	char* Name;
+	InstancedResource Name;
 
 	SharedHandle VertexBuffer;
 	SharedHandle UVBuffer;

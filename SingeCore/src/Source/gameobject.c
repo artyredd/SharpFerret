@@ -53,7 +53,9 @@ static void DisposeRenderMeshArray(GameObject gameobject)
 	{
 		for (size_t i = 0; i < gameobject->Count; i++)
 		{
-			RenderMeshes.Dispose(gameobject->Meshes[i]);
+			RenderMesh mesh = gameobject->Meshes[i];
+
+			RenderMeshes.Dispose(mesh);
 		}
 	}
 }
@@ -432,7 +434,7 @@ static bool Save(GameObject gameobject, const char* path)
 	{
 		fprintf(stream, CommentFormat, ModelTokenComment);
 		fprintf(stream, TokenFormat, ModelToken);
-		fprintf(stream, "%s\n", gameobject->Meshes[0]->Name);
+		fprintf(stream, "%s\n", (char*)gameobject->Meshes[0]->Name->Resource);
 	}
 
 	fprintf(stream, CommentFormat, MaterialTokenComment);

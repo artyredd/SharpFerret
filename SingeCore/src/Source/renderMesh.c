@@ -28,6 +28,14 @@ static void OnBufferDispose(SharedHandle handle)
 	glDeleteBuffers(1, &handle->Handle);
 }
 
+static void OnNameDispose(InstancedResource resource, void* state)
+{
+	if (state is null)
+	{
+		SafeFree(resource->Resource);
+	}
+}
+
 static void Dispose(RenderMesh mesh)
 {
 	if (mesh is null)
@@ -35,14 +43,9 @@ static void Dispose(RenderMesh mesh)
 		return;
 	}
 
-	if (mesh->Name isnt null)
-	{
-		// if we're the last instance dispose the name
-		if (mesh->VertexBuffer isnt null && mesh->VertexBuffer->ActiveInstances <= 1)
-		{
-			SafeFree(mesh->Name);
-		}
-	}
+	// since the name is shared between all rendermeshes that come from the same model we must not dispose the name till the last render
+	// mesh instance is being disposed
+	InstancedResources.Dispose(mesh->Name, null, &OnNameDispose);
 
 	// since these handles are shared among possibly many instances we only want to actually
 	// clear the buffer when the final instance has been disposed
@@ -241,6 +244,9 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 	// all sub-meshes within a model share the same name
 	char* sharedName = Strings.DuplicateTerminated(model->Name);
 
+	InstancedResource name = InstancedResources.Create();
+	name->Resource = sharedName;
+
 	Mesh next = model->Head;
 	size_t index = 0;
 	while (next != null)
@@ -257,7 +263,7 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 			return false;
 		}
 
-		newMesh->Name = sharedName;
+		newMesh->Name = name;
 
 		meshesArray[index++] = newMesh;
 
