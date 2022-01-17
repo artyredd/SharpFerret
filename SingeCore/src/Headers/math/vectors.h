@@ -125,6 +125,7 @@ static struct _vectorDirections {
 struct _vector3Methods {
 	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec3);
 	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
+	bool (*TrySerializeStream)(File stream, const float* vector);
 };
 
 extern const struct _vector3Methods Vector3s;

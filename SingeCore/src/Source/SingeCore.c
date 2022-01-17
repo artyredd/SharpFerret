@@ -339,6 +339,7 @@ int main()
 	GameObjects.Destroy(cube);
 	GameObjects.Destroy(guiTexture);
 
+
 	Materials.Dispose(texturedMaterial);
 	Materials.Dispose(uvMaterial);
 	Materials.Dispose(guiMaterial);

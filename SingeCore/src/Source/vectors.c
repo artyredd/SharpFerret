@@ -6,10 +6,12 @@
 
 static bool TryParseVector3(const char* buffer, const size_t length, float* out_vector3);
 static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector);
+static bool TrySerializeVec3Stream(File stream, const float* vector);
 
 const struct _vector3Methods Vector3s = {
 	.TryDeserialize = &TryParseVector3,
 	.TrySerialize = &TrySerializeVec3,
+	.TrySerializeStream = &TrySerializeVec3Stream
 };
 
 static bool TryParseVector2(const char* buffer, const size_t length, float* out_vector2);
@@ -60,6 +62,22 @@ static bool TryParseVector2(const char* buffer, size_t length, float* out_vector
 		&out_vector2[1]);
 
 	return count == 2;
+}
+
+static bool TrySerializeVec3Stream(File stream, const float* vector)
+{
+	if (stream is null)
+	{
+		return false;
+	}
+
+	int result = fprintf_s(stream, Vector3SerializationFormat,
+		vector[0],
+		vector[1],
+		vector[2]);
+
+	// 0 is runtime error, negative is encoding error
+	return result > 0;
 }
 
 static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector)

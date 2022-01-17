@@ -57,6 +57,10 @@ struct _materialMethods {
 	void (*SetShader)(Material, const Shader, size_t index);
 	void (*SetColor)(Material, const Color);
 	void (*SetColors)(Material, const float r, const float g, const float b, const float a);
+	/// <summary>
+	/// Sets the name of this material, freeing the previous one if it exists
+	/// </summary>
+	void (*SetName)(Material, const char* name);
 	void (*Dispose)(Material);
 };
 

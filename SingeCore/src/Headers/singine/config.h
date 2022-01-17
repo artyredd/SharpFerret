@@ -1,5 +1,6 @@
 #pragma once
 #include "csharp.h"
+#include "singine/file.h"
 
 typedef struct _configDefinition* ConfigDefinition;
 
@@ -33,6 +34,13 @@ struct _configMethods {
 	/// this method returns true when all calls to OnTokenFound return true and no file error occurs, otherwise false
 	/// </summary>
 	bool(*TryLoadConfig)(const char* path, const ConfigDefinition, void* state);
+
+	/// <summary>
+	/// Attempts to locate each token within the config definition, once found OnTokenFound within the definition is invoked
+	/// with the index of the token within the token array and the data for that token, along with the state pointer originally passed to the method,
+	/// this method returns true when all calls to OnTokenFound return true and no file error occurs, otherwise false
+	/// </summary>
+	bool (*TryLoadConfigStream)(File stream, const ConfigDefinition, void* state);
 };
 
 extern const struct _configMethods Configs;

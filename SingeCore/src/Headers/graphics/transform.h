@@ -137,6 +137,15 @@ struct _transformMethods {
 	void (*GetDirection)(Transform transform, Direction directions, vec3 out_direction);
 	void (*ClearChildren)(Transform transform);
 	void (*Dispose)(Transform);
+
+	/// <summary>
+	/// Creates a transform by deserializing it from the provided stream
+	/// </summary>
+	Transform(*Load)(File stream);
+	/// <summary>
+	/// Saves a transform by serializing it to the provided stream
+	/// </summary>
+	void (*Save)(Transform, File stream);
 };
 
 extern const struct _transformMethods Transforms;

@@ -9,6 +9,8 @@
 #include "singine/guards.h"
 #include "math/vectors.h"
 #include <stdlib.h>
+#include "singine/config.h"
+#include "singine/parsing.h"
 
 #define PositionModifiedFlag FLAG_0
 #define RotationModifiedFlag FLAG_1
@@ -40,6 +42,8 @@ static vec4* RefreshTransform(Transform transform);
 static vec4* ForceRefreshTransform(Transform transform);
 static void ScaleAll(Transform, float scaler);
 static void ClearChildren(Transform);
+static Transform Load(File);
+static void Save(Transform, File);
 
 const struct _transformMethods Transforms = {
 	.Dispose = &Dispose,
@@ -65,6 +69,8 @@ const struct _transformMethods Transforms = {
 	.TranslateY = &TranslateY,
 	.TranslateZ = &TranslateZ,
 	.ClearChildren = &ClearChildren,
+	.Save = &Save,
+	.Load = &Load
 };
 
 static void Dispose(Transform transform)
@@ -138,7 +144,7 @@ static void StateCopyTo(struct transformState* source, struct transformState* de
 	DirectionStatesCopyTo(&source->Directions, &destination->Directions);
 }
 
-void TransformCopyTo(Transform source, Transform destination)
+static void TransformCopyTo(Transform source, Transform destination)
 {
 	CopyMember(source, destination, RotateAroundCenter);
 	CopyMember(source, destination, InvertTransform);
@@ -336,7 +342,7 @@ static void DetachChild(Transform transform, Transform child)
 	for (size_t i = 0; i < transform->Count; i++)
 	{
 		Transform current = transform->Children[i];
-		
+
 		if (current is child)
 		{
 			// detach the child
@@ -672,4 +678,146 @@ static void GetDirection(Transform transform, Direction direction, vec3 out_dire
 	Vectors3CopyTo(transform->State.Directions.Directions[direction], out_direction);
 
 	SetFlag(transform->State.Directions.Accessed, FlagN(direction));
+}
+
+#define CommentFormat "%s\n"
+#define TokenFormat "%s: "
+
+#define PositionTokenComment "# the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective"
+#define PositionToken "position"
+#define RotationTokenComment "# the rotation of the object"
+#define RotationToken "rotation"
+#define ScaleTokenComment "# the scale of the object"
+#define ScaleToken "scale"
+#define InvertTransformTokenComment "# whether or not the values listed are inverted before the object is rendered"
+#define InvertTransformToken "invertTransform"
+#define RotateAroundCenterTokenComment "# whether or not the object is rotated around world center or it's position in world/screen space"
+#define RotateAroundCenterToken "rotateAroundCenter"
+
+static const char* Tokens[] = {
+	PositionToken,
+	RotationToken,
+	ScaleToken,
+	InvertTransformToken,
+	RotateAroundCenterToken
+};
+
+static const size_t TokenLengths[] = {
+	sizeof(PositionToken),
+	sizeof(RotationToken),
+	sizeof(ScaleToken),
+	sizeof(InvertTransformToken),
+	sizeof(RotateAroundCenterToken)
+};
+
+struct _transformInfo {
+	vec3 Position;
+	vec4 Rotation;
+	vec3 Scale;
+	bool RotateAroundCenter;
+	bool InvertTransform;
+};
+
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _transformInfo* state);
+
+struct _configDefinition TransformConfigDefinition = {
+	.Tokens = (const char**)&Tokens,
+	.TokenLengths = (const size_t*)&TokenLengths,
+	.CommentCharacter = '#',
+	.Count = sizeof(Tokens) / sizeof(char*),
+	.OnTokenFound = &OnTokenFound
+};
+
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _transformInfo* state)
+{
+	switch (index)
+	{
+	case 0: // position
+		return Vector3s.TryDeserialize(buffer, length, state->Position);
+	case 1: // rotation
+		return Vector4s.TryDeserialize(buffer, length, state->Rotation);
+	case 2: // scale
+		return Vector3s.TryDeserialize(buffer, length, state->Scale);
+	case 4: // InvertTransform
+		bool shouldInvert = false;
+		if (TryParseBoolean(buffer, length, &shouldInvert))
+		{
+			state->InvertTransform = shouldInvert;
+		}
+		return true;
+	case 5: // RotateAroundCenter
+		bool shouldRotateAroundCenter = false;
+		if (TryParseBoolean(buffer, length, &shouldRotateAroundCenter))
+		{
+			state->RotateAroundCenter = shouldRotateAroundCenter;
+		}
+		return true;
+	default:
+		return false;
+	}
+}
+
+static Transform Load(File stream)
+{
+	Transform transform = null;
+
+	struct _transformInfo state = {
+		.InvertTransform = false,
+		.RotateAroundCenter = false,
+		.Position = { 0, 0, 0},
+		.Rotation = { 0, 0, 0, 1},
+		.Scale = { 1, 1, 1}
+	};
+
+	if (Configs.TryLoadConfigStream(stream, &TransformConfigDefinition, &state))
+	{
+		transform = CreateTransform();
+
+		transform->InvertTransform = state.InvertTransform;
+		transform->RotateAroundCenter = state.InvertTransform;
+
+		Vectors3CopyTo(state.Scale, transform->Scale);
+		Vectors3CopyTo(state.Position, transform->Position);
+		Vectors4CopyTo(state.Rotation, transform->Rotation);
+	}
+
+	if (transform is null)
+	{
+		fprintf(stderr, "Failed to deserialize a transform from a provided stream");
+	}
+
+	// surprisingly nothing to cleanup here
+
+	return transform;
+}
+
+static void Save(Transform transform, File stream)
+{
+	GuardNotNull(transform);
+	GuardNotNull(stream);
+
+	fprintf(stream, CommentFormat, PositionTokenComment);
+	fprintf(stream, TokenFormat, PositionToken);
+	Vector3s.TrySerializeStream(stream, transform->Position);
+	fprintf(stream, "%c", '\n');
+
+	fprintf(stream, CommentFormat, RotationTokenComment);
+	fprintf(stream, TokenFormat, RotationToken);
+	Vector4s.TrySerializeStream(stream, transform->Rotation);
+	fprintf(stream, "%c", '\n');
+
+	fprintf(stream, CommentFormat, ScaleTokenComment);
+	fprintf(stream, TokenFormat, ScaleToken);
+	Vector3s.TrySerializeStream(stream, transform->Scale);
+	fprintf(stream, "%c", '\n');
+
+	fprintf(stream, CommentFormat, InvertTransformTokenComment);
+	fprintf(stream, TokenFormat, InvertTransformToken);
+	fprintf(stream, "%s", transform->InvertTransform ? "true" : "false");
+	fprintf(stream, "%c", '\n');
+
+	fprintf(stream, CommentFormat, RotateAroundCenterTokenComment);
+	fprintf(stream, TokenFormat, RotateAroundCenterToken);
+	fprintf(stream, "%s", transform->RotateAroundCenter ? "true" : "false");
+	fprintf(stream, "%c", '\n');
 }

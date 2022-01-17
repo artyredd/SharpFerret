@@ -1,5 +1,6 @@
 #include "tests.h"
 #include "csharp.h"
+#include "singine/memory.h"
 
 #include "Tests/tests_material.c"
 static void MaterialTests(void);
@@ -19,4 +20,7 @@ static void RunAll(void)
 {
 	MaterialTests();
 	ShaderTests();
+	// reset alloc and free so we get accurate runtime numbers
+	ResetAlloc();
+	ResetFree();
 }

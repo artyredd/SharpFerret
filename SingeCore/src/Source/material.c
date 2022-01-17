@@ -25,6 +25,7 @@ static void SetColor(Material, const Color);
 static void SetColors(Material, const float r, const float g, const float b, const float a);
 static Material Load(const char* path);
 static bool Save(const Material material, const char* path);
+static void SetName(Material, const char* name);
 
 const struct _materialMethods Materials = {
 	.Dispose = &Dispose,
@@ -37,7 +38,8 @@ const struct _materialMethods Materials = {
 	.SetMainTexture = &SetMainTexture,
 	.SetShader = &SetShader,
 	.SetColor = &SetColor,
-	.SetColors = &SetColors
+	.SetColors = &SetColors,
+	.SetName = &SetName
 };
 
 #define DEFAULT_MATERIAL_SETTINGS (ShaderSettings.UseCameraPerspective | ShaderSettings.BackfaceCulling)
@@ -295,6 +297,17 @@ static void SetColors(Material material, const float r, const float g, const flo
 	GuardNotNull(material);
 
 	SetVector4(material->Color, r, g, b, a);
+}
+
+static void SetName(Material material, const char* name)
+{
+	GuardNotNull(material);
+	if (material->Name isnt null)
+	{
+		SafeFree(material->Name);
+	}
+
+	material->Name = Strings.DuplicateTerminated(name);
 }
 
 #define TokenCount 3

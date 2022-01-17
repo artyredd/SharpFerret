@@ -91,6 +91,10 @@ static char* Duplicate(const char* source, size_t length)
 
 static char* DuplicateTerminated(const char* source)
 {
+	// it's debatable whether or not duplicating null should be an error or null itself should be the return value
+	// i would vote the latter
+	if (source is null) { return null; }
+
 	size_t length = strlen(source) + 1;
 
 	char* result = DuplicateAddress(source, length, length);

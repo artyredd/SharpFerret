@@ -6,25 +6,21 @@
 #define BUFFER_SIZE 1024
 
 static bool TryLoadConfig(const char* path, const ConfigDefinition, void* state);
+static bool TryLoadConfigStream(File stream, const ConfigDefinition, void* state);
 
 const struct _configMethods Configs = {
-	.TryLoadConfig = &TryLoadConfig
+	.TryLoadConfig = &TryLoadConfig,
+	.TryLoadConfigStream = &TryLoadConfigStream
 };
 
-static bool TryLoadConfig(const char* path, const ConfigDefinition config, void* state)
+static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void* state)
 {
-	File file;
-	if (Files.TryOpen(path, FileModes.ReadBinary, &file) is false)
-	{
-		return false;
-	}
-
 	char buffer[BUFFER_SIZE];
 
 	size_t bufferLength = BUFFER_SIZE;
 
 	size_t lineLength;
-	while (Files.TryReadLine(file, buffer, 0, bufferLength, &lineLength))
+	while (Files.TryReadLine(stream, buffer, 0, bufferLength, &lineLength))
 	{
 		// ignore comments
 		if (buffer[0] is config->CommentCharacter)
@@ -56,6 +52,22 @@ static bool TryLoadConfig(const char* path, const ConfigDefinition config, void*
 				}
 			}
 		}
+	}
+
+	return true;
+}
+
+static bool TryLoadConfig(const char* path, const ConfigDefinition config, void* state)
+{
+	File file;
+	if (Files.TryOpen(path, FileModes.ReadBinary, &file) is false)
+	{
+		return false;
+	}
+
+	if (TryLoadConfigStream(file, config, state) is false)
+	{
+		return false;
 	}
 
 	return Files.TryClose(file);
