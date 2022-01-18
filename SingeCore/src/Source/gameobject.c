@@ -224,6 +224,11 @@ static void DestroyMany(GameObject* array, size_t count)
 
 static Material GetDefaultMaterial(void)
 {
+	if (DefaultMaterial is null)
+	{
+		fprintf(stderr, "Warning: Default material was retrieved, but no default material has been set with GameObjects.SetDefaultMaterial()");
+	}
+
 	return Materials.Instance(DefaultMaterial);
 }
 
@@ -375,8 +380,20 @@ static GameObject Load(const char* path)
 		// load the material
 		Material material = Materials.Load(state.MaterialPath);
 
+		// if no material was listed use the default one
+		if (material is null)
+		{
+			material = GameObjects.GetDefaultMaterial();
+		}
+
 		// deserialize the transform
 		Transform transform = Transforms.Load(stream);
+
+		// if we wer're able to get a transform from the file create a new one
+		if (transform is null)
+		{
+			transform = Transforms.Create();
+		}
 
 		// set all render meshes as the children to the new transform
 		// becuase the transform has no child array when it's created and attaching a child resizes the child array

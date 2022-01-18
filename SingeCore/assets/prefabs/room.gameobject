@@ -1,0 +1,17 @@
+# the id of the gameobject at runtime
+id: 0
+# the model path that should be loaded for this gameobject
+model: assets/models/room.obj
+# the material definition path of this gameobject
+material: assets/materials/default.material
+transform:
+# the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective
+position: 0.000000 0.000000 0.000000
+# the rotation of the object
+rotation: 0.000000 0.000000 0.000000 1.000000
+# the scale of the object
+scale: 1.000000 1.000000 1.000000
+# whether or not the values listed are inverted before the object is rendered
+invertTransform: false
+# whether or not the object is rotated around world center or it's position in world/screen space
+rotateAroundCenter: false
