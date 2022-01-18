@@ -373,6 +373,11 @@ static Material Load(const char* path)
 	// create an empty material
 	Material material = null;
 
+	if (path is null)
+	{
+		return null;
+	}
+
 	struct _materialDefinition state = {
 		.Color = {1, 1, 1, 1},
 		.ShaderCount = 0,
@@ -451,11 +456,7 @@ static Material Load(const char* path)
 		}
 	}
 
-	if (material is null)
-	{
-		fprintf(stderr, "Failed to load the material from path: %s", path);
-	}
-	else if (material->Name is null)
+	if (material isnt null)
 	{
 		material->Name = Strings.DuplicateTerminated(path);
 	}

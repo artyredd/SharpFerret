@@ -807,13 +807,6 @@ static Transform Load(File stream)
 		Vectors4CopyTo(state.Rotation, transform->Rotation);
 	}
 
-	if (transform is null)
-	{
-		fprintf(stderr, "Failed to deserialize a transform from a provided stream");
-	}
-
-	// surprisingly nothing to cleanup here
-
 	return transform;
 }
 

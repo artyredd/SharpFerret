@@ -107,15 +107,11 @@ int main()
 
 	Images.Dispose(icon);
 
-	Material texturedMaterial = Materials.Load("assets/materials/textureMaterial.material");
-
-	Material uvMaterial = Materials.Load("assets/materials/uvMaterial.material");
-
-	Material guiMaterial = Materials.Load("assets/materials/guiMaterial.material");
+	// load the default material so we can render gameobjects that have no set material
+	Material defaultMaterial = Materials.Load("assets/materials/default.material");
+	GameObjects.SetDefaultMaterial(defaultMaterial);
 
 	Material textMaterial = Materials.Load("assets/materials/textMaterial.material");
-
-	GameObjects.SetDefaultMaterial(uvMaterial);
 
 	Camera camera = Cameras.CreateCamera();
 
@@ -127,37 +123,13 @@ int main()
 	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
 	Fonts.SetMaterial(font, textMaterial);
 
-	GameObject ball = LoadGameObjectFromModel("assets/models/ball.obj", FileFormats.Obj);
-
-	GameObjects.SetMaterial(ball, uvMaterial);
-
-	//GameObject cube = LoadGameObjectFromModel("assets/models/cube.obj", FileFormats.Obj);
+	GameObject ball = GameObjects.Load("assets/prefabs/ball.gameobject");
 
 	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = LoadGameObjectFromModel("assets/models/car.obj", FileFormats.Obj);
-	GameObject room = LoadGameObjectFromModel("assets/models/room.obj", FileFormats.Obj);
-
-	GameObjects.SetMaterial(car, texturedMaterial);
-
-	GameObjects.SetMaterial(cube, texturedMaterial);
-
-	size_t previosInstanceCount = ball->Material->Shaders[0]->Handle->ActiveInstances;
-
-	//test memory leak
-	for (size_t i = 0; i < 5; i++)
-	{
-		GameObject tmp = GameObjects.Duplicate(ball);
-
-		GameObjects.Destroy(tmp);
-	}
-
-	// check memory leak for GameObjects
-	if (ball->Material->Shaders[0]->Handle->ActiveInstances != previosInstanceCount)
-	{
-		throw(InvalidArgumentException);
-	}
+	GameObject car = GameObjects.Load("assets/prefabs/car.gameobject");
+	GameObject room = GameObjects.Load("assets/prefabs/room.gameobject");
 
 	float speed = 10.0f;
 
@@ -206,7 +178,7 @@ int main()
 
 	SafeFree(squareMesh);
 
-	GameObjects.SetMaterial(guiTexture, guiMaterial);
+	GameObjects.SetMaterial(guiTexture, font->Material);
 
 	// orient the camera so we see some geometry without moving the camera
 	Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
@@ -223,6 +195,9 @@ int main()
 	Materials.SetColor(car->Material, Colors.Green);
 
 	GameObjects.Save(cube, "assets/prefabs/cube.gameobject");
+	GameObjects.Save(ball, "assets/prefabs/ball.gameobject");
+	GameObjects.Save(car, "assets/prefabs/car.gameobject");
+	GameObjects.Save(room, "assets/prefabs/room.gameobject");
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -344,11 +319,8 @@ int main()
 	GameObjects.Destroy(cube);
 	GameObjects.Destroy(guiTexture);
 
-
-	Materials.Dispose(texturedMaterial);
-	Materials.Dispose(uvMaterial);
-	Materials.Dispose(guiMaterial);
 	Materials.Dispose(textMaterial);
+	Materials.Dispose(defaultMaterial);
 
 	Cameras.Dispose(camera);
 
@@ -375,16 +347,4 @@ void DebugCameraPosition(Camera camera)
 	Transforms.GetDirection(camera->Transform, Directions.Forward, forwardVector);
 	PrintVector3(forwardVector, stdout);
 	fprintf(stdout, NEWLINE);
-}
-
-Shader LoadShader(const char* vertexPath, const char* fragmentPath)
-{
-	Shader shader = ShaderCompilers.CompileShader(vertexPath, fragmentPath);
-
-	if (shader is null)
-	{
-		throw(FailedToCompileShaderException);
-	}
-
-	return shader;
 }

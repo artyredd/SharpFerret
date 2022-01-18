@@ -2,12 +2,13 @@
 id: 0
 
 # the model of this object
-model: "assets/models/cube.obj"
+model: "model path"
 
 # the material of this object
-material: "assets/materials/uvMaterial.material"
+material: "material path"
 
 # the transform of this object
+transform:
 position: 1.0 1.0 1.0
 rotation: 1.0 1.0 1.0 1.0
 scale: 1.0 1.0 1.0
