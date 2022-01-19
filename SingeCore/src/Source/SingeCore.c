@@ -46,7 +46,6 @@
 
 Window window;
 
-Shader LoadShader(const char*, const char*);
 void DebugCameraPosition(Camera camera);
 
 int main()
@@ -133,8 +132,8 @@ int main()
 	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = GameObjects.Load("assets/prefabs/ball.gameobject");
-	GameObject room = GameObjects.Load("assets/prefabs/ball.gameobject");
+	GameObject car = GameObjects.Load("assets/prefabs/car.gameobject");
+	GameObject room = GameObjects.Load("assets/prefabs/room.gameobject");
 
 	float speed = 10.0f;
 
@@ -331,11 +330,9 @@ int main()
 		GameObjects.Draw(otherBall, camera);
 		GameObjects.Draw(room, camera);
 
-		GameObjects.Draw(subSquare, camera);
-		GameObjects.Draw(square, camera);
+		//GameObjects.Draw(subSquare, camera);
+		//GameObjects.Draw(square, camera);
 		Texts.Draw(text, camera);
-
-
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -359,8 +356,8 @@ int main()
 	GameObjects.Destroy(subSquare);
 
 	Materials.Dispose(textMaterial);
-	//Materials.Dispose(defaultMaterial);
-	//Materials.Dispose(textureMaterial);
+	Materials.Dispose(defaultMaterial);
+	Materials.Dispose(textureMaterial);
 
 	Cameras.Dispose(camera);
 

@@ -1,7 +1,7 @@
 # the id of the gameobject at runtime
 id: 0
 # the model path that should be loaded for this gameobject
-model: assets/models/ball.obj
+model: assets/models/car.obj
 # the material definition path of this gameobject
 material: assets/materials/uvMaterial.material
 transform:
