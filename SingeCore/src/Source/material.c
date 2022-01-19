@@ -212,6 +212,26 @@ static void PrepareSettings(Shader shader, mat4 modelMatrix, mat4 mvpMatrix)
 	{
 		GraphicsDevice.DisableBlending();
 	}
+
+	// should this object's fragments write values to the stencil buffer?
+	if (HasFlag(settings, ShaderSettings.WriteToStencilBuffer))
+	{
+		GraphicsDevice.EnableStencilWriting();
+	}
+	else
+	{
+		GraphicsDevice.DisableStencilWriting();
+	}
+
+	// should this object's fragments use the depth test to determine if they appear over/under other fragments?
+	if (HasFlag(settings, ShaderSettings.UseDepthTest))
+	{
+		GraphicsDevice.EnableDepthTesting();
+	}
+	else
+	{
+		GraphicsDevice.DisableDepthTesting();
+	}
 }
 
 static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, mat4 MVPMatrix)

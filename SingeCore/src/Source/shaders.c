@@ -44,13 +44,17 @@ const struct _shaderMethods Shaders = {
 #define UseCameraPerspectiveFlag FLAG_0
 #define UseCullingFlag FLAG_1
 #define UseTransparencyFlag FLAG_2
+#define WriteToStencilBufferFlag FLAG_3
+#define UseDepthTestFlag FLAG_4
 
 #define DEFAULT_SHADER_SETTINGS 0 //(UseCameraPerspectiveFlag | UseCullingFlag)
 
 const struct _shaderSettings ShaderSettings = {
 	.UseCameraPerspective = UseCameraPerspectiveFlag,
 	.BackfaceCulling = UseCullingFlag,
-	.Transparency = UseTransparencyFlag
+	.Transparency = UseTransparencyFlag,
+	.WriteToStencilBuffer = WriteToStencilBufferFlag,
+	.UseDepthTest = UseDepthTestFlag
 };
 
 static void OnDispose(Shader shader)

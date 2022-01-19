@@ -38,7 +38,7 @@
 #include "graphics/text.h"
 #include "graphics/recttransform.h"
 #include "singine/strings.h"
-
+#include "graphics/graphicsDevice.h"
 #include "tests.h"
 
 // scripts (not intrinsically part of the engine)
@@ -325,16 +325,20 @@ int main()
 		Transforms.SetPosition(camera->Transform, position);
 
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glStencilMask(0xFF);
+
+		GraphicsDevice.EnableStencilWriting();
+		GraphicsDevice.SetStencil(Comparisons.Always);
 		GameObjects.Draw(cube, camera);
 
-		glStencilMask(0x00);
-		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		GraphicsDevice.DisableStencilWriting();
+		GraphicsDevice.SetStencil(Comparisons.NotEqual);
+		GraphicsDevice.DisableDepthTesting();
+
 		GameObjects.Draw(otherCube, camera);
 
-		glStencilFunc(GL_ALWAYS, 1, 0xFF);
-		glStencilMask(0xFF);
+		GraphicsDevice.EnableDepthTesting();
+		GraphicsDevice.EnableStencilWriting();
+		GraphicsDevice.SetStencil(Comparisons.Always);
 
 		GameObjects.Draw(car, camera);
 		GameObjects.Draw(ball, camera);

@@ -1,20 +1,80 @@
 #include "graphics/graphicsDevice.h"
 #include "GL/glew.h"
 
+const struct _comparisons Comparisons = {
+	.Always = GL_ALWAYS,
+	.Never = GL_NEVER,
+	.Equal = GL_EQUAL,
+	.NotEqual = GL_NOTEQUAL,
+	.GreaterThan = GL_GREATER,
+	.LessThan = GL_LESS,
+	.LessThanOrEqual = GL_LEQUAL,
+	.GreaterThanOrEqual = GL_GEQUAL
+};
+
 static void EnableBlending(void);
 static void EnableCulling(void);
 static void DisableBlending(void);
 static void DisableCulling(void);
+static void EnableWritingToStencilBuffer(void);
+static void DisableWritingToStencilBuffer(void);
+static unsigned int GetStencilMask(void);
+static void SetStencilMask(const unsigned int mask);
+static void SetStencilFunction(const Comparison);
+static void SetStencilFunctionFull(const Comparison, const unsigned int valueToCompareTo, const unsigned int mask);
+static void ResetStencilFunction(void);
+static void EnableDepthTesting(void);
+static void DisableDepthTesting(void);
+static void SetDepthTest(const Comparison);
 
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
 	.EnableCulling = &EnableCulling,
 	.DisableBlending = &DisableBlending,
-	.DisableCulling = &DisableCulling
+	.DisableCulling = &DisableCulling,
+	.EnableStencilWriting = &DisableWritingToStencilBuffer,
+	.DisableStencilWriting = DisableWritingToStencilBuffer,
+	.SetStencilMask = &SetStencilMask,
+	.GetStencilMask = GetStencilMask,
+	.SetStencil = &SetStencilFunction,
+	.ResetStencilFunction = &ResetStencilFunction,
+	.SetStencilFull = &SetStencilFunctionFull,
+	.EnableDepthTesting = &EnableDepthTesting,
+	.DisableDepthTesting = &DisableDepthTesting,
+	.SetDepthTest = &SetDepthTest
 };
 
 bool blendingEnabled = false;
 bool cullingEnabled = false;
+bool writingToStencilBufferEnabled = false;
+bool depthTestingEnabled = false;
+
+unsigned int stencilMask = 0xFF;
+unsigned int stencilComparisonFunction;
+unsigned int stencilComparisonValue;
+unsigned int stencilComparisonMask;
+unsigned int defaultStencilComparison = GL_ALWAYS;
+unsigned int defaultStencilComparisonValue = 1;
+unsigned int defaultStencilComparisonMask = 0xFF;
+unsigned int depthComparison;
+
+static void EnableDepthTesting(void)
+{
+	if (depthTestingEnabled is false)
+	{
+		glEnable(GL_DEPTH_TEST);
+		depthTestingEnabled = true;
+	}
+}
+
+static void DisableDepthTesting(void)
+{
+	if (depthTestingEnabled)
+	{
+		glDisable(GL_DEPTH_TEST);
+		depthTestingEnabled = false;
+	}
+}
 
 static void EnableBlending(void)
 {
@@ -49,6 +109,79 @@ static void DisableCulling(void)
 	if (cullingEnabled)
 	{
 		glDisable(GL_CULL_FACE);
+
 		cullingEnabled = false;
+	}
+}
+
+static void EnableWritingToStencilBuffer(void)
+{
+	if (writingToStencilBufferEnabled is false)
+	{
+		SetStencilMask(stencilMask);
+
+		writingToStencilBufferEnabled = true;
+	}
+}
+
+static void DisableWritingToStencilBuffer(void)
+{
+	if (writingToStencilBufferEnabled)
+	{
+		SetStencilMask(0x00);
+
+		writingToStencilBufferEnabled = false;
+	}
+}
+
+static unsigned int GetStencilMask(void)
+{
+	return stencilMask;
+}
+
+static void SetStencilMask(const unsigned int mask)
+{
+	stencilMask = mask;
+}
+
+static void SetStencilFunction(const Comparison comparison)
+{
+	if (comparison isnt stencilComparisonFunction || stencilComparisonValue isnt 1 || stencilComparisonMask isnt 0xFF)
+	{
+		glStencilFunc(comparison, 1, 0xFF);
+
+		stencilComparisonFunction = comparison;
+
+		stencilComparisonValue = 1;
+
+		stencilMask = 0xFF;
+	}
+}
+
+static void SetStencilFunctionFull(const Comparison comparison, const unsigned int valueToCompareTo, const unsigned int mask)
+{
+	if (comparison isnt stencilComparisonFunction || valueToCompareTo isnt stencilComparisonValue || mask != stencilComparisonMask)
+	{
+		glStencilFunc(comparison, valueToCompareTo, mask);
+
+		stencilComparisonFunction = comparison;
+
+		stencilComparisonValue = valueToCompareTo;
+
+		stencilComparisonMask = mask;
+	}
+}
+
+static void ResetStencilFunction(void)
+{
+	SetStencilFunctionFull(defaultStencilComparison, defaultStencilComparisonValue, defaultStencilComparisonMask);
+}
+
+static void SetDepthTest(const Comparison comparison)
+{
+	if (depthComparison isnt comparison)
+	{
+		glDepthFunc(comparison);
+		depthComparison = comparison;
 	}
 }

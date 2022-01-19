@@ -2,3 +2,4 @@
 vertexShader: assets/shaders/TextShader.vertexshader
 # The path to the fragment shader that should be used for this shader
 fragmentShader: assets/shaders/TextShader.fragmentshader
+enableDepthTesting: true

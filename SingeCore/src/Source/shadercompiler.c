@@ -350,8 +350,6 @@ struct _shaderInfo {
 	unsigned int Settings;
 };
 
-#define TokenCount 5
-
 #define ExportTokenFormat "\n%s: %s\n"
 
 #define VertexShaderComment "# The path to the vertex shader that should be used for this shader"
@@ -364,21 +362,29 @@ struct _shaderInfo {
 #define UseCameraPerspectiveToken "useCameraPerspective"
 #define UseTransparencyComment "# whether or not blending (transparency) should be enabled"
 #define UseTransparencyToken "enableBlending"
+#define WriteToStencilBufferComment "# whether or not fragments that are drawn are written to the stencil buffer"
+#define WriteToStencilBufferToken "writeToStencilBuffer"
+#define UseDepthTestComment "# whether or not depth testing should be used when this shader is used to render an object"
+#define UseDepthTestToken "enableDepthTesting"
 
-static const char* Tokens[TokenCount] = {
+static const char* Tokens[] = {
 	VertexShaderToken,
 	FragmentShaderToken,
 	UseBackfaceCullingToken,
 	UseCameraPerspectiveToken,
-	UseTransparencyToken
+	UseTransparencyToken,
+	WriteToStencilBufferToken,
+	UseDepthTestToken
 };
 
-static const size_t TokenLengths[TokenCount] = {
+static const size_t TokenLengths[] = {
 	sizeof(VertexShaderToken),
 	sizeof(FragmentShaderToken),
 	sizeof(UseBackfaceCullingToken),
 	sizeof(UseCameraPerspectiveToken),
 	sizeof(UseTransparencyToken),
+	sizeof(WriteToStencilBufferToken),
+	sizeof(UseDepthTestToken)
 };
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _shaderInfo* state)
@@ -408,6 +414,20 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 		if (TryParseBoolean(buffer, length, &enabled))
 		{
 			AssignFlag(state->Settings, ShaderSettings.Transparency, enabled);
+			return true;
+		}
+		return false;
+	case 5: // write to stencil buffer
+		if (TryParseBoolean(buffer, length, &enabled))
+		{
+			AssignFlag(state->Settings, ShaderSettings.WriteToStencilBuffer, enabled);
+			return true;
+		}
+		return false;
+	case 6: // enable depth testing
+		if (TryParseBoolean(buffer, length, &enabled))
+		{
+			AssignFlag(state->Settings, ShaderSettings.UseDepthTest, enabled);
 			return true;
 		}
 		return false;
@@ -498,6 +518,18 @@ static bool Save(Shader shader, const char* path)
 	{
 		fprintf(file, UseTransparencyComment);
 		fprintf(file, ExportTokenFormat, UseTransparencyToken, "true");
+	}
+
+	if (HasFlag(shader->Settings, ShaderSettings.WriteToStencilBuffer))
+	{
+		fprintf(file, WriteToStencilBufferComment);
+		fprintf(file, ExportTokenFormat, WriteToStencilBufferToken, "true");
+	}
+
+	if (HasFlag(shader->Settings, ShaderSettings.UseDepthTest))
+	{
+		fprintf(file, UseDepthTestComment);
+		fprintf(file, ExportTokenFormat, UseDepthTestToken, "true");
 	}
 
 	return Files.TryClose(file);

@@ -40,7 +40,7 @@ struct _shaderUniforms {
 
 typedef unsigned int ShaderSetting;
 
-#define MAX_SHADER_SETTINGS 3
+#define MAX_SHADER_SETTINGS 5
 
 struct _shaderSettings
 {
@@ -57,6 +57,14 @@ struct _shaderSettings
 	/// this should be enabled for 3d object and disabled for 2d like GUI
 	/// </summary>
 	ShaderSetting UseCameraPerspective;
+	/// <summary>
+	/// Whether or not fragments that pass the shader's buffer function should be written to the stencil buffer
+	/// </summary>
+	ShaderSetting WriteToStencilBuffer;
+	/// <summary>
+	/// Whether or not depth testing is used when this shader is used to render an object
+	/// </summary>
+	ShaderSetting UseDepthTest;
 };
 
 extern const struct _shaderSettings ShaderSettings;
