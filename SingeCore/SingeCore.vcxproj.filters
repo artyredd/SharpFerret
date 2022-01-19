@@ -49,6 +49,18 @@
     <Filter Include="Source Files\Tests">
       <UniqueIdentifier>{3f7e5151-65f1-4741-8e0e-babdcd98c041}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Materials">
+      <UniqueIdentifier>{215ac3f5-49d2-4ac0-baa2-5f8301a57978}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders">
+      <UniqueIdentifier>{1e488651-36fc-410b-8deb-f13130e3d675}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Shaders\Shaders">
+      <UniqueIdentifier>{7847de55-b154-4713-8a1e-1ae18eb60c27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files\Prefabs">
+      <UniqueIdentifier>{c912ee45-aa47-4a8b-b655-ab0857cceb5c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\imaging.c">
@@ -296,52 +308,85 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\ColorUV.fragmentshader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\DistanceGlow.fragmentshader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\DistanceGlow.vertexshader">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="assets\shaders\GUIShader.vertexshader">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="assets\shaders\SimpleFragmentShader.fragmentshader">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="assets\shaders\SimpleVertexShader.vertexshader">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="assets\shaders\toon.fragmentshader">
-      <Filter>Resource Files</Filter>
-    </None>
-    <None Include="assets\shaders\toon.vertexshader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\guiShader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\GUIShader.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\shaderFormat.shader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\SimpleFragmentShader.fragmentshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\SimpleVertexShader.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\TextShader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="assets\shaders\TextShader.fragmentshader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\TextShader.vertexshader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\texturedShader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\toon.fragmentshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\toon.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\toonShader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
     </None>
     <None Include="assets\shaders\uvShader">
-      <Filter>Resource Files</Filter>
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="assets\materials\debugOrientation.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\materials\debugOrientationGUI.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\materials\default.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\materials\guiMaterial.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\materials\textMaterial.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\materials\textureMaterial.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\materials\uvMaterial.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\prefabs\ball.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
+    </None>
+    <None Include="assets\prefabs\car.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
+    </None>
+    <None Include="assets\prefabs\cube.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
+    </None>
+    <None Include="assets\prefabs\room.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
     </None>
   </ItemGroup>
 </Project>

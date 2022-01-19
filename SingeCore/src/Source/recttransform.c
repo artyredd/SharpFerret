@@ -11,8 +11,8 @@ static void SetTransform(Transform transform, Anchor anchor, Anchor pivot, float
 {
 	Transforms.SetScales(transform, width, height, 1);
 
-	float posx = (anchor.x / width) + (x - pivot.x);
-	float posy = (anchor.y / height) + (y - pivot.y);
+	float posx = anchor.x - (pivot.x * width) + x;
+	float posy = anchor.y - (pivot.y * height) + y;
 
 	Transforms.SetPositions(transform, posx, posy, 0);
 }

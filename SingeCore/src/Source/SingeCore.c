@@ -116,6 +116,8 @@ int main()
 
 	Material textMaterial = Materials.Load("assets/materials/textMaterial.material");
 
+	Material textureMaterial = Materials.Load("assets/materials/debugOrientationGUI.material");
+
 	Camera camera = Cameras.CreateCamera();
 
 	// bind a vertex array for OpenGL this is required to render objects
@@ -131,8 +133,8 @@ int main()
 	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = GameObjects.Load("assets/prefabs/car.gameobject");
-	GameObject room = GameObjects.Load("assets/prefabs/room.gameobject");
+	GameObject car = GameObjects.Load("assets/prefabs/ball.gameobject");
+	GameObject room = GameObjects.Load("assets/prefabs/ball.gameobject");
 
 	float speed = 10.0f;
 
@@ -175,13 +177,24 @@ int main()
 	squareMesh->TextureCount = 12;
 	squareMesh->TextureVertices = textures;
 
-	GameObject guiTexture = CreateGameObjectFromMesh(squareMesh);
+	GameObject square = CreateGameObjectFromMesh(squareMesh);
 
-	Transforms.ScaleAll(guiTexture->Transform, 0.5f);
+	Transforms.ScaleAll(square->Transform, 0.5f);
 
 	SafeFree(squareMesh);
 
-	GameObjects.SetMaterial(guiTexture, font->Material);
+	GameObjects.SetMaterial(square, font->Material);
+
+	GameObject subSquare = GameObjects.Duplicate(square);
+
+	GameObjects.SetMaterial(subSquare, textureMaterial);
+
+	Materials.SetColors(subSquare->Material, 1, 0, 0, 1);
+
+	Transforms.SetParent(subSquare->Transform, square->Transform);
+
+	RectTransforms.SetTransform(subSquare->Transform, Anchors.LowerLeft, Pivots.UpperLeft, 0, 0, 0.5f, 0.5f);
+
 
 	// orient the camera so we see some geometry without moving the camera
 	//Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
@@ -300,8 +313,8 @@ int main()
 			--amount;
 		}
 
-		Transforms.SetPositions(otherCube->Transform, 3 * cos(Time()), 3, 3);
-		Transforms.SetPositions(cube->Transform, 3 * cos(Time()), 3, 3);
+		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
+		Transforms.SetPositions(cube->Transform, (float)(3 * cos(Time())), 3, 3);
 
 		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime());//, );
 		Texts.SetText(text, text->Text, count);
@@ -318,10 +331,11 @@ int main()
 		GameObjects.Draw(otherBall, camera);
 		GameObjects.Draw(room, camera);
 
-		//GameObjects.Draw(guiTexture, camera);
+		GameObjects.Draw(subSquare, camera);
+		GameObjects.Draw(square, camera);
 		Texts.Draw(text, camera);
 
-		DebugCameraPosition(camera);
+
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -340,11 +354,13 @@ int main()
 	GameObjects.Destroy(car);
 	GameObjects.Destroy(room);
 	GameObjects.Destroy(cube);
-	GameObjects.Destroy(guiTexture);
+	GameObjects.Destroy(square);
 	GameObjects.Destroy(otherCube);
+	GameObjects.Destroy(subSquare);
 
 	Materials.Dispose(textMaterial);
-	Materials.Dispose(defaultMaterial);
+	//Materials.Dispose(defaultMaterial);
+	//Materials.Dispose(textureMaterial);
 
 	Cameras.Dispose(camera);
 
