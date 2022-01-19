@@ -95,6 +95,9 @@ int main()
 	// Cull triangles which normal is not towards the camera
 	glEnable(GL_CULL_FACE);
 
+	glEnable(GL_STENCIL_TEST);
+
+
 	SetCursorMode(CursorModes.Disabled);
 
 	Image icon = Images.LoadImage("assets/textures/icon.png");
@@ -199,12 +202,25 @@ int main()
 	GameObjects.Save(car, "assets/prefabs/car.gameobject");
 	GameObjects.Save(room, "assets/prefabs/room.gameobject");
 
+
+	GameObject otherCube = GameObjects.Duplicate(cube);
+
+	//Transforms.SetParent(otherCube->Transform, cube->Transform);
+	//Transforms.SetPositions(otherCube->Transform, 0, 0, 0);
+	Transforms.ScaleAll(otherCube->Transform, 1.2f);
+	Materials.SetColors(otherCube->Material, 1, 1, 1, 1);
+
+
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glStencilFunc(GL_ALWAYS, 1, 0xFF);
+	glStencilMask(0xFF);
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
 		UpdateTime();
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		Vectors3CopyTo(camera->Transform->Position, position);
 
@@ -283,6 +299,9 @@ int main()
 			--amount;
 		}
 
+		Transforms.SetPositions(otherCube->Transform, 3 * cos(Time()), 3, 3);
+		Transforms.SetPositions(cube->Transform, 3 * cos(Time()), 3, 3);
+
 		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime());//, );
 		Texts.SetText(text, text->Text, count);
 
@@ -290,6 +309,7 @@ int main()
 
 		Transforms.SetPosition(camera->Transform, position);
 
+		GameObjects.Draw(otherCube, camera);
 		GameObjects.Draw(cube, camera);
 
 		GameObjects.Draw(car, camera);
@@ -297,8 +317,8 @@ int main()
 		GameObjects.Draw(otherBall, camera);
 		GameObjects.Draw(room, camera);
 
-		Texts.Draw(text, camera);
 		//GameObjects.Draw(guiTexture, camera);
+		Texts.Draw(text, camera);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -318,6 +338,7 @@ int main()
 	GameObjects.Destroy(room);
 	GameObjects.Destroy(cube);
 	GameObjects.Destroy(guiTexture);
+	GameObjects.Destroy(otherCube);
 
 	Materials.Dispose(textMaterial);
 	Materials.Dispose(defaultMaterial);
