@@ -328,6 +328,18 @@ static bool TryGetIntegerPattern(File stream,
 			return false;
 		}
 
+		// ignore newlines or null strings
+		if (length <= 1)
+		{
+			continue;
+		}
+
+		// ignore materials
+		if (buffer[0] is 'u')
+		{
+			continue;
+		}
+
 		size_t* subarray = result + (i * integersPerRow);
 
 		if (Parser(buffer + offset, subarray) is false)

@@ -119,7 +119,7 @@ static bool Contains(const char* source, size_t length, const char* target, cons
 	{
 		const char* buffer = source + start;
 
-		if (memcmp(buffer, target, targetLength) is 0)
+		if (memcmp(buffer, target, min(length - start, targetLength)) is 0)
 		{
 			return true;
 		}

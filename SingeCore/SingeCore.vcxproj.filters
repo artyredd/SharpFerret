@@ -403,5 +403,11 @@
     <None Include="assets\shaders\default.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="assets\prefabs\house.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
+    </None>
+    <None Include="assets\prefabs\monkey.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
+    </None>
   </ItemGroup>
 </Project>

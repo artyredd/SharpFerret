@@ -126,6 +126,8 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
+	GameObject room = GameObjects.Load("assets/prefabs/house.gameobject");
+
 	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
 	Fonts.SetMaterial(font, textMaterial);
 
@@ -135,7 +137,7 @@ int main()
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = GameObjects.Load("assets/prefabs/car.gameobject");
-	GameObject room = GameObjects.Load("assets/prefabs/room.gameobject");
+
 
 	float speed = 10.0f;
 

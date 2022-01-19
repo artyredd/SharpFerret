@@ -282,7 +282,9 @@
     <None Include="assets\prefabs\ball.gameobject" />
     <None Include="assets\prefabs\car.gameobject" />
     <None Include="assets\prefabs\cube.gameobject" />
+    <None Include="assets\prefabs\monkey.gameobject" />
     <None Include="assets\prefabs\room.gameobject" />
+    <None Include="assets\prefabs\house.gameobject" />
     <None Include="assets\shaders\ColorUV.fragmentshader" />
     <None Include="assets\shaders\default.shader" />
     <None Include="assets\shaders\DistanceGlow.fragmentshader" />
