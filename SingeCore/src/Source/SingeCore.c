@@ -220,6 +220,8 @@ int main()
 
 	//Transforms.SetParent(otherCube->Transform, cube->Transform);
 	//Transforms.SetPositions(otherCube->Transform, 0, 0, 0);
+
+	GameObjects.SetMaterial(otherCube, defaultMaterial);
 	Transforms.ScaleAll(otherCube->Transform, 1.2f);
 	Materials.SetColors(otherCube->Material, 1, 1, 1, 1);
 
@@ -322,8 +324,17 @@ int main()
 
 		Transforms.SetPosition(camera->Transform, position);
 
-		GameObjects.Draw(otherCube, camera);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
 		GameObjects.Draw(cube, camera);
+
+		glStencilMask(0x00);
+		glStencilFunc(GL_NOTEQUAL, 1, 0xFF);
+		GameObjects.Draw(otherCube, camera);
+
+		glStencilFunc(GL_ALWAYS, 1, 0xFF);
+		glStencilMask(0xFF);
 
 		GameObjects.Draw(car, camera);
 		GameObjects.Draw(ball, camera);
