@@ -184,35 +184,28 @@ static void NotifyChildren(Transform transform)
 	}
 }
 
-static float* GetPosition(Transform transform)
+static void GetPosition(Transform transform, vec3 out_vec)
 {
 	if (transform->InvertTransform)
 	{
-		vec3 result;
-		glm_vec3_negate_to(transform->Position, result);;
-		return result;
+		glm_vec3_negate_to(transform->Position, out_vec);
 	}
 
-	return transform->Position;
+	Vectors3CopyTo(transform->Position, out_vec);
 }
 
-static float* GetRotation(Transform transform)
+static void GetRotation(Transform transform, Quaternion out_quaternion)
 {
 	if (transform->InvertTransform)
 	{
-		Quaternion result;
-		glm_quat_inv(transform->Rotation, result);
-
-		return result;
+		glm_quat_inv(transform->Rotation, out_quaternion);
 	}
 
-	return transform->Rotation;
+	Vectors4CopyTo(transform->Rotation, out_quaternion);
 }
 
 static vec4* RefreshTransform(Transform transform)
 {
-	return ForceRefreshTransform(transform);
-
 	unsigned int mask = transform->State.Modified;
 
 	// if nothing changed return
@@ -237,46 +230,25 @@ static vec4* RefreshTransform(Transform transform)
 	}
 
 	// check to see if we should perform a whole refresh
-	// since the transform starts with scale a change to it requires a whole refresh by default
-	if (HasFlag(mask, AllModifiedFlag) || HasFlag(mask, ScaleModifiedFlag))
+	// since the transform starts with position a change to it requires a whole refresh by default
+	if (HasFlag(mask, AllModifiedFlag) || HasFlag(mask, PositionModifiedFlag))
 	{
 		return Transforms.ForceRefresh(transform);
 	}
 
-	// create a place to store rot and pos for the followup matrix multiplications
+	// becuase the transform may be inverted grab either the regular or inverted transforms
 	Quaternion rotation;
-	vec3 position;
-
-	// check whether or not we should invert the pos and rotation
-	// this is typically only used for the camera since the camera never "moves"
-	if (transform->InvertTransform)
-	{
-		glm_quat_inv(transform->Rotation, rotation);
-		glm_vec3_negate_to(transform->Position, position);
-	}
-	else
-	{
-		Vectors4CopyTo(transform->Rotation, rotation);
-		Vectors3CopyTo(transform->Position, position);
-	}
+	GetRotation(transform, rotation);
 
 	// since we dont need to do a full refresh, do only the calcs needed to save cpu time
 	// this engine was orignally designed to be single threaded
 	if (HasFlag(mask, RotationModifiedFlag))
 	{
-		if (transform->RotateAroundCenter)
-		{
-			glm_quat_rotate(transform->State.ScaleMatrix, rotation, transform->State.RotationMatrix);
-		}
-		else
-		{
-			SetMatrices4(transform->State.RotationMatrix, transform->State.ScaleMatrix);
-			glm_quat_rotate_at(transform->State.RotationMatrix, rotation, position);
-		}
+		glm_quat_rotate(transform->State.TranslationMatrix, rotation, transform->State.RotationMatrix);
 	}
 
-	// since the rotation and scale were not affected only translate and store into the previous state
-	glm_translate_to(transform->State.RotationMatrix, position, transform->State.LocalState);
+	// scale the matrix
+	glm_scale_to(transform->State.RotationMatrix, transform->Scale, transform->State.LocalState);
 
 	if (transform->Parent != null)
 	{
@@ -300,24 +272,27 @@ static vec4* ForceRefreshTransform(Transform transform)
 
 	// calc and store scale, rotation, and translation in their own matrices so we can selectively update them later
 
-	// calc and store scale matrix
-	glm_scale_to(Matrix4.Identity, transform->Scale, transform->State.ScaleMatrix);
-
 	// becuase the transform may be inverted grab either the regular or inverted transforms
-	float* rotation = GetRotation(transform);
-	float* position = GetPosition(transform);
+	Quaternion rotation;
+	GetRotation(transform, rotation);
 
-	// create and store a rotation matrix
-	glm_quat_rotate(Matrix4.Identity, rotation, transform->State.RotationMatrix);
+	vec3 position;
+	GetPosition(transform, position);
 
 	// create and store a translation matrix
 	glm_translate_to(Matrix4.Identity, position, transform->State.TranslationMatrix);
 
+	// create and store a rotation matrix
+	glm_quat_rotate(transform->State.TranslationMatrix, rotation, transform->State.RotationMatrix);
+
+	// calc and store scale matrix
+	glm_scale_to(transform->State.RotationMatrix, transform->Scale, transform->State.LocalState);
+
 	// multiply them in reverse order
 	// order should be scale -> rotate -> translate
-	glm_mat4_mulN((mat4 * []) {
+	/*glm_mat4_mulN((mat4 * []) {
 		&transform->State.TranslationMatrix, & transform->State.RotationMatrix, & transform->State.ScaleMatrix
-	}, 3, transform->State.LocalState);
+	}, 3, transform->State.LocalState);*/
 
 	// if we have a parent we should grab their matrices and multiply it with our local one
 	if (transform->Parent != null)
