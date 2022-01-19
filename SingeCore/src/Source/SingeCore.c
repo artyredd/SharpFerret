@@ -184,7 +184,8 @@ int main()
 	GameObjects.SetMaterial(guiTexture, font->Material);
 
 	// orient the camera so we see some geometry without moving the camera
-	Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
+	//Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
+	Transforms.SetPositions(camera->Transform, 0, 0, 0);
 
 	Text text = Texts.CreateEmpty(font, 512);
 
@@ -319,6 +320,8 @@ int main()
 
 		//GameObjects.Draw(guiTexture, camera);
 		Texts.Draw(text, camera);
+
+		DebugCameraPosition(camera);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);

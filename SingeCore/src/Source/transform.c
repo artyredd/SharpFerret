@@ -184,8 +184,35 @@ static void NotifyChildren(Transform transform)
 	}
 }
 
+static float* GetPosition(Transform transform)
+{
+	if (transform->InvertTransform)
+	{
+		vec3 result;
+		glm_vec3_negate_to(transform->Position, result);;
+		return result;
+	}
+
+	return transform->Position;
+}
+
+static float* GetRotation(Transform transform)
+{
+	if (transform->InvertTransform)
+	{
+		Quaternion result;
+		glm_quat_inv(transform->Rotation, result);
+
+		return result;
+	}
+
+	return transform->Rotation;
+}
+
 static vec4* RefreshTransform(Transform transform)
 {
+	return ForceRefreshTransform(transform);
+
 	unsigned int mask = transform->State.Modified;
 
 	// if nothing changed return
@@ -269,44 +296,37 @@ static vec4* RefreshTransform(Transform transform)
 
 static vec4* ForceRefreshTransform(Transform transform)
 {
-	// order must be scale first -> then rotate -> then translate
+	// becuase this engine is single threaded we perform some extra calculations here to save them in non-forced refresh
+
+	// calc and store scale, rotation, and translation in their own matrices so we can selectively update them later
+
+	// calc and store scale matrix
 	glm_scale_to(Matrix4.Identity, transform->Scale, transform->State.ScaleMatrix);
 
-	// create a place to store rot and pos for the followup matrix multiplications
-	Quaternion rotation;
-	vec3 position;
+	// becuase the transform may be inverted grab either the regular or inverted transforms
+	float* rotation = GetRotation(transform);
+	float* position = GetPosition(transform);
 
-	// check whether or not we should invert the pos and rotation
-	// this is typically only used for the camera since the camera never "moves"
-	if (transform->InvertTransform)
-	{
-		glm_quat_inv(transform->Rotation, rotation);
-		glm_vec3_negate_to(transform->Position, position);
-	}
-	else
-	{
-		Vectors4CopyTo(transform->Rotation, rotation);
-		Vectors3CopyTo(transform->Position, position);
-	}
+	// create and store a rotation matrix
+	glm_quat_rotate(Matrix4.Identity, rotation, transform->State.RotationMatrix);
 
-	if (transform->RotateAroundCenter)
-	{
-		glm_quat_rotate(transform->State.ScaleMatrix, rotation, transform->State.RotationMatrix);
-	}
-	else
-	{
-		SetMatrices4(transform->State.RotationMatrix, transform->State.ScaleMatrix);
-		glm_quat_rotate_at(transform->State.RotationMatrix, rotation, position);
-	}
+	// create and store a translation matrix
+	glm_translate_to(Matrix4.Identity, position, transform->State.TranslationMatrix);
 
-	glm_translate_to(transform->State.RotationMatrix, position, transform->State.LocalState);
+	// multiply them in reverse order
+	// order should be scale -> rotate -> translate
+	glm_mat4_mulN((mat4 * []) {
+		&transform->State.TranslationMatrix, & transform->State.RotationMatrix, & transform->State.ScaleMatrix
+	}, 3, transform->State.LocalState);
 
+	// if we have a parent we should grab their matrices and multiply it with our local one
 	if (transform->Parent != null)
 	{
 		glm_mat4_mul(transform->Parent->State.State, transform->State.LocalState, transform->State.State);
 	}
 	else
 	{
+		// since we don't have a parent copy the local transform to the state
 		SetMatrices4(transform->State.State, transform->State.LocalState);
 	}
 

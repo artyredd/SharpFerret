@@ -63,8 +63,12 @@ static void RecalculateView(Camera camera)
 
 static void RecalculateViewProjection(Camera camera)
 {
+	mat4 inverse;
+
+	glm_mat4_inv(camera->Transform->State.State, inverse);
+
 	glm_mat4_mul(camera->State.Projection,
-		camera->Transform->State.State,
+		inverse,
 		camera->State.State);
 
 	ResetFlags(camera->State.Modified);
@@ -171,7 +175,7 @@ static Camera CreateCamera()
 	// since the camera's transform is used to draw all of the other objects in the scene
 	// we should invert the camera's transform
 	// if we want to "turn" the camera 90deg to the right we should rotate the entire scene 90deg to the left
-	camera->Transform->InvertTransform = true;
+	camera->Transform->InvertTransform = false;
 
 	// mark the state as needing a full refresh
 	camera->State.Modified = AllModifiedFlag;

@@ -31,6 +31,7 @@ struct transformState {
 	/// until the first time this transform is refreshed
 	/// </summary>
 	mat4 RotationMatrix;
+	mat4 TranslationMatrix;
 	/// <summary>
 	/// The previously calculated trasform matrix for this transform NOT including the parent matrix, this is NOT initialized with a value
 	/// until the first time this transform is refreshed
