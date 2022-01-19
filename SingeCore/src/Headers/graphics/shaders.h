@@ -2,6 +2,7 @@
 #include "csharp.h"
 #include "math/vectors.h"
 #include "sharedBuffer.h"
+#include "graphics/graphicsDevice.h"
 
 #define UNIFORM_NAME_MVP "MVP"
 #define UNIFORM_NAME_Texture0 "myTextureSampler"
@@ -40,7 +41,7 @@ struct _shaderUniforms {
 
 typedef unsigned int ShaderSetting;
 
-#define MAX_SHADER_SETTINGS 5
+#define MAX_SHADER_SETTINGS 9
 
 struct _shaderSettings
 {
@@ -58,13 +59,22 @@ struct _shaderSettings
 	/// </summary>
 	ShaderSetting UseCameraPerspective;
 	/// <summary>
+	/// Whether or not depth testing is used when this shader is used to render an object
+	/// </summary>
+	ShaderSetting UseDepthTest;
+	/// <summary>
+	/// Whether or not the fragments rendered by this shader should write or read to the stencil buffer, when this is disabled
+	/// all fragments are drawn and no fragments are written to the stencil buffer
+	/// </summary>
+	ShaderSetting UseStencilBuffer;
+	/// <summary>
 	/// Whether or not fragments that pass the shader's buffer function should be written to the stencil buffer
 	/// </summary>
 	ShaderSetting WriteToStencilBuffer;
 	/// <summary>
-	/// Whether or not depth testing is used when this shader is used to render an object
+	/// Whether or not the stencil attributes, function, comparison value, and mask should be set to custom values when this shader is enabled
 	/// </summary>
-	ShaderSetting UseDepthTest;
+	ShaderSetting CustomStencilAttributes;
 };
 
 extern const struct _shaderSettings ShaderSettings;
@@ -81,6 +91,20 @@ struct _shader {
 	/// This is a quick mask that stores advanced toggles for this shader and how it should be drawn, these are applied to only this shader
 	/// </summary>
 	unsigned int Settings;
+	/// <summary>
+	/// If UseStencilBuffer within the settings is true then this is used to compare a fragments value with StencilValue to determine whether
+	/// a fragment is drawn
+	/// </summary>
+	Comparison StencilFunction;
+	/// <summary>
+	/// The value each fragment should be compared to using the stencil function, if the result is true the fragment is rendered, otherwise it's not
+	/// </summary>
+	unsigned int StencilValue;
+	/// <summary>
+	/// The mask that should be AND'd with the fragment's stencil buffer value before it's compared with StencilComparisonValue to determine if it should
+	/// be rendered
+	/// </summary>
+	unsigned int StencilMask;
 };
 
 struct _shaderMethods {

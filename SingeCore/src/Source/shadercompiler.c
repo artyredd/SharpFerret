@@ -341,6 +341,62 @@ static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 	return shader;
 }
 
+const char* validStencilComparisons[] = {
+	"always",
+	"never",
+	"equal",
+	"notEqual",
+	"greaterThan",
+	"lessThan",
+	"lessThanOrEqual",
+	"greaterThanOrEqual"
+};
+
+// this is violating DRY here to alleviate my headache with the fact that const unsigned integers are not constants at compile time when contained in structs
+// other copy can be found in graphicsDevice.c
+const unsigned int stencilComparisons[] = {
+	GL_ALWAYS,
+	GL_NEVER,
+	GL_EQUAL,
+	GL_NOTEQUAL,
+	GL_GREATER,
+	GL_LESS,
+	GL_LEQUAL,
+	GL_GEQUAL
+};
+
+static bool TryGetStencilComparison(const char* buffer, size_t bufferSize, unsigned int* out_comparison)
+{
+	// default to GL_ALWAYS
+	*out_comparison = stencilComparisons[0];
+
+	for (size_t i = 0; i < (sizeof(validStencilComparisons) / sizeof(char*)); i++)
+	{
+		const char* word = validStencilComparisons[i];
+
+		if (Strings.Contains(buffer, bufferSize, word, strlen(word)))
+		{
+			*out_comparison = stencilComparisons[i];
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static const char* GetStencilComparisonName(unsigned int comparison)
+{
+	for (size_t i = 0; i < sizeof(stencilComparisons) / sizeof(unsigned int); i++)
+	{
+		if (comparison == stencilComparisons[i])
+		{
+			return validStencilComparisons[i];
+		}
+	}
+
+	// default return always
+	return validStencilComparisons[0];
+}
 
 #define MaxPathLength 512
 
@@ -348,6 +404,9 @@ struct _shaderInfo {
 	char* FragmentPath;
 	char* VertexPath;
 	unsigned int Settings;
+	unsigned int StencilComparison;
+	unsigned int StencilValue;
+	unsigned int StencilMask;
 };
 
 #define ExportTokenFormat "\n%s: %s\n"
@@ -366,6 +425,16 @@ struct _shaderInfo {
 #define WriteToStencilBufferToken "writeToStencilBuffer"
 #define UseDepthTestComment "# whether or not depth testing should be used when this shader is used to render an object"
 #define UseDepthTestToken "enableDepthTesting"
+#define UseCustomStencilAttributesComment "# whether or not this shader should set various stencil function attributes when it's enabled"
+#define UseCustomStencilAttributesToken "useCustomStencilAttributes"
+#define CustomStencilFuncionComment "# the custom function that should be used for this shader\n# does not do anythig when useComstomStencilAttributes is set to false\n# Valid Values: always, never, equal, notEqual, greaterThan, lessThan, greaterThanOrEqual, lessThanOrEqual"
+#define CustomStencilFuncionToken "customStencilFunction"
+#define CustomStencilValueComment "# the value that a fragment's stencil buffer value should be compared to using customStencilFunction"
+#define CustomStencilValueToken "customStencilValue"
+#define CustomStencilMaskComment "# the mask that should be bitwise AND'd with a fragemnt's stencil buffer value BEFORE it's compared to customStencilValue to determine if a fragment passes"
+#define CustomStencilMaskToken "customStencilMask"
+#define UseStencilBufferComment "# whether or not the stencil buffer should be used to determine if fragments are rendered, if this is false fragments are always rendered and never write to the stencil buffer"
+#define UseStencilBufferToken "useStencilBuffer"
 
 static const char* Tokens[] = {
 	VertexShaderToken,
@@ -373,8 +442,13 @@ static const char* Tokens[] = {
 	UseBackfaceCullingToken,
 	UseCameraPerspectiveToken,
 	UseTransparencyToken,
+	UseDepthTestToken,
+	UseStencilBufferToken
 	WriteToStencilBufferToken,
-	UseDepthTestToken
+	UseCustomStencilAttributesToken,
+	CustomStencilFuncionToken,
+	CustomStencilValueToken,
+	CustomStencilMaskToken
 };
 
 static const size_t TokenLengths[] = {
@@ -383,13 +457,19 @@ static const size_t TokenLengths[] = {
 	sizeof(UseBackfaceCullingToken),
 	sizeof(UseCameraPerspectiveToken),
 	sizeof(UseTransparencyToken),
+	sizeof(UseDepthTestToken),
+	sizeof(UseStencilBufferToken),
 	sizeof(WriteToStencilBufferToken),
-	sizeof(UseDepthTestToken)
+	sizeof(UseCustomStencilAttributesToken),
+	sizeof(CustomStencilFuncionToken),
+	sizeof(CustomStencilValueToken),
+	sizeof(CustomStencilMaskToken),
 };
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _shaderInfo* state)
 {
 	bool enabled;
+	int count;
 	switch (index)
 	{
 	case 0: // vertex path
@@ -417,20 +497,42 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 			return true;
 		}
 		return false;
-	case 5: // write to stencil buffer
-		if (TryParseBoolean(buffer, length, &enabled))
-		{
-			AssignFlag(state->Settings, ShaderSettings.WriteToStencilBuffer, enabled);
-			return true;
-		}
-		return false;
-	case 6: // enable depth testing
+	case 5: // enable depth testing
 		if (TryParseBoolean(buffer, length, &enabled))
 		{
 			AssignFlag(state->Settings, ShaderSettings.UseDepthTest, enabled);
 			return true;
 		}
 		return false;
+	case 6: // use stencil buffer
+		if (TryParseBoolean(buffer, length, &enabled))
+		{
+			AssignFlag(state->Settings, ShaderSettings.UseStencilBuffer, enabled);
+			return true;
+		}
+		return false;
+	case 7: // write to stencil buffer
+		if (TryParseBoolean(buffer, length, &enabled))
+		{
+			AssignFlag(state->Settings, ShaderSettings.WriteToStencilBuffer, enabled);
+			return true;
+		}
+		return false;
+	case 8: // use custom stencil values
+		if (TryParseBoolean(buffer, length, &enabled))
+		{
+			AssignFlag(state->Settings, ShaderSettings.CustomStencilAttributes, enabled);
+			return true;
+		}
+		return false;
+	case 9: // custom stencil function
+		return TryGetStencilComparison(buffer, length, &state->StencilComparison);
+	case 10: // stencil value
+		count = sscanf_s(buffer, "%xui", &(state->StencilValue));
+		return count == 1;
+	case 11: // stencil mask
+		count = sscanf_s(buffer, "%xui", &(state->StencilMask));
+		return count == 1;
 	default:
 		return false;
 	}
@@ -458,7 +560,10 @@ static Shader Load(const char* path)
 	struct _shaderInfo info = {
 		.FragmentPath = null,
 		.VertexPath = null,
-		.Settings = 0
+		.Settings = 0,
+		.StencilComparison = Comparisons.Always,
+		.StencilMask = 0xFF,
+		.StencilValue = 1
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &info))
@@ -474,6 +579,10 @@ static Shader Load(const char* path)
 		}
 
 		shader->Settings = info.Settings;
+
+		shader->StencilFunction = info.StencilComparison;
+		shader->StencilMask = info.StencilMask;
+		shader->StencilValue = info.StencilValue;
 	}
 
 	// always free these strings, CompileShader will make copies if it needs to
@@ -520,16 +629,37 @@ static bool Save(Shader shader, const char* path)
 		fprintf(file, ExportTokenFormat, UseTransparencyToken, "true");
 	}
 
+	if (HasFlag(shader->Settings, ShaderSettings.UseDepthTest))
+	{
+		fprintf(file, UseDepthTestComment);
+		fprintf(file, ExportTokenFormat, UseDepthTestToken, "true");
+	}
+
+	if (HasFlag(shader->Settings, ShaderSettings.UseStencilBuffer))
+	{
+		fprintf(file, UseStencilBufferComment);
+		fprintf(file, ExportTokenFormat, UseStencilBufferToken, "true");
+	}
+
 	if (HasFlag(shader->Settings, ShaderSettings.WriteToStencilBuffer))
 	{
 		fprintf(file, WriteToStencilBufferComment);
 		fprintf(file, ExportTokenFormat, WriteToStencilBufferToken, "true");
 	}
 
-	if (HasFlag(shader->Settings, ShaderSettings.UseDepthTest))
+	if (HasFlag(shader->Settings, ShaderSettings.CustomStencilAttributes))
 	{
-		fprintf(file, UseDepthTestComment);
-		fprintf(file, ExportTokenFormat, UseDepthTestToken, "true");
+		fprintf(file, UseCustomStencilAttributesComment);
+		fprintf(file, ExportTokenFormat, UseCustomStencilAttributesToken, "true");
+
+		fprintf(file, CustomStencilFuncionComment);
+		fprintf(file, ExportTokenFormat, CustomStencilFuncionToken, GetStencilComparisonName(shader->StencilFunction));
+
+		fprintf(file, CustomStencilValueComment);
+		fprintf(file, "\n%s: %xui\n", CustomStencilValueToken, shader->StencilFunction);
+
+		fprintf(file, CustomStencilMaskComment);
+		fprintf(file, "\n%s: %xui\n", CustomStencilMaskToken, shader->StencilFunction);
 	}
 
 	return Files.TryClose(file);

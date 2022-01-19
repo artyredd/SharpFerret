@@ -46,6 +46,7 @@ const struct _shaderMethods Shaders = {
 #define UseTransparencyFlag FLAG_2
 #define WriteToStencilBufferFlag FLAG_3
 #define UseDepthTestFlag FLAG_4
+#define CustomStencilAttributesFlag FLAG_5
 
 #define DEFAULT_SHADER_SETTINGS 0 //(UseCameraPerspectiveFlag | UseCullingFlag)
 
@@ -54,7 +55,8 @@ const struct _shaderSettings ShaderSettings = {
 	.BackfaceCulling = UseCullingFlag,
 	.Transparency = UseTransparencyFlag,
 	.WriteToStencilBuffer = WriteToStencilBufferFlag,
-	.UseDepthTest = UseDepthTestFlag
+	.UseDepthTest = UseDepthTestFlag,
+	.CustomStencilAttributes = CustomStencilAttributesFlag
 };
 
 static void OnDispose(Shader shader)
@@ -130,6 +132,9 @@ static Shader Instance(Shader shader)
 	CopyMember(shader, newShader, VertexPath);
 	CopyMember(shader, newShader, FragmentPath);
 	CopyMember(shader, newShader, Handle);
+	CopyMember(shader, newShader, StencilFunction);
+	CopyMember(shader, newShader, StencilValue);
+	CopyMember(shader, newShader, StencilMask);
 
 	// if the shader were given is an empty shader that doesn't have a handle we dont need to increment the instance count
 	if (shader->Handle isnt null)

@@ -1,5 +1,6 @@
 #pragma once
 #include <stdlib.h>
+#include "csharp.h"
 
 struct _stringMethods {
 	// Converts all characters in the buffer to lowercase
@@ -16,6 +17,10 @@ struct _stringMethods {
 	/// POTENTIALLY INSECURE; Allocs a new string and copies all bytes INCLUDING nul terminator to new string
 	/// </summary>
 	char* (*DuplicateTerminated)(const char* source);
+	/// <summary>
+	/// Returns true(1) if the target string was found within the source string 
+	/// </summary>
+	bool(*Contains)(const char* source, size_t length, const char* target, const size_t targetLength);
 };
 
 extern const struct _stringMethods Strings;

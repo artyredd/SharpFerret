@@ -10,13 +10,15 @@ static void ToUpper(char* buffer, size_t bufferLength, size_t offset);
 static size_t Trim(char* buffer, const size_t bufferLength);
 static char* Duplicate(const char* source, size_t length);
 static char* DuplicateTerminated(const char* source);
+static bool Contains(const char* source, size_t length, const char* target, const size_t targetLength);
 
 const struct _stringMethods Strings = {
 	.ToUpper = &ToUpper,
 	.ToLower = &ToLower,
 	.Trim = &Trim,
 	.Duplicate = &Duplicate,
-	.DuplicateTerminated = &DuplicateTerminated
+	.DuplicateTerminated = &DuplicateTerminated,
+	.Contains = &Contains
 };
 
 static void ToLower(char* buffer, size_t bufferLength, size_t offset)
@@ -104,4 +106,24 @@ static char* DuplicateTerminated(const char* source)
 	//result[length] = '\0';
 
 	return result;
+}
+
+static bool Contains(const char* source, size_t length, const char* target, const size_t targetLength)
+{
+	if (source is null || target is null)
+	{
+		return false;
+	}
+
+	for (size_t start = 0; start < min(length - targetLength, max(length - targetLength, 0)); start++)
+	{
+		const char* buffer = source + start;
+
+		if (memcmp(buffer, target, targetLength) is 0)
+		{
+			return true;
+		}
+	}
+
+	return false;
 }
