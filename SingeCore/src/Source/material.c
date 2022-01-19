@@ -213,14 +213,30 @@ static void PrepareSettings(Shader shader, mat4 modelMatrix, mat4 mvpMatrix)
 		GraphicsDevice.DisableBlending();
 	}
 
-	// should this object's fragments write values to the stencil buffer?
-	if (HasFlag(settings, ShaderSettings.WriteToStencilBuffer))
+	if (HasFlag(settings, ShaderSettings.UseStencilBuffer))
 	{
-		GraphicsDevice.EnableStencilWriting();
+		if (HasFlag(settings, ShaderSettings.CustomStencilAttributes))
+		{
+			GraphicsDevice.SetStencilFull(shader->StencilFunction, shader->StencilValue, shader->StencilMask);
+		}
+		else
+		{
+			GraphicsDevice.ResetStencilFunction();
+		}
+
+		// should this object's fragments write values to the stencil buffer?
+		if (HasFlag(settings, ShaderSettings.WriteToStencilBuffer))
+		{
+			GraphicsDevice.EnableStencilWriting();
+		}
+		else
+		{
+			GraphicsDevice.DisableStencilWriting();
+		}
 	}
 	else
 	{
-		GraphicsDevice.DisableStencilWriting();
+		GraphicsDevice.ResetStencilFunction();
 	}
 
 	// should this object's fragments use the depth test to determine if they appear over/under other fragments?

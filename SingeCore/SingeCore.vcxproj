@@ -275,6 +275,7 @@
     <None Include="assets\materials\debugOrientationGUI.material" />
     <None Include="assets\materials\default.material" />
     <None Include="assets\materials\guiMaterial.material" />
+    <None Include="assets\materials\outlineMaterial.material" />
     <None Include="assets\materials\textMaterial.material" />
     <None Include="assets\materials\textureMaterial.material" />
     <None Include="assets\materials\uvMaterial.material" />
@@ -283,10 +284,14 @@
     <None Include="assets\prefabs\cube.gameobject" />
     <None Include="assets\prefabs\room.gameobject" />
     <None Include="assets\shaders\ColorUV.fragmentshader" />
+    <None Include="assets\shaders\default.shader" />
     <None Include="assets\shaders\DistanceGlow.fragmentshader" />
     <None Include="assets\shaders\DistanceGlow.vertexshader" />
     <None Include="assets\shaders\guiShader" />
     <None Include="assets\shaders\GUIShader.vertexshader" />
+    <None Include="assets\shaders\outlineShader.fragmentshader" />
+    <None Include="assets\shaders\outlineShader.shader" />
+    <None Include="assets\shaders\outlineShader.vertexshader" />
     <None Include="assets\shaders\shaderFormat.shader" />
     <None Include="assets\shaders\SimpleFragmentShader.fragmentshader" />
     <None Include="assets\shaders\SimpleVertexShader.vertexshader" />

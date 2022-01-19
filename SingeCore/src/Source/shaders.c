@@ -46,7 +46,8 @@ const struct _shaderMethods Shaders = {
 #define UseTransparencyFlag FLAG_2
 #define WriteToStencilBufferFlag FLAG_3
 #define UseDepthTestFlag FLAG_4
-#define CustomStencilAttributesFlag FLAG_5
+#define UseStencilBufferFlag FLAG_5
+#define CustomStencilAttributesFlag FLAG_6
 
 #define DEFAULT_SHADER_SETTINGS 0 //(UseCameraPerspectiveFlag | UseCullingFlag)
 
@@ -56,7 +57,8 @@ const struct _shaderSettings ShaderSettings = {
 	.Transparency = UseTransparencyFlag,
 	.WriteToStencilBuffer = WriteToStencilBufferFlag,
 	.UseDepthTest = UseDepthTestFlag,
-	.CustomStencilAttributes = CustomStencilAttributesFlag
+	.CustomStencilAttributes = CustomStencilAttributesFlag,
+	.UseStencilBuffer = UseStencilBufferFlag
 };
 
 static void OnDispose(Shader shader)

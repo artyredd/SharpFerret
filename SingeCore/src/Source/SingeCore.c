@@ -117,6 +117,8 @@ int main()
 
 	Material textureMaterial = Materials.Load("assets/materials/debugOrientationGUI.material");
 
+	Material outlineMaterial = Materials.Load("assets/materials/outlineMaterial.material");
+
 	Camera camera = Cameras.CreateCamera();
 
 	// bind a vertex array for OpenGL this is required to render objects
@@ -207,7 +209,10 @@ int main()
 
 	float amount = 0;
 
+
+	GameObjects.SetMaterial(cube, outlineMaterial);
 	Materials.SetColor(cube->Material, Colors.Red);
+
 	Materials.SetColor(car->Material, Colors.Green);
 
 	GameObjects.Save(cube, "assets/prefabs/cube.gameobject");
@@ -326,19 +331,19 @@ int main()
 
 		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-		GraphicsDevice.EnableStencilWriting();
-		GraphicsDevice.SetStencil(Comparisons.Always);
+		/*GraphicsDevice.EnableStencilWriting();
+		GraphicsDevice.SetStencil(Comparisons.Always);*/
 		GameObjects.Draw(cube, camera);
 
-		GraphicsDevice.DisableStencilWriting();
-		GraphicsDevice.SetStencil(Comparisons.NotEqual);
-		GraphicsDevice.DisableDepthTesting();
+		//GraphicsDevice.DisableStencilWriting();
+		//GraphicsDevice.SetStencil(Comparisons.NotEqual);
+		//GraphicsDevice.DisableDepthTesting();
 
-		GameObjects.Draw(otherCube, camera);
+		//GameObjects.Draw(otherCube, camera);
 
-		GraphicsDevice.EnableDepthTesting();
+		/*GraphicsDevice.EnableDepthTesting();
 		GraphicsDevice.EnableStencilWriting();
-		GraphicsDevice.SetStencil(Comparisons.Always);
+		GraphicsDevice.SetStencil(Comparisons.Always);*/
 
 		GameObjects.Draw(car, camera);
 		GameObjects.Draw(ball, camera);
@@ -373,6 +378,7 @@ int main()
 	Materials.Dispose(textMaterial);
 	Materials.Dispose(defaultMaterial);
 	Materials.Dispose(textureMaterial);
+	Materials.Dispose(outlineMaterial);
 
 	Cameras.Dispose(camera);
 

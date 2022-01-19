@@ -9,3 +9,8 @@ enableBackfaceCulling: true
 
 # whether or not this shader should use camera perspective, (GUI elements for example shouldnt)
 useCameraPerspective: true
+
+enableDepthTesting: true
+
+useStencilBuffer: true
+writeToStencilBuffer: true

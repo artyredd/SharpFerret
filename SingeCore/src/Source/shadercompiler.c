@@ -443,7 +443,7 @@ static const char* Tokens[] = {
 	UseCameraPerspectiveToken,
 	UseTransparencyToken,
 	UseDepthTestToken,
-	UseStencilBufferToken
+	UseStencilBufferToken,
 	WriteToStencilBufferToken,
 	UseCustomStencilAttributesToken,
 	CustomStencilFuncionToken,

@@ -388,5 +388,20 @@
     <None Include="assets\prefabs\room.gameobject">
       <Filter>Resource Files\Prefabs</Filter>
     </None>
+    <None Include="assets\shaders\outlineShader.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\outlineShader.fragmentshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\outlineShader.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\materials\outlineMaterial.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\shaders\default.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
