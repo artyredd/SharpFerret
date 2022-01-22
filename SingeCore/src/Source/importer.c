@@ -7,7 +7,6 @@
 #include <string.h>
 #include "modeling/model.h"
 #include "singine/memory.h"
-#include "cunit.h"
 #include "math/vectors.h"
 #include "singine/parsing.h"
 #include "singine/strings.h"
@@ -109,27 +108,6 @@ static FileBuffer CreateFileBuffer(char* streamBuffer, size_t characterBufferSiz
 	return buffer;
 }
 
-static bool CompareStrings(const char* left, size_t leftLength, const char* right, size_t rightLength)
-{
-	GuardNotNull(left);
-	GuardNotNull(right);
-
-	if (leftLength != rightLength)
-	{
-		return false;
-	}
-
-	for (size_t i = 0; i < min(leftLength, rightLength); i++)
-	{
-		if (left[i] isnt right[i])
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-
 // forgive me
 static bool TryGetVectorPattern(File stream,
 	char* buffer,
@@ -184,7 +162,7 @@ static bool TryGetVectorPattern(File stream,
 		// if we encounter the abort pattern we should stop parsing
 		// this is needed becuase we may want to parse for vector 2's but a vec2 parser wont fail to parse a string
 		// that contains a vector3 as a vector2
-		if (CompareStrings(abortPattern, abortLength, buffer, min(abortLength, length)))
+		if (Strings.Equals(abortPattern, abortLength, buffer, min(abortLength, length)))
 		{
 			break;
 		}
@@ -385,17 +363,17 @@ static bool TryCountElements(File stream, char* buffer, size_t bufferLength, siz
 			continue;
 		}
 
-		if (CompareStrings(Sequences.Vertex, vertexSequenceLength, buffer, min(vertexSequenceLength, lineLength)))
+		if (Strings.Equals(Sequences.Vertex, vertexSequenceLength, buffer, min(vertexSequenceLength, lineLength)))
 		{
 			++vertices;
 			continue;
 		}
-		if (CompareStrings(Sequences.TextureVertex, texturesSequenceLength, buffer, min(texturesSequenceLength, lineLength)))
+		if (Strings.Equals(Sequences.TextureVertex, texturesSequenceLength, buffer, min(texturesSequenceLength, lineLength)))
 		{
 			++textures;
 			continue;
 		}
-		if (CompareStrings(Sequences.NormalVertex, normalsSequenceLength, buffer, min(normalsSequenceLength, lineLength)))
+		if (Strings.Equals(Sequences.NormalVertex, normalsSequenceLength, buffer, min(normalsSequenceLength, lineLength)))
 		{
 			++normals;
 			continue;

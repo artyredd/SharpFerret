@@ -126,7 +126,7 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	GameObject room = GameObjects.Load("assets/prefabs/house.gameobject");
+	GameObject room = GameObjects.Load("assets/prefabs/room.gameobject");
 
 	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
 	Fonts.SetMaterial(font, textMaterial);
@@ -211,22 +211,12 @@ int main()
 
 	float amount = 0;
 
-
 	GameObjects.SetMaterial(cube, outlineMaterial);
 	Materials.SetColor(cube->Material, Colors.Red);
 
 	Materials.SetColor(car->Material, Colors.Green);
 
-	GameObjects.Save(cube, "assets/prefabs/cube.gameobject");
-	GameObjects.Save(ball, "assets/prefabs/ball.gameobject");
-	GameObjects.Save(car, "assets/prefabs/car.gameobject");
-	GameObjects.Save(room, "assets/prefabs/room.gameobject");
-
-
 	GameObject otherCube = GameObjects.Duplicate(cube);
-
-	//Transforms.SetParent(otherCube->Transform, cube->Transform);
-	//Transforms.SetPositions(otherCube->Transform, 0, 0, 0);
 
 	GameObjects.SetMaterial(otherCube, defaultMaterial);
 	Transforms.ScaleAll(otherCube->Transform, 1.2f);
@@ -331,21 +321,7 @@ int main()
 
 		Transforms.SetPosition(camera->Transform, position);
 
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-		/*GraphicsDevice.EnableStencilWriting();
-		GraphicsDevice.SetStencil(Comparisons.Always);*/
 		GameObjects.Draw(cube, camera);
-
-		//GraphicsDevice.DisableStencilWriting();
-		//GraphicsDevice.SetStencil(Comparisons.NotEqual);
-		//GraphicsDevice.DisableDepthTesting();
-
-		//GameObjects.Draw(otherCube, camera);
-
-		/*GraphicsDevice.EnableDepthTesting();
-		GraphicsDevice.EnableStencilWriting();
-		GraphicsDevice.SetStencil(Comparisons.Always);*/
 
 		GameObjects.Draw(car, camera);
 		GameObjects.Draw(ball, camera);

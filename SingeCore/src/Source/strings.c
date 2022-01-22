@@ -11,6 +11,7 @@ static size_t Trim(char* buffer, const size_t bufferLength);
 static char* Duplicate(const char* source, size_t length);
 static char* DuplicateTerminated(const char* source);
 static bool Contains(const char* source, size_t length, const char* target, const size_t targetLength);
+static bool Equals(const char* left, size_t leftLength, const char* right, size_t rightLength);
 
 const struct _stringMethods Strings = {
 	.ToUpper = &ToUpper,
@@ -18,7 +19,8 @@ const struct _stringMethods Strings = {
 	.Trim = &Trim,
 	.Duplicate = &Duplicate,
 	.DuplicateTerminated = &DuplicateTerminated,
-	.Contains = &Contains
+	.Contains = &Contains,
+	.Equals = &Equals
 };
 
 static void ToLower(char* buffer, size_t bufferLength, size_t offset)
@@ -126,4 +128,31 @@ static bool Contains(const char* source, size_t length, const char* target, cons
 	}
 
 	return false;
+}
+
+static bool Equals(const char* left, size_t leftLength, const char* right, size_t rightLength)
+{
+	// if both strings have different lengths they can not be the same
+	if (leftLength isnt rightLength)
+	{
+		return false;
+	}
+
+	// if both the lengths are the same AND both strings point to the same address they have to be equal
+	// including null and 0
+	if (left is right)
+	{
+		return true;
+	}
+
+	// if both the lengths are the same and the pointers aren't equal to eachother, ensure neither are null
+	// a non-null pointer and a null pointer can never be equal
+	if (left is null || right is null)
+	{
+		return false;
+	}
+
+	// at this point we know both pointers are not null, aren't eachother, and are the same length
+	// compare each byte to verify they are the same
+	return memcmp(left, right, leftLength) is 0;
 }

@@ -21,6 +21,10 @@ struct _stringMethods {
 	/// Returns true(1) if the target string was found within the source string 
 	/// </summary>
 	bool(*Contains)(const char* source, size_t length, const char* target, const size_t targetLength);
+	/// <summary>
+	/// Returns true if both strings contain the same bytes, supports null and same reference strings
+	/// </summary>
+	bool (*Equals)(const char* left, size_t leftLength, const char* right, size_t rightLength);
 };
 
 extern const struct _stringMethods Strings;
