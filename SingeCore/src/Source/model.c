@@ -11,25 +11,19 @@ const struct _modelMethods Models = {
 
 static void DisposeModel(Model model)
 {
-	if (model->Head != null)
+	if (model isnt null)
 	{
-		Mesh head = model->Head;
-		while (head != null)
+		for (size_t i = 0; i < model->Count; i++)
 		{
-			Mesh tmp = head;
+			Mesh tmp = model->Meshes[i];
 
-			head = head->Next;
-
-			SafeFree(tmp->Vertices);
-			SafeFree(tmp->TextureVertices);
-			SafeFree(tmp->Normals);
-			SafeFree(tmp->Name);
-
-			SafeFree(tmp);
+			Meshes.Dispose(tmp);
 		}
-	}
 
-	SafeFree(model->Name);
+		SafeFree(model->Meshes);
+
+		SafeFree(model->Name);
+	}
 
 	SafeFree(model);
 }

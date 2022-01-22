@@ -15,6 +15,8 @@ static void Dispose(Mesh mesh)
 	SafeFree(mesh->Vertices);
 	SafeFree(mesh->Normals);
 	SafeFree(mesh->TextureVertices);
+	SafeFree(mesh->Name);
+	SafeFree(mesh->MaterialName);
 	SafeFree(mesh);
 }
 
@@ -22,17 +24,9 @@ static Mesh CreateMesh(void)
 {
 	Mesh mesh = SafeAlloc(sizeof(struct _mesh));
 
-	mesh->Name = null;
-
-	mesh->Normals = null;
-	mesh->Vertices = null;
-	mesh->TextureVertices = null;
-
-	mesh->NormalCount = 0;
 	mesh->VertexCount = 0;
-	mesh->TextureCount = 0;
-
-	mesh->Next = null;
+	mesh->MaterialName = null;
+	mesh->NormalCount = 0;
 
 	return mesh;
 }

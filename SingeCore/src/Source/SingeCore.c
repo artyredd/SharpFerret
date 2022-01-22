@@ -126,14 +126,14 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
+	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
+
 	GameObject room = GameObjects.Load("assets/prefabs/room.gameobject");
 
 	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
 	Fonts.SetMaterial(font, textMaterial);
 
 	GameObject ball = GameObjects.Load("assets/prefabs/ball.gameobject");
-
-	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = GameObjects.Load("assets/prefabs/car.gameobject");

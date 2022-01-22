@@ -84,6 +84,11 @@ void* SafeCalloc(size_t nitems, size_t size)
 
 void* SafeAlloc(size_t size)
 {
+	if (size is 0)
+	{
+		return null;
+	}
+
 	void* ptr = calloc(1, size);
 
 	if (ptr is null)
@@ -217,7 +222,7 @@ static void PrintGroupedNumber(FILE* stream, size_t value)
 		1000 * 1000 * 1000,
 		(size_t)1000 * 1000 * 1000 * 1000,
 	#endif
-};
+	};
 
 
 

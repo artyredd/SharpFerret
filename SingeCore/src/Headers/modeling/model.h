@@ -10,8 +10,7 @@ struct _model {
 	/// The number of meshes that this model contains
 	/// </summary>
 	size_t Count;
-	Mesh Head;
-	Mesh Tail;
+	Mesh* Meshes;
 };
 
 struct _modelMethods {

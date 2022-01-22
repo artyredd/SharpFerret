@@ -93,7 +93,7 @@ static void Draw(RenderMesh model)
 
 	// the entire mesh pipling ive written handles up to size_t
 	// its casted down to int here for DrawArrays
-	// this may cause issues at this line for models with > 65565 triangles
+	// this may cause issues at this line for models with > 32767 triangles
 	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)model->NumberOfTriangles);
 
 	glDisableVertexAttribArray(VertexShaderPosition);
@@ -247,17 +247,12 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 	InstancedResource name = InstancedResources.Create();
 	name->Resource = sharedName;
 
-	Mesh next = model->Head;
-	size_t index = 0;
-	while (next != null)
+	for (size_t i = 0; i < model->Count; i++)
 	{
-		if (index >= model->Count)
-		{
-			throw(IndexOutOfRangeException);
-		}
+		Mesh mesh = model->Meshes[i];
 
 		RenderMesh newMesh;
-		if (RenderMeshes.TryBindMesh(next, &newMesh) is false)
+		if (RenderMeshes.TryBindMesh(mesh, &newMesh) is false)
 		{
 			SafeFree(meshesArray);
 			return false;
@@ -265,9 +260,7 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 
 		newMesh->Name = name;
 
-		meshesArray[index++] = newMesh;
-
-		next = next->Next;
+		meshesArray[i] = newMesh;
 	}
 
 	*out_meshArray = meshesArray;

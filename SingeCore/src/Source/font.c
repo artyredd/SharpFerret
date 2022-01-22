@@ -93,13 +93,11 @@ static void CalculateAndAssignFontSizes(Font font)
 
 static void CreateCharactersFromModel(Font font, Model model)
 {
-	size_t count = 0;
-	Mesh mesh = model->Head;
-
 	bool assignedStart = false;
-
-	while (mesh != null)
+	for (size_t i = 0; i < model->Count; i++)
 	{
+		Mesh mesh = model->Meshes[i];
+
 		FontCharacter character = FontCharacters.Create(mesh);
 
 		if (character isnt null)
@@ -122,14 +120,10 @@ static void CreateCharactersFromModel(Font font, Model model)
 			{
 				font->MaxY = character->MaxY;
 			}
-
-			++(count);
 		}
-
-		mesh = mesh->Next;
 	}
 
-	font->Count = count;
+	font->Count = model->Count;
 }
 
 static Font Create(Model model)
@@ -142,12 +136,7 @@ static Font Create(Model model)
 	font->ActiveInstances = 1;
 
 	// memset null into the entire character array so consumers can rely on unavailable characters being null and not garbage
-	//memset(font->Characters, 0, MAX_SUPPORTED_CHARACTERS);
-	// apprently memset doesn't set over 10,000 characters on my system so i did it manually
-	for (size_t i = 0; i < MAX_SUPPORTED_CHARACTERS; i++)
-	{
-		font->Characters[i] = null;
-	}
+	memset(font->Characters, 0, MAX_SUPPORTED_CHARACTERS * sizeof(FontCharacter));
 
 	// instead of trusting the models count as chaarcter size count as they are processed
 	// since not all characters are gaurunteed to have all attriute required to draw them and are thrown out
