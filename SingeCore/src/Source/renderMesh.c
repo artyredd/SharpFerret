@@ -91,6 +91,15 @@ static void Draw(RenderMesh model)
 		LoadAttributeBuffer(NormalShaderPosition, model->NormalBuffer->Handle, 3);
 	}
 
+	if (model->ShadeSmooth)
+	{
+		glShadeModel(GL_SMOOTH);
+	}
+	else
+	{
+		glShadeModel(GL_FLAT);
+	}
+
 	// the entire mesh pipling ive written handles up to size_t
 	// its casted down to int here for DrawArrays
 	// this may cause issues at this line for models with > 32767 triangles
@@ -183,6 +192,8 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 	}
 
 	model->NumberOfTriangles = mesh->VertexCount / 3;
+
+	model->ShadeSmooth = mesh->SmoothingEnabled;
 
 	*out_model = model;
 

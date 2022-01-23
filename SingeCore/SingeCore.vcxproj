@@ -192,7 +192,7 @@
     <ClCompile Include="src\Source\config.c" />
     <ClCompile Include="src\Source\instancedResource.c" />
     <ClCompile Include="src\Source\ints.c" />
-    <ClCompile Include="src\Source\range,c.cpp" />
+    <ClCompile Include="src\Source\range.c" />
     <ClCompile Include="src\Source\strings.c" />
     <ClCompile Include="src\Source\cunit.c" />
     <ClCompile Include="src\Source\file.c" />

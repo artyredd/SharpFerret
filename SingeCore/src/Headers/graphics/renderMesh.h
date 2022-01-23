@@ -22,6 +22,9 @@ struct _renderMesh {
 	SharedHandle UVBuffer;
 	SharedHandle NormalBuffer;
 
+	// Whether or not the mesh should be rendered smooth
+	bool ShadeSmooth;
+
 	size_t NumberOfTriangles;
 	Transform Transform;
 };

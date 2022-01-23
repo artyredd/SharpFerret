@@ -177,7 +177,7 @@
     <ClCompile Include="src\Source\instancedResource.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Source\range,c.cpp">
+    <ClCompile Include="src\Source\range.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>

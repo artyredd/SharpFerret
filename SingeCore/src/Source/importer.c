@@ -10,6 +10,7 @@
 #include "math/vectors.h"
 #include "singine/parsing.h"
 #include "singine/strings.h"
+#include "cglm/vec3.h"
 
 typedef int Token;
 typedef const char* Sequence;
@@ -88,8 +89,7 @@ struct _fileBuffer {
 
 static bool TryImportModel(char* path, FileFormat format, Model* out_model);
 static Model ImportModel(char* path, FileFormat format);
-
-extern const struct _modelImporterMethods Importers = {
+const struct _modelImporterMethods Importers = {
 	.TryImport = &TryImportModel,
 	.Import = &ImportModel
 };
@@ -332,8 +332,22 @@ static bool TryParseFace(const char* buffer, size_t* out_attributes)
 	return count == 6;
 }
 
+// does not mutate the provided vector
+// ignore unreferenced param
+#pragma warning(disable: 4100)
+static void VoidMutate(float* vector) { /* no action */ }
+#pragma warning(default: 4100)
+
 // this is a monolith, i apologize, but the alternative with additional stack frames was significantly slower and was a bottle neck
-static bool TryParseObjects(File stream, char* buffer, const size_t bufferLength, struct _elementCounts* counts, struct _bufferCollection* buffers)
+static bool TryParseObjects(File stream,
+	char* buffer,
+	const size_t bufferLength,
+	struct _elementCounts* counts,
+	struct _bufferCollection* buffers,
+	void (*MutateVertex)(float* vertex),
+	void (*MutateTexture)(float* texture),
+	void (*MutateNormal)(float* normal)
+)
 {
 	Mesh currentMesh = null;
 
@@ -424,6 +438,8 @@ static bool TryParseObjects(File stream, char* buffer, const size_t bufferLength
 					return false;
 				}
 
+				MutateTexture(vector);
+
 				// move the index over by the number of floats we wrote
 				buffers->TextureIndex += 2;
 				textureCount += 2;
@@ -443,6 +459,8 @@ static bool TryParseObjects(File stream, char* buffer, const size_t bufferLength
 					return false;
 				}
 
+				MutateNormal(vector);
+
 				// move the index over by the number of floats we wrote
 				buffers->NormalIndex += 3;
 				normalCount += 3;
@@ -461,6 +479,8 @@ static bool TryParseObjects(File stream, char* buffer, const size_t bufferLength
 					Meshes.Dispose(currentMesh);
 					return false;
 				}
+
+				MutateVertex(vector);
 
 				// move the index over by the number of floats we wrote
 				buffers->VertexIndex += 3;
@@ -590,20 +610,13 @@ static bool TryParseObjects(File stream, char* buffer, const size_t bufferLength
 // buffer to keep the face counts
 size_t FaceCounts[MAX_FACES];
 
-static bool TryImportModel(char* path, FileFormat format, Model* out_model)
+static bool TryImportModelStream(File stream,
+	Model* out_model,
+	void (*MutateVertex)(float* vertex),
+	void (*MutateTexture)(float* texture),
+	void (*MutateNormal)(float* normal)
+)
 {
-	// make sure the format is supported
-	if (VerifyFormat(format) is false)
-	{
-		return false;
-	}
-
-	// open the path
-	File stream;
-	if (Files.TryOpen(path, FileModes.ReadBinary, &stream) is false)
-	{
-		return false;
-	}
 
 	char streamBuffer[BUFFER_SIZE];
 
@@ -621,7 +634,10 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 	ZeroArray(FaceCounts, MAX_FACES * sizeof(size_t));
 
 	// count the occurences of the elements within the file
-	if (TryCountElements(stream, streamBuffer, BUFFER_SIZE, &elementCounts) is false)
+	if (TryCountElements(stream,
+		streamBuffer,
+		BUFFER_SIZE,
+		&elementCounts) is false)
 	{
 		Files.TryClose(stream);
 		// if we were not able to count all the elements we should return false, something weird happened
@@ -642,7 +658,11 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 		.TextureIndex = 0
 	};
 
-	if (TryParseObjects(stream, streamBuffer, BUFFER_SIZE, &elementCounts, &buffers) is false)
+	if (TryParseObjects(stream, streamBuffer, BUFFER_SIZE, &elementCounts, &buffers,
+		MutateVertex is null ? &VoidMutate : MutateVertex,
+		MutateTexture is null ? &VoidMutate : MutateTexture,
+		MutateNormal is null ? &VoidMutate : MutateNormal
+	) is false)
 	{
 		SafeFree(meshes);
 		DisposeBufferCollection(&buffers);
@@ -661,10 +681,29 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 	// make sure to dispose the buffer collection when we are done
 	DisposeBufferCollection(&buffers);
 
-	if (Files.TryClose(stream) is false)
-	{
-		Models.Dispose(model);
+	*out_model = model;
 
+	return true;
+}
+
+static bool TryImportModel(char* path, FileFormat format, Model* out_model)
+{
+	// make sure the format is supported
+	if (VerifyFormat(format) is false)
+	{
+		return false;
+	}
+
+	// open the path
+	File stream;
+	if (Files.TryOpen(path, FileModes.ReadBinary, &stream) is false)
+	{
+		return false;
+	}
+
+	Model model;
+	if (TryImportModelStream(stream, &model, null, null, null) is false)
+	{
 		return false;
 	}
 
@@ -672,6 +711,13 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 	model->Name = Strings.DuplicateTerminated(path);
 
 	*out_model = model;
+
+	if (Files.TryClose(stream) is false)
+	{
+		Models.Dispose(model);
+
+		return false;
+	}
 
 	return true;
 }
