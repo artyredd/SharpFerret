@@ -16,6 +16,10 @@ struct _fpsCameraScript FPSCamera = {
 	.InvertX = DEFAULT_INVERTX,
 	.InvertY = DEFAULT_INVERTY,
 	.InvertAxes = DEFAULT_INVERT_AXES,
+	.VerticalLimits = {
+		DEFAULT_VERTICAL_MIN * GLM_PI,
+		DEFAULT_VERTICAL_MAX * GLM_PI
+	},
 	.State = {
 		.HorizontalAngle = DEFAULT_HORIZONTAL_ANGLE * GLM_PI,
 		.VerticalAngle = DEFAULT_VERTICAL_ANGLE * GLM_PI
@@ -35,6 +39,16 @@ void Update(Camera camera)
 
 	FPSCamera.State.HorizontalAngle += xAxis * DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseXSensitivity;
 	FPSCamera.State.VerticalAngle += yAxis * DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseYSensitivity;
+
+	// make sure the camera can't be flipped upside down
+	if (FPSCamera.State.VerticalAngle > FPSCamera.VerticalLimits.Maximum)
+	{
+		FPSCamera.State.VerticalAngle = FPSCamera.VerticalLimits.Maximum;
+	}
+	else if (FPSCamera.State.VerticalAngle < FPSCamera.VerticalLimits.Minimum)
+	{
+		FPSCamera.State.VerticalAngle = FPSCamera.VerticalLimits.Minimum;
+	}
 
 	// create a quaternion that represents spinning around the Y axis(horizontally spinning)
 	glm_quat(FPSCamera.State.HorizontalRotation, (float)FPSCamera.State.HorizontalAngle, 0, 1, 0);

@@ -335,9 +335,10 @@ int main()
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
 
+		DebugCameraPosition(camera);
+
 		PollInput();
 
-		//fprintf(stdout,"Total: %0.4fs	FrameTime: %0.4fms"NEWLINE, Time(), FrameTime() * 1000.0);
 	} while (GetKey(KeyCodes.Escape) != true && Windows.ShouldClose(window) != true);
 
 	Texts.Dispose(text);
