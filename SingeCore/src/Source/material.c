@@ -14,6 +14,7 @@
 #include "graphics/shadercompiler.h"
 #include "singine/strings.h"
 #include "graphics/scene.h"
+#include "math/floats.h"
 
 static void Dispose(Material material);
 static Material Create(const Shader shader, const Texture texture);
@@ -386,12 +387,20 @@ static void SetName(Material material, const char* name)
 #define ExportTokenFormat "%s: %s\n"
 #define ExportCommentFormat "%s\n"
 
-#define ShaderTokenComment "# the array of shaders that should be loaded for this material"
+#define ShaderTokenComment "# path array delimited by ','; the array of shaders that should be loaded for this material"
 #define ShaderToken "shaders"
-#define ColorTokenComment "# the material base color"
+#define ColorTokenComment "# vec4; the material base color"
 #define ColorToken "color"
-#define MainTextureComment "# the main UV texture that should be used for this material"
+#define MainTextureComment "# path; the main UV texture that should be used for this material"
 #define MainTextureToken "mainTexture"
+#define SpecularTextureComment "# path; the texture that should be used to determine what parts of this material are shiny"
+#define SpecularTextureToken "specularMap"
+#define SpecularColorComment "# vec4; the color that specular highlights should be"
+#define SpecularColorToken "specular"
+#define AmbientColorComment "# vec4; the ambient color this object should be when exposed to no light"
+#define AmbientColorToken "ambient"
+#define ShininessComment "# float [0-1]; How shiny the material should be"
+#define ShininessToken "shininess"
 
 #define MAX_PATH_LENGTH 512
 
@@ -401,19 +410,31 @@ struct _materialDefinition
 	size_t* ShaderPathLengths;
 	size_t ShaderCount;
 	Color Color;
+	Color Specular;
+	char* SpecularTexturePath;
 	char* MainTexturePath;
+	Color Ambient;
+	float Shininess;
 };
 
-static const char* Tokens[TokenCount] = {
+static const char* Tokens[] = {
 	ShaderToken,
 	ColorToken,
-	MainTextureToken
+	MainTextureToken,
+	SpecularTextureToken,
+	SpecularColorToken,
+	AmbientColorToken,
+	ShininessToken
 };
 
-static const size_t TokenLengths[TokenCount] = {
+static const size_t TokenLengths[] = {
 	sizeof(ShaderToken),
 	sizeof(ColorToken),
-	sizeof(MainTextureToken)
+	sizeof(MainTextureToken),
+	sizeof(SpecularTextureToken),
+	sizeof(SpecularColorToken),
+	sizeof(AmbientColorToken),
+	sizeof(ShininessToken)
 };
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _materialDefinition* state)
@@ -426,6 +447,14 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 		return Vector4s.TryDeserialize(buffer, length, state->Color);
 	case 2: //  main texture
 		return TryParseString(buffer, length, MAX_PATH_LENGTH, &state->MainTexturePath);
+	case 3: // specular texture
+		return TryParseString(buffer, length, MAX_PATH_LENGTH, &state->SpecularTexturePath);
+	case 4: // specular color
+		return Vector4s.TryDeserialize(buffer, length, state->Specular);
+	case 5: // ambient color
+		return Vector4s.TryDeserialize(buffer, length, state->Ambient);
+	case 6: // shininess
+		return Floats.TryDeserialize(buffer, length, &state->Shininess);
 	default:
 		return false;
 	}
@@ -451,10 +480,13 @@ static Material Load(const char* path)
 
 	struct _materialDefinition state = {
 		.Color = {1, 1, 1, 1},
+		.Ambient = { 0, 0, 0, 1},
+		.Specular = { 1, 1, 1, 1},
 		.ShaderCount = 0,
 		.ShaderPathLengths = null,
 		.ShaderPaths = null,
-		.MainTexturePath = null
+		.MainTexturePath = null,
+		.SpecularTexturePath = null
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, &state))
@@ -464,7 +496,10 @@ static Material Load(const char* path)
 		{
 			material = CreateMaterial();
 
+			// copy all the colors over to the result material
 			Vectors4CopyTo(state.Color, material->Color);
+			Vectors4CopyTo(state.Specular, material->SpecularColor);
+			Vectors4CopyTo(state.Ambient, material->AmbientColor);
 
 			size_t shaderCount = state.ShaderCount;
 
@@ -524,6 +559,23 @@ static Material Load(const char* path)
 
 				Images.Dispose(image);
 			}
+
+			if (state.SpecularTexturePath isnt null)
+			{
+				Image image;
+				if (Images.TryLoadImage(state.SpecularTexturePath, &image))
+				{
+					Texture texture;
+					if (Textures.TryCreateTexture(image, &texture))
+					{
+						Materials.SetSpecularTexture(material, texture);
+					}
+
+					Textures.Dispose(texture);
+				}
+
+				Images.Dispose(image);
+			}
 		}
 	}
 
@@ -533,6 +585,8 @@ static Material Load(const char* path)
 	}
 
 	SafeFree(state.MainTexturePath);
+
+	SafeFree(state.SpecularTexturePath);
 
 	SafeFree(state.ShaderPathLengths);
 
@@ -571,7 +625,7 @@ static bool Save(const Material material, const char* path)
 		}
 	}
 
-	fprintf(file, "\n");
+	fprintf(file, NEWLINE);
 
 	fprintf(file, ExportCommentFormat, ColorTokenComment);
 	fprintf(file, "%s: ", ColorToken);
@@ -581,12 +635,38 @@ static bool Save(const Material material, const char* path)
 		return false;
 	}
 
-	fprintf(file, "%c", '\n');
+	fprintf(file, NEWLINE);
+
+	fprintf(file, ExportCommentFormat, SpecularColorComment);
+	fprintf(file, "%s: ", SpecularColorToken);
+
+	if (Vector4s.TrySerializeStream(file, material->SpecularColor) is false)
+	{
+		return false;
+	}
+
+	fprintf(file, NEWLINE);
+
+	fprintf(file, ExportCommentFormat, AmbientColorComment);
+	fprintf(file, "%s: ", AmbientColorToken);
+
+	if (Vector4s.TrySerializeStream(file, material->AmbientColor) is false)
+	{
+		return false;
+	}
+
+	fprintf(file, NEWLINE);
 
 	if (material->MainTexture isnt null)
 	{
 		fprintf(file, ExportCommentFormat, MainTextureComment);
 		fprintf(file, ExportTokenFormat, MainTextureToken, material->MainTexture->Path);
+	}
+
+	if (material->SpecularTexture isnt null)
+	{
+		fprintf(file, ExportCommentFormat, SpecularTextureComment);
+		fprintf(file, ExportTokenFormat, SpecularTextureToken, material->SpecularTexture->Path);
 	}
 
 	return Files.TryClose(file);

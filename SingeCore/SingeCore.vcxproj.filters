@@ -183,6 +183,9 @@
     <ClCompile Include="src\Source\scene.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Source\floats.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">
@@ -319,6 +322,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\graphics\light.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\math\floats.h">
+      <Filter>Header Files\Math</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
