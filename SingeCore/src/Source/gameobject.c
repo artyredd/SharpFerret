@@ -14,10 +14,10 @@ Material DefaultMaterial = null;
 static GameObject Duplicate(GameObject);
 static void SetName(GameObject, char* name);
 static void Dispose(GameObject);
-static void Draw(GameObject, Camera);
+static void Draw(GameObject, Scene);
 static GameObject CreateGameObject(void);
 static void SetMaterial(GameObject, Material);
-static void DrawMany(GameObject* array, size_t count, Camera camera);
+static void DrawMany(GameObject* array, size_t count, Scene camera);
 static void DestroyMany(GameObject* array, size_t count);
 static Material GetDefaultMaterial(void);
 static void SetDefaultMaterial(Material);
@@ -186,7 +186,7 @@ static void SetMaterial(GameObject gameobject, Material material)
 	gameobject->Material = Materials.Instance(material);
 }
 
-static void Draw(GameObject gameobject, Camera camera)
+static void Draw(GameObject gameobject, Scene scene)
 {
 	// since it's more than  likely the gameobject itself is the parent to all of the transforms
 	// it controls we should refresh it's transform first
@@ -201,15 +201,15 @@ static void Draw(GameObject gameobject, Camera camera)
 			continue;
 		}
 
-		Materials.Draw(gameobject->Material, mesh, camera);
+		Materials.Draw(gameobject->Material, mesh, scene);
 	}
 }
 
-static void DrawMany(GameObject* array, size_t count, Camera camera)
+static void DrawMany(GameObject* array, size_t count, Scene scene)
 {
 	for (size_t i = 0; i < count; i++)
 	{
-		Draw(array[i], camera);
+		Draw(array[i], scene);
 	}
 }
 

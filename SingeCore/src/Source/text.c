@@ -6,7 +6,7 @@
 static Text Create(void);
 static Text CreateText(Font font, char* string, size_t size);
 static void Dispose(Text);
-static void Draw(Text, Camera);
+static void Draw(Text, Scene);
 static void SetDefaultFont(Font);
 static Font GetDefaultFont(void);
 static void SetCharacter(Text, size_t index, unsigned int newCharacter);
@@ -374,11 +374,11 @@ static void RefreshText(Text text)
 	throw(UnexpectedOutcomeException);
 }
 
-static void Draw(Text text, Camera camera)
+static void Draw(Text text, Scene scene)
 {
 	RefreshText(text);
 
-	GameObjects.Draw(text->GameObject, camera);
+	GameObjects.Draw(text->GameObject, scene);
 }
 
 static void SetCharacter(Text text, size_t index, unsigned int newCharacter)

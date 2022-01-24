@@ -13,10 +13,11 @@
 #include "singine/parsing.h"
 #include "graphics/shadercompiler.h"
 #include "singine/strings.h"
+#include "graphics/scene.h"
 
 static void Dispose(Material material);
 static Material Create(const Shader shader, const Texture texture);
-static void Draw(Material, RenderMesh, Camera);
+static void Draw(Material material, RenderMesh mesh, Scene scene);
 static Material CreateMaterial(void);
 static Material InstanceMaterial(const Material);
 static void SetMainTexture(Material, Texture);
@@ -270,6 +271,18 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, ma
 				glUniform4fv(colorHandle, 1, material->Color);
 			}
 
+			int specularHandle;
+			if (Shaders.TryGetUniform(shader, Uniforms.Specular, &specularHandle))
+			{
+				glUniform4fv(specularHandle, 1, material->SpecularColor);
+			}
+
+			int ambientColorHandle;
+			if (Shaders.TryGetUniform(shader, Uniforms.Specular, &ambientColorHandle))
+			{
+				glUniform4fv(ambientColorHandle, 1, material->AmbientColor);
+			}
+
 			// check to see if we need to load a texture into the maintexture
 			if (material->MainTexture isnt null)
 			{
@@ -284,6 +297,19 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, ma
 				}
 			}
 
+			if (material->SpecularTexture isnt null)
+			{
+				int textureHandle;
+				if (Shaders.TryGetUniform(shader, Uniforms.SpecularMap, &textureHandle))
+				{
+					glEnable(GL_TEXTURE_2D);
+					glActiveTexture(GL_TEXTURE1);
+					glBindTexture(GL_TEXTURE_2D, material->SpecularTexture->Handle->Handle);
+					glUniform1i(textureHandle, 0);
+					glDisable(GL_TEXTURE_2D);
+				}
+			}
+
 			// draw the triangles
 			RenderMeshes.Draw(mesh);
 
@@ -292,12 +318,12 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, ma
 	}
 }
 
-static void Draw(Material material, RenderMesh mesh, Camera camera)
+static void Draw(Material material, RenderMesh mesh, Scene scene)
 {
 	// check if we should use the camera's perspective
 	vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
 
-	vec4* cameraVP = Cameras.Refresh(camera);
+	vec4* cameraVP = Cameras.Refresh(scene->MainCamera);
 
 	mat4 mvp;
 	glm_mat4_mul(cameraVP, modelMatrix, mvp);

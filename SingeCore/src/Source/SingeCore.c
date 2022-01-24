@@ -40,6 +40,7 @@
 #include "singine/strings.h"
 #include "graphics/graphicsDevice.h"
 #include "tests.h"
+#include "graphics/scene.h"
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
@@ -227,6 +228,10 @@ int main()
 	glStencilFunc(GL_ALWAYS, 1, 0xFF);
 	glStencilMask(0xFF);
 
+	Scene scene = Scenes.Create();
+
+	scene->MainCamera = camera;
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -321,16 +326,16 @@ int main()
 
 		Transforms.SetPosition(camera->Transform, position);
 
-		GameObjects.Draw(cube, camera);
+		GameObjects.Draw(cube, scene);
 
-		GameObjects.Draw(car, camera);
-		GameObjects.Draw(ball, camera);
-		GameObjects.Draw(otherBall, camera);
-		GameObjects.Draw(room, camera);
+		GameObjects.Draw(car, scene);
+		GameObjects.Draw(ball, scene);
+		GameObjects.Draw(otherBall, scene);
+		GameObjects.Draw(room, scene);
 
 		//GameObjects.Draw(subSquare, camera);
 		//GameObjects.Draw(square, camera);
-		Texts.Draw(text, camera);
+		Texts.Draw(text, scene);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -360,6 +365,8 @@ int main()
 	Materials.Dispose(outlineMaterial);
 
 	Cameras.Dispose(camera);
+
+	Scenes.Dispose(scene);
 
 	Windows.Dispose(window);
 

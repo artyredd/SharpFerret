@@ -3,6 +3,7 @@
 #include "graphics/renderMesh.h"
 #include "graphics/camera.h"
 #include "graphics/material.h"
+#include "graphics/scene.h"
 
 #define MAX_GAMEOBJECT_NAME_LENGTH 512 // in ANSI characters(bytes)
 
@@ -56,8 +57,8 @@ struct _gameObjectMethods {
 	/// Clears and changes the length of the rendermesh array to the provided count
 	/// </summary>
 	void (*Resize)(GameObject, size_t count);
-	void (*DrawMany)(GameObject* array, size_t count, Camera camera);
-	void (*Draw)(GameObject, Camera);
+	void (*DrawMany)(GameObject* array, size_t count, Scene);
+	void (*Draw)(GameObject, Scene);
 	GameObject(*Duplicate)(GameObject);
 	void (*SetName)(GameObject, char* name);
 	/// <summary>

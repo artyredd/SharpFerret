@@ -5,6 +5,7 @@
 #include "graphics/renderMesh.h"
 #include "graphics/camera.h"
 #include "graphics/colors.h"
+#include "graphics/scene.h"
 
 typedef struct _material* Material;
 
@@ -59,7 +60,7 @@ struct _materialMethods {
 	/// <summary>
 	/// Enables the shader and loads the color and texture if they exist in the shader
 	/// </summary>
-	void (*Draw)(Material, RenderMesh, Camera);
+	void (*Draw)(Material material, RenderMesh mesh, Scene scene);
 	/// <summary>
 	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
 	/// </summary>

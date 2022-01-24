@@ -7,7 +7,7 @@
 static Font Create(Model);
 static void Dispose(Font);
 static Font Import(char* path, FileFormat format);
-static void Draw(Font font, unsigned short character, Camera camera);
+static void Draw(Font font, unsigned short character, Scene scene);
 static void SetMaterial(Font, Material);
 static FontCharacter GetFontCharacter(Font, unsigned int character);
 static Font Instance(Font);
@@ -200,12 +200,12 @@ static Font Import(char* path, FileFormat format)
 	return font;
 }
 
-static void Draw(Font font, unsigned short character, Camera camera)
+static void Draw(Font font, unsigned short character, Scene scene)
 {
 	FontCharacter c = font->Characters[character];
 	if (c isnt null)
 	{
-		Materials.Draw(font->Material, c->Mesh, camera);
+		Materials.Draw(font->Material, c->Mesh, scene);
 	}
 }
 

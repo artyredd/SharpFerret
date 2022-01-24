@@ -3,6 +3,7 @@
 #include "singine/gameobject.h"
 #include "graphics/material.h"
 #include <Headers/modeling/importer.h>
+#include "graphics/scene.h"
 
 #define MAX_SUPPORTED_CHARACTERS USHRT_MAX
 
@@ -95,7 +96,7 @@ struct _font {
 };
 
 struct _fontMethods {
-	void(*Draw)(Font, unsigned short character, Camera camera);
+	void(*Draw)(Font, unsigned short character, Scene scene);
 	void(*SetMaterial)(Font, Material);
 	Font(*Create)(Model);
 	Font(*Import)(char* path, FileFormat format);

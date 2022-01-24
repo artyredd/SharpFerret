@@ -45,7 +45,7 @@ struct _textMethods {
 	Text(*CreateText)(Font font, char* string, size_t size);
 	Text(*CreateEmpty)(Font font, size_t size);
 	void (*Dispose)(Text);
-	void (*Draw)(Text, Camera);
+	void (*Draw)(Text, Scene);
 	void(*SetDefaultFont)(Font);
 	Font(*GetDefaultFont)(void);
 	void (*SetFont)(Text, Font font);
