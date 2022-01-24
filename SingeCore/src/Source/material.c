@@ -26,6 +26,7 @@ static void SetColors(Material, const float r, const float g, const float b, con
 static Material Load(const char* path);
 static bool Save(const Material material, const char* path);
 static void SetName(Material, const char* name);
+static void SetSpecularTexture(Material material, Texture texture);
 
 const struct _materialMethods Materials = {
 	.Dispose = &Dispose,
@@ -39,7 +40,8 @@ const struct _materialMethods Materials = {
 	.SetShader = &SetShader,
 	.SetColor = &SetColor,
 	.SetColors = &SetColors,
-	.SetName = &SetName
+	.SetName = &SetName,
+	.SetSpecularTexture = &SetSpecularTexture
 };
 
 #define DEFAULT_MATERIAL_SETTINGS (ShaderSettings.UseCameraPerspective | ShaderSettings.BackfaceCulling)
@@ -308,6 +310,13 @@ static void SetMainTexture(Material material, Texture texture)
 	GuardNotNull(material);
 	Textures.Dispose(material->MainTexture);
 	material->MainTexture = Textures.Instance(texture);
+}
+
+static void SetSpecularTexture(Material material, Texture texture)
+{
+	GuardNotNull(material);
+	Textures.Dispose(material->SpecularTexture);
+	material->SpecularTexture = Textures.Instance(texture);
 }
 
 static void SetShader(Material material, Shader shader, size_t index)

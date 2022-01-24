@@ -18,13 +18,26 @@ struct _material {
 	/// </summary>
 	size_t Count;
 	/// <summary>
-	/// The base color for this material, default is Colors.White
+	/// The ambient color of this material
+	/// </summary>
+	Color AmbientColor;
+	/// <summary>
+	/// The base color for this material, default is Colors.White, synonomous with diffuse color
 	/// </summary>
 	Color Color;
+	/// <summary>
+	/// The specular color of this material
+	/// </summary>
+	Color SpecularColor;
 	/// <summary>
 	/// The main texture for the object, this is synonomous with TEXTURE0 and is typically the UV texture for the object
 	/// </summary>
 	Texture MainTexture;
+	/// <summary>
+	/// The specular texture that should be used to define what parts of an object should receive
+	/// specular lighting
+	/// </summary>
+	Texture SpecularTexture;
 	/// <summary>
 	/// The name, or path of this material
 	/// </summary>
@@ -51,6 +64,10 @@ struct _materialMethods {
 	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
 	/// </summary>
 	void (*SetMainTexture)(Material, const Texture);
+	/// <summary>
+	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
+	/// </summary>
+	void (*SetSpecularTexture)(Material, const Texture);
 	/// <summary>
 	/// Creates a new instance of the provided shade, disposes the old one and reassigns the main texture of the provided shader
 	/// </summary>

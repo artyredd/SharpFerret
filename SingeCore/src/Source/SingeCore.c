@@ -126,11 +126,9 @@ int main()
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
-	GameObject room = GameObjects.Load("assets/prefabs/house.gameobject");
+	GameObject room = GameObjects.Load("assets/prefabs/room.gameobject");
 
 	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
-
-
 
 	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
 	Fonts.SetMaterial(font, textMaterial);
@@ -138,7 +136,7 @@ int main()
 	GameObject ball = GameObjects.Load("assets/prefabs/ball.gameobject");
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = GameObjects.Load("assets/prefabs/car.gameobject");
+	GameObject car = GameObjects.Load("assets/prefabs/cube.gameobject");
 
 
 	float speed = 10.0f;
@@ -337,7 +335,7 @@ int main()
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
 
-		DebugCameraPosition(camera);
+		//DebugCameraPosition(camera);
 
 		PollInput();
 

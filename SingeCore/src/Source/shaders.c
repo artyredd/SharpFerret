@@ -22,9 +22,12 @@ static void Enable(Shader);
 static void Disable(Shader);
 
 const struct _uniforms Uniforms = {
-	.MVP = {.Index = 0, .Name = UNIFORM_NAME_MVP },
-	.Texture0 = {.Index = 1, .Name = UNIFORM_NAME_Texture0 },
-	.Color = {.Index = 2, .Name = UNIFORM_NAME_Color },
+	.MVP =			{.Index = 0, .Name = UNIFORM_NAME_MVP },
+	.Texture0 =		{.Index = 1, .Name = UNIFORM_NAME_Texture0 },
+	.Color =		{.Index = 2, .Name = UNIFORM_NAME_Color },
+	.Ambient =		{.Index = 3, .Name = UNIFORM_NAME_AmbientColor},
+	.Specular =		{.Index = 4, .Name = UNIFORM_NAME_SpecularColor},
+	.SpecularMap =	{.Index = 5, .Name = UNIFORM_NAME_SpecularMap},
 };
 
 const struct _shaderMethods Shaders = {
@@ -41,15 +44,16 @@ const struct _shaderMethods Shaders = {
 	.HasSetting = &HasSetting
 };
 
-#define UseCameraPerspectiveFlag FLAG_0
-#define UseCullingFlag FLAG_1
-#define UseTransparencyFlag FLAG_2
-#define WriteToStencilBufferFlag FLAG_3
-#define UseDepthTestFlag FLAG_4
-#define UseStencilBufferFlag FLAG_5
+// the boolean flags are stored in a bit mask
+#define UseCameraPerspectiveFlag	FLAG_0
+#define UseCullingFlag				FLAG_1
+#define UseTransparencyFlag			FLAG_2
+#define WriteToStencilBufferFlag	FLAG_3
+#define UseDepthTestFlag			FLAG_4
+#define UseStencilBufferFlag		FLAG_5
 #define CustomStencilAttributesFlag FLAG_6
 
-#define DEFAULT_SHADER_SETTINGS 0 //(UseCameraPerspectiveFlag | UseCullingFlag)
+#define DEFAULT_SHADER_SETTINGS 0
 
 const struct _shaderSettings ShaderSettings = {
 	.UseCameraPerspective = UseCameraPerspectiveFlag,
@@ -149,6 +153,7 @@ static Shader Instance(Shader shader)
 
 static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle)
 {
+	// no point in trying to check if a null shader contains a uniform
 	if (shader is null) return false;
 
 	// check to see if the shader has already loaded the uniform's handle
@@ -162,7 +167,8 @@ static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle)
 
 	*out_handle = 0;
 
-	// check to see if we have already attempted to search for the uniform, if we have we should not try again to save resources
+	// check to see if we have already attempted to search and failed to find the uniform, 
+	// if we have we should not try again to save resources
 	if (HasFlag(shader->Uniforms->UnavailableUniforms, FlagN(uniform.Index)))
 	{
 		return false;
@@ -171,13 +177,15 @@ static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle)
 	// since we don't have a flag for the shader we should attempt to load it
 	int handle = glGetUniformLocation(shader->Handle->Handle, uniform.Name);
 
+	// a handle of -1 denotes a non-existent uniform
 	if (handle is - 1)
 	{
 		SetFlag(shader->Uniforms->UnavailableUniforms, FlagN(uniform.Index));
 		return false;
 	}
 
-	// Set the flag so we return the handle next time without having to attempt to load it from the shader
+	// Set the flag so we return the handle next time without having to attempt to
+	// load it from the shader
 	SetFlag(shader->Uniforms->AvailableUniforms, FlagN(uniform.Index));
 
 	shader->Uniforms->Handles[uniform.Index] = handle;
