@@ -1,4 +1,7 @@
 # the array of shaders that should be loaded for this material
-shaders: assets/shaders/toonShader,assets/shaders/uvShader,
+shaders: assets/shaders/default.shader,
 # the material base color
 color: 1.000000 1.000000 1.000000 1.000000
+ambient: 0.1 0.1 0.1 1.0
+diffuse: 0.0 0.0 1.0 1.0
+specular: 1.0 1.0 1.0 1.0

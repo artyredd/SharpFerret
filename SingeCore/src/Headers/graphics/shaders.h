@@ -13,6 +13,8 @@
 #define UNIFORM_NAME_SpecularMap "specularMap"
 #define UNIFORM_NAME_CameraPosition "cameraPosition"
 #define UNIFORM_NAME_DiffuseColor "diffuseColor"
+#define UNIFORM_NAME_LightsArray "Lights"
+#define UNIFORM_NAME_LightCount "LightCount"
 
 typedef const struct _uniform Uniform;
 
@@ -31,6 +33,8 @@ struct _uniforms {
 	Uniform CameraPosition;
 	Uniform ModelMatrix;
 	Uniform Diffuse;
+	Uniform Lights;
+	Uniform LightCount;
 };
 
 extern const struct _uniforms Uniforms;
@@ -127,6 +131,8 @@ struct _shaderMethods {
 	/// </summary>
 	Shader(*Instance)(Shader);
 	bool (*TryGetUniform)(Shader, Uniform, int* out_handle);
+	bool (*TryGetUniformArray)(Shader, Uniform, size_t index, int* out_handle);
+	bool (*TryGetUniformArrayField)(Shader, Uniform, size_t index, const char* field, int* out_handle);
 	void (*DisableSetting)(Shader, const ShaderSetting);
 	void (*EnableSetting)(Shader, const ShaderSetting);
 	void (*SetSetting)(Shader, const ShaderSetting, const bool enabled);

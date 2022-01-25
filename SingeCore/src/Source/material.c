@@ -174,12 +174,19 @@ static Material InstanceMaterial(Material material)
 
 	newMaterial->MainTexture = mainTexture;
 
+	newMaterial->SpecularTexture = Textures.Instance(material->SpecularTexture);
+
 	if (material->Name isnt null)
 	{
 		newMaterial->Name = Strings.DuplicateTerminated(material->Name);
 	}
 
-	Vectors3CopyTo(material->Color, newMaterial->Color);
+	Vectors4CopyTo(material->Color, newMaterial->Color);
+	Vectors4CopyTo(material->DiffuseColor, newMaterial->DiffuseColor);
+	Vectors4CopyTo(material->SpecularColor, newMaterial->SpecularColor);
+	Vectors4CopyTo(material->AmbientColor, newMaterial->AmbientColor);
+
+	newMaterial->Shininess = material->Shininess;
 
 	return newMaterial;
 }
@@ -293,6 +300,89 @@ static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture)
 	}
 }
 
+static void SetUniformMatrix4(Shader shader, Uniform uniform, mat4 matrix4)
+{
+	int handle;
+	if (Shaders.TryGetUniform(shader, uniform, &handle))
+	{
+		glUniformMatrix4fv(handle, 1, false, &matrix4[0][0]);
+	}
+}
+
+static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
+{
+	/*
+		int lightType;
+		vec4 color;
+		float intensity;
+		float range;
+		float radius;
+		vec3 position;
+	*/
+	int handle;
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "lightType", &handle) is false)
+	{
+		return false;
+	}
+	glUniform1i(handle, light->Type);
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "color", &handle) is false)
+	{
+		return false;
+	}
+	glUniform4fv(handle, 1, light->Color);
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "intensity", &handle) is false)
+	{
+		return false;
+	}
+	glUniform1f(handle, light->Intensity);
+
+	/*if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "range", &handle) is false)
+	{
+		return false;
+	}
+	glUniform1f(handle, light->Range);
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "radius", &handle) is false)
+	{
+		return false;
+	}
+	glUniform1f(handle, light->Radius);*/
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "position", &handle) is false)
+	{
+		return false;
+	}
+	glUniform3fv(handle, 1, light->Transform->Position);
+
+	return true;
+}
+
+static void SetLightUniforms(Shader shader, Scene scene)
+{
+	int countHandle;
+	if (Shaders.TryGetUniform(shader, Uniforms.LightCount, &countHandle) is false)
+	{
+		return;
+	}
+
+	// set the number of lughts that are going to be within the array
+	glUniform1i(countHandle, (GLint)scene->LightCount);
+
+	// set each element of the array
+	for (size_t i = 0; i < scene->LightCount; i++)
+	{
+		Light light = scene->Lights[i];
+
+		if (TrySetLightUniforms(shader, light, i) is false)
+		{
+			fprintf(stderr, "Failed to set a light uniform for light at index: %lli", i);
+			return;
+		}
+	}
+}
+
 static void PerformDraw(Material material, Scene scene, RenderMesh mesh, mat4 modelMatrix, mat4 MVPMatrix)
 {
 	for (size_t i = 0; i < material->Count; i++)
@@ -304,6 +394,10 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh, mat4 mo
 			Shaders.Enable(shader);
 
 			PrepareSettings(shader, modelMatrix, MVPMatrix);
+
+			SetLightUniforms(shader, scene);
+
+			SetUniformMatrix4(shader, Uniforms.ModelMatrix, modelMatrix);
 
 			SetUniformVector3(shader, Uniforms.CameraPosition, scene->MainCamera->Transform->Position);
 
@@ -405,10 +499,12 @@ static void SetName(Material material, const char* name)
 #define SpecularColorToken "specular"
 #define AmbientColorComment "# vec4; the ambient color this object should be when exposed to no light"
 #define AmbientColorToken "ambient"
-#define ShininessComment "# float [0-1]; How shiny the material should be"
+#define ShininessComment "# float [0-255]; How shiny the material should be"
 #define ShininessToken "shininess"
 #define DiffuseColorComment "# vec4; the diffuse color of the material"
 #define DiffuseColorToken "diffuse"
+#define SpecularStrengthComment "# float [0-1]; how strong the specular highlights should be"
+#define SpecularStrengthToken "specularStrength"
 
 #define MAX_PATH_LENGTH 512
 
@@ -493,14 +589,15 @@ static Material Load(const char* path)
 
 	struct _materialDefinition state = {
 		.Color = {1, 1, 1, 1},
-		.Ambient = { 0, 0, 0, 1},
-		.Specular = { 1, 1, 1, 1},
+		.Ambient = { 1, 1, 1, 1},
+		.Diffuse = { 1, 1, 1, 1 },
+		.Specular = { 1, 1, 1, 1 },
 		.ShaderCount = 0,
 		.ShaderPathLengths = null,
 		.ShaderPaths = null,
 		.MainTexturePath = null,
 		.SpecularTexturePath = null,
-		.Shininess = 0.5f,
+		.Shininess = 32.0f
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, &state))
@@ -685,7 +782,7 @@ static bool Save(const Material material, const char* path)
 	fprintf(file, NEWLINE);
 
 	fprintf(file, ExportCommentFormat, ShininessComment);
-	fprintf(file, "%s: %f", ShininessToken, material->Shininess);
+	fprintf(file, "%s: %f"NEWLINE, ShininessToken, material->Shininess);
 
 	if (material->MainTexture isnt null)
 	{

@@ -22,6 +22,7 @@ struct _scene {
 struct _sceneMethods {
 	Scene(*Create)(void);
 	void(*Dispose)(Scene);
+	void (*AddLight)(Scene, Light);
 };
 
 extern const struct _sceneMethods Scenes;

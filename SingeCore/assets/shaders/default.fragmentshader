@@ -17,6 +17,8 @@ uniform vec4 ambientColor;
 uniform vec4 mainColor;
 uniform vec4 diffuseColor;
 uniform vec4 specularColor;
+uniform float specularStrength;
+uniform float shininess;
 
 struct light{
 	int lightType;
@@ -28,15 +30,42 @@ struct light{
 };
 
 uniform light [10] Lights;
-uniform int lightCount;
+uniform int LightCount;
 
-void main(){
-
-	vec3 lightDirection = normalize(Lights[0].position - fragmentPosition);
+vec4 CalculatePointLight(light pointLight)
+{
+	vec3 lightDirection = normalize(pointLight.position - fragmentPosition);
 
 	float diff = max(dot(normal, lightDirection), 0.0);
 
 	vec4 diffuse = diff * diffuseColor;
 
-	color = (diffuse + ambientColor) * mainColor;
+	vec3 reflectedDir = reflect(-lightDirection, normal);
+
+	float spec = pow(max(dot(cameraPosition, reflectedDir), 0.0), shininess);
+
+	vec4 specularColor = pointLight.intensity * spec * pointLight.color;
+
+	return diffuse + specularColor;
+}
+
+void main(){
+
+	vec4 combinedColor = vec4(0);
+
+	for(int i = 0; i < LightCount; i++)
+	{
+		vec4 lightColor = vec4(0);
+
+		light currentLight = Lights[i];
+
+		if(currentLight.lightType == 0)
+		{
+			lightColor = CalculatePointLight(currentLight);
+		}
+
+		combinedColor = combinedColor + lightColor;
+	}
+
+	color = (ambientColor + combinedColor) * mainColor;
 }

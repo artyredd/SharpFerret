@@ -7,6 +7,7 @@
 #include "singine/config.h"
 #include "singine/parsing.h"
 #include "singine/guards.h"
+#include <stdlib.h>
 
 
 static void DisableSetting(Shader shader, ShaderSetting setting);
@@ -14,6 +15,8 @@ static void EnableSetting(Shader shader, ShaderSetting setting);
 static void SetSetting(Shader shader, ShaderSetting setting, bool enabled);
 static bool HasSetting(Shader shader, ShaderSetting setting);
 static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle);
+static bool TryGetUniformArray(Shader, Uniform, size_t index, int* out_handle);
+static bool TryGetUniformArrayField(Shader shader, Uniform uniform, size_t index, const char* field, int* out_handle);
 static Shader Instance(Shader shader);
 static void Dispose(Shader shader);
 static Shader CreateShader(void);
@@ -31,6 +34,8 @@ const struct _uniforms Uniforms = {
 	.CameraPosition =	{.Index = 6, .Name = UNIFORM_NAME_CameraPosition },
 	.ModelMatrix =		{.Index = 7, .Name = UNIFORM_NAME_ModelMatrix },
 	.Diffuse =			{.Index = 8, .Name = UNIFORM_NAME_DiffuseColor },
+	.Lights =			{.Index = 9, .Name = UNIFORM_NAME_LightsArray },
+	.LightCount =		{.Index = 10, .Name = UNIFORM_NAME_LightCount },
 };
 
 const struct _shaderMethods Shaders = {
@@ -44,7 +49,9 @@ const struct _shaderMethods Shaders = {
 	.DisableSetting = &DisableSetting,
 	.EnableSetting = &EnableSetting,
 	.SetSetting = &SetSetting,
-	.HasSetting = &HasSetting
+	.HasSetting = &HasSetting,
+	.TryGetUniformArray = &TryGetUniformArray,
+	.TryGetUniformArrayField = &TryGetUniformArrayField
 };
 
 // the boolean flags are stored in a bit mask
@@ -192,6 +199,62 @@ static bool TryGetUniform(Shader shader, Uniform uniform, int* out_handle)
 	SetFlag(shader->Uniforms->AvailableUniforms, FlagN(uniform.Index));
 
 	shader->Uniforms->Handles[uniform.Index] = handle;
+
+	*out_handle = handle;
+
+	return true;
+}
+
+static bool TryGetUniformArray(Shader shader, Uniform uniform, size_t index, int* out_handle)
+{
+	// no point in trying to check if a null shader contains a uniform
+	if (shader is null) return false;
+
+	*out_handle = 0;
+
+#define UniformBufferSize 1024
+
+	char buffer[UniformBufferSize];
+
+	// compose the uniform
+	sprintf_s(buffer, UniformBufferSize, "%s[%lli]", uniform.Name, index);
+
+	// since we don't have a flag for the shader we should attempt to load it
+	int handle = glGetUniformLocation(shader->Handle->Handle, buffer);
+
+	// a handle of -1 denotes a non-existent uniform
+	if (handle is - 1)
+	{
+		return false;
+	}
+
+	*out_handle = handle;
+
+	return true;
+}
+
+static bool TryGetUniformArrayField(Shader shader, Uniform uniform, size_t index, const char* field, int* out_handle)
+{
+	// no point in trying to check if a null shader contains a uniform
+	if (shader is null) return false;
+
+	*out_handle = 0;
+
+#define UniformBufferSize 1024
+
+	char buffer[UniformBufferSize];
+
+	// compose the uniform
+	sprintf_s(buffer, UniformBufferSize, "%s[%lli].%s", uniform.Name, index, field);
+
+	// since we don't have a flag for the shader we should attempt to load it
+	int handle = glGetUniformLocation(shader->Handle->Handle, buffer);
+
+	// a handle of -1 denotes a non-existent uniform
+	if (handle is - 1)
+	{
+		return false;
+	}
 
 	*out_handle = handle;
 

@@ -3,10 +3,10 @@ id: 42
 # the model path that should be loaded for this gameobject
 model: assets/models/cube.obj
 # the material definition path of this gameobject
-material: assets/materials/outlineMaterial.material
+material: assets/materials/default.material
 transform:
 # the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective
-position: 3.000000 3.000000 3.000000
+position: 3.000000 3.000000 0.000000
 # the rotation of the object
 rotation: 0.000000 0.000000 0.000000 1.000000
 # the scale of the object

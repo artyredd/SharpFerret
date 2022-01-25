@@ -212,8 +212,8 @@ int main()
 
 	float amount = 0;
 
-	GameObjects.SetMaterial(cube, outlineMaterial);
-	Materials.SetColor(cube->Material, Colors.Red);
+	//GameObjects.SetMaterial(cube, outlineMaterial);
+	//Materials.SetColor(cube->Material, Colors.Red);
 
 	Materials.SetColor(car->Material, Colors.Green);
 
@@ -235,7 +235,13 @@ int main()
 	// create a test light for manual testing
 	Light light = Lights.Create();
 
+	Transforms.SetPositions(light->Transform, 0,3,0);
 
+	light->Enabled = true;
+	
+
+	// add the light to the scene
+	Scenes.AddLight(scene, light);
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -322,7 +328,7 @@ int main()
 		}
 
 		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
-		Transforms.SetPositions(cube->Transform, (float)(3 * cos(Time())), 3, 3);
+		//Transforms.SetPositions(cube->Transform, (float)(3 * cos(Time())), 3, 3);
 
 		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime());//, );
 		Texts.SetText(text, text->Text, count);
@@ -333,9 +339,9 @@ int main()
 
 		GameObjects.Draw(cube, scene);
 
-		GameObjects.Draw(car, scene);
-		GameObjects.Draw(ball, scene);
-		GameObjects.Draw(otherBall, scene);
+		//GameObjects.Draw(car, scene);
+		//GameObjects.Draw(ball, scene);
+		//GameObjects.Draw(otherBall, scene);
 		GameObjects.Draw(room, scene);
 
 		//GameObjects.Draw(subSquare, camera);
