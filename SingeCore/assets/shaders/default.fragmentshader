@@ -8,9 +8,14 @@ out vec4 color;
 
 // the vertex normal
 in vec3 normal;
+// the model * position of vertex
+in vec3 fragmentPosition;
+
+uniform vec3 cameraPosition;
 
 uniform vec4 ambientColor;
 uniform vec4 mainColor;
+uniform vec4 diffuseColor;
 uniform vec4 specularColor;
 
 struct light{
@@ -27,5 +32,11 @@ uniform int lightCount;
 
 void main(){
 
-	color = vec4(UV.x,UV.y,(UV.x + UV.y)/2, 1);
+	vec3 lightDirection = normalize(Lights[0].position - fragmentPosition);
+
+	float diff = max(dot(normal, lightDirection), 0.0);
+
+	vec4 diffuse = diff * diffuseColor;
+
+	color = (diffuse + ambientColor) * mainColor;
 }

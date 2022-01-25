@@ -23,9 +23,13 @@ struct _material {
 	/// </summary>
 	Color AmbientColor;
 	/// <summary>
-	/// The base color for this material, default is Colors.White, synonomous with diffuse color
+	/// The base color for this material, default is Colors.White
 	/// </summary>
 	Color Color;
+	/// <summary>
+	/// The diffuse color of the object
+	/// </summary>
+	Color DiffuseColor;
 	/// <summary>
 	/// The specular color of this material
 	/// </summary>

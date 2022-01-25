@@ -22,12 +22,15 @@ static void Enable(Shader);
 static void Disable(Shader);
 
 const struct _uniforms Uniforms = {
-	.MVP =			{.Index = 0, .Name = UNIFORM_NAME_MVP },
-	.Texture0 =		{.Index = 1, .Name = UNIFORM_NAME_Texture0 },
-	.Color =		{.Index = 2, .Name = UNIFORM_NAME_Color },
-	.Ambient =		{.Index = 3, .Name = UNIFORM_NAME_AmbientColor},
-	.Specular =		{.Index = 4, .Name = UNIFORM_NAME_SpecularColor},
-	.SpecularMap =	{.Index = 5, .Name = UNIFORM_NAME_SpecularMap},
+	.MVP =				{.Index = 0, .Name = UNIFORM_NAME_MVP },
+	.Texture0 =			{.Index = 1, .Name = UNIFORM_NAME_Texture0 },
+	.Color =			{.Index = 2, .Name = UNIFORM_NAME_Color },
+	.Ambient =			{.Index = 3, .Name = UNIFORM_NAME_AmbientColor},
+	.Specular =			{.Index = 4, .Name = UNIFORM_NAME_SpecularColor},
+	.SpecularMap =		{.Index = 5, .Name = UNIFORM_NAME_SpecularMap},
+	.CameraPosition =	{.Index = 6, .Name = UNIFORM_NAME_CameraPosition },
+	.ModelMatrix =		{.Index = 7, .Name = UNIFORM_NAME_ModelMatrix },
+	.Diffuse =			{.Index = 8, .Name = UNIFORM_NAME_DiffuseColor },
 };
 
 const struct _shaderMethods Shaders = {

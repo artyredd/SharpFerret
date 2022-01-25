@@ -5,11 +5,14 @@
 #include "graphics/graphicsDevice.h"
 
 #define UNIFORM_NAME_MVP "MVP"
+#define UNIFORM_NAME_ModelMatrix "modelMatrix"
 #define UNIFORM_NAME_Texture0 "myTextureSampler"
 #define UNIFORM_NAME_Color "mainColor"
 #define UNIFORM_NAME_SpecularColor "specularColor"
 #define UNIFORM_NAME_AmbientColor "ambientColor"
 #define UNIFORM_NAME_SpecularMap "specularMap"
+#define UNIFORM_NAME_CameraPosition "cameraPosition"
+#define UNIFORM_NAME_DiffuseColor "diffuseColor"
 
 typedef const struct _uniform Uniform;
 
@@ -25,6 +28,9 @@ struct _uniforms {
 	Uniform Specular;
 	Uniform Ambient;
 	Uniform SpecularMap;
+	Uniform CameraPosition;
+	Uniform ModelMatrix;
+	Uniform Diffuse;
 };
 
 extern const struct _uniforms Uniforms;

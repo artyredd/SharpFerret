@@ -254,6 +254,15 @@ static void PrepareSettings(Shader shader, mat4 modelMatrix, mat4 mvpMatrix)
 	}
 }
 
+static void SetUniformVector3(Shader shader, Uniform uniform, float* vector3)
+{
+	int handle;
+	if (Shaders.TryGetUniform(shader, uniform, &handle))
+	{
+		glUniform3fv(handle, 1, vector3);
+	}
+}
+
 static void SetUniformVector4(Shader shader, Uniform uniform, float* vector4)
 {
 	int handle;
@@ -279,7 +288,7 @@ static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture)
 	}
 }
 
-static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, mat4 MVPMatrix)
+static void PerformDraw(Material material, Scene scene, RenderMesh mesh, mat4 modelMatrix, mat4 MVPMatrix)
 {
 	for (size_t i = 0; i < material->Count; i++)
 	{
@@ -291,9 +300,13 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, ma
 
 			PrepareSettings(shader, modelMatrix, MVPMatrix);
 
+			SetUniformVector3(shader, Uniforms.CameraPosition, scene->MainCamera->Transform->Position);
+
 			SetUniformVector4(shader, Uniforms.Color, material->Color);
 
 			SetUniformVector4(shader, Uniforms.Specular, material->SpecularColor);
+
+			SetUniformVector4(shader, Uniforms.Diffuse, material->DiffuseColor);
 
 			SetUniformVector4(shader, Uniforms.Ambient, material->AmbientColor);
 
@@ -319,7 +332,7 @@ static void Draw(Material material, RenderMesh mesh, Scene scene)
 	mat4 mvp;
 	glm_mat4_mul(cameraVP, modelMatrix, mvp);
 
-	PerformDraw(material, mesh, modelMatrix, mvp);
+	PerformDraw(material, scene, mesh, modelMatrix, mvp);
 }
 
 static void SetMainTexture(Material material, Texture texture)
@@ -389,6 +402,8 @@ static void SetName(Material material, const char* name)
 #define AmbientColorToken "ambient"
 #define ShininessComment "# float [0-1]; How shiny the material should be"
 #define ShininessToken "shininess"
+#define DiffuseColorComment "# the diffuse color of the material"
+#define DiffuseColorToken "diffuse"
 
 #define MAX_PATH_LENGTH 512
 
@@ -402,6 +417,7 @@ struct _materialDefinition
 	char* SpecularTexturePath;
 	char* MainTexturePath;
 	Color Ambient;
+	Color Diffuse;
 	float Shininess;
 };
 
@@ -412,7 +428,8 @@ static const char* Tokens[] = {
 	SpecularTextureToken,
 	SpecularColorToken,
 	AmbientColorToken,
-	ShininessToken
+	ShininessToken,
+	DiffuseColorToken
 };
 
 static const size_t TokenLengths[] = {
@@ -422,7 +439,8 @@ static const size_t TokenLengths[] = {
 	sizeof(SpecularTextureToken),
 	sizeof(SpecularColorToken),
 	sizeof(AmbientColorToken),
-	sizeof(ShininessToken)
+	sizeof(ShininessToken),
+	sizeof(DiffuseColorToken)
 };
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _materialDefinition* state)
@@ -443,6 +461,8 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 		return Vector4s.TryDeserialize(buffer, length, state->Ambient);
 	case 6: // shininess
 		return Floats.TryDeserialize(buffer, length, &state->Shininess);
+	case 7: // diffuse color
+		return Vector4s.TryDeserialize(buffer, length, state->Diffuse);
 	default:
 		return false;
 	}
@@ -488,6 +508,7 @@ static Material Load(const char* path)
 			Vectors4CopyTo(state.Color, material->Color);
 			Vectors4CopyTo(state.Specular, material->SpecularColor);
 			Vectors4CopyTo(state.Ambient, material->AmbientColor);
+			Vectors4CopyTo(state.Diffuse, material->DiffuseColor);
 
 			size_t shaderCount = state.ShaderCount;
 
@@ -639,6 +660,16 @@ static bool Save(const Material material, const char* path)
 	fprintf(file, "%s: ", AmbientColorToken);
 
 	if (Vector4s.TrySerializeStream(file, material->AmbientColor) is false)
+	{
+		return false;
+	}
+
+	fprintf(file, NEWLINE);
+
+	fprintf(file, ExportCommentFormat, DiffuseColorComment);
+	fprintf(file, "%s: ", DiffuseColorToken);
+
+	if (Vector4s.TrySerializeStream(file, material->DiffuseColor) is false)
 	{
 		return false;
 	}
