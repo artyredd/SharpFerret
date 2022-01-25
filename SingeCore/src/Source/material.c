@@ -86,6 +86,11 @@ static Material Create(Shader shader, Texture texture)
 	}
 
 	SetVector4(material->Color, 1, 1, 1, 1);
+	SetVector4(material->AmbientColor, 1, 1, 1, 1);
+	SetVector4(material->DiffuseColor, 1, 1, 1, 1);
+	SetVector4(material->SpecularColor, 1, 1, 1, 1);
+
+	material->Shininess = 0.5f;
 
 	return material;
 }
@@ -402,8 +407,10 @@ static void SetName(Material material, const char* name)
 #define AmbientColorToken "ambient"
 #define ShininessComment "# float [0-1]; How shiny the material should be"
 #define ShininessToken "shininess"
-#define DiffuseColorComment "# the diffuse color of the material"
+#define DiffuseColorComment "# vec4; the diffuse color of the material"
 #define DiffuseColorToken "diffuse"
+#define ShininessComment "# float [0-1]; how shiny the material should be, default is 0.5"
+#define ShininessToken "shininess"
 
 #define MAX_PATH_LENGTH 512
 
@@ -494,7 +501,8 @@ static Material Load(const char* path)
 		.ShaderPathLengths = null,
 		.ShaderPaths = null,
 		.MainTexturePath = null,
-		.SpecularTexturePath = null
+		.SpecularTexturePath = null,
+		.Shininess = 0.5f,
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, &state))
@@ -509,6 +517,8 @@ static Material Load(const char* path)
 			Vectors4CopyTo(state.Specular, material->SpecularColor);
 			Vectors4CopyTo(state.Ambient, material->AmbientColor);
 			Vectors4CopyTo(state.Diffuse, material->DiffuseColor);
+
+			material->Shininess = state.Shininess;
 
 			size_t shaderCount = state.ShaderCount;
 
@@ -675,6 +685,9 @@ static bool Save(const Material material, const char* path)
 	}
 
 	fprintf(file, NEWLINE);
+
+	fprintf(file, ExportCommentFormat, ShininessComment);
+	fprintf(file, "%s: %f", ShininessToken, material->Shininess);
 
 	if (material->MainTexture isnt null)
 	{

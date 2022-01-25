@@ -35,6 +35,10 @@ struct _material {
 	/// </summary>
 	Color SpecularColor;
 	/// <summary>
+	/// How reflective the material should be
+	/// </summary>
+	float Shininess;
+	/// <summary>
 	/// The main texture for the object, this is synonomous with TEXTURE0 and is typically the UV texture for the object
 	/// </summary>
 	Texture MainTexture;
