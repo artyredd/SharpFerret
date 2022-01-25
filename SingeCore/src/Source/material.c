@@ -409,8 +409,6 @@ static void SetName(Material material, const char* name)
 #define ShininessToken "shininess"
 #define DiffuseColorComment "# vec4; the diffuse color of the material"
 #define DiffuseColorToken "diffuse"
-#define ShininessComment "# float [0-1]; how shiny the material should be, default is 0.5"
-#define ShininessToken "shininess"
 
 #define MAX_PATH_LENGTH 512
 
