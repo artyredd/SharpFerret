@@ -193,6 +193,7 @@
     <ClCompile Include="src\Source\floats.c" />
     <ClCompile Include="src\Source\instancedResource.c" />
     <ClCompile Include="src\Source\ints.c" />
+    <ClCompile Include="src\Source\light.c" />
     <ClCompile Include="src\Source\range.c" />
     <ClCompile Include="src\Source\scene.c" />
     <ClCompile Include="src\Source\strings.c" />

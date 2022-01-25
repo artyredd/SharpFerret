@@ -232,6 +232,11 @@ int main()
 
 	scene->MainCamera = camera;
 
+	// create a test light for manual testing
+	Light light = Lights.Create();
+
+
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -345,6 +350,8 @@ int main()
 		PollInput();
 
 	} while (GetKey(KeyCodes.Escape) != true && Windows.ShouldClose(window) != true);
+
+	Lights.Dispose(light);
 
 	Texts.Dispose(text);
 

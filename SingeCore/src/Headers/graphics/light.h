@@ -49,6 +49,11 @@ struct _light {
 	/// </summary>
 	float Radius;
 	/// <summary>
+	/// The type of light that should should be rendered as
+	/// 0 = point, 1 = directional, 2 = spotlight
+	/// </summary>
+	LightType Type;
+	/// <summary>
 	/// The transform for this light
 	/// </summary>
 	Transform Transform;

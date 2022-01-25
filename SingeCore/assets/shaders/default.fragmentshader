@@ -6,6 +6,25 @@ in vec2 UV;
 // Ouput data
 out vec4 color;
 
+// the vertex normal
+in vec3 normal;
+
+uniform vec4 ambientColor;
+uniform vec4 mainColor;
+uniform vec4 specularColor;
+
+struct light{
+	int lightType;
+	vec4 color;
+	float intensity;
+	float range;
+	float radius;
+	vec3 position;
+};
+
+uniform light [10] Lights;
+uniform int lightCount;
+
 void main(){
 
 	color = vec4(UV.x,UV.y,(UV.x + UV.y)/2, 1);

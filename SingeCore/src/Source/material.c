@@ -254,6 +254,31 @@ static void PrepareSettings(Shader shader, mat4 modelMatrix, mat4 mvpMatrix)
 	}
 }
 
+static void SetUniformVector4(Shader shader, Uniform uniform, float* vector4)
+{
+	int handle;
+	if (Shaders.TryGetUniform(shader, uniform, &handle))
+	{
+		glUniform4fv(handle, 1, vector4);
+	}
+}
+
+static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture)
+{
+	if (texture isnt null)
+	{
+		int textureHandle;
+		if (Shaders.TryGetUniform(shader, uniform, &textureHandle))
+		{
+			glEnable(GL_TEXTURE_2D);
+			glActiveTexture(GL_TEXTURE0);
+			glBindTexture(GL_TEXTURE_2D, texture->Handle->Handle);
+			glUniform1i(textureHandle, 0);
+			glDisable(GL_TEXTURE_2D);
+		}
+	}
+}
+
 static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, mat4 MVPMatrix)
 {
 	for (size_t i = 0; i < material->Count; i++)
@@ -266,50 +291,15 @@ static void PerformDraw(Material material, RenderMesh mesh, mat4 modelMatrix, ma
 
 			PrepareSettings(shader, modelMatrix, MVPMatrix);
 
-			int colorHandle;
-			if (Shaders.TryGetUniform(shader, Uniforms.Color, &colorHandle))
-			{
-				glUniform4fv(colorHandle, 1, material->Color);
-			}
+			SetUniformVector4(shader, Uniforms.Color, material->Color);
 
-			int specularHandle;
-			if (Shaders.TryGetUniform(shader, Uniforms.Specular, &specularHandle))
-			{
-				glUniform4fv(specularHandle, 1, material->SpecularColor);
-			}
+			SetUniformVector4(shader, Uniforms.Specular, material->SpecularColor);
 
-			int ambientColorHandle;
-			if (Shaders.TryGetUniform(shader, Uniforms.Specular, &ambientColorHandle))
-			{
-				glUniform4fv(ambientColorHandle, 1, material->AmbientColor);
-			}
+			SetUniformVector4(shader, Uniforms.Ambient, material->AmbientColor);
 
-			// check to see if we need to load a texture into the maintexture
-			if (material->MainTexture isnt null)
-			{
-				int textureHandle;
-				if (Shaders.TryGetUniform(shader, Uniforms.Texture0, &textureHandle))
-				{
-					glEnable(GL_TEXTURE_2D);
-					glActiveTexture(GL_TEXTURE0);
-					glBindTexture(GL_TEXTURE_2D, material->MainTexture->Handle->Handle);
-					glUniform1i(textureHandle, 0);
-					glDisable(GL_TEXTURE_2D);
-				}
-			}
+			SetTextureUniform(shader, Uniforms.Texture0, material->MainTexture);
 
-			if (material->SpecularTexture isnt null)
-			{
-				int textureHandle;
-				if (Shaders.TryGetUniform(shader, Uniforms.SpecularMap, &textureHandle))
-				{
-					glEnable(GL_TEXTURE_2D);
-					glActiveTexture(GL_TEXTURE1);
-					glBindTexture(GL_TEXTURE_2D, material->SpecularTexture->Handle->Handle);
-					glUniform1i(textureHandle, 0);
-					glDisable(GL_TEXTURE_2D);
-				}
-			}
+			SetTextureUniform(shader, Uniforms.SpecularMap, material->SpecularTexture);
 
 			// draw the triangles
 			RenderMeshes.Draw(mesh);
@@ -381,8 +371,6 @@ static void SetName(Material material, const char* name)
 
 	material->Name = Strings.DuplicateTerminated(name);
 }
-
-#define TokenCount 3
 
 #define ExportTokenFormat "%s: %s\n"
 #define ExportCommentFormat "%s\n"
