@@ -3,6 +3,10 @@
 #include "math/vectors.h"
 #include "graphics/transform.h"
 
+#define DEFAULT_AMBIENT_LIGHT_INTENSITY 0.2f
+#define DEFAULT_DIFFUSE_LIGHT_INTENSITY 0.5f
+#define DEFAULT_SPECULAR_LIGHT_INTENSITY 1.0f
+
 typedef int LightType;
 
 static const struct _lightTypes {
@@ -32,13 +36,17 @@ struct _light {
 	/// </summary>
 	bool Enabled;
 	/// <summary>
-	/// The color of the light, default color is Colors.White(white)
+	/// The ambient color and intensity of the light
 	/// </summary>
-	Color Color;
+	Color Ambient;
 	/// <summary>
-	/// How powerful the light should be
+	/// The diffuse color and intensity of the light
 	/// </summary>
-	float Intensity;
+	Color Diffuse;
+	/// <summary>
+	/// The specular color and intensity of the light
+	/// </summary>
+	Color Specular;
 	/// <summary>
 	/// How far the light should reach, objects further than the provided distace are not lit
 	/// by this light

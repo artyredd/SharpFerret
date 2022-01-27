@@ -1,0 +1,4 @@
+model: assets/models/plane.obj
+material: assets/materials/default.material
+transform:
+position: 0 0 0

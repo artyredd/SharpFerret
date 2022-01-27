@@ -418,5 +418,8 @@
     <None Include="assets\shaders\debugOrientation.vertexshader">
       <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
+    <None Include="assets\prefabs\plane.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
+    </None>
   </ItemGroup>
 </Project>

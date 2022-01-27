@@ -36,6 +36,9 @@ const struct _uniforms Uniforms = {
 	.Diffuse =			{.Index = 8, .Name = UNIFORM_NAME_DiffuseColor },
 	.Lights =			{.Index = 9, .Name = UNIFORM_NAME_LightsArray },
 	.LightCount =		{.Index = 10, .Name = UNIFORM_NAME_LightCount },
+	.ViewMatrix =		{.Index = 11, .Name = UNIFORM_NAME_ViewMatrix },
+	.ProjectionMatrix = {.Index = 12, .Name = UNIFORM_NAME_ProjectionMatrix },
+	.Shininess =		{.Index = 13, .Name = UNIFORM_NAME_Shininess },
 };
 
 const struct _shaderMethods Shaders = {

@@ -13,11 +13,12 @@ static Light Create(void)
 {
 	Light light = SafeAlloc(sizeof(struct _light));
 
-	SetVector4(light->Color, 1,1,1,1);
+	SetVector4(light->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1);
+	SetVector4(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1);
+	SetVector4(light->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1);
 
-	light->Intensity = 0.5f;
 	light->Radius = 1.0f;
-	light->Range = 10.0f;
+	light->Range = 5.0f;
 	light->Type = LightTypes.Point;
 
 	light->Transform = Transforms.Create();

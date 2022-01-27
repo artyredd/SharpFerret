@@ -63,12 +63,10 @@ static void RecalculateView(Camera camera)
 
 static void RecalculateViewProjection(Camera camera)
 {
-	mat4 inverse;
-
-	glm_mat4_inv(camera->Transform->State.State, inverse);
+	glm_mat4_inv(camera->Transform->State.State, camera->State.View);
 
 	glm_mat4_mul(camera->State.Projection,
-		inverse,
+		camera->State.View,
 		camera->State.State);
 
 	ResetFlags(camera->State.Modified);

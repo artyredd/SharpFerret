@@ -11,7 +11,11 @@ in vec3 normal;
 // the model * position of vertex
 in vec3 fragmentPosition;
 
+
+uniform mat4 viewMatrix;
+uniform mat4 modelMatrix;
 uniform vec3 cameraPosition;
+uniform mat4 projectionMatrix;
 
 uniform vec4 ambientColor;
 uniform vec4 mainColor;
@@ -22,8 +26,9 @@ uniform float shininess;
 
 struct light{
 	int lightType;
-	vec4 color;
-	float intensity;
+	vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
 	float range;
 	float radius;
 	vec3 position;
@@ -34,19 +39,55 @@ uniform int LightCount;
 
 vec4 CalculatePointLight(light pointLight)
 {
-	vec3 lightDirection = normalize(pointLight.position - fragmentPosition);
+	vec3 norm = normalize(normal);
 
-	float diff = max(dot(normal, lightDirection), 0.0);
+	// calculate the position of light
+	vec3 lightPosition = pointLight.position;
 
-	vec4 diffuse = diff * diffuseColor;
+	// calculate the direction from the fragment to the light
+	vec3 lightDirection = normalize(lightPosition - fragmentPosition);
 
-	vec3 reflectedDir = reflect(-lightDirection, normal);
+	// calculate the diffuse scaler
+	float diffuseScalar = max(dot(norm, lightDirection), 0.0);
 
-	float spec = pow(max(dot(cameraPosition, reflectedDir), 0.0), shininess);
+	// calculate the diffuse portion of the color
+	vec4 diffusePortion = pointLight.diffuse * (diffuseScalar * diffuseColor);
 
-	vec4 specularColor = pointLight.intensity * spec * pointLight.color;
+	// reflect the light direction along the normal axis
+	// so we can compare that reflected direction to our viewer to determine
+	// the specular scalar
+	vec3 reflectedDirection = reflect(lightDirection, normalize(norm));
 
-	return diffuse + specularColor;
+	// calculate the direction from the fragment to the viewer
+	// so we can compare that direction with the reflected direction
+	// to calculate the specular scalar
+	vec3 viewDirection = normalize(-cameraPosition - fragmentPosition);
+
+	// the specular scalar is the angle between the view direction and the reflected direction
+	float specularScalar = max(dot(viewDirection, reflectedDirection), 0.0);
+
+	// apply shininess to the specular scalar
+	float shininessScalar = pow(specularScalar, shininess);
+
+	// calculate the specular portion of the color
+	vec4 specularPortion = shininessScalar * pointLight.specular * specularColor;
+
+	// calculate the ambient portion of the colors
+	vec4 ambientPortion = pointLight.ambient * ambientColor;
+
+	// calculate the distance between the light and fragment
+	float dist = length(lightPosition - fragmentPosition);
+
+	// calculate the attenuation scalar so far fragments are ignored
+	float attenuation = (pointLight.range * 1.0) / (1 + (0.9 * dist) + (0.032 * (dist * dist)));    
+
+	// scale all color portions by the attenuation scalar
+	ambientPortion *= attenuation;
+	diffusePortion *= attenuation;
+	specularPortion *= attenuation;
+
+	// combine all portions into final color for this light and return
+	return (ambientPortion + diffusePortion + specularPortion);
 }
 
 void main(){
@@ -64,8 +105,8 @@ void main(){
 			lightColor = CalculatePointLight(currentLight);
 		}
 
-		combinedColor = combinedColor + lightColor;
+		combinedColor += lightColor;
 	}
 
-	color = (ambientColor + combinedColor) * mainColor;
+	color = combinedColor * mainColor;
 }

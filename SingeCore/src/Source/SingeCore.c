@@ -235,13 +235,28 @@ int main()
 	// create a test light for manual testing
 	Light light = Lights.Create();
 
-	Transforms.SetPositions(light->Transform, 0,3,0);
+	// light body
+	Transforms.SetPositions(light->Transform, 0, 3, 0);
+	Transforms.SetPositions(camera->Transform, -3, 0, 3);
+
+	GameObject lightMarker = GameObjects.Duplicate(cube);
+
+	GameObjects.SetMaterial(lightMarker, outlineMaterial);
+
+	Transforms.ScaleAll(lightMarker->Transform, 0.25f);
+	Transforms.SetPosition(lightMarker->Transform, light->Transform->Position);
 
 	light->Enabled = true;
-	
+
+	//SetVector3(light->Ambient, 0,0,0);
+	//SetVector3(light->Diffuse, 0,0,0);
 
 	// add the light to the scene
 	Scenes.AddLight(scene, light);
+
+	GameObject plane = GameObjects.Load("assets/prefabs/plane.gameobject");
+
+	Transforms.RotateOnAxis(plane->Transform, 0.5f * (float)GLM_PI, Vector3.Forward);
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -321,28 +336,35 @@ int main()
 		if (GetAxis(Axes.Vertical) < 0)
 		{
 			++amount;
+			light->Range = amount/100;
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
 		{
 			--amount;
+			light->Range = amount/100;
 		}
+
+		//light->Intensity = (float)sin(Time());
 
 		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
 		//Transforms.SetPositions(cube->Transform, (float)(3 * cos(Time())), 3, 3);
 
-		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime());//, );
+		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount);//, );
 		Texts.SetText(text, text->Text, count);
 
 		FPSCamera.Update(camera);
 
 		Transforms.SetPosition(camera->Transform, position);
 
+		GameObjects.Draw(lightMarker, scene);
 		GameObjects.Draw(cube, scene);
 
-		//GameObjects.Draw(car, scene);
-		//GameObjects.Draw(ball, scene);
-		//GameObjects.Draw(otherBall, scene);
+		GameObjects.Draw(car, scene);
+		GameObjects.Draw(ball, scene);
+		GameObjects.Draw(otherBall, scene);
 		GameObjects.Draw(room, scene);
+		GameObjects.Draw(plane, scene);
+		
 
 		//GameObjects.Draw(subSquare, camera);
 		//GameObjects.Draw(square, camera);
@@ -371,6 +393,8 @@ int main()
 	GameObjects.Destroy(square);
 	GameObjects.Destroy(otherCube);
 	GameObjects.Destroy(subSquare);
+	GameObjects.Destroy(lightMarker);
+	GameObjects.Destroy(plane);
 
 	Materials.Dispose(textMaterial);
 	Materials.Dispose(defaultMaterial);

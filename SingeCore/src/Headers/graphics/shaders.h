@@ -5,6 +5,8 @@
 #include "graphics/graphicsDevice.h"
 
 #define UNIFORM_NAME_MVP "MVP"
+#define UNIFORM_NAME_ProjectionMatrix "projectionMatrix"
+#define UNIFORM_NAME_ViewMatrix "viewMatrix"
 #define UNIFORM_NAME_ModelMatrix "modelMatrix"
 #define UNIFORM_NAME_Texture0 "myTextureSampler"
 #define UNIFORM_NAME_Color "mainColor"
@@ -15,6 +17,7 @@
 #define UNIFORM_NAME_DiffuseColor "diffuseColor"
 #define UNIFORM_NAME_LightsArray "Lights"
 #define UNIFORM_NAME_LightCount "LightCount"
+#define UNIFORM_NAME_Shininess "shininess"
 
 typedef const struct _uniform Uniform;
 
@@ -24,6 +27,8 @@ struct _uniform {
 };
 
 struct _uniforms {
+	Uniform ViewMatrix;
+	Uniform ProjectionMatrix;
 	Uniform MVP;
 	Uniform Texture0;
 	Uniform Color;
@@ -35,6 +40,7 @@ struct _uniforms {
 	Uniform Diffuse;
 	Uniform Lights;
 	Uniform LightCount;
+	Uniform Shininess;
 };
 
 extern const struct _uniforms Uniforms;
