@@ -1,13 +1,16 @@
 #include "singine/InstancedResource.h"
 #include "csharp.h"
 #include "singine/memory.h"
+#include <stdlib.h>
 
 static InstancedResource Create(void);
 static void Dispose(InstancedResource, void* state, void(*OnDispose)(InstancedResource, void* state));
+static InstancedResource Instance(InstancedResource resource);
 
 const struct _instancedResourceMethods InstancedResources = {
 	.Create = &Create,
-	.Dispose = &Dispose
+	.Dispose = &Dispose,
+	.Instance = &Instance
 };
 
 static InstancedResource Create(void)
@@ -35,11 +38,30 @@ static void Dispose(InstancedResource resource, void* state, void(*OnDispose)(In
 		}
 
 		// actually free the buffer since this is the last instance
-		SafeFree(resource);
 		resource->Resource = null;
+		SafeFree(resource);
 		return;
 	}
 
 	// since there remains more instances of this shared object decrement the total count and do nothing
-	--(resource->Instances);
+	resource->Instances = min(resource->Instances - 1, resource->Instances);
+}
+
+static InstancedResource Instance(InstancedResource resource)
+{
+	if (resource is null)
+	{
+		throw(NullReferenceException);
+	}
+
+	size_t newCount = max(resource->Instances + 1, resource->Instances);
+
+	if (newCount == resource->Instances)
+	{
+		fprintf(stderr, "Too many instances of resource at address: %llx (integer overflow)", (size_t)resource->Resource);
+	}
+
+	resource->Instances = newCount;
+
+	return resource;
 }

@@ -1,6 +1,7 @@
 #include "graphics/sharedBuffer.h"
 #include "singine/memory.h"
 #include "csharp.h"
+#include <stdlib.h>
 
 static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* state));
 static SharedHandle CreateSharedHandle(void);
@@ -31,7 +32,7 @@ static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* sta
 	}
 
 	// since there remains more instances of this shared object decrement the total count and do nothing
-	--(buffer->ActiveInstances);
+	buffer->ActiveInstances = min(buffer->ActiveInstances - 1, buffer->ActiveInstances);
 }
 
 static SharedHandle CreateSharedHandle()

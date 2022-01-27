@@ -9,6 +9,10 @@ struct _instancedResource {
 };
 
 struct _instancedResourceMethods {
+	/// <summary>
+	/// Creates an instance of the provided resource
+	/// </summary>
+	InstancedResource(*Instance)(InstancedResource);
 	InstancedResource(*Create)(void);
 	void (*Dispose)(InstancedResource, void* state, void(*OnDispose)(InstancedResource, void* state));
 };

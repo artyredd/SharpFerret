@@ -114,14 +114,6 @@ static RenderMesh CreateRenderMesh()
 {
 	RenderMesh mesh = SafeAlloc(sizeof(struct _renderMesh));
 
-	mesh->Id = 0;
-
-	mesh->UVBuffer = null;
-	mesh->VertexBuffer = null;
-	mesh->NormalBuffer = null;
-
-	mesh->NumberOfTriangles = 0;
-
 	mesh->Transform = Transforms.Create();
 
 	return mesh;
@@ -269,7 +261,7 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 			return false;
 		}
 
-		newMesh->Name = name;
+		newMesh->Name = InstancedResources.Instance(name);
 
 		meshesArray[i] = newMesh;
 	}

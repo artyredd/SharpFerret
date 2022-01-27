@@ -283,13 +283,15 @@
     <None Include="assets\materials\debugOrientationGUI.material" />
     <None Include="assets\materials\default.material" />
     <None Include="assets\materials\guiMaterial.material" />
-    <None Include="assets\materials\outlineMaterial.material" />
+    <None Include="assets\materials\outline.material" />
     <None Include="assets\materials\textMaterial.material" />
     <None Include="assets\materials\textureMaterial.material" />
     <None Include="assets\materials\uvMaterial.material" />
     <None Include="assets\prefabs\ball.gameobject" />
     <None Include="assets\prefabs\car.gameobject" />
     <None Include="assets\prefabs\cube.gameobject" />
+    <None Include="assets\prefabs\lightBulb.gameobject" />
+    <None Include="assets\prefabs\lightFilament.gameobject" />
     <None Include="assets\prefabs\monkey.gameobject" />
     <None Include="assets\prefabs\plane.gameobject" />
     <None Include="assets\prefabs\room.gameobject" />
@@ -309,6 +311,9 @@
     <None Include="assets\shaders\TextShader.vertexshader" />
     <None Include="assets\shaders\texturedShader" />
     <None Include="assets\shaders\uvShader" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="assets\prefabs\lightBase.gameobject" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -118,7 +118,7 @@ int main()
 
 	Material textureMaterial = Materials.Load("assets/materials/debugOrientationGUI.material");
 
-	Material outlineMaterial = Materials.Load("assets/materials/outlineMaterial.material");
+	Material outlineMaterial = Materials.Load("assets/materials/outline.material");
 
 	Camera camera = Cameras.CreateCamera();
 
@@ -336,12 +336,12 @@ int main()
 		if (GetAxis(Axes.Vertical) < 0)
 		{
 			++amount;
-			light->Range = amount/100;
+			light->Range = amount / 100;
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
 		{
 			--amount;
-			light->Range = amount/100;
+			light->Range = amount / 100;
 		}
 
 		//light->Intensity = (float)sin(Time());
@@ -364,7 +364,7 @@ int main()
 		GameObjects.Draw(otherBall, scene);
 		GameObjects.Draw(room, scene);
 		GameObjects.Draw(plane, scene);
-		
+
 
 		//GameObjects.Draw(subSquare, camera);
 		//GameObjects.Draw(square, camera);
@@ -395,6 +395,7 @@ int main()
 	GameObjects.Destroy(subSquare);
 	GameObjects.Destroy(lightMarker);
 	GameObjects.Destroy(plane);
+
 
 	Materials.Dispose(textMaterial);
 	Materials.Dispose(defaultMaterial);
