@@ -46,11 +46,7 @@ struct _graphicsDeviceMethods
 	/// <summary>
 	/// Binds the provided texture to an open texture slot on the graphics device
 	/// </summary>
-	void (*ActivateTexture)(const unsigned int textureHandle, int uniformHandle);
-	/// <summary>
-	/// Deactivates the last active texture slot
-	/// </summary>
-	void (*DeactivateTexture)(void);
+	void (*ActivateTexture)(const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
 };
 
 extern const struct _graphicsDeviceMethods GraphicsDevice;

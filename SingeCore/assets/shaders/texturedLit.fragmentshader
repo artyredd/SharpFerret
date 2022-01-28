@@ -68,7 +68,7 @@ vec4 CalculatePointLight(light pointLight)
 	float shininessScalar = pow(specularScalar, material.shininess);
 	
 	// calculate the ambient portion of the colors
-	vec4 ambientPortion = pointLight.ambient * texture(material.diffuseMap, UV);
+	vec4 ambientPortion = pointLight.ambient * texture(material.diffuseMap, UV) * material.ambient;
 
 	// calculate the specular portion of the color
 	vec4 specularPortion = pointLight.specular * ( shininessScalar * texture(material.specularMap, UV) );

@@ -25,7 +25,7 @@ void main(){
 	gl_Position =  projection * view * model * vec4(pos,1);
 	
 	// UV of the vertex. No special space for this one.
-	UV = vertexUV;
+	UV = 1-vertexUV;
 
 	//normal = normalize(mat3(transpose(inverse(viewMatrix * modelMatrix))) * normalVector);
 	normal = mat3(transpose(inverse(model))) * normalVector;

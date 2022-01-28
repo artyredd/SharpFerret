@@ -281,14 +281,14 @@ static void SetUniformFloat(Shader shader, Uniform uniform, float value)
 	}
 }
 
-static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture)
+static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, unsigned int slot)
 {
 	if (texture isnt null)
 	{
 		int uniformHandle;
 		if (Shaders.TryGetUniform(shader, uniform, &uniformHandle))
 		{
-			GraphicsDevice.ActivateTexture(texture->Handle->Handle, uniformHandle);
+			GraphicsDevice.ActivateTexture(texture->Handle->Handle, uniformHandle, slot);
 		}
 	}
 }
@@ -348,7 +348,9 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 
 	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Position, &handle))
 	{
-		glUniform3fv(handle, 1, light->Transform->Position);
+		vec3 pos;
+		glm_vec3_rotate_m4(Transforms.Refresh(light->Transform), light->Transform->Position, pos);
+		glUniform3fv(handle, 1, pos);
 	}
 
 	return true;
@@ -415,13 +417,9 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 
 			SetUniformVector4(shader, Uniforms.Ambient, material->AmbientColor);
 
-			SetTextureUniform(shader, Uniforms.DiffuseMap, material->MainTexture);
+			SetTextureUniform(shader, Uniforms.DiffuseMap, material->MainTexture, 0);
 
-			SetTextureUniform(shader, Uniforms.SpecularMap, material->SpecularTexture);
-
-			// disable the two textures activated for diffuse and specular maps
-			GraphicsDevice.DeactivateTexture();
-			GraphicsDevice.DeactivateTexture();
+			SetTextureUniform(shader, Uniforms.SpecularMap, material->SpecularTexture, 1);
 
 			// draw the triangles
 			RenderMeshes.Draw(mesh);

@@ -6,7 +6,7 @@ model: assets/models/cube.obj
 material: assets/materials/cube.material
 transform:
 # the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective
-position: 3.000000 3.000000 0.000000
+position: -5.000000 2.000000 5.000000
 # the rotation of the object
 rotation: 0.000000 0.000000 0.000000 1.000000
 # the scale of the object

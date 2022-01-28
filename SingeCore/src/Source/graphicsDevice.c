@@ -27,8 +27,7 @@ static void ResetStencilFunction(void);
 static void EnableDepthTesting(void);
 static void DisableDepthTesting(void);
 static void SetDepthTest(const Comparison);
-static void ActivateTexture(const unsigned int textureHandle, int uniformHandle);
-static void Deactivate(void);
+static void ActivateTexture(const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
 
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
@@ -45,8 +44,7 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableDepthTesting = &EnableDepthTesting,
 	.DisableDepthTesting = &DisableDepthTesting,
 	.SetDepthTest = &SetDepthTest,
-	.ActivateTexture = &ActivateTexture,
-	.DeactivateTexture = &Deactivate
+	.ActivateTexture = &ActivateTexture
 };
 
 bool blendingEnabled = false;
@@ -194,18 +192,11 @@ static void SetDepthTest(const Comparison comparison)
 	}
 }
 
-static void ActivateTexture(const unsigned int textureHandle, int uniformHandle)
+static void ActivateTexture(const unsigned int textureHandle, const int uniformHandle, const unsigned int slot)
 {
 	glEnable(GL_TEXTURE_2D);
-	glActiveTexture(GL_TEXTURE0 + nextTexture);
+	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(GL_TEXTURE_2D, textureHandle);
-	glUniform1i(uniformHandle, nextTexture);
+	glUniform1i(uniformHandle, slot);
 	glDisable(GL_TEXTURE_2D);
-
-	nextTexture = (nextTexture + 1) % maxTextures;
-}
-
-static void Deactivate()
-{
-	nextTexture = min(nextTexture - 1, maxTextures - 1);
 }

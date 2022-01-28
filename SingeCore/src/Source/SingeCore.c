@@ -152,7 +152,6 @@ int main()
 	Transforms.SetScales(otherBall->Transform, 0.5, 0.5, 0.5);
 	Transforms.SetPositions(otherBall->Transform, 0, 0, 3);
 	Transforms.SetPositions(car->Transform, -7, 0, -7);
-	Transforms.SetPositions(cube->Transform, 3, 3, 3);
 	Transforms.SetPositions(ball->Transform, 5, 1, 5);
 
 	Mesh squareMesh = Meshes.Create();
@@ -250,8 +249,11 @@ int main()
 
 	GameObject otherLightMarker = GameObjects.Duplicate(lightMarker);
 
-	Transforms.SetPosition(lightMarker->Transform, light->Transform->Position);
-	Transforms.SetPosition(otherLightMarker->Transform, otherLight->Transform->Position);
+	//Transforms.SetPosition(lightMarker->Transform, light->Transform->Position);
+	//Transforms.SetPosition(otherLightMarker->Transform, otherLight->Transform->Position);
+
+	Transforms.SetParent(otherLightMarker->Transform, otherLight->Transform);
+	Transforms.SetParent(lightMarker->Transform, light->Transform);
 
 	light->Enabled = true;
 	otherLight->Enabled = true;
@@ -343,17 +345,20 @@ int main()
 		{
 			++amount;
 			light->Range = amount / 100;
+			otherLight->Range = amount / 100;
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
 		{
 			--amount;
 			light->Range = amount / 100;
+			otherLight->Range = amount / 100;
 		}
 
-		//light->Intensity = (float)sin(Time());
-
 		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
-		//Transforms.SetPositions(cube->Transform, (float)(3 * cos(Time())), 3, 3);
+
+		vec3 spinDirection = { 0, 1, 0 };
+
+		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
 
 		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount);//, );
 		Texts.SetText(text, text->Text, count);

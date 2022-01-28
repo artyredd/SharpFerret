@@ -3,7 +3,7 @@
 #include "math/vectors.h"
 #include "graphics/transform.h"
 
-#define DEFAULT_AMBIENT_LIGHT_INTENSITY 0.2f
+#define DEFAULT_AMBIENT_LIGHT_INTENSITY 1.0f
 #define DEFAULT_DIFFUSE_LIGHT_INTENSITY 0.5f
 #define DEFAULT_SPECULAR_LIGHT_INTENSITY 1.0f
 
