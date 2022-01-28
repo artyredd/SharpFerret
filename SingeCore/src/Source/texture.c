@@ -88,13 +88,15 @@ static bool TryCreateTexture(Image, Texture* out_texture);
 static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle));
 static void Modify(TextureSetting setting, TextureSettingValue value);
 static Texture InstanceTexture(Texture texture);
+static Texture Blank(void);
 
 const struct _textureMethods Textures = {
 	.Dispose = &Dispose,
 	.TryCreateTexture = &TryCreateTexture,
 	.TryCreateTextureAdvanced = &TryCreateTextureAdvanced,
 	.Instance = &InstanceTexture,
-	.Modify = &Modify
+	.Modify = &Modify,
+	.Blank = Blank
 };
 
 // this is only ran when there is only one remaining instance of the texture being disposed
@@ -237,4 +239,26 @@ static Texture InstanceTexture(Texture texture)
 	CopyMember(texture, newTexture, Handle);
 
 	return newTexture;
+}
+
+struct _image BlankImage = {
+	.Height = 1,
+	.Width = 1,
+	.Channels = 4, // RGBA, 4 components
+	.Pixels = (unsigned char*)"\255\255\255\255", // a white pixel
+	.Path = null,
+};
+
+static Texture Blank(void)
+{
+	Image blankImage = &BlankImage;
+
+	Texture texture;
+
+	if (TryCreateTexture(blankImage, &texture))
+	{
+		return texture;
+	}
+
+	return null;
 }

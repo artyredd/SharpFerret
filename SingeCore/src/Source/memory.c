@@ -187,13 +187,13 @@ bool ReallocOrCopy(void** address, const size_t previousLength, const size_t new
 		return true;
 	}
 
-	if (TryRealloc(address, previousLength, newLength, address))
+	if (TryRealloc(*address, previousLength, newLength, address))
 	{
 		return true;
 	}
 
 	// since we couldn't realloc to the right size alloc new space and copy the bytes
-	void* newAddress = DuplicateAddress(address, previousLength, newLength);
+	void* newAddress = DuplicateAddress(*address, previousLength, newLength);
 
 	// free the old address
 	SafeFree(*address);

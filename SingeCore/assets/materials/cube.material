@@ -1,0 +1,3 @@
+shaders: assets/shaders/texturedLit.shader
+mainTexture: assets/textures/cube_uv.png
+specularMap: assets/textures/cube_specular.png

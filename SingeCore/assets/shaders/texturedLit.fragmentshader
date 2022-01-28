@@ -16,8 +16,6 @@ uniform vec3 cameraPosition;
 uniform struct _material	{ 
 	vec4 ambient;
 	vec4 color;
-	vec4 diffuse;
-	vec4 specular;
 	float shininess;
 	sampler2D diffuseMap;
 	sampler2D specularMap;
@@ -51,7 +49,7 @@ vec4 CalculatePointLight(light pointLight)
 	float diffuseScalar = max(dot(norm, lightDirection), 0.0);
 
 	// calculate the diffuse portion of the color
-	vec4 diffusePortion = pointLight.diffuse * (diffuseScalar * material.diffuse);
+	vec4 diffusePortion = pointLight.diffuse * (diffuseScalar * texture(material.diffuseMap, UV));
 
 	// reflect the light direction along the normal axis
 	// so we can compare that reflected direction to our viewer to determine
@@ -68,12 +66,12 @@ vec4 CalculatePointLight(light pointLight)
 
 	// apply shininess to the specular scalar
 	float shininessScalar = pow(specularScalar, material.shininess);
+	
+	// calculate the ambient portion of the colors
+	vec4 ambientPortion = pointLight.ambient * texture(material.diffuseMap, UV);
 
 	// calculate the specular portion of the color
-	vec4 specularPortion = shininessScalar * pointLight.specular * material.specular;
-
-	// calculate the ambient portion of the colors
-	vec4 ambientPortion = pointLight.ambient * material.ambient;
+	vec4 specularPortion = pointLight.specular * ( shininessScalar * texture(material.specularMap, UV) );
 
 	// calculate the distance between the light and fragment
 	float dist = length(lightPosition - fragmentPosition);
@@ -85,9 +83,6 @@ vec4 CalculatePointLight(light pointLight)
 	ambientPortion *= attenuation;
 	diffusePortion *= attenuation;
 	specularPortion *= attenuation;
-
-	diffusePortion *= texture(material.diffuseMap, UV);
-	specularPortion *= texture(material.specularMap, UV);
 
 	// combine all portions into final color for this light and return
 	return (ambientPortion + diffusePortion + specularPortion);

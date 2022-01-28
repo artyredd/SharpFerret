@@ -123,6 +123,10 @@ struct _texture {
 struct _textureMethods
 {
 	/// <summary>
+	/// Returns a blank texture with a width and height of 1 px with the color white
+	/// </summary>
+	Texture(*Blank)(void);
+	/// <summary>
 	/// Modifies the currently bound texture, this should be invoked in the method given to TryCreateTextureAdvanced
 	/// </summary>
 	void(*Modify)(TextureSetting setting, TextureSettingValue value);

@@ -1,6 +1,4 @@
 # the array of shaders that should be loaded for this material
-shaders: assets/shaders/texturedShader,
+shaders: assets/shaders/texturedLit.shader,
 # the material base color
 color: 1.000000 1.000000 1.000000 1.000000
-# the main UV texture that should be used for this material
-mainTexture: assets/textures/cubeuv.png

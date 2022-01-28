@@ -1,5 +1,6 @@
 #include "graphics/graphicsDevice.h"
 #include "GL/glew.h"
+#include <stdlib.h>
 
 const struct _comparisons Comparisons = {
 	.Always = GL_ALWAYS,
@@ -26,6 +27,8 @@ static void ResetStencilFunction(void);
 static void EnableDepthTesting(void);
 static void DisableDepthTesting(void);
 static void SetDepthTest(const Comparison);
+static void ActivateTexture(const unsigned int textureHandle, int uniformHandle);
+static void Deactivate(void);
 
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
@@ -41,7 +44,9 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.SetStencilFull = &SetStencilFunctionFull,
 	.EnableDepthTesting = &EnableDepthTesting,
 	.DisableDepthTesting = &DisableDepthTesting,
-	.SetDepthTest = &SetDepthTest
+	.SetDepthTest = &SetDepthTest,
+	.ActivateTexture = &ActivateTexture,
+	.DeactivateTexture = &Deactivate
 };
 
 bool blendingEnabled = false;
@@ -57,6 +62,9 @@ unsigned int defaultStencilComparison = GL_ALWAYS;
 unsigned int defaultStencilComparisonValue = 1;
 unsigned int defaultStencilComparisonMask = 0xFF;
 unsigned int depthComparison;
+
+unsigned int nextTexture = 0;
+unsigned int maxTextures = GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
 
 static void EnableDepthTesting(void)
 {
@@ -184,4 +192,20 @@ static void SetDepthTest(const Comparison comparison)
 		glDepthFunc(comparison);
 		depthComparison = comparison;
 	}
+}
+
+static void ActivateTexture(const unsigned int textureHandle, int uniformHandle)
+{
+	glEnable(GL_TEXTURE_2D);
+	glActiveTexture(GL_TEXTURE0 + nextTexture);
+	glBindTexture(GL_TEXTURE_2D, textureHandle);
+	glUniform1i(uniformHandle, nextTexture);
+	glDisable(GL_TEXTURE_2D);
+
+	nextTexture = (nextTexture + 1) % maxTextures;
+}
+
+static void Deactivate()
+{
+	nextTexture = min(nextTexture - 1, maxTextures - 1);
 }

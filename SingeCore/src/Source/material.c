@@ -68,6 +68,7 @@ static void Dispose(Material material)
 	SafeFree(material->Name);
 
 	Textures.Dispose(material->MainTexture);
+	Textures.Dispose(material->SpecularTexture);
 
 	SafeFree(material);
 }
@@ -192,22 +193,9 @@ static Material InstanceMaterial(Material material)
 }
 
 // Enables or disables graphics and matrix settings based on what settings are provided by the shader
-static void PrepareSettings(Shader shader, mat4 modelMatrix, mat4 mvpMatrix)
+static void PrepareSettings(Shader shader)
 {
 	unsigned int settings = shader->Settings;
-
-	int handle;
-	if (Shaders.TryGetUniform(shader, Uniforms.MVP, &handle))
-	{
-		if (HasFlag(settings, ShaderSettings.UseCameraPerspective))
-		{
-			glUniformMatrix4fv(handle, 1, false, &mvpMatrix[0][0]);
-		}
-		else
-		{
-			glUniformMatrix4fv(handle, 1, false, &modelMatrix[0][0]);
-		}
-	}
 
 	// check to see if we need to DISABLE back face culling(by default it's on)
 	if (HasFlag(settings, ShaderSettings.BackfaceCulling))
@@ -297,14 +285,10 @@ static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture)
 {
 	if (texture isnt null)
 	{
-		int textureHandle;
-		if (Shaders.TryGetUniform(shader, uniform, &textureHandle))
+		int uniformHandle;
+		if (Shaders.TryGetUniform(shader, uniform, &uniformHandle))
 		{
-			glEnable(GL_TEXTURE_2D);
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, texture->Handle->Handle);
-			glUniform1i(textureHandle, 0);
-			glDisable(GL_TEXTURE_2D);
+			GraphicsDevice.ActivateTexture(texture->Handle->Handle, uniformHandle);
 		}
 	}
 }
@@ -333,7 +317,6 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 	{
 		glUniform1i(handle, light->Type);
 	}
-
 
 	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Ambient, &handle))
 	{
@@ -368,7 +351,6 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 		glUniform3fv(handle, 1, light->Transform->Position);
 	}
 
-
 	return true;
 }
 
@@ -396,8 +378,13 @@ static void SetLightUniforms(Shader shader, Scene scene)
 	}
 }
 
-static void PerformDraw(Material material, Scene scene, RenderMesh mesh, mat4 modelMatrix, mat4 MVPMatrix)
+static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 {
+
+	vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
+
+	Cameras.Refresh(scene->MainCamera);
+
 	for (size_t i = 0; i < material->Count; i++)
 	{
 		Shader shader = material->Shaders[i];
@@ -406,7 +393,7 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh, mat4 mo
 		{
 			Shaders.Enable(shader);
 
-			PrepareSettings(shader, modelMatrix, MVPMatrix);
+			PrepareSettings(shader);
 
 			SetLightUniforms(shader, scene);
 
@@ -428,9 +415,13 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh, mat4 mo
 
 			SetUniformVector4(shader, Uniforms.Ambient, material->AmbientColor);
 
-			SetTextureUniform(shader, Uniforms.Texture0, material->MainTexture);
+			SetTextureUniform(shader, Uniforms.DiffuseMap, material->MainTexture);
 
 			SetTextureUniform(shader, Uniforms.SpecularMap, material->SpecularTexture);
+
+			// disable the two textures activated for diffuse and specular maps
+			GraphicsDevice.DeactivateTexture();
+			GraphicsDevice.DeactivateTexture();
 
 			// draw the triangles
 			RenderMeshes.Draw(mesh);
@@ -442,15 +433,7 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh, mat4 mo
 
 static void Draw(Material material, RenderMesh mesh, Scene scene)
 {
-	// check if we should use the camera's perspective
-	vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
-
-	vec4* cameraVP = Cameras.Refresh(scene->MainCamera);
-
-	mat4 mvp;
-	glm_mat4_mul(cameraVP, modelMatrix, mvp);
-
-	PerformDraw(material, scene, mesh, modelMatrix, mvp);
+	PerformDraw(material, scene, mesh);
 }
 
 static void SetMainTexture(Material material, Texture texture)

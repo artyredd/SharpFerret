@@ -4,28 +4,20 @@
 #include "sharedBuffer.h"
 #include "graphics/graphicsDevice.h"
 
-#define UNIFORM_NAME_MVP "MVP"
-#define UNIFORM_NAME_ProjectionMatrix "projectionMatrix"
-#define UNIFORM_NAME_ViewMatrix "viewMatrix"
-#define UNIFORM_NAME_ModelMatrix "modelMatrix"
-#define UNIFORM_NAME_Texture0 "myTextureSampler"
-#define UNIFORM_NAME_Color "mainColor"
-#define UNIFORM_NAME_SpecularColor "specularColor"
-#define UNIFORM_NAME_AmbientColor "ambientColor"
-#define UNIFORM_NAME_SpecularMap "specularMap"
-#define UNIFORM_NAME_CameraPosition "cameraPosition"
-#define UNIFORM_NAME_DiffuseColor "diffuseColor"
-#define UNIFORM_NAME_LightsArray "Lights"
-#define UNIFORM_NAME_LightCount "LightCount"
-#define UNIFORM_NAME_Shininess "shininess"
-
 #define MAX_UNIFORMS 1024
+#define MAX_POINT_LIGHTS 100
 
+// represents a uniform within a shader and the information used to load it and cache it effectively
 typedef const struct _uniform Uniform;
 
 struct _uniform {
+	// the name of the uniform, this can be full or partial, depending on which method is used to try to load the uniform
 	const char* Name;
+	// the index within the handle array that this uniform is stored(for single uniforms) or the start index of many of this uniform(for count > 0)
 	unsigned int Index;
+	// the number of uniforms supported of this kind, for an array with a length of 100 this count would be 100, for single uniforms this is 0 or 1
+	unsigned int Count;
+	// the width in integers for a single uniform of this type, for a struct uniform with 5 fields, the length of this would be 5(one integer per field)
 	unsigned int Size;
 };
 
@@ -43,7 +35,7 @@ struct _uniforms {
 	Uniform ViewMatrix;
 	Uniform ProjectionMatrix;
 	Uniform MVP;
-	Uniform Texture0;
+	Uniform DiffuseMap;
 	Uniform Color;
 	Uniform Specular;
 	Uniform Ambient;
@@ -57,6 +49,7 @@ struct _uniforms {
 	Uniform Shininess;
 };
 
+// Global uniforms likely to be widely used across many shaders to provide basic functionality
 extern const struct _uniforms Uniforms;
 
 struct _shaderUniforms {

@@ -137,7 +137,7 @@ int main()
 	GameObject ball = GameObjects.Load("assets/prefabs/ball.gameobject");
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = GameObjects.Load("assets/prefabs/cube.gameobject");
+	GameObject car = GameObjects.Load("assets/prefabs/car.gameobject");
 
 
 	float speed = 10.0f;
@@ -234,25 +234,31 @@ int main()
 
 	// create a test light for manual testing
 	Light light = Lights.Create();
+	Light otherLight = Lights.Create();
 
 	// light body
-	Transforms.SetPositions(light->Transform, 0, 3, 0);
-	Transforms.SetPositions(camera->Transform, -3, 0, 3);
+	Transforms.SetPositions(light->Transform, -5, 5, 0);
+	Transforms.SetPositions(otherLight->Transform, 5, 5, 0);
+
+	Transforms.SetPositions(camera->Transform, -3, 3, 3);
 
 	GameObject lightMarker = GameObjects.Duplicate(cube);
 
 	GameObjects.SetMaterial(lightMarker, outlineMaterial);
 
 	Transforms.ScaleAll(lightMarker->Transform, 0.25f);
+
+	GameObject otherLightMarker = GameObjects.Duplicate(lightMarker);
+
 	Transforms.SetPosition(lightMarker->Transform, light->Transform->Position);
+	Transforms.SetPosition(otherLightMarker->Transform, otherLight->Transform->Position);
 
 	light->Enabled = true;
-
-	//SetVector3(light->Ambient, 0,0,0);
-	//SetVector3(light->Diffuse, 0,0,0);
+	otherLight->Enabled = true;
 
 	// add the light to the scene
 	Scenes.AddLight(scene, light);
+	Scenes.AddLight(scene, otherLight);
 
 	GameObject plane = GameObjects.Load("assets/prefabs/plane.gameobject");
 
@@ -357,17 +363,15 @@ int main()
 		Transforms.SetPosition(camera->Transform, position);
 
 		GameObjects.Draw(lightMarker, scene);
+		GameObjects.Draw(otherLightMarker, scene);
+
 		GameObjects.Draw(cube, scene);
 
 		GameObjects.Draw(car, scene);
 		GameObjects.Draw(ball, scene);
 		GameObjects.Draw(otherBall, scene);
 		GameObjects.Draw(room, scene);
-		GameObjects.Draw(plane, scene);
 
-
-		//GameObjects.Draw(subSquare, camera);
-		//GameObjects.Draw(square, camera);
 		Texts.Draw(text, scene);
 
 		// swap the back buffer with the front one
@@ -380,6 +384,7 @@ int main()
 	} while (GetKey(KeyCodes.Escape) != true && Windows.ShouldClose(window) != true);
 
 	Lights.Dispose(light);
+	Lights.Dispose(otherLight);
 
 	Texts.Dispose(text);
 
@@ -395,6 +400,7 @@ int main()
 	GameObjects.Destroy(subSquare);
 	GameObjects.Destroy(lightMarker);
 	GameObjects.Destroy(plane);
+	GameObjects.Destroy(otherLightMarker);
 
 
 	Materials.Dispose(textMaterial);

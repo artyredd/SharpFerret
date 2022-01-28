@@ -279,6 +279,7 @@
     <ClInclude Include="src\Headers\tests.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\materials\cube.material" />
     <None Include="assets\materials\debugOrientation.material" />
     <None Include="assets\materials\debugOrientationGUI.material" />
     <None Include="assets\materials\default.material" />
@@ -296,21 +297,26 @@
     <None Include="assets\prefabs\plane.gameobject" />
     <None Include="assets\prefabs\room.gameobject" />
     <None Include="assets\prefabs\house.gameobject" />
+    <None Include="assets\shaders\ColorUV.fragmentshader" />
     <None Include="assets\shaders\debugOrientation.fragmentshader" />
+    <None Include="assets\shaders\debugOrientation.shader" />
     <None Include="assets\shaders\debugOrientation.vertexshader" />
+    <None Include="assets\shaders\debugOrientationGUI.shader" />
     <None Include="assets\shaders\default.fragmentshader" />
-    <None Include="assets\shaders\default.shader" />
     <None Include="assets\shaders\default.vertexshader" />
-    <None Include="assets\shaders\guiShader" />
+    <None Include="assets\shaders\diffuseLit.fragmentshader" />
+    <None Include="assets\shaders\diffuseLit.shader" />
+    <None Include="assets\shaders\DistanceGlow.fragmentshader" />
+    <None Include="assets\shaders\DistanceGlow.vertexshader" />
+    <None Include="assets\shaders\GUIShader.vertexshader" />
     <None Include="assets\shaders\outlineShader.fragmentshader" />
     <None Include="assets\shaders\outlineShader.shader" />
     <None Include="assets\shaders\outlineShader.vertexshader" />
     <None Include="assets\shaders\shaderFormat.shader" />
-    <None Include="assets\shaders\TextShader" />
-    <None Include="assets\shaders\TextShader.fragmentshader" />
-    <None Include="assets\shaders\TextShader.vertexshader" />
-    <None Include="assets\shaders\texturedShader" />
-    <None Include="assets\shaders\uvShader" />
+    <None Include="assets\shaders\text.fragmentshader" />
+    <None Include="assets\shaders\text.vertexshader" />
+    <None Include="assets\shaders\texturedLit.fragmentshader" />
+    <None Include="assets\shaders\texturedLit.shader" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="assets\prefabs\lightBase.gameobject" />

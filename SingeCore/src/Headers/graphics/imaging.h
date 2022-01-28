@@ -45,7 +45,7 @@ struct _image {
 
 struct _imageMethods {
 	/// Allocates a new image and returns a pointer to it
-	Image(*CreateImage)();
+	Image(*CreateImage)(void);
 	/// <summary>
 	/// Attempts to load the provided image, returns the loaded image if it was loaded, otherwise null
 	/// </summary>

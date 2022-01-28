@@ -2,7 +2,7 @@
 vertexShader: assets/shaders/default.vertexshader
 
 # The path to the fragment shader that should be used for this shader
-fragmentShader: assets/shaders/default.fragmentshader
+fragmentShader: assets/shaders/texturedLit.fragmentshader
 
 # whether or not backface culling should be enabled for this shader
 enableBackfaceCulling: true

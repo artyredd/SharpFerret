@@ -43,6 +43,14 @@ struct _graphicsDeviceMethods
 	void (*EnableDepthTesting)(void);
 	void (*DisableDepthTesting)(void);
 	void (*SetDepthTest)(const Comparison);
+	/// <summary>
+	/// Binds the provided texture to an open texture slot on the graphics device
+	/// </summary>
+	void (*ActivateTexture)(const unsigned int textureHandle, int uniformHandle);
+	/// <summary>
+	/// Deactivates the last active texture slot
+	/// </summary>
+	void (*DeactivateTexture)(void);
 };
 
 extern const struct _graphicsDeviceMethods GraphicsDevice;

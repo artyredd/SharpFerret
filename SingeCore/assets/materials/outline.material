@@ -1,4 +1,4 @@
-shaders: assets/shaders/default.shader, assets/shaders/outlineShader.shader
+shaders: assets/shaders/diffuseLit.shader, assets/shaders/outlineShader.shader
 color: 1.000000 1.000000 1.000000 1.000000
 ambient: 0.1 0.1 0.1 1.0
 diffuse: 0.0 0.0 1.0 1.0

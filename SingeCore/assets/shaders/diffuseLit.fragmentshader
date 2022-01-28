@@ -19,8 +19,6 @@ uniform struct _material	{
 	vec4 diffuse;
 	vec4 specular;
 	float shininess;
-	sampler2D diffuseMap;
-	sampler2D specularMap;
 } material;
 
 
@@ -85,9 +83,6 @@ vec4 CalculatePointLight(light pointLight)
 	ambientPortion *= attenuation;
 	diffusePortion *= attenuation;
 	specularPortion *= attenuation;
-
-	diffusePortion *= texture(material.diffuseMap, UV);
-	specularPortion *= texture(material.specularMap, UV);
 
 	// combine all portions into final color for this light and return
 	return (ambientPortion + diffusePortion + specularPortion);

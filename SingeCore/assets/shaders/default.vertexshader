@@ -13,22 +13,22 @@ out vec3 fragmentPosition;
 //out mat4 view;
 
 // Values that stay constant for the whole mesh.
-uniform mat4 modelMatrix;
-uniform mat4 viewMatrix;
-uniform mat4 projectionMatrix;
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
 
 void main(){
 
 	vec3 pos = vertexPosition_modelspace;
 
 	// Output position of the vertex, in clip space : MVP * position
-	gl_Position =  projectionMatrix * viewMatrix * modelMatrix * vec4(pos,1);
+	gl_Position =  projection * view * model * vec4(pos,1);
 	
 	// UV of the vertex. No special space for this one.
 	UV = vertexUV;
 
 	//normal = normalize(mat3(transpose(inverse(viewMatrix * modelMatrix))) * normalVector);
-	normal = mat3(transpose(inverse(modelMatrix))) * normalVector;
+	normal = mat3(transpose(inverse(model))) * normalVector;
 
-	fragmentPosition = vec3(modelMatrix * vec4(pos, 1));
+	fragmentPosition = vec3(model * vec4(pos, 1));
 }

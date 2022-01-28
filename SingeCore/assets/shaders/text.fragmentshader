@@ -1,0 +1,34 @@
+#version 330 core
+
+// Interpolated values from the vertex shaders
+in vec2 UV;
+
+// Ouput data
+out vec4 color;
+
+// Values that stay constant for the whole mesh.
+uniform struct _material	{ 
+	vec4 ambient;
+	vec4 color;
+	vec4 diffuse;
+	vec4 specular;
+	float shininess;
+	sampler2D diffuseMap;
+	sampler2D specularMap;
+} material;
+
+void main(){
+
+	// Output color = color of the texture at the specified UV
+	//color = texture( myTextureSampler, UV ) * mainColor;
+	//color = vec4(1,0,0,1);
+	//color = material.color;
+
+	vec4 result = vec4(0);
+
+	result += material.ambient;
+	result += texture( material.diffuseMap, UV ) * material.diffuse;
+	result += texture( material.specularMap, UV ) * material.specular;
+
+	color = result * material.color;
+}
