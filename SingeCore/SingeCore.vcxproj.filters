@@ -28,9 +28,6 @@
     <Filter Include="Header Files\Math">
       <UniqueIdentifier>{6f5b82b9-4f61-4900-96dc-a46c77862faa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\Graphics\Shaders">
-      <UniqueIdentifier>{90377ebf-f80a-4a98-9bbf-79c985cc24b2}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\Modeling">
       <UniqueIdentifier>{9207c7bb-6197-4ef6-9bad-1366a1e28542}</UniqueIdentifier>
     </Filter>
@@ -215,9 +212,6 @@
     <ClInclude Include="src\Headers\input.h">
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
-    <ClInclude Include="src\Headers\graphics\shaders.h">
-      <Filter>Header Files\Graphics\Shaders</Filter>
-    </ClInclude>
     <ClInclude Include="src\Headers\singine\guards.h">
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
@@ -328,6 +322,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\math\floats.h">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\graphics\shaders.h">
+      <Filter>Header Files\Graphics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

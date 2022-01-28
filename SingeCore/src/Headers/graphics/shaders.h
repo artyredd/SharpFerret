@@ -19,11 +19,24 @@
 #define UNIFORM_NAME_LightCount "LightCount"
 #define UNIFORM_NAME_Shininess "shininess"
 
+#define MAX_UNIFORMS 1024
+
 typedef const struct _uniform Uniform;
 
 struct _uniform {
 	const char* Name;
 	unsigned int Index;
+	unsigned int Size;
+};
+
+struct _lightUniforms {
+	Uniform Type;
+	Uniform Ambient;
+	Uniform Diffuse;
+	Uniform Specular;
+	Uniform Range;
+	Uniform Radius;
+	Uniform Position;
 };
 
 struct _uniforms {
@@ -39,6 +52,7 @@ struct _uniforms {
 	Uniform ModelMatrix;
 	Uniform Diffuse;
 	Uniform Lights;
+	struct _lightUniforms LightFields;
 	Uniform LightCount;
 	Uniform Shininess;
 };
@@ -46,19 +60,7 @@ struct _uniforms {
 extern const struct _uniforms Uniforms;
 
 struct _shaderUniforms {
-	/// <summary>
-	/// Mask that define which handles are available for this shader, MVp, texture, position etc.., the absence of a flag here denotes EITHER it hasn't
-	/// been loaded YET or that it's not available
-	/// </summary>
-	unsigned int AvailableUniforms;
-	/// <summary>
-	/// Mask that contains flags that denote that a flag is not present in a shader AFTER atempting to load it
-	/// </summary>
-	unsigned int UnavailableUniforms;
-	/// <summary>
-	/// The Uniform handles, this array is never initialized, do not rely on it having 0's in any given index
-	/// </summary>
-	int Handles[16];
+	int Handles[MAX_UNIFORMS];
 };
 
 typedef unsigned int ShaderSetting;
@@ -138,7 +140,7 @@ struct _shaderMethods {
 	Shader(*Instance)(Shader);
 	bool (*TryGetUniform)(Shader, Uniform, int* out_handle);
 	bool (*TryGetUniformArray)(Shader, Uniform, size_t index, int* out_handle);
-	bool (*TryGetUniformArrayField)(Shader, Uniform, size_t index, const char* field, int* out_handle);
+	bool (*TryGetUniformArrayField)(Shader, Uniform, size_t index, Uniform field, int* out_handle);
 	void (*DisableSetting)(Shader, const ShaderSetting);
 	void (*EnableSetting)(Shader, const ShaderSetting);
 	void (*SetSetting)(Shader, const ShaderSetting, const bool enabled);

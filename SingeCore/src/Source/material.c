@@ -329,45 +329,45 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 		vec3 position;
 	*/
 	int handle;
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "lightType", &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Type, &handle))
 	{
 		glUniform1i(handle, light->Type);
 	}
-	
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "ambient", &handle))
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Ambient, &handle))
 	{
 		glUniform4fv(handle, 1, light->Ambient);
 	}
-	
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "diffuse", &handle))
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Diffuse, &handle))
 	{
 		glUniform4fv(handle, 1, light->Diffuse);
 	}
-	
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "specular", &handle))
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Specular, &handle))
 	{
 		glUniform4fv(handle, 1, light->Specular);
 	}
-	
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "range", &handle))
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Range, &handle))
 	{
 		glUniform1f(handle, light->Range);
 	}
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "radius", &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Radius, &handle))
 	{
 		glUniform1f(handle, light->Radius);
 	}
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, "position", &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Position, &handle))
 	{
 		glUniform3fv(handle, 1, light->Transform->Position);
 	}
-	
+
 
 	return true;
 }
