@@ -83,7 +83,6 @@ static GameObject CreateGameObject()
 	return CreateWithMaterial(DefaultMaterial);
 }
 
-
 static GameObject CreateWithMaterial(Material material)
 {
 	GameObject gameObject = SafeAlloc(sizeof(struct _gameObject));

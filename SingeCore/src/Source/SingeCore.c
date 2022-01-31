@@ -139,6 +139,8 @@ int main()
 	GameObject otherBall = GameObjects.Duplicate(ball);
 	GameObject car = GameObjects.Load("assets/prefabs/car.gameobject");
 
+	GameObject city = GameObjects.Load("assets/prefabs/house.gameobject");
+
 
 	float speed = 10.0f;
 
@@ -390,6 +392,7 @@ int main()
 		GameObjects.Draw(ball, scene);
 		GameObjects.Draw(otherBall, scene);
 		GameObjects.Draw(room, scene);
+		GameObjects.Draw(city, scene);
 
 		Texts.Draw(text, scene);
 
@@ -404,6 +407,7 @@ int main()
 
 	Lights.Dispose(light);
 	Lights.Dispose(otherLight);
+	Lights.Dispose(spotLight);
 
 	Texts.Dispose(text);
 
@@ -421,7 +425,6 @@ int main()
 	GameObjects.Destroy(plane);
 	GameObjects.Destroy(otherLightMarker);
 
-
 	Materials.Dispose(textMaterial);
 	Materials.Dispose(defaultMaterial);
 	Materials.Dispose(textureMaterial);
@@ -433,7 +436,11 @@ int main()
 
 	Windows.Dispose(window);
 
+	GameObjects.Destroy(city);
+
 	Windows.StopRuntime();
+
+
 
 	// ensure leak free
 	PrintAlloc(stdout);

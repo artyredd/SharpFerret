@@ -1,2 +1,4 @@
-model: assets/models/hall.obj
+model: assets/models/city.obj
 material: assets/materials/default.material
+transform:
+position: 50 0 0

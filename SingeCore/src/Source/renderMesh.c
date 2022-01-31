@@ -266,6 +266,9 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 		meshesArray[i] = newMesh;
 	}
 
+	// dispose of the extra instance we made for convenience
+	InstancedResources.Dispose(name, null, null);
+
 	*out_meshArray = meshesArray;
 
 	return true;
