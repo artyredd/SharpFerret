@@ -285,6 +285,7 @@
     <None Include="assets\materials\default.material" />
     <None Include="assets\materials\guiMaterial.material" />
     <None Include="assets\materials\outline.material" />
+    <None Include="assets\materials\silver.material" />
     <None Include="assets\materials\textMaterial.material" />
     <None Include="assets\materials\textureMaterial.material" />
     <None Include="assets\materials\uvMaterial.material" />
@@ -309,6 +310,7 @@
     <None Include="assets\shaders\DistanceGlow.fragmentshader" />
     <None Include="assets\shaders\DistanceGlow.vertexshader" />
     <None Include="assets\shaders\GUIShader.vertexshader" />
+    <None Include="assets\shaders\lit.fragmentshader" />
     <None Include="assets\shaders\outlineShader.fragmentshader" />
     <None Include="assets\shaders\outlineShader.shader" />
     <None Include="assets\shaders\outlineShader.vertexshader" />

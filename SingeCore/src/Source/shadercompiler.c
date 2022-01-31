@@ -13,7 +13,7 @@
 #include <string.h>
 #include "singine/strings.h"
 
-static Shader CompileShader(const char* vertexPath, const char* fragmentPath);
+static Shader CompileShader(const StringArray vertexPaths, const StringArray fragmentPaths);
 static Shader Load(const char* path);
 static bool Save(Shader shader, const char* path);
 
@@ -63,12 +63,34 @@ size_t HandleDictionaryLength = CompiledHandleDictionarySize;
 
 // checks if the combination of the two shader souce files have already been compiled
 // if they are a handle is returned
-static bool TryGetStoredShader(const char* vertexPath, const char* fragmentPath, Shader* out_shader)
+static bool TryGetStoredShader(const StringArray vertexPaths, const StringArray fragmentPaths, Shader* out_shader)
 {
-	// hash the two paths
-	size_t hash = Hashing.Hash(vertexPath);
+	if (vertexPaths is null or vertexPaths->Count < 1)
+	{
+		return false;
+	}
 
-	hash = Hashing.ChainHash(fragmentPath, hash);
+	if (fragmentPaths is null or fragmentPaths->Count < 1)
+	{
+		return false;
+	}
+
+	// hash the two paths
+	size_t hash = Hashing.Hash(vertexPaths->Strings[0]);
+
+	for (size_t i = 1; i < vertexPaths->Count; i++)
+	{
+		const char* string = vertexPaths->Strings[i];
+
+		hash = Hashing.ChainHash(string, hash);
+	}
+
+	for (size_t i = 0; i < fragmentPaths->Count; i++)
+	{
+		const char* string = fragmentPaths->Strings[i];
+
+		hash = Hashing.ChainHash(string, hash);
+	}
 
 	// mod the hash with the array size
 	size_t index = hash % CompiledHandleDictionarySize;
@@ -81,12 +103,34 @@ static bool TryGetStoredShader(const char* vertexPath, const char* fragmentPath,
 }
 
 // stored the given handle within the compiled handle dictionary, returns true when no collision occurs
-static bool TryStoreShader(const char* vertexPath, const char* fragmentPath, Shader shader)
+static bool TryStoreShader(const StringArray vertexPaths, const StringArray fragmentPaths, Shader shader)
 {
-	// hash the two paths
-	size_t hash = Hashing.Hash(vertexPath);
+	if (vertexPaths is null or vertexPaths->Count < 1)
+	{
+		return false;
+	}
 
-	hash = Hashing.ChainHash(fragmentPath, hash);
+	if (fragmentPaths is null or fragmentPaths->Count < 1)
+	{
+		return false;
+	}
+
+	// hash the two paths
+	size_t hash = Hashing.Hash(vertexPaths->Strings[0]);
+
+	for (size_t i = 1; i < vertexPaths->Count; i++)
+	{
+		const char* string = vertexPaths->Strings[i];
+
+		hash = Hashing.ChainHash(string, hash);
+	}
+
+	for (size_t i = 0; i < fragmentPaths->Count; i++)
+	{
+		const char* string = fragmentPaths->Strings[i];
+
+		hash = Hashing.ChainHash(string, hash);
+	}
 
 	// mod the hash with the array size
 	size_t index = hash % CompiledHandleDictionarySize;
@@ -176,7 +220,7 @@ static bool VerifyShaderStatus(unsigned int handle)
 	return true;
 }
 
-static bool TryCompileShader(const char* data, ShaderType shaderType, unsigned int* out_handle)
+static bool TryCompileShader(const char** dataArray, size_t count, ShaderType shaderType, unsigned int* out_handle)
 {
 	// default set the out variable to 0, so if we return early we don't accidently give a wierd handle that may not exist
 	*out_handle = 0;
@@ -192,7 +236,7 @@ static bool TryCompileShader(const char* data, ShaderType shaderType, unsigned i
 		return false;
 	}
 
-	glShaderSource(handle, 1, &data, null);
+	glShaderSource(handle, (int)count, dataArray, null);
 	glCompileShader(handle);
 
 	if (VerifyShaderStatus(handle) is false)
@@ -219,22 +263,33 @@ static bool VerifyProgramStatus(unsigned int handle)
 	return compiled;
 }
 
-static bool TryCompile(const char* path, ShaderType shaderType, unsigned int* out_handle)
+static bool TryCompile(const StringArray paths, ShaderType shaderType, unsigned int* out_handle)
 {
 	*out_handle = 0;
 
 	// read the file's data
-	char* vertexData;
+	char* dataArray[MAX_SHADER_PIECES];
 
-	if (Files.TryReadAll(path, &vertexData) is false)
+	for (size_t i = 0; i < paths->Count; i++)
 	{
-		return false;
+		const char* path = paths->Strings[i];
+
+		if (Files.TryReadAll(path, &dataArray[i]) is false)
+		{
+			fprintf(stderr, "Failed to file the shader source file at path %s"NEWLINE, path);
+
+			return false;
+		}
 	}
 
-	// compile the shader
-	bool compiled = TryCompileShader(vertexData, shaderType, out_handle);
 
-	SafeFree(vertexData);
+	// compile the shader
+	bool compiled = TryCompileShader(dataArray, paths->Count, shaderType, out_handle);
+
+	for (size_t i = 0; i < paths->Count; i++)
+	{
+		SafeFree(dataArray[i]);
+	}
 
 	return compiled;
 }
@@ -277,48 +332,54 @@ static bool TryCompileProgram(unsigned int vertexHandle, unsigned int fragmentHa
 
 	// now that the whole shader has been compiled and linked we can dispose of the individual pieces we used to compile the whole thing
 	glDetachShader(programHandle, vertexHandle);
-	glDetachShader(programHandle, fragmentHandle);
+	glDeleteShader(vertexHandle);
 
-	glDeleteShader(vertexHandle);
-	glDeleteShader(vertexHandle);
+	glDetachShader(programHandle, fragmentHandle);
+	glDeleteShader(fragmentHandle);
 
 	*out_handle = programHandle;
 
 	return true;
 }
 
-static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
+static Shader CompileShader(const StringArray vertexPaths, const StringArray fragmentPaths)
 {
-	GuardNotNull(vertexPath);
-	GuardNotNull(fragmentPath);
+	GuardNotNull(vertexPaths);
+	GuardNotNull(fragmentPaths);
 
-	// check to see if we have already compiled these shaders
+	// trim all the paths
+	StringArrays.Trim(vertexPaths);
+	StringArrays.Trim(fragmentPaths);
+
+	// check if we have already compiled the provided shader pieces
 	Shader shader;
-	if (TryGetStoredShader(vertexPath, fragmentPath, &shader))
+	if (TryGetStoredShader(vertexPaths, fragmentPaths, &shader))
 	{
 		return Shaders.Instance(shader);
 	}
 
-	// compile the vertex shader
+	// compile the vertex pieces
 	unsigned int vertexHandle;
-	if (TryCompile(vertexPath, ShaderTypes.Vertex, &vertexHandle) is false)
+
+	if (TryCompile(vertexPaths, ShaderTypes.Vertex, &vertexHandle) is false)
 	{
-		fprintf(stderr, FailedToCompileMessage, "vertex", vertexPath);
+		fprintf(stderr, FailedToCompileMessage, "vertex", vertexPaths->Strings[0]);
 		throw(FailedToCompileShaderException);
 	}
 
-	// compile the fragment shader
 	unsigned int fragmentHandle;
-	if (TryCompile(fragmentPath, ShaderTypes.Fragment, &fragmentHandle) is false)
+
+	if (TryCompile(fragmentPaths, ShaderTypes.Fragment, &fragmentHandle) is false)
 	{
-		fprintf(stderr, FailedToCompileMessage, "fragment", fragmentPath);
+		fprintf(stderr, FailedToCompileMessage, "fragment", fragmentPaths->Strings[0]);
 		throw(FailedToCompileShaderException);
 	}
 
+	// create the program using the pieces
 	unsigned int programHandle;
 	if (TryCompileProgram(vertexHandle, fragmentHandle, &programHandle) is false)
 	{
-		fprintf(stderr, FailedToCompileProgramMessage, vertexPath, fragmentHandle);
+		fprintf(stderr, FailedToCompileProgramMessage, "", "");
 		throw(FailedToCompileShaderException);
 	}
 
@@ -327,11 +388,11 @@ static Shader CompileShader(const char* vertexPath, const char* fragmentPath)
 	shader->Handle->Handle = programHandle;
 
 	// make a copy of the provided strings
-	shader->VertexPath = Strings.DuplicateTerminated(vertexPath);
-	shader->FragmentPath = Strings.DuplicateTerminated(fragmentPath);
+	shader->VertexPath = Strings.DuplicateTerminated(vertexPaths->Strings[0]);
+	shader->FragmentPath = Strings.DuplicateTerminated(fragmentPaths->Strings[0]);
 
 	// since we didnt find the shader in the dictionary store it
-	if (TryStoreShader(vertexPath, fragmentPath, shader) is false)
+	if (TryStoreShader(vertexPaths, fragmentPaths, shader) is false)
 	{
 		// this should never fail becuase in order for this block to be executed
 		// we must not have previously stored the shader
@@ -401,13 +462,15 @@ static const char* GetStencilComparisonName(unsigned int comparison)
 #define MaxPathLength 512
 
 struct _shaderInfo {
-	char* FragmentPath;
-	char* VertexPath;
+	struct _stringArray FragmentPieces;
+	struct _stringArray VertexPieces;
 	unsigned int Settings;
 	unsigned int StencilComparison;
 	unsigned int StencilValue;
 	unsigned int StencilMask;
 };
+
+#define ArrayDelimiter ','  // comma
 
 #define ExportTokenFormat "\n%s: %s\n"
 
@@ -473,9 +536,9 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 	switch (index)
 	{
 	case 0: // vertex path
-		return TryParseString(buffer, length, MaxPathLength, &state->VertexPath);
+		return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->VertexPieces);
 	case 1: // fragment path
-		return TryParseString(buffer, length, MaxPathLength, &state->FragmentPath);
+		return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->FragmentPieces);
 	case 2: // backface culling
 		if (TryParseBoolean(buffer, length, &enabled))
 		{
@@ -558,8 +621,16 @@ static Shader Load(const char* path)
 
 	// create a place to store info needed to compile shader
 	struct _shaderInfo info = {
-		.FragmentPath = null,
-		.VertexPath = null,
+		.FragmentPieces = {
+			.Count = 0,
+			.StringLengths = null,
+			.Strings = null
+		},
+		.VertexPieces = {
+			.Count = 0,
+			.StringLengths = null,
+			.Strings = null
+		},
 		.Settings = 0,
 		.StencilComparison = Comparisons.Always,
 		.StencilMask = 0xFF,
@@ -569,7 +640,7 @@ static Shader Load(const char* path)
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &info))
 	{
 		// check to see if we already compiled a shader similar to this one
-		shader = CompileShader(info.VertexPath, info.FragmentPath);
+		shader = CompileShader(&info.VertexPieces, &info.FragmentPieces);
 
 		// if we didn't load the shader but compiled it instead, set the name to the path given
 		if (shader->Name is null)
@@ -586,12 +657,12 @@ static Shader Load(const char* path)
 	}
 
 	// always free these strings, CompileShader will make copies if it needs to
-	SafeFree(info.FragmentPath);
-	SafeFree(info.VertexPath);
+	StringArrays.DisposeMembers(&info.FragmentPieces);
+	StringArrays.DisposeMembers(&info.VertexPieces);
 
 	if (shader is null)
 	{
-		fprintf(stderr, "Failed to load the shader from path: %s", path);
+		fprintf(stderr, "Failed to load the shader from path: %s"NEWLINE, path);
 	}
 
 	return shader;

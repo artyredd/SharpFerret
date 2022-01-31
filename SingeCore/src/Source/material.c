@@ -409,7 +409,7 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 
 			SetUniformVector4(shader, Uniforms.Color, material->Color);
 
-			SetUniformFloat(shader, Uniforms.Shininess, material->Shininess);
+			SetUniformFloat(shader, Uniforms.Shininess, material->Shininess * 128.0f);
 
 			SetUniformVector4(shader, Uniforms.Specular, material->SpecularColor);
 

@@ -1,3 +1,7 @@
 shaders: assets/shaders/texturedLit.shader
 mainTexture: assets/textures/cube_uv.png
 specularMap: assets/textures/cube_specular.png
+ambient: 0.19225 0.19225 0.19225 1.0
+diffuse: 0.50754 0.50754 0.50754 1.0
+specular: 0.508273 0.508273 0.508273 1.0
+shininess: 0.4

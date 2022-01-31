@@ -1,0 +1,52 @@
+vec4 CalculatePointLight(light pointLight, _material material, vec3 normal, vec3 fragmentPosition, vec3 cameraPosition)
+{
+	vec3 norm = normalize(normal);
+
+	// calculate the position of light
+	vec3 lightPosition = pointLight.position;
+
+	// calculate the direction from the fragment to the light
+	vec3 lightDirection = normalize(lightPosition - fragmentPosition);
+
+	// calculate the diffuse scaler
+	float diffuseScalar = max(dot(norm, lightDirection), 0.0);
+
+	// calculate the diffuse portion of the color
+	vec4 diffusePortion = pointLight.diffuse * (diffuseScalar * material.diffuse);
+
+	// reflect the light direction along the normal axis
+	// so we can compare that reflected direction to our viewer to determine
+	// the specular scalar
+	vec3 reflectedDirection = reflect(lightDirection, normalize(norm));
+
+	// calculate the direction from the fragment to the viewer
+	// so we can compare that direction with the reflected direction
+	// to calculate the specular scalar
+	vec3 viewDirection = normalize(-cameraPosition - fragmentPosition);
+
+	// the specular scalar is the angle between the view direction and the reflected direction
+	float specularScalar = max(dot(viewDirection, reflectedDirection), 0.0);
+
+	// apply shininess to the specular scalar
+	float shininessScalar = pow(specularScalar, material.shininess);
+
+	// calculate the specular portion of the color
+	vec4 specularPortion = shininessScalar * pointLight.specular * material.specular;
+
+	// calculate the ambient portion of the colors
+	vec4 ambientPortion = pointLight.ambient * material.ambient;
+
+	// calculate the distance between the light and fragment
+	float dist = length(lightPosition - fragmentPosition);
+
+	// calculate the attenuation scalar so far fragments are ignored
+	float attenuation = (pointLight.range * 1.0) / (1 + (0.9 * dist) + (0.032 * (dist * dist)));    
+
+	// scale all color portions by the attenuation scalar
+	ambientPortion *= attenuation;
+	diffusePortion *= attenuation;
+	specularPortion *= attenuation;
+
+	// combine all portions into final color for this light and return
+	return (ambientPortion + diffusePortion + specularPortion);
+}

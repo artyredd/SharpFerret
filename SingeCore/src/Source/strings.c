@@ -5,6 +5,19 @@
 #include <stdlib.h>
 #include "singine/memory.h"
 
+
+static StringArray CreateStringArray(void);
+static void DisposeStringArray(StringArray);
+static void DisposeMembers(StringArray);
+static void TrimArray(StringArray);
+
+const struct _stringArrayMethods StringArrays = {
+	.Create = &CreateStringArray,
+	.Dispose = &DisposeStringArray,
+	.DisposeMembers = &DisposeMembers,
+	.Trim = &TrimArray
+};
+
 static void ToLower(char* buffer, size_t bufferLength, size_t offset);
 static void ToUpper(char* buffer, size_t bufferLength, size_t offset);
 static size_t Trim(char* buffer, const size_t bufferLength);
@@ -12,6 +25,7 @@ static char* Duplicate(const char* source, size_t length);
 static char* DuplicateTerminated(const char* source);
 static bool Contains(const char* source, size_t length, const char* target, const size_t targetLength);
 static bool Equals(const char* left, size_t leftLength, const char* right, size_t rightLength);
+static bool TrySplit(const char* source, size_t length, int delimiter, StringArray resultStringArray);
 
 const struct _stringMethods Strings = {
 	.ToUpper = &ToUpper,
@@ -20,7 +34,8 @@ const struct _stringMethods Strings = {
 	.Duplicate = &Duplicate,
 	.DuplicateTerminated = &DuplicateTerminated,
 	.Contains = &Contains,
-	.Equals = &Equals
+	.Equals = &Equals,
+	.TrySplit = &TrySplit
 };
 
 static void ToLower(char* buffer, size_t bufferLength, size_t offset)
@@ -155,4 +170,133 @@ static bool Equals(const char* left, size_t leftLength, const char* right, size_
 	// at this point we know both pointers are not null, aren't eachother, and are the same length
 	// compare each byte to verify they are the same
 	return memcmp(left, right, leftLength) is 0;
+}
+
+static StringArray CreateStringArray(void)
+{
+	return SafeAlloc(sizeof(struct _stringArray));
+}
+
+static void DisposeMembers(StringArray array)
+{
+	if (array is null)
+	{
+		return;
+	}
+
+	for (size_t i = 0; i < array->Count; i++)
+	{
+		SafeFree(array->Strings[i]);
+	}
+
+	SafeFree(array->StringLengths);
+	SafeFree(array->Strings);
+}
+
+static void DisposeStringArray(StringArray array)
+{
+	DisposeMembers(array);
+
+	SafeFree(array);
+}
+
+static bool TrySplit(const char* buffer, size_t bufferLength, int delimiter, StringArray result)
+{
+	result->Count = 0;
+	result->StringLengths = null;
+	result->Strings = null;
+
+	// every i'th index is the position within the buffer of the start of a string
+	// every i'th+1 index is the length of that string
+	size_t stringPositions[1024];
+
+	memset(stringPositions, 0, sizeof(size_t) * 1024);
+
+	// traverse the buffer and save the indexes of of the start of every string
+	// the first index is always 0
+	size_t count = 0;
+
+	int c = 0;
+	size_t index = 0;
+	size_t length = 0;
+
+	// loop until we either found the end of the buffer, exceed the buffer length or we move to the next line
+	do
+	{
+		c = buffer[index++];
+
+		// if we found the end to a string we should record the position and previouslength
+		if (c is delimiter or c is '\0' or c is '\n' or c is '\r')
+		{
+			// set the length of the previous string
+			stringPositions[(count << 1) + 1] = length;
+
+			// increment the number of strings we found
+			count++;
+
+			// record the starting offset of the next string
+			stringPositions[count << 1] = index;
+			// reset the length for the next string
+			length = 0;
+
+			continue;
+		}
+
+		// if the character wasn't a delimiter increment the length of the string
+		++(length);
+	} while (index <= bufferLength);
+
+	// count will be 0 if no delimiter is found, but length with be non-zero if a string does exist
+	// abscence of both is no string found
+	if (count is 0 and length is 0)
+	{
+		return false;
+	}
+
+	// now we have all the indexes of the start of each string and the lengths of each of them
+	// (with a max of bufferSize/2 strings(512 magic number for laziness)
+
+	// alloc string array and size_t array to store the destination strings and lengths
+	size_t* lengths = SafeAlloc(sizeof(size_t) * count);
+	char** strings = SafeAlloc(sizeof(char*) * count);
+
+	for (size_t i = 0; i < count; i++)
+	{
+		// the index of the start of the buffer is i * 2
+		// the length of the buffer is (i * 2) +1
+		const char* subBuffer = buffer + stringPositions[(i << 1)];
+		size_t subLength = stringPositions[(i << 1) + 1];
+
+		// alloc one more byte for nul terminator
+		char* string = SafeAlloc((sizeof(char) * subLength) + 1);
+
+		string[subLength] = '\0';
+
+		strings[i] = string;
+		lengths[i] = subLength;
+
+		// copy over the string
+		memcpy(string, subBuffer, subLength);
+	}
+
+	// set the out variables
+	result->Count = count;
+	result->StringLengths = lengths;
+	result->Strings = strings;
+
+	return true;
+}
+
+static void TrimArray(StringArray array)
+{
+	GuardNotNull(array);
+
+	// doesn't make much sense to trim non-existent strings
+	GuardNotNull(array->Strings);
+	GuardNotNull(array->StringLengths);
+
+	for (size_t i = 0; i < array->Count; i++)
+	{
+		array->StringLengths[i] = Trim(array->Strings[i], array->StringLengths[i]);
+	}
 }
