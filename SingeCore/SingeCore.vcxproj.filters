@@ -394,9 +394,6 @@
     <None Include="assets\shaders\debugOrientationGUI.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="assets\shaders\texturedLit.shader">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
     <None Include="assets\shaders\ColorUV.fragmentshader">
       <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
@@ -416,9 +413,6 @@
       <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\text.fragmentshader">
-      <Filter>Resource Files\Shaders\Shaders</Filter>
-    </None>
-    <None Include="assets\shaders\texturedLit.fragmentshader">
       <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\debugOrientation.vertexshader">
@@ -447,6 +441,9 @@
     </None>
     <None Include="assets\shaders\lit.fragmentshader">
       <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\prefabs\lamp.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

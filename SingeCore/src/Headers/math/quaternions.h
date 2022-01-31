@@ -9,6 +9,8 @@ struct _quaternionMethods {
 	Quaternion Identity;
 	// Mutates the left quaterion by adding(multiplying for quaternions) the right values to the left
 	void (*Add)(Quaternion left, Quaternion right);
+	void (*CopyTo)(Quaternion source, Quaternion destination);
+	void (*Invert)(Quaternion quaternion);
 };
 
 extern const struct _quaternionMethods Quaternions;

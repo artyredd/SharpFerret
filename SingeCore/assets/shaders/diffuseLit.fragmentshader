@@ -1,6 +1,6 @@
 #version 330 core
 // Interpolated values from the vertex shaders
-in vec2 UV;
+in vec2 texcoords;
 
 // Ouput data
 out vec4 color;
@@ -12,47 +12,24 @@ in vec3 fragmentPosition;
 
 uniform vec3 cameraPosition;
 
+uniform mat4 view;
+
 uniform struct _material	{ 
 	vec4 ambient;
 	vec4 color;
 	vec4 diffuse;
 	vec4 specular;
 	float shininess;
+	bool useDiffuseMap;
+	sampler2D diffuseMap;
+	bool useSpecularMap;
+	sampler2D specularMap;
 } material;
 
 
-struct light{
-	int lightType;
-	vec4 ambient;
-	vec4 diffuse;
-	vec4 specular;
-	float range;
-	float radius;
-	vec3 position;
-};
+vec4 GetLightingColor(_material material);
 
-uniform light [10] Lights;
-uniform int LightCount;
-
-vec4 CalculatePointLight(light pointLight, _material material, vec3 normal, vec3 fragmentPosition, vec3 cameraPosition);
-
-void main(){
-
-	vec4 combinedColor = vec4(0);
-
-	for(int i = 0; i < LightCount; i++)
-	{
-		vec4 lightColor = vec4(0);
-
-		light currentLight = Lights[i];
-
-		if(currentLight.lightType == 0)
-		{
-			lightColor = CalculatePointLight(currentLight, material, normal, fragmentPosition, cameraPosition);
-		}
-
-		combinedColor += lightColor;
-	}
-
-	color = combinedColor * material.color;
+void main()
+{
+	color = GetLightingColor(material) * material.color;
 }

@@ -6,7 +6,7 @@ layout(location = 1) in vec2 vertexUV;
 layout(location = 2) in vec3 normalVector;
 
 //// Output data ; will be interpolated for each fragment.
-out vec2 UV;
+out vec2 texcoords;
 
 out vec3 normal;
 out vec3 fragmentPosition;
@@ -25,7 +25,7 @@ void main(){
 	gl_Position =  projection * view * model * vec4(pos,1);
 	
 	// UV of the vertex. No special space for this one.
-	UV = 1-vertexUV;
+	texcoords = 1-vertexUV;
 
 	//normal = normalize(mat3(transpose(inverse(viewMatrix * modelMatrix))) * normalVector);
 	normal = mat3(transpose(inverse(model))) * normalVector;

@@ -293,6 +293,17 @@ static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, u
 	}
 }
 
+static void SetMaterialTexture(Shader shader, Uniform textureUniform, Uniform mapUniform, Texture texture, unsigned int slot)
+{
+	int enableHandle;
+	if (Shaders.TryGetUniform(shader, mapUniform, &enableHandle))
+	{
+		SetTextureUniform(shader, textureUniform, texture, slot);
+
+		glUniform1i(enableHandle, texture isnt null);
+	}
+}
+
 static void SetUniformMatrix4(Shader shader, Uniform uniform, mat4 matrix4)
 {
 	int handle;
@@ -302,7 +313,7 @@ static void SetUniformMatrix4(Shader shader, Uniform uniform, mat4 matrix4)
 	}
 }
 
-static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
+static bool TrySetLightUniforms(Shader shader, Light light, size_t index, Scene scene)
 {
 	/*
 		int lightType;
@@ -313,44 +324,79 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 		vec3 position;
 	*/
 	int handle;
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Type, &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Enabled, &handle))
+	{
+		glUniform1i(handle, light->Enabled);
+	}
+
+	// no sense setting the other ones if it's not enabled
+	if (light->Enabled is false)
+	{
+		return true;
+	}
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Type, &handle))
 	{
 		glUniform1i(handle, light->Type);
 	}
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Ambient, &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Ambient, &handle))
 	{
 		glUniform4fv(handle, 1, light->Ambient);
 	}
 
-
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Diffuse, &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Diffuse, &handle))
 	{
 		glUniform4fv(handle, 1, light->Diffuse);
 	}
 
-
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Specular, &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Specular, &handle))
 	{
 		glUniform4fv(handle, 1, light->Specular);
 	}
 
-
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Range, &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Range, &handle))
 	{
 		glUniform1f(handle, light->Range);
 	}
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Radius, &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Radius, &handle))
 	{
 		glUniform1f(handle, light->Radius);
 	}
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.LightFields.Position, &handle))
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Model, &handle))
+	{
+		glUniformMatrix4fv(handle, 1, false, &Transforms.Refresh(light->Transform)[0][0]);
+	}
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Position, &handle))
 	{
 		vec3 pos;
-		glm_vec3_rotate_m4(Transforms.Refresh(light->Transform), light->Transform->Position, pos);
+		if (light->Type is LightTypes.Spot)
+		{
+			mat4 matrix;
+			glm_mat4_mul(Transforms.Refresh(light->Transform), scene->MainCamera->State.View, matrix);
+			glm_vec3_rotate_m4(matrix, light->Transform->Position, pos);
+		}
+		else
+		{
+			glm_vec3_rotate_m4(Transforms.Refresh(light->Transform), light->Transform->Position, pos);
+		}
+
 		glUniform3fv(handle, 1, pos);
+	}
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Direction, &handle))
+	{
+		vec3 direction;
+		Transforms.GetDirection(light->Transform, Directions.Back, direction);
+		glUniform3fv(handle, 1, direction);
+	}
+
+	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.EdgeSoftness, &handle))
+	{
+		glUniform1f(handle, light->EdgeSoftness);
 	}
 
 	return true;
@@ -372,7 +418,7 @@ static void SetLightUniforms(Shader shader, Scene scene)
 	{
 		Light light = scene->Lights[i];
 
-		if (TrySetLightUniforms(shader, light, i) is false)
+		if (TrySetLightUniforms(shader, light, i, scene) is false)
 		{
 			fprintf(stderr, "Failed to set a light uniform for light at index: %lli"NEWLINE, i);
 			return;
@@ -407,19 +453,19 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 
 			SetUniformVector3(shader, Uniforms.CameraPosition, scene->MainCamera->Transform->Position);
 
-			SetUniformVector4(shader, Uniforms.Color, material->Color);
+			SetUniformVector4(shader, Uniforms.Material.Color, material->Color);
 
-			SetUniformFloat(shader, Uniforms.Shininess, material->Shininess * 128.0f);
+			SetUniformFloat(shader, Uniforms.Material.Shininess, material->Shininess * 128.0f);
 
-			SetUniformVector4(shader, Uniforms.Specular, material->SpecularColor);
+			SetUniformVector4(shader, Uniforms.Material.Specular, material->SpecularColor);
 
-			SetUniformVector4(shader, Uniforms.Diffuse, material->DiffuseColor);
+			SetUniformVector4(shader, Uniforms.Material.Diffuse, material->DiffuseColor);
 
-			SetUniformVector4(shader, Uniforms.Ambient, material->AmbientColor);
+			SetUniformVector4(shader, Uniforms.Material.Ambient, material->AmbientColor);
 
-			SetTextureUniform(shader, Uniforms.DiffuseMap, material->MainTexture, 0);
+			SetMaterialTexture(shader, Uniforms.Material.DiffuseMap, Uniforms.Material.UseDiffuseMap, material->MainTexture, 0);
 
-			SetTextureUniform(shader, Uniforms.SpecularMap, material->SpecularTexture, 1);
+			SetMaterialTexture(shader, Uniforms.Material.SpecularMap, Uniforms.Material.UseSpecularMap, material->SpecularTexture, 1);
 
 			// draw the triangles
 			RenderMeshes.Draw(mesh);

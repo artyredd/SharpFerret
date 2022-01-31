@@ -29,24 +29,34 @@ struct _lightUniforms {
 	Uniform Range;
 	Uniform Radius;
 	Uniform Position;
+	Uniform Direction;
+	Uniform EdgeSoftness;
+	Uniform Enabled;
+	Uniform Model;
+};
+
+struct _materialUniforms {
+	Uniform Color;
+	Uniform Ambient;
+	Uniform Diffuse;
+	Uniform Specular;
+	Uniform Shininess;
+	Uniform DiffuseMap;
+	Uniform SpecularMap;
+	Uniform UseDiffuseMap;
+	Uniform UseSpecularMap;
 };
 
 struct _uniforms {
 	Uniform ViewMatrix;
 	Uniform ProjectionMatrix;
 	Uniform MVP;
-	Uniform DiffuseMap;
-	Uniform Color;
-	Uniform Specular;
-	Uniform Ambient;
-	Uniform SpecularMap;
 	Uniform CameraPosition;
 	Uniform ModelMatrix;
-	Uniform Diffuse;
 	Uniform Lights;
-	struct _lightUniforms LightFields;
+	struct _lightUniforms Light;
 	Uniform LightCount;
-	Uniform Shininess;
+	struct _materialUniforms Material;
 };
 
 // Global uniforms likely to be widely used across many shaders to provide basic functionality

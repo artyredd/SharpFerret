@@ -7,6 +7,10 @@
 #define DEFAULT_DIFFUSE_LIGHT_INTENSITY 0.5f
 #define DEFAULT_SPECULAR_LIGHT_INTENSITY 1.0f
 
+#define DEFAULT_LIGHT_RADIUS 0.87f // in degrees
+#define DEFAULT_LIGHT_RANGE 5.0f // in distance units
+#define DEFAULT_LIGHT_EDGE_SOFTNESS 0.057f;
+
 typedef int LightType;
 
 static const struct _lightTypes {
@@ -56,6 +60,10 @@ struct _light {
 	/// The radius of the light, this only applies to spot lights
 	/// </summary>
 	float Radius;
+	/// <summary>
+	/// How soft the edges of spot lights should be
+	/// </summary>
+	float EdgeSoftness;
 	/// <summary>
 	/// The type of light that should should be rendered as
 	/// 0 = point, 1 = directional, 2 = spotlight

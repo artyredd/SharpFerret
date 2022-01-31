@@ -292,6 +292,7 @@
     <None Include="assets\prefabs\ball.gameobject" />
     <None Include="assets\prefabs\car.gameobject" />
     <None Include="assets\prefabs\cube.gameobject" />
+    <None Include="assets\prefabs\lamp.gameobject" />
     <None Include="assets\prefabs\lightBulb.gameobject" />
     <None Include="assets\prefabs\lightFilament.gameobject" />
     <None Include="assets\prefabs\monkey.gameobject" />
@@ -317,8 +318,6 @@
     <None Include="assets\shaders\shaderFormat.shader" />
     <None Include="assets\shaders\text.fragmentshader" />
     <None Include="assets\shaders\text.vertexshader" />
-    <None Include="assets\shaders\texturedLit.fragmentshader" />
-    <None Include="assets\shaders\texturedLit.shader" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="assets\prefabs\lightBase.gameobject" />

@@ -26,7 +26,7 @@ const struct _shaderCompilerMethods ShaderCompilers = {
 #define LOG_BUFFER_SIZE 1024
 
 static const char* FailedToCompileMessage = "Failed to compile the %s shader at path: %s"NEWLINE; // [Shadertype][Path]
-static const char* FailedToCompileProgramMessage = "Failed to compile the shader program for shader pieces"NEWLINE"\t%s"NEWLINE"\t%s"NEWLINE; // [Path][Path]
+static const char* FailedToCompileProgramMessage = "Failed to compile the shader program for shader pieces"; // [Path][Path]
 
 
 typedef int ShaderType;
@@ -379,7 +379,17 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 	unsigned int programHandle;
 	if (TryCompileProgram(vertexHandle, fragmentHandle, &programHandle) is false)
 	{
-		fprintf(stderr, FailedToCompileProgramMessage, "", "");
+		fprintf(stderr, FailedToCompileProgramMessage);
+		for (size_t i = 0; i < vertexPaths->Count; i++)
+		{
+			fprintf(stderr, "\t Vertex Piece: %s"NEWLINE, vertexPaths->Strings[i]);
+		}
+
+		for (size_t i = 0; i < fragmentPaths->Count; i++)
+		{
+			fprintf(stderr, "\t Fragment Piece: %s"NEWLINE, fragmentPaths->Strings[i]);
+		}
+
 		throw(FailedToCompileShaderException);
 	}
 

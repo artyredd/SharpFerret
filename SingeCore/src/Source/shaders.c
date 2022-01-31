@@ -29,30 +29,38 @@ const struct _uniforms Uniforms = {
 	.ModelMatrix = {.Index = 1, .Name = "model" },
 	.ViewMatrix = {.Index = 2, .Name = "view" },
 	.ProjectionMatrix = {.Index = 3, .Name = "projection" },
-	.DiffuseMap = {.Index = 4, .Name = "material.diffuseMap" },
-	.SpecularMap = {.Index = 5, .Name = "material.specularMap" },
-	.Color = {.Index = 6, .Name = "material.color"},
-	.Ambient = {.Index = 7, .Name = "material.ambient"},
-	.Diffuse = {.Index = 8, .Name = "material.diffuse" },
-	.Specular = {.Index = 9, .Name = "material.specular"},
-	.Shininess = {.Index = 10, .Name = "material.shininess" },
-	.CameraPosition = {.Index = 11, .Name = "cameraPosition" },
-	.LightCount = {.Index = 12, .Name = "LightCount" },
-	.Lights = {
-		.Index = 13,
-		.Name = "Lights",
-		.Size = (sizeof(struct _lightUniforms) / sizeof(struct _uniform)),
-		.Count = MAX_POINT_LIGHTS
-	},
-	.LightFields = {
+	.CameraPosition = {.Index = 4, .Name = "cameraPosition" },
+	.LightCount = {.Index = 5, .Name = "LightCount" },
+	.Light = {
 		 .Type = {.Index = 0, .Name = "lightType" },
 		 .Ambient = {.Index = 1, .Name = "ambient" },
 		 .Diffuse = {.Index = 2, .Name = "diffuse" },
 		 .Specular = {.Index = 3, .Name = "specular" },
 		 .Range = {.Index = 4, .Name = "range" },
 		 .Radius = {.Index = 5, .Name = "radius" },
-		 .Position = {.Index = 6, .Name = "position" }
-	}
+		 .Position = {.Index = 6, .Name = "position" },
+		 .Direction = {.Index = 7, .Name = "direction" },
+		 .EdgeSoftness = {.Index = 8, .Name = "edgeSoftness" },
+		 .Enabled = {.Index = 9, .Name = "enabled" },
+		 .Model = {.Index = 10, .Name = "model" }
+	},
+	.Material = {
+		.DiffuseMap = {.Index = 6, .Name = "material.diffuseMap" },
+		.SpecularMap = {.Index = 7, .Name = "material.specularMap" },
+		.Color = {.Index = 8, .Name = "material.color"},
+		.Ambient = {.Index = 9, .Name = "material.ambient"},
+		.Diffuse = {.Index = 10, .Name = "material.diffuse" },
+		.Specular = {.Index = 11, .Name = "material.specular"},
+		.Shininess = {.Index = 12, .Name = "material.shininess" },
+		.UseDiffuseMap = {.Index = 13, .Name = "material.useDiffuseMap" },
+		.UseSpecularMap = {.Index = 14, .Name = "material.useSpecularMap" },
+	},
+	.Lights = {
+		.Index = 15,
+		.Name = "Lights",
+		.Size = (sizeof(struct _lightUniforms) / sizeof(struct _uniform)),
+		.Count = MAX_POINT_LIGHTS
+	},
 };
 
 const struct _shaderMethods Shaders = {

@@ -211,9 +211,6 @@ int main()
 
 	float amount = 0;
 
-	//GameObjects.SetMaterial(cube, outlineMaterial);
-	//Materials.SetColor(cube->Material, Colors.Red);
-
 	Materials.SetColor(car->Material, Colors.Green);
 
 	GameObject otherCube = GameObjects.Duplicate(cube);
@@ -235,13 +232,20 @@ int main()
 	Light light = Lights.Create();
 	Light otherLight = Lights.Create();
 
+	Light spotLight = Lights.Create();
+
+	spotLight->Type = LightTypes.Spot;
+	SetVector4(spotLight->Ambient, 0, 0, 0, 0);
+
 	// light body
-	Transforms.SetPositions(light->Transform, -5, 5, 0);
-	Transforms.SetPositions(otherLight->Transform, 5, 5, 0);
+	Transforms.SetPositions(light->Transform, 5, 5, 0);
+	Transforms.SetPositions(otherLight->Transform, -5, 5, 0);
 
 	Transforms.SetPositions(camera->Transform, -3, 3, 3);
 
 	GameObject lightMarker = GameObjects.Duplicate(cube);
+
+	Transforms.SetPositions(lightMarker->Transform, 0, 0, 0);
 
 	GameObjects.SetMaterial(lightMarker, outlineMaterial);
 
@@ -261,6 +265,7 @@ int main()
 	// add the light to the scene
 	Scenes.AddLight(scene, light);
 	Scenes.AddLight(scene, otherLight);
+	Scenes.AddLight(scene, spotLight);
 
 	GameObject plane = GameObjects.Load("assets/prefabs/plane.gameobject");
 
@@ -344,14 +349,21 @@ int main()
 		if (GetAxis(Axes.Vertical) < 0)
 		{
 			++amount;
-			light->Range = amount / 100;
-			otherLight->Range = amount / 100;
+			//light->Range = amount / 100;
+			//otherLight->Range = amount / 100;
+			spotLight->EdgeSoftness = amount / 1000;
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
 		{
 			--amount;
-			light->Range = amount / 100;
-			otherLight->Range = amount / 100;
+			//light->Range = amount / 100;
+			//otherLight->Range = amount / 100;
+			spotLight->EdgeSoftness = amount / 1000;
+		}
+		if (GetKey(KeyCodes.L))
+		{
+			light->Enabled = light->Enabled ? false : true;
+			otherLight->Enabled = otherLight->Enabled ? false : true;
 		}
 
 		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
@@ -360,12 +372,14 @@ int main()
 
 		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
 
-		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount);//, );
+		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000);//, );
 		Texts.SetText(text, text->Text, count);
 
 		FPSCamera.Update(camera);
 
 		Transforms.SetPosition(camera->Transform, position);
+		Transforms.SetPosition(spotLight->Transform, position);
+		Transforms.SetRotation(spotLight->Transform, camera->Transform->Rotation);
 
 		GameObjects.Draw(lightMarker, scene);
 		GameObjects.Draw(otherLightMarker, scene);
