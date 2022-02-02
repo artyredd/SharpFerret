@@ -58,6 +58,9 @@
     <Filter Include="Resource Files\Prefabs">
       <UniqueIdentifier>{c912ee45-aa47-4a8b-b655-ab0857cceb5c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files\Textures">
+      <UniqueIdentifier>{f56c251f-0560-43a2-9683-d218973c70ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\imaging.c">
@@ -184,6 +187,12 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Source\light.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\cubemap.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\textureDefinitions.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -326,6 +335,12 @@
     <ClInclude Include="src\Headers\graphics\shaders.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="src\Headers\graphics\cubemap.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\graphics\textureDefinitions.h">
+      <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\shaderFormat.shader">
@@ -444,6 +459,12 @@
     </None>
     <None Include="assets\prefabs\lamp.gameobject">
       <Filter>Resource Files\Prefabs</Filter>
+    </None>
+    <None Include="assets\textures\cube_uv.texture">
+      <Filter>Resource Files\Textures</Filter>
+    </None>
+    <None Include="assets\textures\cube_specular.texture">
+      <Filter>Resource Files\Textures</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

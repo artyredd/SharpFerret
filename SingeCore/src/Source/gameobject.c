@@ -297,13 +297,13 @@ static const size_t TokenLengths[] = {
 	sizeof(MaterialToken),
 };
 
-struct _gameObjectInfo {
+struct _textureInfo {
 	size_t Id;
 	char* MaterialPath;
 	char* ModelPath;
 };
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _gameObjectInfo* state);
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state);
 
 struct _configDefinition GameObjectConfigDefinition = {
 	.Tokens = (const char**)&Tokens,
@@ -315,7 +315,7 @@ struct _configDefinition GameObjectConfigDefinition = {
 	.AbortTokenLength = sizeof(StreamAbortToken)
 };
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _gameObjectInfo* state)
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state)
 {
 	switch (index)
 	{
@@ -334,7 +334,7 @@ static GameObject Load(const char* path)
 {
 	GameObject gameObject = null;
 
-	struct _gameObjectInfo state = {
+	struct _textureInfo state = {
 		.Id = 0,
 		.MaterialPath = null,
 		.ModelPath = null,

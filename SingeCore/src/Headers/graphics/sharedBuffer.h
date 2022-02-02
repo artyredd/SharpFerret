@@ -17,6 +17,10 @@ struct _sharedHandleMethods
 	/// handle is cleared and the object is disposed
 	/// </summary>
 	void (*Dispose)(SharedHandle, void* state, void(*OnDispose)(void* state));
+	/// <summary>
+	/// Auto instances the provided handle
+	/// </summary>
+	SharedHandle(*Instance)(SharedHandle);
 };
 
 extern const struct _sharedHandleMethods SharedHandles;

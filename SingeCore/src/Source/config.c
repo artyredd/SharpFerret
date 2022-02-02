@@ -2,6 +2,7 @@
 #include "singine/file.h"
 #include "string.h"
 #include <stdlib.h>
+#include <ctype.h>
 
 #define BUFFER_SIZE 1024
 
@@ -54,8 +55,18 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 				// compare the whole token, if it's valid invoke the callback
 				if (memcmp(buffer, token, min(tokenLength, lineLength)) is 0)
 				{
-					const char* subBuffer = buffer + min(tokenLength + 1, lineLength);
-					const size_t subBufferLength = max(lineLength - tokenLength - 1, 0);
+					size_t offset = min(tokenLength + 1, lineLength);
+
+					char* subBuffer = buffer + offset;
+					size_t subBufferLength = max(lineLength - tokenLength - 1, 0);
+
+					// check if the first character is whitespace, if it is move the subbuffer over
+					// I COULD create a more verstatile solution to this but..
+					if (isspace(subBuffer[0]))
+					{
+						subBuffer = buffer + offset + 1;
+						--(subBufferLength);
+					}
 
 					if (config->OnTokenFound(i, subBuffer, subBufferLength, state) is false)
 					{

@@ -1,94 +1,21 @@
 #include "graphics/texture.h"
-#include "GL/glew.h"
 #include "singine/memory.h"
 #include "singine/guards.h"
 #include "helpers/macros.h"
 #include "singine/strings.h"
-
-const struct _textureFormats TextureFormats = {
-	.Red = GL_RED,
-	.RG = GL_RG,
-	.RGB = GL_RGB,
-	.BGR = GL_BGR,
-	.RGBA = GL_RGBA,
-	.BGRA = GL_BGRA,
-	.RedInteger = GL_RED_INTEGER,
-	.RGInteger = GL_RG_INTEGER,
-	.RGBInteger = GL_RGB_INTEGER,
-	.BGRInteger = GL_BGR_INTEGER,
-	.RGBAInteger = GL_RGBA_INTEGER,
-	.BGRAInteger = GL_BGRA_INTEGER,
-	.StencilIndex = GL_STENCIL_INDEX,
-	.DepthComponent = GL_DEPTH_COMPONENT,
-	.DepthStencil = GL_DEPTH_STENCIL
-};
-
-const struct _bufferFormat BufferFormats =
-{
-	.UByte = GL_UNSIGNED_BYTE ,
-	.Byte = GL_BYTE ,
-	.UShort = GL_UNSIGNED_SHORT,
-	.Short = GL_SHORT ,
-	.UInt = GL_UNSIGNED_INT,
-	.Int = GL_INT ,
-	.Float = GL_FLOAT ,
-	.UByte332 = GL_UNSIGNED_BYTE_3_3_2 ,
-	.UByte233Rev = GL_UNSIGNED_BYTE_2_3_3_REV ,
-	.UShort565 = GL_UNSIGNED_SHORT_5_6_5 ,
-	.UShort565Rev = GL_UNSIGNED_SHORT_5_6_5_REV ,
-	.UShort4444 = GL_UNSIGNED_SHORT_4_4_4_4,
-	.UShort4444Rev = GL_UNSIGNED_SHORT_4_4_4_4_REV ,
-	.UShort5551 = GL_UNSIGNED_SHORT_5_5_5_1 ,
-	.UShort1555Rev = GL_UNSIGNED_SHORT_1_5_5_5_REV ,
-	.UInt8888 = GL_UNSIGNED_INT_8_8_8_8 ,
-	.UInt8888Rev = GL_UNSIGNED_INT_8_8_8_8_REV ,
-	.UInt1010102 = GL_UNSIGNED_INT_10_10_10_2 ,
-	.UInt2101010Rev = GL_UNSIGNED_INT_2_10_10_10_REV
-};
-
-const struct _textureSettings TextureSettings = {
-	.DepthStencilMode = GL_DEPTH_STENCIL_TEXTURE_MODE,
-	.BaseLevel = GL_TEXTURE_BASE_LEVEL,
-	.CompareFunction = GL_TEXTURE_COMPARE_FUNC,
-	.CompareMode = GL_TEXTURE_COMPARE_MODE,
-	.LevelOfDetailBias = GL_TEXTURE_LOD_BIAS,
-	.MinimumLevelOfDetail = GL_TEXTURE_MIN_LOD,
-	.MaximumLevelOfDetail = GL_TEXTURE_MAX_LOD,
-	.MinifyingFilter = GL_TEXTURE_MIN_FILTER,
-	.MagnifyingFilter = GL_TEXTURE_MAG_FILTER,
-	.SwizzleR = GL_TEXTURE_SWIZZLE_R,
-	.SwizzleG = GL_TEXTURE_SWIZZLE_G,
-	.SwizzleB = GL_TEXTURE_SWIZZLE_B,
-	.SwizzleA = GL_TEXTURE_SWIZZLE_A,
-	.SwizzleRGBA = GL_TEXTURE_SWIZZLE_RGBA,
-	.WrapX = GL_TEXTURE_WRAP_S,
-	.WrapY = GL_TEXTURE_WRAP_T,
-	.WrapZ = GL_TEXTURE_WRAP_R
-};
-
-const struct _textureFilters Filters = {
-	.Nearest = GL_NEAREST,
-	.Linear = GL_LINEAR,
-	.NearestMipMapNearest = GL_NEAREST_MIPMAP_NEAREST,
-	.LinearMipMapNearest = GL_LINEAR_MIPMAP_NEAREST,
-	.NearestMipMapLinear = GL_NEAREST_MIPMAP_LINEAR,
-	.LinearMipMapLinear = GL_LINEAR_MIPMAP_LINEAR,
-};
-
-const struct _textureWrapModes WrapModes = {
-	.ClampToEdge = GL_CLAMP_TO_EDGE,
-	.ClampToBorder = GL_CLAMP_TO_BORDER,
-	.MirroredRepeat = GL_MIRRORED_REPEAT,
-	.Repeat = GL_REPEAT,
-	.MirrorClampToEdge = GL_MIRROR_CLAMP_TO_EDGE,
-};
+#include "graphics/graphicsDevice.h"
+#include "singine/config.h"
+#include "singine/parsing.h"
+#include <string.h>
 
 static void Dispose(Texture);
 static bool TryCreateTexture(Image, Texture* out_texture);
-static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle));
+static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
 static void Modify(TextureSetting setting, TextureSettingValue value);
 static Texture InstanceTexture(Texture texture);
 static Texture Blank(void);
+static void Save(Texture texture, const char* path);
+static Texture Load(const char* path);
 
 const struct _textureMethods Textures = {
 	.Dispose = &Dispose,
@@ -96,14 +23,16 @@ const struct _textureMethods Textures = {
 	.TryCreateTextureAdvanced = &TryCreateTextureAdvanced,
 	.Instance = &InstanceTexture,
 	.Modify = &Modify,
-	.Blank = Blank
+	.Blank = Blank,
+	.Load = &Load,
+	.Save = &Save
 };
 
 // this is only ran when there is only one remaining instance of the texture being disposed
 static void OnTextureBufferDispose(Texture texture)
 {
 	// delete the GDI texture
-	glDeleteTextures(1, &texture->Handle->Handle);
+	GraphicsDevice.DeleteTexture(texture->Handle->Handle);
 
 	// free the string
 	SafeFree(texture->Path);
@@ -140,44 +69,38 @@ static Texture CreateTexture(bool allocBuffer)
 
 static bool TryGetHandle(unsigned int* out_handle)
 {
-	GLuint handle;
-	glGenTextures(1, &handle);
-
-	glBindTexture(GL_TEXTURE_2D, handle);
-
-	*out_handle = handle;
+	*out_handle = GraphicsDevice.CreateTexture(TextureTypes.Default);
 
 	return true;
 }
 
 static void Modify(TextureSetting setting, TextureSettingValue value)
 {
-	glTexParameteri(GL_TEXTURE_2D, setting, value);
+	GraphicsDevice.ModifyTexture(TextureTypes.Default, setting, value);
 }
 
-static bool DefaultTryModifyTexture(unsigned int handle)
+static bool DefaultTryModifyTexture(void* state)
 {
-	Modify(TextureSettings.MinifyingFilter, DEFAULT_MINIFYING_FILTER);
-	Modify(TextureSettings.MagnifyingFilter, DEFAULT_MAGNIFYING_FILTER);
+	if (state is null)
+	{
+		Modify(TextureSettings.MinifyingFilter, DEFAULT_MINIFYING_FILTER);
+		Modify(TextureSettings.MagnifyingFilter, DEFAULT_MAGNIFYING_FILTER);
+	}
 
 	return true;
 }
 
-static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, bool (*TryModifyTexture)(unsigned int handle))
+static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state))
 {
 	BoolGuardNotNull(image);
 
-	unsigned int handle;
-	if (TryGetHandle(&handle) is false)
-	{
-		return false;
-	}
+	unsigned int handle = GraphicsDevice.CreateTexture(TextureTypes.Default);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, format, image->Width, image->Height, 0, format, bufferFormat, image->Pixels);
+	GraphicsDevice.LoadTexture(TextureTypes.Default, format, bufferFormat, image);
 
 	if (TryModifyTexture isnt null)
 	{
-		TryModifyTexture(handle);
+		TryModifyTexture(state);
 	}
 
 	Texture texture = CreateTexture(true);
@@ -197,7 +120,7 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureF
 	return true;
 }
 
-static bool TryCreateTexture(Image image, Texture* out_texture)
+static TextureFormat GetFormat(Image image)
 {
 	// check the channels available, if there are 4 the format is RGBA, if 3 RGB
 	TextureFormat format = DEFAULT_TEXTURE_FORMAT;
@@ -211,7 +134,15 @@ static bool TryCreateTexture(Image image, Texture* out_texture)
 		format = TextureFormats.RGBA;
 	}
 
-	return TryCreateTextureAdvanced(image, out_texture, format, DEFAULT_TEXTURE_BUFFER_FORMAT, &DefaultTryModifyTexture);
+	return format;
+}
+
+static bool TryCreateTexture(Image image, Texture* out_texture)
+{
+	// check the channels available, if there are 4 the format is RGBA, if 3 RGB
+	TextureFormat format = GetFormat(image);
+
+	return TryCreateTextureAdvanced(image, out_texture, format, DEFAULT_TEXTURE_BUFFER_FORMAT, null, &DefaultTryModifyTexture);
 }
 
 static Texture InstanceTexture(Texture texture)
@@ -229,14 +160,10 @@ static Texture InstanceTexture(Texture texture)
 	CopyMember(texture, newTexture, BufferFormat);
 	CopyMember(texture, newTexture, Format);
 
-
-	// increment the number of instances that are active for the texture so when dispose is called on the texture the underlying
-	// buffer handle does not get disposed until the last texture that references it is diposed
-	++(texture->Handle->ActiveInstances);
-
 	// reference types
 	CopyMember(texture, newTexture, Path);
-	CopyMember(texture, newTexture, Handle);
+
+	newTexture->Handle = SharedHandles.Instance(texture->Handle);
 
 	return newTexture;
 }
@@ -261,4 +188,242 @@ static Texture Blank(void)
 	}
 
 	return null;
+}
+
+#define MAX_PATH_SIZE 512
+
+#define CommentFormat "%s\n"
+#define TokenFormat "%s: "
+
+#define PathTokenComment "# the path to the texture"
+#define PathToken "path"
+
+#define MinTokenComment "# the minification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"
+#define MinToken "minificationFilter"
+
+#define MagTokenComment "# the maginification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"
+#define MagToken "magnificationFilter"
+
+#define WrapXTokenComment "# How to wrap the texture along the x (S) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"
+#define WrapXToken "wrapX"
+
+#define WrapYTokenComment "# How to wrap the texture along the y (T) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"
+#define WrapYToken "wrapY"
+
+#define WrapZTokenComment "# How to wrap the texture along the z (R) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"
+#define WrapZToken "wrapZ"
+
+TextureSettingValue ClampToEdge;
+TextureSettingValue ClampToBorder;
+TextureSettingValue MirroredRepeat;
+TextureSettingValue Repeat;
+TextureSettingValue MirrorClampToEdge;
+
+static const char* Tokens[] = {
+	PathToken,
+	MinToken,
+	MagToken,
+	WrapXToken,
+	WrapYToken,
+	WrapZToken
+};
+
+static const size_t TokenLengths[] = {
+	sizeof(PathToken),
+	sizeof(MinToken),
+	sizeof(MagToken),
+	sizeof(WrapXToken),
+	sizeof(WrapYToken),
+	sizeof(WrapZToken),
+};
+
+struct _textureInfo {
+	char* path;
+	TextureSettingValue MinificationFilter;
+	TextureSettingValue MagnificationFilter;
+	TextureSettingValue WrapX;
+	TextureSettingValue WrapY;
+	TextureSettingValue WrapZ;
+};
+
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state);
+
+struct _configDefinition TextureConfigDefinition = {
+	.Tokens = (const char**)&Tokens,
+	.TokenLengths = (const size_t*)&TokenLengths,
+	.CommentCharacter = '#',
+	.Count = sizeof(Tokens) / sizeof(char*),
+	.OnTokenFound = &OnTokenFound
+};
+
+static bool ModifyLoadedTexture(struct _textureInfo* state)
+{
+	if (state is null)
+	{
+		return false;
+	}
+
+	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MinifyingFilter, state->MinificationFilter);
+	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MagnifyingFilter, state->MagnificationFilter);
+	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapX, state->WrapX);
+	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapY, state->WrapY);
+	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapZ, state->WrapZ);
+
+	return true;
+}
+
+static bool TryGetFilter(const char* buffer, const size_t length, TextureSettingValue* out_textureSetting)
+{
+	static const size_t filterCount = sizeof(Filters) / sizeof(TextureSettingValue);
+
+	static const char* filters[sizeof(Filters) / sizeof(TextureSettingValue)] =
+	{
+		"nearest",
+		"linear",
+		"nearestNearest",
+		"linearNearest",
+		"nearestLinear",
+		"linearLinear"
+	};
+
+	*out_textureSetting = 0;
+
+	for (size_t i = 0; i < filterCount; i++)
+	{
+		if (Strings.Contains(buffer, length, filters[i], strlen(filters[i])))
+		{
+			// this is some hacky aliasing, im sorry
+			*out_textureSetting = ((TextureSettingValue*)&Filters)[i];
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static bool TryGetWrapMode(const char* buffer, const size_t length, TextureSettingValue* out_textureSetting)
+{
+	static const size_t modeCount = sizeof(WrapModes) / sizeof(TextureSettingValue);
+
+	static const char* wrapModes[sizeof(WrapModes) / sizeof(TextureSettingValue)] =
+	{
+		"clamped",
+		"repeat",
+		"mirrored",
+		"clampToBorder",
+		"mirroredClamped"
+	};
+
+	*out_textureSetting = 0;
+
+	for (size_t i = 0; i < modeCount; i++)
+	{
+		if (Strings.Contains(buffer, length, wrapModes[i], strlen(wrapModes[i])))
+		{
+			// this is some hacky aliasing, im sorry
+			*out_textureSetting = ((TextureSettingValue*)&WrapModes)[i];
+			return true;
+		}
+	}
+
+	return false;
+}
+
+static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state)
+{
+	switch (index)
+	{
+	case 0: // path
+		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->path);
+	case 1: // min filter
+		return TryGetFilter(buffer, length, &state->MinificationFilter);
+	case 2: // mag filter
+		return TryGetFilter(buffer, length, &state->MagnificationFilter);
+	case 3: // wrap x
+		return TryGetWrapMode(buffer, length, &state->WrapX);
+	case 4: // wrap y
+		return TryGetWrapMode(buffer, length, &state->WrapY);
+	case 5: // wrap z
+		return TryGetWrapMode(buffer, length, &state->WrapZ);
+	default:
+		return false;
+	}
+}
+
+static Texture Load(const char* path)
+{
+	Texture texture = null;
+
+	struct _textureInfo state = {
+		.path = null,
+		.MinificationFilter = DEFAULT_MINIFYING_FILTER,
+		.MagnificationFilter = DEFAULT_MAGNIFYING_FILTER,
+		.WrapX = DEFAULT_WRAPX,
+		.WrapY = DEFAULT_WRAPY,
+		.WrapZ = DEFAULT_WRAPZ
+	};
+
+	if (Configs.TryLoadConfig(path, &TextureConfigDefinition, &state))
+	{
+		Image image = Images.LoadImage(state.path);
+
+		if (image is null)
+		{
+			throw(FileNotFoundException);
+		}
+
+		TextureFormat format = GetFormat(image);
+
+		if (TryCreateTextureAdvanced(image, &texture, format, DEFAULT_TEXTURE_BUFFER_FORMAT, &state, &ModifyLoadedTexture) is false)
+		{
+			throw(FailedToLoadTextureException);
+		}
+
+		Images.Dispose(image);
+	}
+
+	SafeFree(state.path);
+
+	return texture;
+}
+
+static void Save(Texture texture, const char* path)
+{
+	GuardNotNull(texture);
+	GuardNotNull(path);
+
+	File stream;
+	if (Files.TryOpen(path, FileModes.Create, &stream) is false)
+	{
+		throw(FailedToOpenFileException);
+	}
+
+	fprintf(stream, CommentFormat, PathTokenComment);
+	fprintf(stream, TokenFormat, PathToken);
+	fprintf(stream, "%s\n", texture->Path);
+
+	fprintf(stream, CommentFormat, MinTokenComment);
+	fprintf(stream, "#"TokenFormat, MinToken);
+	fprintf(stream, "%s\n", "linear");
+
+	fprintf(stream, CommentFormat, MagTokenComment);
+	fprintf(stream, "#"TokenFormat, MagToken);
+	fprintf(stream, "%s\n", "linear");
+
+	fprintf(stream, CommentFormat, WrapXTokenComment);
+	fprintf(stream, "#"TokenFormat, WrapYToken);
+	fprintf(stream, "%s\n", "clamp");
+
+	fprintf(stream, CommentFormat, WrapYTokenComment);
+	fprintf(stream, "#"TokenFormat, WrapYToken);
+	fprintf(stream, "%s\n", "clamp");
+
+	fprintf(stream, CommentFormat, WrapZTokenComment);
+	fprintf(stream, "#"TokenFormat, WrapZToken);
+	fprintf(stream, "%s\n", "clamp");
+
+	if (Files.TryClose(stream) is false)
+	{
+		throw(FailedToCloseFileException);
+	}
 }

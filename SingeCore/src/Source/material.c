@@ -705,36 +705,30 @@ static Material Load(const char* path)
 			// load any textures that were included in the material
 			if (state.MainTexturePath isnt null)
 			{
-				Image image;
-				if (Images.TryLoadImage(state.MainTexturePath, &image))
-				{
-					Texture texture;
-					if (Textures.TryCreateTexture(image, &texture))
-					{
-						Materials.SetMainTexture(material, texture);
-					}
+				Texture texture = Textures.Load(state.MainTexturePath);
 
-					Textures.Dispose(texture);
+				if (texture is null)
+				{
+					throw(FailedToLoadTextureException)
 				}
 
-				Images.Dispose(image);
+				Materials.SetMainTexture(material, texture);
+
+				Textures.Dispose(texture);
 			}
 
 			if (state.SpecularTexturePath isnt null)
 			{
-				Image image;
-				if (Images.TryLoadImage(state.SpecularTexturePath, &image))
-				{
-					Texture texture;
-					if (Textures.TryCreateTexture(image, &texture))
-					{
-						Materials.SetSpecularTexture(material, texture);
-					}
+				Texture texture = Textures.Load(state.SpecularTexturePath);
 
-					Textures.Dispose(texture);
+				if (texture is null)
+				{
+					throw(FailedToLoadTextureException)
 				}
 
-				Images.Dispose(image);
+				Materials.SetSpecularTexture(material, texture);
+
+				Textures.Dispose(texture);
 			}
 		}
 	}

@@ -5,10 +5,12 @@
 
 static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* state));
 static SharedHandle CreateSharedHandle(void);
+static SharedHandle Instance(SharedHandle);
 
 const struct _sharedHandleMethods SharedHandles = {
 	.Create = &CreateSharedHandle,
-	.Dispose = &Dispose
+	.Dispose = &Dispose,
+	.Instance = Instance
 };
 
 static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* state))
@@ -43,4 +45,11 @@ static SharedHandle CreateSharedHandle()
 	buffer->ActiveInstances = 1;
 
 	return buffer;
+}
+
+static SharedHandle Instance(SharedHandle handle)
+{
+	++(handle->ActiveInstances);
+
+	return handle;
 }

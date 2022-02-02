@@ -1,0 +1,6 @@
+path: assets/textures/cube_uv.png
+minificationFilter: linear
+magnificationFilter: nearest
+wrapX: repeat
+wrapY: repeat
+wrapZ: repeat

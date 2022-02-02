@@ -450,6 +450,11 @@ int main()
 	{
 		throw(MemoryLeakException);
 	}
+
+	if (GraphicsDevice.TryVerifyCleanup() is false)
+	{
+		throw(MemoryLeakException);
+	}
 }
 
 void DebugCameraPosition(Camera camera)

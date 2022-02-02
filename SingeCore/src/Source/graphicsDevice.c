@@ -1,6 +1,7 @@
 #include "graphics/graphicsDevice.h"
 #include "GL/glew.h"
 #include <stdlib.h>
+#include "graphics/textureDefinitions.h"
 
 const struct _comparisons Comparisons = {
 	.Always = GL_ALWAYS,
@@ -28,6 +29,11 @@ static void EnableDepthTesting(void);
 static void DisableDepthTesting(void);
 static void SetDepthTest(const Comparison);
 static void ActivateTexture(const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
+static unsigned int CreateTexture(TextureType);
+static void DeleteTexture(unsigned int handle);
+static bool TryVerifyCleanup(void);
+static void LoadTexture(TextureType, TextureFormat, BufferFormat, Image);
+static void ModifyTexture(TextureType, TextureSetting, TextureSettingValue);
 
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
@@ -44,7 +50,12 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableDepthTesting = &EnableDepthTesting,
 	.DisableDepthTesting = &DisableDepthTesting,
 	.SetDepthTest = &SetDepthTest,
-	.ActivateTexture = &ActivateTexture
+	.ActivateTexture = &ActivateTexture,
+	.CreateTexture = CreateTexture,
+	.DeleteTexture = DeleteTexture,
+	.TryVerifyCleanup = TryVerifyCleanup,
+	.LoadTexture = LoadTexture,
+	.ModifyTexture = ModifyTexture
 };
 
 bool blendingEnabled = false;
@@ -63,6 +74,10 @@ unsigned int depthComparison;
 
 unsigned int nextTexture = 0;
 unsigned int maxTextures = GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
+
+// texture instance counts
+size_t activeTextures = 0;
+
 
 static void EnableDepthTesting(void)
 {
@@ -199,4 +214,47 @@ static void ActivateTexture(const unsigned int textureHandle, const int uniformH
 	glBindTexture(GL_TEXTURE_2D, textureHandle);
 	glUniform1i(uniformHandle, slot);
 	glDisable(GL_TEXTURE_2D);
+}
+
+static unsigned int CreateTexture(TextureType type)
+{
+	unsigned int handle;
+	glGenTextures(1, &handle);
+
+	glBindTexture(type, handle);
+
+	// keep track of how many textures we create
+	++(activeTextures);
+
+	return handle;
+}
+
+static void DeleteTexture(unsigned int handle)
+{
+	glDeleteTextures(1, &handle);
+
+	// keep track of how many textures we destroy
+	--(activeTextures);
+}
+
+static void LoadTexture(TextureType type, TextureFormat colorFormat, BufferFormat pixelFormat, Image image)
+{
+	glTexImage2D(type, 0, colorFormat, image->Width, image->Height, 0, colorFormat, pixelFormat, image->Pixels);
+}
+
+static void ModifyTexture(TextureType type, TextureSetting setting, TextureSettingValue value)
+{
+	glTexParameteri(type, setting, value);
+}
+
+static bool TryVerifyCleanup(void)
+{
+	bool result = true;
+
+	// verify that all textures were destroyed
+	fprintf(stderr, "Orphaned Textures: %lli"NEWLINE, activeTextures);
+
+	result &= activeTextures is 0;
+
+	return result;
 }

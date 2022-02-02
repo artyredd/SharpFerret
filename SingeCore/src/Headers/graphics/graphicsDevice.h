@@ -1,6 +1,9 @@
 #pragma once
 #include "csharp.h"
 #include <stdint.h>
+#include "graphics/imaging.h"
+#include "graphics/textureDefinitions.h"
+
 
 typedef unsigned int Comparison;
 
@@ -44,9 +47,29 @@ struct _graphicsDeviceMethods
 	void (*DisableDepthTesting)(void);
 	void (*SetDepthTest)(const Comparison);
 	/// <summary>
+	/// Generates a new texture buffer and binds it to the provided type on the graphics device, returns the handle to the generated texture
+	/// </summary>
+	unsigned int (*CreateTexture)(TextureType);
+	/// <summary>
+	/// deletes the provided texture on the graphics device
+	/// </summary>
+	void (*DeleteTexture)(unsigned int handle);
+	/// <summary>
+	/// Loads the provided image to the graphics device to the currently bound texture
+	/// </summary>
+	void (*LoadTexture)(TextureType, TextureFormat, BufferFormat, Image);
+	/// <summary>
+	/// Modifies the currenly bound texture with the provided setting and value
+	/// </summary>
+	void (*ModifyTexture)(TextureType, TextureSetting, TextureSettingValue);
+	/// <summary>
 	/// Binds the provided texture to an open texture slot on the graphics device
 	/// </summary>
 	void (*ActivateTexture)(const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
+	/// <summary>
+	/// Verifies that cleanup was properly performed before program exit
+	/// </summary>
+	bool (*TryVerifyCleanup)(void);
 };
 
 extern const struct _graphicsDeviceMethods GraphicsDevice;

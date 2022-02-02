@@ -51,6 +51,8 @@ static Exception MissingCharacterException = 0x70000007;
 // The logic path or branching that lead to this error needs to be evaluated or tested more thoroughly.
 // This error denotes and exception that may or may not be dangerous but is unexpected and clearly unintended.
 static Exception InvalidLogicException = 0x70000008;
+// A texture failed to load from a texture definition file
+static Exception FailedToLoadTextureException = 0x70000009;
 // The outcome where this error is thrown should never occur even by chance, either an edge case was missed or something else weird happend
 static Exception UnexpectedOutcomeException = 0x7FFFFFFF;
 // end custom exceptions
