@@ -97,23 +97,27 @@ extern const struct _textureSettings TextureSettings;
 
 typedef int TextureSettingValue;
 
+typedef TextureSettingValue FilterType;
+
 struct _textureFilters {
-	TextureSettingValue Nearest;
-	TextureSettingValue Linear;
-	TextureSettingValue NearestMipMapNearest;
-	TextureSettingValue LinearMipMapNearest;
-	TextureSettingValue NearestMipMapLinear;
-	TextureSettingValue LinearMipMapLinear;
+	FilterType Nearest;
+	FilterType Linear;
+	FilterType NearestMipMapNearest;
+	FilterType LinearMipMapNearest;
+	FilterType NearestMipMapLinear;
+	FilterType LinearMipMapLinear;
 };
 
-extern const struct _textureFilters Filters;
+extern const struct _textureFilters FilterTypes;
+
+typedef TextureSettingValue WrapMode;
 
 struct _textureWrapModes {
-	TextureSettingValue ClampToEdge;
-	TextureSettingValue ClampToBorder;
-	TextureSettingValue MirroredRepeat;
-	TextureSettingValue Repeat;
-	TextureSettingValue MirrorClampToEdge;
+	WrapMode ClampToEdge;
+	WrapMode ClampToBorder;
+	WrapMode MirroredRepeat;
+	WrapMode Repeat;
+	WrapMode MirrorClampToEdge;
 };
 
 extern const struct _textureWrapModes WrapModes;

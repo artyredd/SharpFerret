@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include "csharp.h"
 
+// max number of bytes to alloc for parsing a string from a file buffer
+#define MAX_PARSABLE_STRING_LENGTH 1024
+
 /// <summary>
 /// Pointer to _stringArray struct containing an array of strings, array of string lengths, and the number of strings within the array
 /// </summary>
@@ -70,6 +73,7 @@ struct _stringMethods {
 	/// Attempts to split the provided string using the provided delimiter, sets the members of the provided string array
 	/// </summary>
 	bool (*TrySplit)(const char* source, size_t length, int delimiter, StringArray resultStringArray);
+	bool (*TryParse)(const char* buffer, const size_t bufferLength, char** out_string);
 };
 
 extern const struct _stringMethods Strings;

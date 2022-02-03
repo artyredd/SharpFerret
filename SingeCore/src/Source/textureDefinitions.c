@@ -68,7 +68,7 @@ const struct _textureSettings TextureSettings = {
 	.WrapZ = GL_TEXTURE_WRAP_R
 };
 
-const struct _textureFilters Filters = {
+const struct _textureFilters FilterTypes = {
 	.Nearest = GL_NEAREST,
 	.Linear = GL_LINEAR,
 	.NearestMipMapNearest = GL_NEAREST_MIPMAP_NEAREST,

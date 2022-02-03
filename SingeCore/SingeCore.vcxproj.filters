@@ -341,6 +341,9 @@
     <ClInclude Include="src\Headers\graphics\textureDefinitions.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
+    <ClInclude Include="src\Headers\singine\types.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\shaderFormat.shader">

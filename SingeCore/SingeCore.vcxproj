@@ -280,6 +280,7 @@
     <ClInclude Include="src\Headers\singine\parsing.h" />
     <ClInclude Include="src\Headers\singine\strings.h" />
     <ClInclude Include="src\Headers\singine\time.h" />
+    <ClInclude Include="src\Headers\singine\types.h" />
     <ClInclude Include="src\Headers\tests.h" />
   </ItemGroup>
   <ItemGroup>

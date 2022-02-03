@@ -213,12 +213,6 @@ static Texture Blank(void)
 #define WrapZTokenComment "# How to wrap the texture along the z (R) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"
 #define WrapZToken "wrapZ"
 
-TextureSettingValue ClampToEdge;
-TextureSettingValue ClampToBorder;
-TextureSettingValue MirroredRepeat;
-TextureSettingValue Repeat;
-TextureSettingValue MirrorClampToEdge;
-
 static const char* Tokens[] = {
 	PathToken,
 	MinToken,
@@ -272,28 +266,28 @@ static bool ModifyLoadedTexture(struct _textureInfo* state)
 	return true;
 }
 
-static bool TryGetFilter(const char* buffer, const size_t length, TextureSettingValue* out_textureSetting)
+static const char* filterNames[sizeof(FilterTypes) / sizeof(FilterType)] =
 {
-	static const size_t filterCount = sizeof(Filters) / sizeof(TextureSettingValue);
+	"nearest",
+	"linear",
+	"nearestNearest",
+	"linearNearest",
+	"nearestLinear",
+	"linearLinear"
+};
 
-	static const char* filters[sizeof(Filters) / sizeof(TextureSettingValue)] =
-	{
-		"nearest",
-		"linear",
-		"nearestNearest",
-		"linearNearest",
-		"nearestLinear",
-		"linearLinear"
-	};
+static bool TryGetFilter(const char* buffer, const size_t length, FilterType* out_textureSetting)
+{
+	static const size_t filterCount = sizeof(FilterTypes) / sizeof(FilterType);
 
 	*out_textureSetting = 0;
 
 	for (size_t i = 0; i < filterCount; i++)
 	{
-		if (Strings.Contains(buffer, length, filters[i], strlen(filters[i])))
+		if (Strings.Contains(buffer, length, filterNames[i], strlen(filterNames[i])))
 		{
 			// this is some hacky aliasing, im sorry
-			*out_textureSetting = ((TextureSettingValue*)&Filters)[i];
+			*out_textureSetting = ((TextureSettingValue*)&FilterTypes)[i];
 			return true;
 		}
 	}
@@ -301,24 +295,24 @@ static bool TryGetFilter(const char* buffer, const size_t length, TextureSetting
 	return false;
 }
 
-static bool TryGetWrapMode(const char* buffer, const size_t length, TextureSettingValue* out_textureSetting)
+static const char* wrapModeNames[sizeof(WrapModes) / sizeof(TextureSettingValue)] =
+{
+	"clamped",
+	"repeat",
+	"mirrored",
+	"clampToBorder",
+	"mirroredClamped"
+};
+
+static bool TryGetWrapMode(const char* buffer, const size_t length, WrapMode* out_textureSetting)
 {
 	static const size_t modeCount = sizeof(WrapModes) / sizeof(TextureSettingValue);
-
-	static const char* wrapModes[sizeof(WrapModes) / sizeof(TextureSettingValue)] =
-	{
-		"clamped",
-		"repeat",
-		"mirrored",
-		"clampToBorder",
-		"mirroredClamped"
-	};
 
 	*out_textureSetting = 0;
 
 	for (size_t i = 0; i < modeCount; i++)
 	{
-		if (Strings.Contains(buffer, length, wrapModes[i], strlen(wrapModes[i])))
+		if (Strings.Contains(buffer, length, wrapModeNames[i], strlen(wrapModeNames[i])))
 		{
 			// this is some hacky aliasing, im sorry
 			*out_textureSetting = ((TextureSettingValue*)&WrapModes)[i];
@@ -327,6 +321,19 @@ static bool TryGetWrapMode(const char* buffer, const size_t length, TextureSetti
 	}
 
 	return false;
+}
+
+static const char* GetName(int value, TextureSettingValue* values, const char** names, size_t count)
+{
+	for (size_t i = 0; i < count; i++)
+	{
+		if (value is values[i])
+		{
+			return names[i];
+		}
+	}
+
+	return null;
 }
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state)
@@ -379,6 +386,12 @@ static Texture Load(const char* path)
 			throw(FailedToLoadTextureException);
 		}
 
+		texture->MagnificationFiler = state.MagnificationFilter;
+		texture->MinificationFilter = state.MinificationFilter;
+		texture->WrapX = state.WrapX;
+		texture->WrapY = state.WrapY;
+		texture->WrapZ = state.WrapZ;
+
 		Images.Dispose(image);
 	}
 
@@ -403,24 +416,31 @@ static void Save(Texture texture, const char* path)
 	fprintf(stream, "%s\n", texture->Path);
 
 	fprintf(stream, CommentFormat, MinTokenComment);
-	fprintf(stream, "#"TokenFormat, MinToken);
-	fprintf(stream, "%s\n", "linear");
+	fprintf(stream, TokenFormat, MinToken);
+	// becuase we store the GL_INT value for the filter we need to cast it back to a string
+	const char* name = GetName(texture->MinificationFilter, (FilterType*)&FilterTypes, filterNames, sizeof(FilterTypes) / sizeof(FilterType));
+	fprintf(stream, "%s\n", name);
 
 	fprintf(stream, CommentFormat, MagTokenComment);
-	fprintf(stream, "#"TokenFormat, MagToken);
-	fprintf(stream, "%s\n", "linear");
+	fprintf(stream, TokenFormat, MagToken);
+	name = GetName(texture->MagnificationFiler, (FilterType*)&FilterTypes, filterNames, sizeof(FilterTypes) / sizeof(FilterType));
+	fprintf(stream, "%s\n", name);
 
 	fprintf(stream, CommentFormat, WrapXTokenComment);
-	fprintf(stream, "#"TokenFormat, WrapYToken);
-	fprintf(stream, "%s\n", "clamp");
+	fprintf(stream, TokenFormat, WrapYToken);
+	// same thing for wrap modes, we should cast the GL_int back to a string
+	name = GetName(texture->WrapX, (WrapMode*)&WrapModes, wrapModeNames, sizeof(WrapModes) / sizeof(WrapMode));
+	fprintf(stream, "%s\n", name);
 
 	fprintf(stream, CommentFormat, WrapYTokenComment);
-	fprintf(stream, "#"TokenFormat, WrapYToken);
-	fprintf(stream, "%s\n", "clamp");
+	fprintf(stream, TokenFormat, WrapYToken);
+	name = GetName(texture->WrapY, (WrapMode*)&WrapModes, wrapModeNames, sizeof(WrapModes) / sizeof(WrapMode));
+	fprintf(stream, "%s\n", name);
 
 	fprintf(stream, CommentFormat, WrapZTokenComment);
-	fprintf(stream, "#"TokenFormat, WrapZToken);
-	fprintf(stream, "%s\n", "clamp");
+	fprintf(stream, TokenFormat, WrapZToken);
+	name = GetName(texture->WrapZ, (WrapMode*)&WrapModes, wrapModeNames, sizeof(WrapModes) / sizeof(WrapMode));
+	fprintf(stream, "%s\n", name);
 
 	if (Files.TryClose(stream) is false)
 	{

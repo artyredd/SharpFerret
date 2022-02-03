@@ -4,8 +4,8 @@
 #include "graphics/imaging.h"
 #include "graphics/textureDefinitions.h"
 
-#define DEFAULT_MINIFYING_FILTER Filters.Linear
-#define DEFAULT_MAGNIFYING_FILTER Filters.Linear
+#define DEFAULT_MINIFYING_FILTER FilterTypes.Linear
+#define DEFAULT_MAGNIFYING_FILTER FilterTypes.Linear
 #define DEFAULT_WRAPX WrapModes.ClampToEdge
 #define DEFAULT_WRAPY WrapModes.ClampToEdge
 #define DEFAULT_WRAPZ WrapModes.ClampToEdge
@@ -24,6 +24,11 @@ struct _texture {
 	size_t Width;
 	BufferFormat BufferFormat;
 	TextureFormat Format;
+	FilterType MinificationFilter;
+	FilterType MagnificationFiler;
+	WrapMode WrapX;
+	WrapMode WrapY;
+	WrapMode WrapZ;
 };
 
 struct _textureMethods

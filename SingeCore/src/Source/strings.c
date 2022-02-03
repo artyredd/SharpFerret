@@ -26,6 +26,7 @@ static char* DuplicateTerminated(const char* source);
 static bool Contains(const char* source, size_t length, const char* target, const size_t targetLength);
 static bool Equals(const char* left, size_t leftLength, const char* right, size_t rightLength);
 static bool TrySplit(const char* source, size_t length, int delimiter, StringArray resultStringArray);
+static bool TryParse(const char* buffer, const size_t bufferLength, char** out_string);
 
 const struct _stringMethods Strings = {
 	.ToUpper = &ToUpper,
@@ -35,7 +36,8 @@ const struct _stringMethods Strings = {
 	.DuplicateTerminated = &DuplicateTerminated,
 	.Contains = &Contains,
 	.Equals = &Equals,
-	.TrySplit = &TrySplit
+	.TrySplit = &TrySplit,
+	.TryParse = &TryParse
 };
 
 static void ToLower(char* buffer, size_t bufferLength, size_t offset)
@@ -170,6 +172,51 @@ static bool Equals(const char* left, size_t leftLength, const char* right, size_
 	// at this point we know both pointers are not null, aren't eachother, and are the same length
 	// compare each byte to verify they are the same
 	return memcmp(left, right, leftLength) is 0;
+}
+
+static bool TryParse(const char* buffer, const size_t bufferLength, char** out_string)
+{
+	*out_string = null;
+
+	// skip until we encounter non-whitespace or end of buffer
+	size_t index = 0;
+	while (index < bufferLength && isspace(buffer[index]) && buffer[index++] != '\0');
+
+	// if the entire string was whitespace return false
+	if (index == bufferLength)
+	{
+		return false;
+	}
+
+	// get the next string after any whitespace
+	// determine how much we should alloc for the string
+	// this is O(2n)
+	size_t size = index;
+	while (size < bufferLength && isspace(buffer[size]) is false && buffer[size++] != '\0');
+
+	// convert size from index into length
+	size = size - index;
+
+	// make sure there is a string to return
+	if (size is 0)
+	{
+		return false;
+	}
+
+	// make sure not to exceed the maxStringLength
+	size = min(size, MAX_PARSABLE_STRING_LENGTH);
+
+	char* result = SafeAlloc(size + 1);
+
+	// copy the char over
+	memcpy(result, buffer + index, size);
+
+	// make sure to NUL terminate the string even though we may not use it
+	result[size] = '\0';
+
+	*out_string = result;
+
+	return true;
 }
 
 static StringArray CreateStringArray(void)

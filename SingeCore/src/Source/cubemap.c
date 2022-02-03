@@ -12,6 +12,8 @@ const struct _cubeMapMethods CubeMaps = {
 	.Dispose = Dispose,
 };
 
+typedef Texture CubeMapTextureArray[6];
+
 static CubeMap Create(void)
 {
 	return SafeAlloc(sizeof(struct _cubeMap));
