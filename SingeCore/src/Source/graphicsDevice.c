@@ -28,12 +28,13 @@ static void ResetStencilFunction(void);
 static void EnableDepthTesting(void);
 static void DisableDepthTesting(void);
 static void SetDepthTest(const Comparison);
-static void ActivateTexture(const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
-static unsigned int CreateTexture(TextureType);
+
+static void ActivateTexture(const TextureType, const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
+static unsigned int CreateTexture(const TextureType);
+static void LoadTexture(const TextureType, TextureFormat, BufferFormat, Image);
+static void ModifyTexture(const TextureType, TextureSetting, const TextureValue*);
 static void DeleteTexture(unsigned int handle);
 static bool TryVerifyCleanup(void);
-static void LoadTexture(TextureType, TextureFormat, BufferFormat, Image);
-static void ModifyTexture(TextureType, TextureSetting, TextureSettingValue);
 
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
@@ -207,13 +208,14 @@ static void SetDepthTest(const Comparison comparison)
 	}
 }
 
-static void ActivateTexture(const unsigned int textureHandle, const int uniformHandle, const unsigned int slot)
+static void ActivateTexture(const TextureType textureType, const unsigned int textureHandle, const int uniformHandle, const unsigned int slot)
 {
-	glEnable(GL_TEXTURE_2D);
+	unsigned int type = textureType.Value.AsUInt;
+	glEnable(type);
 	glActiveTexture(GL_TEXTURE0 + slot);
-	glBindTexture(GL_TEXTURE_2D, textureHandle);
+	glBindTexture(type, textureHandle);
 	glUniform1i(uniformHandle, slot);
-	glDisable(GL_TEXTURE_2D);
+	glDisable(type);
 }
 
 static unsigned int CreateTexture(TextureType type)
@@ -221,7 +223,7 @@ static unsigned int CreateTexture(TextureType type)
 	unsigned int handle;
 	glGenTextures(1, &handle);
 
-	glBindTexture(type, handle);
+	glBindTexture(type.Value.AsUInt, handle);
 
 	// keep track of how many textures we create
 	++(activeTextures);
@@ -239,12 +241,12 @@ static void DeleteTexture(unsigned int handle)
 
 static void LoadTexture(TextureType type, TextureFormat colorFormat, BufferFormat pixelFormat, Image image)
 {
-	glTexImage2D(type, 0, colorFormat, image->Width, image->Height, 0, colorFormat, pixelFormat, image->Pixels);
+	glTexImage2D(type.Value.AsUInt, 0, colorFormat, image->Width, image->Height, 0, colorFormat, pixelFormat, image->Pixels);
 }
 
-static void ModifyTexture(TextureType type, TextureSetting setting, TextureSettingValue value)
+static void ModifyTexture(TextureType type, TextureSetting setting, const TextureValue* value)
 {
-	glTexParameteri(type, setting, value);
+	glTexParameteri(type.Value.AsUInt, setting, value->Value.AsInt);
 }
 
 static bool TryVerifyCleanup(void)

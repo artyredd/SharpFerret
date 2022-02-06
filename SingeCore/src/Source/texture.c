@@ -7,11 +7,11 @@
 #include "singine/config.h"
 #include "singine/parsing.h"
 #include <string.h>
+#include "singine/reflection.h"
 
 static void Dispose(Texture);
 static bool TryCreateTexture(Image, Texture* out_texture);
-static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
-static void Modify(TextureSetting setting, TextureSettingValue value);
+static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
 static Texture InstanceTexture(Texture texture);
 static Texture Blank(void);
 static void Save(Texture texture, const char* path);
@@ -22,7 +22,6 @@ const struct _textureMethods Textures = {
 	.TryCreateTexture = &TryCreateTexture,
 	.TryCreateTextureAdvanced = &TryCreateTextureAdvanced,
 	.Instance = &InstanceTexture,
-	.Modify = &Modify,
 	.Blank = Blank,
 	.Load = &Load,
 	.Save = &Save
@@ -74,29 +73,24 @@ static bool TryGetHandle(unsigned int* out_handle)
 	return true;
 }
 
-static void Modify(TextureSetting setting, TextureSettingValue value)
-{
-	GraphicsDevice.ModifyTexture(TextureTypes.Default, setting, value);
-}
-
 static bool DefaultTryModifyTexture(void* state)
 {
 	if (state is null)
 	{
-		Modify(TextureSettings.MinifyingFilter, DEFAULT_MINIFYING_FILTER);
-		Modify(TextureSettings.MagnifyingFilter, DEFAULT_MAGNIFYING_FILTER);
+		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MinifyingFilter, &DEFAULT_MINIFYING_FILTER);
+		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MagnifyingFilter, &DEFAULT_MAGNIFYING_FILTER);
 	}
 
 	return true;
 }
 
-static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state))
+static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state))
 {
 	BoolGuardNotNull(image);
 
-	unsigned int handle = GraphicsDevice.CreateTexture(TextureTypes.Default);
+	unsigned int handle = GraphicsDevice.CreateTexture(type);
 
-	GraphicsDevice.LoadTexture(TextureTypes.Default, format, bufferFormat, image);
+	GraphicsDevice.LoadTexture(type, format, bufferFormat, image);
 
 	if (TryModifyTexture isnt null)
 	{
@@ -115,7 +109,13 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, TextureF
 
 	texture->Path = Strings.DuplicateTerminated(image->Path);
 
-	*out_texture = texture;
+	// ignore const violation, we are intentionally passing a const value here
+	// this is known to be problematic
+#pragma warning(disable: 4090)
+	texture->Type = &DEFAULT_TEXTURE_TYPE;
+#pragma warning(default: 4090)
+
+	* out_texture = texture;
 
 	return true;
 }
@@ -142,7 +142,7 @@ static bool TryCreateTexture(Image image, Texture* out_texture)
 	// check the channels available, if there are 4 the format is RGBA, if 3 RGB
 	TextureFormat format = GetFormat(image);
 
-	return TryCreateTextureAdvanced(image, out_texture, format, DEFAULT_TEXTURE_BUFFER_FORMAT, null, &DefaultTryModifyTexture);
+	return TryCreateTextureAdvanced(image, out_texture, TextureTypes.Default, format, DEFAULT_TEXTURE_BUFFER_FORMAT, null, &DefaultTryModifyTexture);
 }
 
 static Texture InstanceTexture(Texture texture)
@@ -159,6 +159,13 @@ static Texture InstanceTexture(Texture texture)
 	CopyMember(texture, newTexture, Width);
 	CopyMember(texture, newTexture, BufferFormat);
 	CopyMember(texture, newTexture, Format);
+
+	CopyMember(texture, newTexture, MinificationFilter);
+	CopyMember(texture, newTexture, MagnificationFilter);
+	CopyMember(texture, newTexture, WrapX);
+	CopyMember(texture, newTexture, WrapY);
+	CopyMember(texture, newTexture, WrapZ);
+	CopyMember(texture, newTexture, Type);
 
 	// reference types
 	CopyMember(texture, newTexture, Path);
@@ -213,13 +220,37 @@ static Texture Blank(void)
 #define WrapZTokenComment "# How to wrap the texture along the z (R) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"
 #define WrapZToken "wrapZ"
 
+#define TypeTokenComment "# the type of texture this represents"NEWLINE"# 2d, cubemap"
+#define TypeToken "type"
+
+#define LeftTokenComment "# the path for the left face of the cube map"
+#define RightTokenComment "# the path for the right face of the cube map"
+#define UpTokenComment "# the path for the up face of the cube map"
+#define DownTokenComment "# the path for the down face of the cube map"
+#define ForwardTokenComment "# the path for the forward face of the cube map"
+#define BackTokenComment "# the path for the back face of the cube map"
+
+#define LeftToken "left"
+#define RightToken "right"
+#define UpToken "up"
+#define DownToken "down"
+#define ForwardToken "forward"
+#define BackToken "back"
+
 static const char* Tokens[] = {
 	PathToken,
 	MinToken,
 	MagToken,
 	WrapXToken,
 	WrapYToken,
-	WrapZToken
+	WrapZToken,
+	TypeToken,
+	LeftToken,
+	RightToken,
+	UpToken,
+	DownToken,
+	ForwardToken,
+	BackToken
 };
 
 static const size_t TokenLengths[] = {
@@ -229,15 +260,30 @@ static const size_t TokenLengths[] = {
 	sizeof(WrapXToken),
 	sizeof(WrapYToken),
 	sizeof(WrapZToken),
+	sizeof(TypeToken),
+	sizeof(LeftToken),
+	sizeof(RightToken),
+	sizeof(UpToken),
+	sizeof(DownToken),
+	sizeof(ForwardToken),
+	sizeof(BackToken)
 };
 
 struct _textureInfo {
 	char* path;
-	TextureSettingValue MinificationFilter;
-	TextureSettingValue MagnificationFilter;
-	TextureSettingValue WrapX;
-	TextureSettingValue WrapY;
-	TextureSettingValue WrapZ;
+	TextureType* Type;
+	FilterType* MinificationFilter;
+	FilterType* MagnificationFilter;
+	WrapMode* WrapX;
+	WrapMode* WrapY;
+	WrapMode* WrapZ;
+	// cube map
+	char* left;
+	char* right;
+	char* up;
+	char* down;
+	char* forward;
+	char* back;
 };
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state);
@@ -266,76 +312,6 @@ static bool ModifyLoadedTexture(struct _textureInfo* state)
 	return true;
 }
 
-static const char* filterNames[sizeof(FilterTypes) / sizeof(FilterType)] =
-{
-	"nearest",
-	"linear",
-	"nearestNearest",
-	"linearNearest",
-	"nearestLinear",
-	"linearLinear"
-};
-
-static bool TryGetFilter(const char* buffer, const size_t length, FilterType* out_textureSetting)
-{
-	static const size_t filterCount = sizeof(FilterTypes) / sizeof(FilterType);
-
-	*out_textureSetting = 0;
-
-	for (size_t i = 0; i < filterCount; i++)
-	{
-		if (Strings.Contains(buffer, length, filterNames[i], strlen(filterNames[i])))
-		{
-			// this is some hacky aliasing, im sorry
-			*out_textureSetting = ((TextureSettingValue*)&FilterTypes)[i];
-			return true;
-		}
-	}
-
-	return false;
-}
-
-static const char* wrapModeNames[sizeof(WrapModes) / sizeof(TextureSettingValue)] =
-{
-	"clamped",
-	"repeat",
-	"mirrored",
-	"clampToBorder",
-	"mirroredClamped"
-};
-
-static bool TryGetWrapMode(const char* buffer, const size_t length, WrapMode* out_textureSetting)
-{
-	static const size_t modeCount = sizeof(WrapModes) / sizeof(TextureSettingValue);
-
-	*out_textureSetting = 0;
-
-	for (size_t i = 0; i < modeCount; i++)
-	{
-		if (Strings.Contains(buffer, length, wrapModeNames[i], strlen(wrapModeNames[i])))
-		{
-			// this is some hacky aliasing, im sorry
-			*out_textureSetting = ((TextureSettingValue*)&WrapModes)[i];
-			return true;
-		}
-	}
-
-	return false;
-}
-
-static const char* GetName(int value, TextureSettingValue* values, const char** names, size_t count)
-{
-	for (size_t i = 0; i < count; i++)
-	{
-		if (value is values[i])
-		{
-			return names[i];
-		}
-	}
-
-	return null;
-}
-
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state)
 {
 	switch (index)
@@ -343,15 +319,29 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 	case 0: // path
 		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->path);
 	case 1: // min filter
-		return TryGetFilter(buffer, length, &state->MinificationFilter);
+		return TryGetFilterType(buffer, length, &state->MinificationFilter);
 	case 2: // mag filter
-		return TryGetFilter(buffer, length, &state->MagnificationFilter);
+		return TryGetFilterType(buffer, length, &state->MagnificationFilter);
 	case 3: // wrap x
-		return TryGetWrapMode(buffer, length, &state->WrapX);
+		return TryGetWrapModeType(buffer, length, &state->WrapX);
 	case 4: // wrap y
-		return TryGetWrapMode(buffer, length, &state->WrapY);
+		return TryGetWrapModeType(buffer, length, &state->WrapY);
 	case 5: // wrap z
-		return TryGetWrapMode(buffer, length, &state->WrapZ);
+		return TryGetWrapModeType(buffer, length, &state->WrapZ);
+	case 6: // type
+		return TryGetTextureType(buffer, length, &state->Type);
+	case 7: // left path of cubemap
+		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->left);
+	case 8: // right path of cubemap
+		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->right);
+	case 9: // up path of cubemap
+		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->up);
+	case 10: // down path of cubemap
+		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->down);
+	case 11: // forward path of cubemap
+		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->forward);
+	case 12: // back path of cubemap
+		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->back);
 	default:
 		return false;
 	}
@@ -361,14 +351,24 @@ static Texture Load(const char* path)
 {
 	Texture texture = null;
 
+	// ignore const violation for type default
+#pragma warning(disable:4090)
 	struct _textureInfo state = {
 		.path = null,
-		.MinificationFilter = DEFAULT_MINIFYING_FILTER,
-		.MagnificationFilter = DEFAULT_MAGNIFYING_FILTER,
-		.WrapX = DEFAULT_WRAPX,
-		.WrapY = DEFAULT_WRAPY,
-		.WrapZ = DEFAULT_WRAPZ
+		.Type = &DEFAULT_TEXTURE_TYPE,
+		.MinificationFilter = &DEFAULT_MINIFYING_FILTER,
+		.MagnificationFilter = &DEFAULT_MAGNIFYING_FILTER,
+		.WrapX = &DEFAULT_WRAPX,
+		.WrapY = &DEFAULT_WRAPY,
+		.WrapZ = &DEFAULT_WRAPZ,
+		.left = null,
+		.right = null,
+		.up = null,
+		.down = null,
+		.forward = null,
+		.back = null
 	};
+#pragma warning(default:4090)
 
 	if (Configs.TryLoadConfig(path, &TextureConfigDefinition, &state))
 	{
@@ -381,21 +381,30 @@ static Texture Load(const char* path)
 
 		TextureFormat format = GetFormat(image);
 
-		if (TryCreateTextureAdvanced(image, &texture, format, DEFAULT_TEXTURE_BUFFER_FORMAT, &state, &ModifyLoadedTexture) is false)
+		const TextureType type = state.Type is null ? TextureTypes.Default : *state.Type;
+
+		if (TryCreateTextureAdvanced(image, &texture, type, format, DEFAULT_TEXTURE_BUFFER_FORMAT, &state, &ModifyLoadedTexture) is false)
 		{
 			throw(FailedToLoadTextureException);
 		}
 
-		texture->MagnificationFiler = state.MagnificationFilter;
+		texture->MagnificationFilter = state.MagnificationFilter;
 		texture->MinificationFilter = state.MinificationFilter;
 		texture->WrapX = state.WrapX;
 		texture->WrapY = state.WrapY;
 		texture->WrapZ = state.WrapZ;
+		texture->Type = state.Type;
 
 		Images.Dispose(image);
 	}
 
 	SafeFree(state.path);
+	SafeFree(state.left);
+	SafeFree(state.right);
+	SafeFree(state.forward);
+	SafeFree(state.back);
+	SafeFree(state.up);
+	SafeFree(state.down);
 
 	return texture;
 }
@@ -415,32 +424,40 @@ static void Save(Texture texture, const char* path)
 	fprintf(stream, TokenFormat, PathToken);
 	fprintf(stream, "%s\n", texture->Path);
 
-	fprintf(stream, CommentFormat, MinTokenComment);
-	fprintf(stream, TokenFormat, MinToken);
-	// becuase we store the GL_INT value for the filter we need to cast it back to a string
-	const char* name = GetName(texture->MinificationFilter, (FilterType*)&FilterTypes, filterNames, sizeof(FilterTypes) / sizeof(FilterType));
-	fprintf(stream, "%s\n", name);
+	if (texture->MinificationFilter isnt null)
+	{
+		fprintf(stream, CommentFormat, MinTokenComment);
+		fprintf(stream, TokenFormat, MinToken);
+		fprintf(stream, "%s\n", texture->MinificationFilter->Name);
+	}
 
-	fprintf(stream, CommentFormat, MagTokenComment);
-	fprintf(stream, TokenFormat, MagToken);
-	name = GetName(texture->MagnificationFiler, (FilterType*)&FilterTypes, filterNames, sizeof(FilterTypes) / sizeof(FilterType));
-	fprintf(stream, "%s\n", name);
+	if (texture->MagnificationFilter isnt null)
+	{
+		fprintf(stream, CommentFormat, MagTokenComment);
+		fprintf(stream, TokenFormat, MagToken);
+		fprintf(stream, "%s\n", texture->MagnificationFilter->Name);
+	}
 
-	fprintf(stream, CommentFormat, WrapXTokenComment);
-	fprintf(stream, TokenFormat, WrapYToken);
-	// same thing for wrap modes, we should cast the GL_int back to a string
-	name = GetName(texture->WrapX, (WrapMode*)&WrapModes, wrapModeNames, sizeof(WrapModes) / sizeof(WrapMode));
-	fprintf(stream, "%s\n", name);
+	if (texture->WrapX isnt null)
+	{
+		fprintf(stream, CommentFormat, WrapXTokenComment);
+		fprintf(stream, TokenFormat, WrapXToken);
+		fprintf(stream, "%s\n", texture->WrapX->Name);
+	}
 
-	fprintf(stream, CommentFormat, WrapYTokenComment);
-	fprintf(stream, TokenFormat, WrapYToken);
-	name = GetName(texture->WrapY, (WrapMode*)&WrapModes, wrapModeNames, sizeof(WrapModes) / sizeof(WrapMode));
-	fprintf(stream, "%s\n", name);
+	if (texture->WrapY isnt null)
+	{
+		fprintf(stream, CommentFormat, WrapYTokenComment);
+		fprintf(stream, TokenFormat, WrapYToken);
+		fprintf(stream, "%s\n", texture->WrapY->Name);
+	}
 
-	fprintf(stream, CommentFormat, WrapZTokenComment);
-	fprintf(stream, TokenFormat, WrapZToken);
-	name = GetName(texture->WrapZ, (WrapMode*)&WrapModes, wrapModeNames, sizeof(WrapModes) / sizeof(WrapMode));
-	fprintf(stream, "%s\n", name);
+	if (texture->WrapZ isnt null)
+	{
+		fprintf(stream, CommentFormat, WrapZTokenComment);
+		fprintf(stream, TokenFormat, WrapZToken);
+		fprintf(stream, "%s\n", texture->WrapZ->Name);
+	}
 
 	if (Files.TryClose(stream) is false)
 	{

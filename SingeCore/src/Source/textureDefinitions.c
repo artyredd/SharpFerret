@@ -2,9 +2,9 @@
 #include "GL/glew.h"
 
 const struct _textureTypes TextureTypes = {
-	.Default = GL_TEXTURE_2D,
-	.CubeMap = GL_TEXTURE_CUBE_MAP,
-	.CubeMapFace = GL_TEXTURE_CUBE_MAP_POSITIVE_X
+	.Default = {.Name = "2d", .Value = GL_TEXTURE_2D },
+	.CubeMap = {.Name = "cubemap", .Value = GL_TEXTURE_CUBE_MAP },
+	.CubeMapFace = {.Name = "cubemap", .Value = GL_TEXTURE_CUBE_MAP_POSITIVE_X }
 };
 
 const struct _textureFormats TextureFormats = {
@@ -69,18 +69,18 @@ const struct _textureSettings TextureSettings = {
 };
 
 const struct _textureFilters FilterTypes = {
-	.Nearest = GL_NEAREST,
-	.Linear = GL_LINEAR,
-	.NearestMipMapNearest = GL_NEAREST_MIPMAP_NEAREST,
-	.LinearMipMapNearest = GL_LINEAR_MIPMAP_NEAREST,
-	.NearestMipMapLinear = GL_NEAREST_MIPMAP_LINEAR,
-	.LinearMipMapLinear = GL_LINEAR_MIPMAP_LINEAR,
+	.Nearest = {.Name = "nearest", .Value = GL_NEAREST},
+	.Linear = {.Name = "linear", .Value = GL_LINEAR},
+	.NearestMipMapNearest = {.Name = "nearestNearest", .Value = GL_NEAREST_MIPMAP_NEAREST},
+	.LinearMipMapNearest = {.Name = "linearNearest", .Value = GL_LINEAR_MIPMAP_NEAREST},
+	.NearestMipMapLinear = {.Name = "nearestLinear", .Value = GL_NEAREST_MIPMAP_LINEAR},
+	.LinearMipMapLinear = {.Name = "linearLinear", .Value = GL_LINEAR_MIPMAP_LINEAR},
 };
 
 const struct _textureWrapModes WrapModes = {
-	.ClampToEdge = GL_CLAMP_TO_EDGE,
-	.ClampToBorder = GL_CLAMP_TO_BORDER,
-	.MirroredRepeat = GL_MIRRORED_REPEAT,
-	.Repeat = GL_REPEAT,
-	.MirrorClampToEdge = GL_MIRROR_CLAMP_TO_EDGE,
+	.ClampToEdge = {.Name = "clamp", .Value = GL_CLAMP_TO_EDGE },
+	.ClampToBorder = {.Name = "clampToBorder", .Value = GL_CLAMP_TO_BORDER },
+	.MirroredRepeat = {.Name = "mirroredRepeat", .Value = GL_MIRRORED_REPEAT},
+	.Repeat = {.Name = "repeat", .Value = GL_REPEAT},
+	.MirrorClampToEdge = {.Name = "mirrored", .Value = GL_MIRROR_CLAMP_TO_EDGE},
 };

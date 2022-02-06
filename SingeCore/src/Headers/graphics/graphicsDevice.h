@@ -57,15 +57,15 @@ struct _graphicsDeviceMethods
 	/// <summary>
 	/// Loads the provided image to the graphics device to the currently bound texture
 	/// </summary>
-	void (*LoadTexture)(TextureType, TextureFormat, BufferFormat, Image);
+	void (*LoadTexture)(const TextureType, TextureFormat, BufferFormat, Image);
 	/// <summary>
 	/// Modifies the currenly bound texture with the provided setting and value
 	/// </summary>
-	void (*ModifyTexture)(TextureType, TextureSetting, TextureSettingValue);
+	void (*ModifyTexture)(const TextureType, TextureSetting, const TextureValue*);
 	/// <summary>
 	/// Binds the provided texture to an open texture slot on the graphics device
 	/// </summary>
-	void (*ActivateTexture)(const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
+	void (*ActivateTexture)(const TextureType, const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
 	/// <summary>
 	/// Verifies that cleanup was properly performed before program exit
 	/// </summary>

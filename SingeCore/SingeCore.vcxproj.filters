@@ -189,10 +189,10 @@
     <ClCompile Include="src\Source\light.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Source\cubemap.c">
+    <ClCompile Include="src\Source\textureDefinitions.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="src\Source\textureDefinitions.c">
+    <ClCompile Include="src\Source\reflection.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -335,13 +335,13 @@
     <ClInclude Include="src\Headers\graphics\shaders.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="src\Headers\graphics\cubemap.h">
-      <Filter>Header Files\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="src\Headers\graphics\textureDefinitions.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="src\Headers\singine\types.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\reflection.h">
       <Filter>Header Files\Singine</Filter>
     </ClInclude>
   </ItemGroup>

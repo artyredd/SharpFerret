@@ -288,7 +288,7 @@ static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, u
 		int uniformHandle;
 		if (Shaders.TryGetUniform(shader, uniform, &uniformHandle))
 		{
-			GraphicsDevice.ActivateTexture(texture->Handle->Handle, uniformHandle, slot);
+			GraphicsDevice.ActivateTexture(*texture->Type, texture->Handle->Handle, uniformHandle, slot);
 		}
 	}
 }

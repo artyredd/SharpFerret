@@ -134,13 +134,24 @@ static bool Contains(const char* source, size_t length, const char* target, cons
 		return false;
 	}
 
-	for (size_t start = 0; start < min(length - targetLength, max(length - targetLength, 0)); start++)
+	for (size_t start = 0; start < length; start++)
 	{
 		const char* buffer = source + start;
 
-		if (memcmp(buffer, target, min(length - start, targetLength)) is 0)
+		// check if this character can be the start of the target string, if it can't move on
+		int firstChar = buffer[0];
+
+		if (firstChar isnt target[0])
 		{
-			return true;
+			continue;
+		}
+
+		if (length - start >= targetLength)
+		{
+			if (memcmp(buffer, target, min(length - start, targetLength)) is 0)
+			{
+				return true;
+			}
 		}
 	}
 

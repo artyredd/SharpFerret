@@ -1,7 +1,9 @@
 #pragma once
 
+#include "singine/reflection.h" 
+
 // Specifies the target texture.
-typedef unsigned int TextureType;
+typedef parsableValue TextureType;
 
 struct _textureTypes {
 	/// <summary>
@@ -17,6 +19,12 @@ struct _textureTypes {
 };
 
 extern const struct _textureTypes TextureTypes;
+
+#define MAX_TEXTURE_TYPES sizeof(TextureTypes)/sizeof(TextureType)
+
+#define TryGetTextureTypeName(value, out_name) ParsableValues.TryGetName(&TextureTypes, MAX_TEXTURE_TYPES, value, out_name)
+#define TryGetTextureTypeValue(buffer, length, out_value) ParsableValues.TryGetInt(&TextureTypes, MAX_TEXTURE_TYPES, buffer, length, out_value)
+#define TryGetTextureType(buffer, length, out_value) ParsableValues.TryGetMemberByName(&TextureTypes, MAX_TEXTURE_TYPES, buffer, length, out_value)
 
 // Specifies the format of the pixel data.
 typedef unsigned int TextureFormat;
@@ -95,9 +103,12 @@ struct _textureSettings {
 
 extern const struct _textureSettings TextureSettings;
 
-typedef int TextureSettingValue;
+typedef parsableValue TextureValue;
 
-typedef TextureSettingValue FilterType;
+/// <summary>
+/// A parsable value object with it's value union interpreted as an int
+/// </summary>
+typedef TextureValue FilterType;
 
 struct _textureFilters {
 	FilterType Nearest;
@@ -110,7 +121,16 @@ struct _textureFilters {
 
 extern const struct _textureFilters FilterTypes;
 
-typedef TextureSettingValue WrapMode;
+#define MAX_FILTER_TYPES sizeof(FilterTypes)/sizeof(FilterType)
+
+#define TryGetFilterName(value, out_name) ParsableValues.TryGetName(&FilterTypes, MAX_FILTER_TYPES, value, out_name)
+#define TryGetFilterValue(buffer, length, out_value) ParsableValues.TryGetInt(&FilterTypes, MAX_FILTER_TYPES, buffer, length, out_value)
+#define TryGetFilterType(buffer, length, out_value) ParsableValues.TryGetMemberByName(&FilterTypes, MAX_FILTER_TYPES, buffer, length, out_value)
+
+/// <summary>
+/// A parsable value object with it's value union interpreted as an int
+/// </summary>
+typedef TextureValue WrapMode;
 
 struct _textureWrapModes {
 	WrapMode ClampToEdge;
@@ -121,3 +141,9 @@ struct _textureWrapModes {
 };
 
 extern const struct _textureWrapModes WrapModes;
+
+#define MAX_WRAP_MODES sizeof(WrapModes)/sizeof(WrapMode)
+
+#define TryGetWrapModeName(value, out_name) ParsableValues.TryGetName(&WrapModes, MAX_WRAP_MODES, value, out_name)
+#define TryGetWrapModeValue(buffer, length, out_value) ParsableValues.TryGetInt(&WrapModes, MAX_WRAP_MODES, buffer, length, out_value)
+#define TryGetWrapModeType(buffer, length, out_value) ParsableValues.TryGetMemberByName(&WrapModes, MAX_WRAP_MODES, buffer, length, out_value)

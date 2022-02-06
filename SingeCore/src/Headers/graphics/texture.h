@@ -11,6 +11,7 @@
 #define DEFAULT_WRAPZ WrapModes.ClampToEdge
 #define DEFAULT_TEXTURE_FORMAT TextureFormats.RGBA
 #define DEFAULT_TEXTURE_BUFFER_FORMAT BufferFormats.UByte
+#define DEFAULT_TEXTURE_TYPE TextureTypes.Default
 
 typedef struct _texture* Texture;
 
@@ -24,11 +25,12 @@ struct _texture {
 	size_t Width;
 	BufferFormat BufferFormat;
 	TextureFormat Format;
-	FilterType MinificationFilter;
-	FilterType MagnificationFiler;
-	WrapMode WrapX;
-	WrapMode WrapY;
-	WrapMode WrapZ;
+	TextureType* Type;
+	FilterType* MinificationFilter;
+	FilterType* MagnificationFilter;
+	WrapMode* WrapX;
+	WrapMode* WrapY;
+	WrapMode* WrapZ;
 };
 
 struct _textureMethods
@@ -38,14 +40,10 @@ struct _textureMethods
 	/// </summary>
 	Texture(*Blank)(void);
 	/// <summary>
-	/// Modifies the currently bound texture, this should be invoked in the method given to TryCreateTextureAdvanced
-	/// </summary>
-	void(*Modify)(TextureSetting setting, TextureSettingValue value);
-	/// <summary>
 	/// Attempts to create a new texture from the provided image and invokes the given method after the texture has been bound so modifiers such as 
 	/// filters can be applied in-line
 	/// </summary>
-	bool (*TryCreateTextureAdvanced)(Image image, Texture* out_texture, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
+	bool (*TryCreateTextureAdvanced)(Image image, Texture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
 	/// <summary>
 	/// Attempts to create a new texture from the provided image
 	/// </summary>
