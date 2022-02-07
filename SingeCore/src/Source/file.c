@@ -5,8 +5,6 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define NotNull(variableName) if (variableName is null) { fprintf(stderr, #variableName"can not be null"); throw(InvalidArgumentException); }
-
 static bool TryOpen(const char* path, FileMode fileMode, File* out_file);
 static File Open(const char* path, FileMode fileMode);
 static size_t GetFileSize(const File file);
@@ -18,6 +16,7 @@ static bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLen
 static bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count);
 static bool TryClose(File file);
 static void Close(File file);
+static bool TryVerifyCleanup(void);
 
 const struct _fileMethods Files = {
 	.TryOpen = &TryOpen,
@@ -30,8 +29,14 @@ const struct _fileMethods Files = {
 	.TryReadLine = &TryReadLine,
 	.TryGetSequenceCount = &TryGetSequenceCount,
 	.TryClose = &TryClose,
-	.Close = &Close
+	.Close = &Close,
+	.TryVerifyCleanup = &TryVerifyCleanup
 };
+
+// the number of file handles opened using this file
+size_t FILES_OPENED;
+// the number of file handles closed using this file
+size_t FILES_CLOSED;
 
 static bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 {
@@ -55,13 +60,15 @@ static bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 
 	*out_file = file;
 
+	++(FILES_OPENED);
+
 	return true;
 }
 
 static File Open(const char* path, FileMode fileMode)
 {
-	NotNull(path);
-	NotNull(fileMode);
+	GuardNotNull(path);
+	GuardNotNull(fileMode);
 
 	File file;
 
@@ -73,12 +80,14 @@ static File Open(const char* path, FileMode fileMode)
 		throw(FileNotFoundException);
 	}
 
+	++(FILES_OPENED);
+
 	return file;
 }
 
 static size_t GetFileSize(const File file)
 {
-	NotNull(file);
+	GuardNotNull(file);
 
 	size_t currentPosition = _ftelli64(file);
 
@@ -228,7 +237,7 @@ static bool TryReadAll(const char* path, char** out_data)
 		{
 			*out_data = data;
 
-			return true;
+			return TryClose(file);
 		}
 
 		TryClose(file);
@@ -347,6 +356,7 @@ static bool TryGetSequenceCount(File file, const char* targetSequence, const siz
 
 static bool TryClose(File file)
 {
+	++(FILES_CLOSED);
 	return fclose(file) != EOF;
 }
 
@@ -358,4 +368,12 @@ static void Close(File file)
 	}
 }
 
-#undef NotNull
+static bool TryVerifyCleanup(void)
+{
+	if (FILES_OPENED != FILES_CLOSED)
+	{
+		fprintf(stderr, "The number of the files that were opened did not match the number of file handles that were closed: %lli/%lli"NEWLINE, FILES_OPENED, FILES_CLOSED);
+	}
+
+	return FILES_OPENED == FILES_CLOSED;
+}

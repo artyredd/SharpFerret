@@ -704,6 +704,7 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 	Model model;
 	if (TryImportModelStream(stream, &model, null, null, null) is false)
 	{
+		Files.Close(stream);
 		return false;
 	}
 

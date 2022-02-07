@@ -65,6 +65,11 @@ struct _fileMethods {
 	bool (*TryClose)(File file);
 
 	void (*Close)(File file);
+
+	/// <summary>
+	/// Determines if all files that were opened were closed appropriately
+	/// </summary>
+	bool (*TryVerifyCleanup)(void);
 };
 
 extern const struct _fileMethods Files;
