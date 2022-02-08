@@ -1,0 +1,13 @@
+#version 330 core
+out vec4 FragColor;
+
+in vec3 texcoords;
+
+uniform struct _material	{ 
+	samplerCube diffuseMap;
+} material;
+
+void main()
+{    
+    FragColor = texture(material.diffuseMap, texcoords);
+}

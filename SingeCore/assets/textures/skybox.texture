@@ -1,0 +1,12 @@
+left: assets/textures/skybox/left.jpg
+right: assets/textures/skybox/right.jpg
+up: assets/textures/skybox/up.jpg
+down: assets/textures/skybox/down.jpg
+forward: assets/textures/skybox/forward.jpg
+back: assets/textures/skybox/back.jpg
+type: cubemap
+minificationFilter: linear
+magnificationFilter: linear
+wrapX: clamped
+wrapY: clamped
+wrapZ: clamped
