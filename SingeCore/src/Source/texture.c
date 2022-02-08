@@ -118,11 +118,7 @@ static bool TryCreateCubeMapAdvanced(CubeMapImages images, Texture* out_texture,
 	texture->BufferFormat = bufferFormat;
 	texture->Format = 0;
 
-	// ignore const violation, we are intentionally passing a const value here
-	// this is known to be problematic
-#pragma warning(disable: 4090)
-	texture->Type = &TextureTypes.CubeMap;
-#pragma warning(default: 4090)
+	texture->Type = TextureTypes.CubeMap;
 
 	* out_texture = texture;
 
@@ -349,11 +345,11 @@ static bool ModifyLoadedTexture(struct _textureInfo* state)
 		return false;
 	}
 
-	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.MinifyingFilter, state->MinificationFilter);
-	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.MagnifyingFilter, state->MagnificationFilter);
-	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.WrapX, state->WrapX);
-	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.WrapY, state->WrapY);
-	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.WrapZ, state->WrapZ);
+	GraphicsDevice.ModifyTexture(state->Type, TextureSettings.MinifyingFilter, state->MinificationFilter);
+	GraphicsDevice.ModifyTexture(state->Type, TextureSettings.MagnifyingFilter, state->MagnificationFilter);
+	GraphicsDevice.ModifyTexture(state->Type, TextureSettings.WrapX, state->WrapX);
+	GraphicsDevice.ModifyTexture(state->Type, TextureSettings.WrapY, state->WrapY);
+	GraphicsDevice.ModifyTexture(state->Type, TextureSettings.WrapZ, state->WrapZ);
 
 	return true;
 }
@@ -429,8 +425,8 @@ static void VerifyCubeMapImages(CubeMapImages images)
 static void LoadCubemap(struct _textureInfo state, Texture* out_texture)
 {
 	CubeMapImages images = {
-		Images.LoadImage(state.right),
 		Images.LoadImage(state.left),
+		Images.LoadImage(state.right),
 		Images.LoadImage(state.up),
 		Images.LoadImage(state.down),
 		Images.LoadImage(state.back),
@@ -479,20 +475,11 @@ static Texture Load(const char* path)
 
 	if (Configs.TryLoadConfig(path, &TextureConfigDefinition, &state))
 	{
-		if (state.Type is null || state.Type is & TextureTypes.Default)
+		if (state.Type.Value.AsUInt is TextureTypes.Default.Value.AsUInt)
 		{
 			Load2dTexture(state, &texture);
 		}
-<<<<<<< Updated upstream
-
-		TextureFormat format = GetFormat(image);
-
-		const TextureType type = state.Type.Name is null ? TextureTypes.Default : state.Type;
-
-		if (TryCreateTextureAdvanced(image, &texture, type, format, DEFAULT_TEXTURE_BUFFER_FORMAT, &state, &ModifyLoadedTexture) is false)
-=======
-		else if (state.Type is & TextureTypes.CubeMap)
->>>>>>> Stashed changes
+		else if (state.Type.Value.AsUInt is TextureTypes.CubeMap.Value.AsUInt)
 		{
 			LoadCubemap(state, &texture);
 

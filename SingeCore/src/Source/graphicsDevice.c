@@ -34,7 +34,7 @@ static void SetDepthTest(const Comparison);
 
 static void ActivateTexture(const TextureType, const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
 static unsigned int CreateTexture(const TextureType);
-static void LoadTexture(const TextureType, TextureFormat, BufferFormat, Image);
+static void LoadTexture(const TextureType, TextureFormat, BufferFormat, Image, unsigned int offset);
 static void ModifyTexture(const TextureType, TextureSetting, const TextureValue);
 static void DeleteTexture(unsigned int handle);
 static bool TryVerifyCleanup(void);
@@ -242,9 +242,9 @@ static void DeleteTexture(unsigned int handle)
 	--(activeTextures);
 }
 
-static void LoadTexture(TextureType type, TextureFormat colorFormat, BufferFormat pixelFormat, Image image)
+static void LoadTexture(TextureType type, TextureFormat colorFormat, BufferFormat pixelFormat, Image image, unsigned int offset)
 {
-	glTexImage2D(type.Value.AsUInt, 0, colorFormat, image->Width, image->Height, 0, colorFormat, pixelFormat, image->Pixels);
+	glTexImage2D(type.Value.AsUInt + offset, 0, colorFormat, image->Width, image->Height, 0, colorFormat, pixelFormat, image->Pixels);
 }
 
 static void ModifyTexture(TextureType type, TextureSetting setting, const TextureValue value)

@@ -60,7 +60,7 @@ struct _graphicsDeviceMethods
 	/// <summary>
 	/// Loads the provided image to the graphics device to the currently bound texture
 	/// </summary>
-	void (*LoadTexture)(const TextureType, TextureFormat, BufferFormat, Image);
+	void (*LoadTexture)(const TextureType, TextureFormat, BufferFormat, Image, unsigned int offset);
 	/// <summary>
 	/// Modifies the currenly bound texture with the provided setting and value
 	/// </summary>

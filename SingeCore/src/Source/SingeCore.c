@@ -273,6 +273,8 @@ int main()
 
 	Transforms.RotateOnAxis(plane->Transform, 0.5f * (float)GLM_PI, Vector3.Forward);
 
+	GameObject skybox = GameObjects.Load("assets/prefabs/skybox.gameobject");
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -383,6 +385,8 @@ int main()
 		Transforms.SetPosition(spotLight->Transform, position);
 		Transforms.SetRotation(spotLight->Transform, camera->Transform->Rotation);
 
+		GameObjects.Draw(skybox, scene);
+
 		GameObjects.Draw(lightMarker, scene);
 		GameObjects.Draw(otherLightMarker, scene);
 
@@ -424,6 +428,7 @@ int main()
 	GameObjects.Destroy(lightMarker);
 	GameObjects.Destroy(plane);
 	GameObjects.Destroy(otherLightMarker);
+	GameObjects.Destroy(skybox);
 
 	Materials.Dispose(textMaterial);
 	Materials.Dispose(defaultMaterial);
