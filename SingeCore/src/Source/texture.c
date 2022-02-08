@@ -9,6 +9,8 @@
 #include <string.h>
 #include "singine/reflection.h"
 
+typedef Image CubeMapImages[6];
+
 static void Dispose(Texture);
 static bool TryCreateTexture(Image, Texture* out_texture);
 static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
@@ -16,6 +18,7 @@ static Texture InstanceTexture(Texture texture);
 static Texture Blank(void);
 static void Save(Texture texture, const char* path);
 static Texture Load(const char* path);
+static TextureFormat GetFormat(Image image);
 
 const struct _textureMethods Textures = {
 	.Dispose = &Dispose,
@@ -84,13 +87,56 @@ static bool DefaultTryModifyTexture(void* state)
 	return true;
 }
 
-static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state))
+static bool TryCreateCubeMapAdvanced(CubeMapImages images, Texture* out_texture,
+	BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state))
+{
+	BoolGuardNotNull(images);
+
+	unsigned int handle = GraphicsDevice.CreateTexture(TextureTypes.CubeMap);
+
+	for (size_t i = 0; i < 6; i++)
+	{
+		Image image = images[i];
+
+		TextureFormat format = GetFormat(image);
+
+		GraphicsDevice.LoadTexture(TextureTypes.CubeMapFace, format, bufferFormat, images[i], (unsigned int)i);
+	}
+
+	if (TryModifyTexture isnt null)
+	{
+		TryModifyTexture(state);
+	}
+
+	Texture texture = CreateTexture(true);
+
+	texture->Height = images[0]->Height;
+	texture->Width = images[0]->Width;
+
+	texture->Handle->Handle = handle;
+
+	texture->BufferFormat = bufferFormat;
+	texture->Format = 0;
+
+	// ignore const violation, we are intentionally passing a const value here
+	// this is known to be problematic
+#pragma warning(disable: 4090)
+	texture->Type = &TextureTypes.CubeMap;
+#pragma warning(default: 4090)
+
+	* out_texture = texture;
+
+	return true;
+}
+
+static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const TextureType type, TextureFormat format,
+	BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state))
 {
 	BoolGuardNotNull(image);
 
 	unsigned int handle = GraphicsDevice.CreateTexture(type);
 
-	GraphicsDevice.LoadTexture(type, format, bufferFormat, image);
+	GraphicsDevice.LoadTexture(type, format, bufferFormat, image, 0);
 
 	if (TryModifyTexture isnt null)
 	{
@@ -303,11 +349,11 @@ static bool ModifyLoadedTexture(struct _textureInfo* state)
 		return false;
 	}
 
-	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MinifyingFilter, state->MinificationFilter);
-	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MagnifyingFilter, state->MagnificationFilter);
-	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapX, state->WrapX);
-	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapY, state->WrapY);
-	GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapZ, state->WrapZ);
+	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.MinifyingFilter, state->MinificationFilter);
+	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.MagnifyingFilter, state->MagnificationFilter);
+	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.WrapX, state->WrapX);
+	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.WrapY, state->WrapY);
+	GraphicsDevice.ModifyTexture(*state->Type, TextureSettings.WrapZ, state->WrapZ);
 
 	return true;
 }
@@ -347,6 +393,67 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 	}
 }
 
+static void Load2dTexture(struct _textureInfo state, Texture* out_texture)
+{
+	Image image = Images.LoadImage(state.path);
+
+	if (image is null)
+	{
+		throw(FileNotFoundException);
+	}
+
+	TextureFormat format = GetFormat(image);
+
+	if (TryCreateTextureAdvanced(image, out_texture, TextureTypes.Default, format, DEFAULT_TEXTURE_BUFFER_FORMAT, &state, &ModifyLoadedTexture) is false)
+	{
+		throw(FailedToLoadTextureException);
+	}
+
+	Images.Dispose(image);
+}
+
+static void VerifyCubeMapImages(CubeMapImages images)
+{
+	for (size_t i = 0; i < 6; i++)
+	{
+		Image image = images[i];
+
+		if (image is null)
+		{
+			fprintf(stderr, "Failed to load image within cube map at index = %lli", i);
+			throw(FailedToLoadTextureException);
+		}
+	}
+}
+
+static void LoadCubemap(struct _textureInfo state, Texture* out_texture)
+{
+	CubeMapImages images = {
+		Images.LoadImage(state.right),
+		Images.LoadImage(state.left),
+		Images.LoadImage(state.up),
+		Images.LoadImage(state.down),
+		Images.LoadImage(state.back),
+		Images.LoadImage(state.forward)
+	};
+
+	VerifyCubeMapImages(images);
+
+	if (TryCreateCubeMapAdvanced(images, out_texture, DEFAULT_TEXTURE_BUFFER_FORMAT, &state, &ModifyLoadedTexture) is false)
+	{
+		for (size_t i = 0; i < 6; i++)
+		{
+			Images.Dispose(images[i]);
+		}
+		throw(FailedToLoadTextureException);
+	}
+
+	for (size_t i = 0; i < 6; i++)
+	{
+		Images.Dispose(images[i]);
+	}
+}
+
 static Texture Load(const char* path)
 {
 	Texture texture = null;
@@ -372,20 +479,26 @@ static Texture Load(const char* path)
 
 	if (Configs.TryLoadConfig(path, &TextureConfigDefinition, &state))
 	{
-		Image image = Images.LoadImage(state.path);
-
-		if (image is null)
+		if (state.Type is null || state.Type is & TextureTypes.Default)
 		{
-			throw(FileNotFoundException);
+			Load2dTexture(state, &texture);
 		}
+<<<<<<< Updated upstream
 
 		TextureFormat format = GetFormat(image);
 
 		const TextureType type = state.Type.Name is null ? TextureTypes.Default : state.Type;
 
 		if (TryCreateTextureAdvanced(image, &texture, type, format, DEFAULT_TEXTURE_BUFFER_FORMAT, &state, &ModifyLoadedTexture) is false)
+=======
+		else if (state.Type is & TextureTypes.CubeMap)
+>>>>>>> Stashed changes
 		{
-			throw(FailedToLoadTextureException);
+			LoadCubemap(state, &texture);
+
+			// since a cubemap has multiple source textures it's path is not set when we create the texture
+			// asign the path name to the texture instead of any one source
+			texture->Path = Strings.DuplicateTerminated(path);
 		}
 
 		texture->MagnificationFilter = state.MagnificationFilter;
@@ -394,8 +507,6 @@ static Texture Load(const char* path)
 		texture->WrapY = state.WrapY;
 		texture->WrapZ = state.WrapZ;
 		texture->Type = state.Type;
-
-		Images.Dispose(image);
 	}
 
 	SafeFree(state.path);
