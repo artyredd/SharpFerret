@@ -10,7 +10,7 @@ enableBackfaceCulling: true
 useCameraPerspective: true
 
 # enable the depth buffer so we can see the outline ontop of the terrain and other geometry
-depthTest: less
+depthTest: true
 
 useStencilBuffer: true
 

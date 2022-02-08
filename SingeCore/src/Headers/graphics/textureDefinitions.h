@@ -18,7 +18,7 @@ struct _textureTypes {
 	TextureType CubeMapFace;
 };
 
-extern const struct _textureTypes TextureTypes;
+extern struct _textureTypes TextureTypes;
 
 #define MAX_TEXTURE_TYPES sizeof(TextureTypes)/sizeof(TextureType)
 
@@ -119,7 +119,7 @@ struct _textureFilters {
 	FilterType LinearMipMapLinear;
 };
 
-extern const struct _textureFilters FilterTypes;
+extern struct _textureFilters FilterTypes;
 
 #define MAX_FILTER_TYPES sizeof(FilterTypes)/sizeof(FilterType)
 
@@ -140,7 +140,7 @@ struct _textureWrapModes {
 	WrapMode MirrorClampToEdge;
 };
 
-extern const struct _textureWrapModes WrapModes;
+extern struct _textureWrapModes WrapModes;
 
 #define MAX_WRAP_MODES sizeof(WrapModes)/sizeof(WrapMode)
 

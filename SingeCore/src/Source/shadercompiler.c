@@ -497,7 +497,7 @@ struct _shaderInfo {
 #define WriteToStencilBufferComment "# whether or not fragments that are drawn are written to the stencil buffer"
 #define WriteToStencilBufferToken "writeToStencilBuffer"
 #define UseDepthTestComment "# whether or not depth testing should be used when this shader is used to render an object"
-#define UseDepthTestToken "enableDepthTesting"
+#define UseDepthTestToken "depthTest"
 #define UseCustomStencilAttributesComment "# whether or not this shader should set various stencil function attributes when it's enabled"
 #define UseCustomStencilAttributesToken "useCustomStencilAttributes"
 #define CustomStencilFuncionComment "# the custom function that should be used for this shader\n# does not do anythig when useComstomStencilAttributes is set to false\n# Valid Values: always, never, equal, notEqual, greaterThan, lessThan, greaterThanOrEqual, lessThanOrEqual"
