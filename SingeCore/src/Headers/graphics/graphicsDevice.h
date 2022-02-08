@@ -5,7 +5,7 @@
 #include "graphics/textureDefinitions.h"
 
 
-typedef unsigned int Comparison;
+typedef parsableValue Comparison;
 
 struct _comparisons {
 	Comparison Always;
@@ -18,7 +18,10 @@ struct _comparisons {
 	Comparison LessThanOrEqual;
 };
 
-extern const struct _comparisons Comparisons;
+extern struct _comparisons Comparisons;
+
+#define MAX_COMPARISONS sizeof(Comparisons)/sizeof(Comparison)
+#define TryGetComparison(buffer, length, out_value) ParsableValues.TryGetMemberByName(&Comparisons, MAX_COMPARISONS, buffer, length, out_value)
 
 struct _graphicsDeviceMethods
 {

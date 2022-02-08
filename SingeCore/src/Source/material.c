@@ -247,6 +247,7 @@ static void PrepareSettings(Shader shader)
 	if (HasFlag(settings, ShaderSettings.UseDepthTest))
 	{
 		GraphicsDevice.EnableDepthTesting();
+		GraphicsDevice.SetDepthTest(shader->DepthFunction);
 	}
 	else
 	{

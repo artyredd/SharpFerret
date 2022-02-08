@@ -475,7 +475,8 @@ struct _shaderInfo {
 	struct _stringArray FragmentPieces;
 	struct _stringArray VertexPieces;
 	unsigned int Settings;
-	unsigned int StencilComparison;
+	Comparison DepthFunction;
+	Comparison StencilComparison;
 	unsigned int StencilValue;
 	unsigned int StencilMask;
 };
@@ -571,12 +572,8 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 		}
 		return false;
 	case 5: // enable depth testing
-		if (TryParseBoolean(buffer, length, &enabled))
-		{
-			AssignFlag(state->Settings, ShaderSettings.UseDepthTest, enabled);
-			return true;
-		}
-		return false;
+		SetFlag(state->Settings, ShaderSettings.UseDepthTest);
+		return TryGetComparison(buffer, length, &state->DepthFunction);
 	case 6: // use stencil buffer
 		if (TryParseBoolean(buffer, length, &enabled))
 		{
@@ -599,7 +596,7 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 		}
 		return false;
 	case 9: // custom stencil function
-		return TryGetStencilComparison(buffer, length, &state->StencilComparison);
+		return TryGetComparison(buffer, length, &state->StencilComparison);
 	case 10: // stencil value
 		count = sscanf_s(buffer, "%xui", &(state->StencilValue));
 		return count == 1;
@@ -642,6 +639,7 @@ static Shader Load(const char* path)
 			.Strings = null
 		},
 		.Settings = 0,
+		.DepthFunction = Comparisons.LessThan,
 		.StencilComparison = Comparisons.Always,
 		.StencilMask = 0xFF,
 		.StencilValue = 1
@@ -734,13 +732,13 @@ static bool Save(Shader shader, const char* path)
 		fprintf(file, ExportTokenFormat, UseCustomStencilAttributesToken, "true");
 
 		fprintf(file, CustomStencilFuncionComment);
-		fprintf(file, ExportTokenFormat, CustomStencilFuncionToken, GetStencilComparisonName(shader->StencilFunction));
+		fprintf(file, ExportTokenFormat, CustomStencilFuncionToken, shader->StencilFunction.Name);
 
 		fprintf(file, CustomStencilValueComment);
-		fprintf(file, "\n%s: %xui\n", CustomStencilValueToken, shader->StencilFunction);
+		fprintf(file, "\n%s: %xui\n", CustomStencilValueToken, shader->StencilValue);
 
 		fprintf(file, CustomStencilMaskComment);
-		fprintf(file, "\n%s: %xui\n", CustomStencilMaskToken, shader->StencilFunction);
+		fprintf(file, "\n%s: %xui\n", CustomStencilMaskToken, shader->StencilMask);
 	}
 
 	return Files.TryClose(file);

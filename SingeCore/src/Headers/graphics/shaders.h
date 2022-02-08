@@ -118,6 +118,7 @@ struct _shader {
 	/// This is a quick mask that stores advanced toggles for this shader and how it should be drawn, these are applied to only this shader
 	/// </summary>
 	unsigned int Settings;
+	Comparison DepthFunction;
 	/// <summary>
 	/// If UseStencilBuffer within the settings is true then this is used to compare a fragments value with StencilValue to determine whether
 	/// a fragment is drawn

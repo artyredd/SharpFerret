@@ -3,21 +3,23 @@
 #include <stdlib.h>
 #include "graphics/textureDefinitions.h"
 
-const struct _comparisons Comparisons = {
-	.Always = GL_ALWAYS,
-	.Never = GL_NEVER,
-	.Equal = GL_EQUAL,
-	.NotEqual = GL_NOTEQUAL,
-	.GreaterThan = GL_GREATER,
-	.LessThan = GL_LESS,
-	.LessThanOrEqual = GL_LEQUAL,
-	.GreaterThanOrEqual = GL_GEQUAL
+struct _comparisons Comparisons = {
+	.Always = { "always", GL_ALWAYS },
+	.Never = { "never", GL_NEVER },
+	.Equal = { "equal", GL_EQUAL },
+	.NotEqual = { "notEqual", GL_NOTEQUAL },
+	.GreaterThan = { "greater", GL_GREATER },
+	.LessThan = { "less", GL_LESS },
+	.LessThanOrEqual = { "lessOrEqual", GL_LEQUAL },
+	.GreaterThanOrEqual = { "greaterOrEqual", GL_GEQUAL }
 };
 
 static void EnableBlending(void);
-static void EnableCulling(void);
 static void DisableBlending(void);
+
+static void EnableCulling(void);
 static void DisableCulling(void);
+
 static void EnableWritingToStencilBuffer(void);
 static void DisableWritingToStencilBuffer(void);
 static unsigned int GetStencilMask(void);
@@ -25,6 +27,7 @@ static void SetStencilMask(const unsigned int mask);
 static void SetStencilFunction(const Comparison);
 static void SetStencilFunctionFull(const Comparison, const unsigned int valueToCompareTo, const unsigned int mask);
 static void ResetStencilFunction(void);
+
 static void EnableDepthTesting(void);
 static void DisableDepthTesting(void);
 static void SetDepthTest(const Comparison);
@@ -68,7 +71,7 @@ unsigned int stencilMask = 0xFF;
 unsigned int stencilComparisonFunction;
 unsigned int stencilComparisonValue;
 unsigned int stencilComparisonMask;
-unsigned int defaultStencilComparison = GL_ALWAYS;
+Comparison defaultStencilComparison = { "always", GL_ALWAYS };
 unsigned int defaultStencilComparisonValue = 1;
 unsigned int defaultStencilComparisonMask = 0xFF;
 unsigned int depthComparison;
@@ -168,11 +171,11 @@ static void SetStencilMask(const unsigned int mask)
 
 static void SetStencilFunction(const Comparison comparison)
 {
-	if (comparison isnt stencilComparisonFunction || stencilComparisonValue isnt 1 || stencilComparisonMask isnt 0xFF)
+	if (comparison.Value.AsUInt isnt stencilComparisonFunction || stencilComparisonValue isnt 1 || stencilComparisonMask isnt 0xFF)
 	{
-		glStencilFunc(comparison, 1, 0xFF);
+		glStencilFunc(comparison.Value.AsUInt, 1, 0xFF);
 
-		stencilComparisonFunction = comparison;
+		stencilComparisonFunction = comparison.Value.AsUInt;
 
 		stencilComparisonValue = 1;
 
@@ -182,11 +185,11 @@ static void SetStencilFunction(const Comparison comparison)
 
 static void SetStencilFunctionFull(const Comparison comparison, const unsigned int valueToCompareTo, const unsigned int mask)
 {
-	if (comparison isnt stencilComparisonFunction || valueToCompareTo isnt stencilComparisonValue || mask != stencilComparisonMask)
+	if (comparison.Value.AsUInt isnt stencilComparisonFunction || valueToCompareTo isnt stencilComparisonValue || mask != stencilComparisonMask)
 	{
-		glStencilFunc(comparison, valueToCompareTo, mask);
+		glStencilFunc(comparison.Value.AsUInt, valueToCompareTo, mask);
 
-		stencilComparisonFunction = comparison;
+		stencilComparisonFunction = comparison.Value.AsUInt;
 
 		stencilComparisonValue = valueToCompareTo;
 
@@ -201,10 +204,10 @@ static void ResetStencilFunction(void)
 
 static void SetDepthTest(const Comparison comparison)
 {
-	if (depthComparison isnt comparison)
+	if (depthComparison isnt comparison.Value.AsUInt)
 	{
-		glDepthFunc(comparison);
-		depthComparison = comparison;
+		glDepthFunc(comparison.Value.AsUInt);
+		depthComparison = comparison.Value.AsUInt;
 	}
 }
 
