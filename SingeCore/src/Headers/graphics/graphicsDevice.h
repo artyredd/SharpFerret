@@ -61,7 +61,7 @@ struct _graphicsDeviceMethods
 	/// <summary>
 	/// Modifies the currenly bound texture with the provided setting and value
 	/// </summary>
-	void (*ModifyTexture)(const TextureType, TextureSetting, const TextureValue*);
+	void (*ModifyTexture)(const TextureType, TextureSetting, const TextureValue);
 	/// <summary>
 	/// Binds the provided texture to an open texture slot on the graphics device
 	/// </summary>

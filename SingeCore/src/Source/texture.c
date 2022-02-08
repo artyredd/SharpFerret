@@ -77,8 +77,8 @@ static bool DefaultTryModifyTexture(void* state)
 {
 	if (state is null)
 	{
-		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MinifyingFilter, &DEFAULT_MINIFYING_FILTER);
-		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MagnifyingFilter, &DEFAULT_MAGNIFYING_FILTER);
+		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MinifyingFilter, DEFAULT_MINIFYING_FILTER);
+		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MagnifyingFilter, DEFAULT_MAGNIFYING_FILTER);
 	}
 
 	return true;
@@ -112,7 +112,7 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const Te
 	// ignore const violation, we are intentionally passing a const value here
 	// this is known to be problematic
 #pragma warning(disable: 4090)
-	texture->Type = &DEFAULT_TEXTURE_TYPE;
+	texture->Type = DEFAULT_TEXTURE_TYPE;
 #pragma warning(default: 4090)
 
 	* out_texture = texture;
@@ -271,12 +271,12 @@ static const size_t TokenLengths[] = {
 
 struct _textureInfo {
 	char* path;
-	TextureType* Type;
-	FilterType* MinificationFilter;
-	FilterType* MagnificationFilter;
-	WrapMode* WrapX;
-	WrapMode* WrapY;
-	WrapMode* WrapZ;
+	TextureType Type;
+	FilterType MinificationFilter;
+	FilterType MagnificationFilter;
+	WrapMode WrapX;
+	WrapMode WrapY;
+	WrapMode WrapZ;
 	// cube map
 	char* left;
 	char* right;
@@ -355,12 +355,12 @@ static Texture Load(const char* path)
 #pragma warning(disable:4090)
 	struct _textureInfo state = {
 		.path = null,
-		.Type = &DEFAULT_TEXTURE_TYPE,
-		.MinificationFilter = &DEFAULT_MINIFYING_FILTER,
-		.MagnificationFilter = &DEFAULT_MAGNIFYING_FILTER,
-		.WrapX = &DEFAULT_WRAPX,
-		.WrapY = &DEFAULT_WRAPY,
-		.WrapZ = &DEFAULT_WRAPZ,
+		.Type = DEFAULT_TEXTURE_TYPE,
+		.MinificationFilter = DEFAULT_MINIFYING_FILTER,
+		.MagnificationFilter = DEFAULT_MAGNIFYING_FILTER,
+		.WrapX = DEFAULT_WRAPX,
+		.WrapY = DEFAULT_WRAPY,
+		.WrapZ = DEFAULT_WRAPZ,
 		.left = null,
 		.right = null,
 		.up = null,
@@ -381,7 +381,7 @@ static Texture Load(const char* path)
 
 		TextureFormat format = GetFormat(image);
 
-		const TextureType type = state.Type is null ? TextureTypes.Default : *state.Type;
+		const TextureType type = state.Type.Name is null ? TextureTypes.Default : state.Type;
 
 		if (TryCreateTextureAdvanced(image, &texture, type, format, DEFAULT_TEXTURE_BUFFER_FORMAT, &state, &ModifyLoadedTexture) is false)
 		{
@@ -424,40 +424,25 @@ static void Save(Texture texture, const char* path)
 	fprintf(stream, TokenFormat, PathToken);
 	fprintf(stream, "%s\n", texture->Path);
 
-	if (texture->MinificationFilter isnt null)
-	{
-		fprintf(stream, CommentFormat, MinTokenComment);
-		fprintf(stream, TokenFormat, MinToken);
-		fprintf(stream, "%s\n", texture->MinificationFilter->Name);
-	}
+	fprintf(stream, CommentFormat, MinTokenComment);
+	fprintf(stream, TokenFormat, MinToken);
+	fprintf(stream, "%s\n", texture->MinificationFilter.Name);
 
-	if (texture->MagnificationFilter isnt null)
-	{
-		fprintf(stream, CommentFormat, MagTokenComment);
-		fprintf(stream, TokenFormat, MagToken);
-		fprintf(stream, "%s\n", texture->MagnificationFilter->Name);
-	}
+	fprintf(stream, CommentFormat, MagTokenComment);
+	fprintf(stream, TokenFormat, MagToken);
+	fprintf(stream, "%s\n", texture->MagnificationFilter.Name);
 
-	if (texture->WrapX isnt null)
-	{
-		fprintf(stream, CommentFormat, WrapXTokenComment);
-		fprintf(stream, TokenFormat, WrapXToken);
-		fprintf(stream, "%s\n", texture->WrapX->Name);
-	}
+	fprintf(stream, CommentFormat, WrapXTokenComment);
+	fprintf(stream, TokenFormat, WrapXToken);
+	fprintf(stream, "%s\n", texture->WrapX.Name);
 
-	if (texture->WrapY isnt null)
-	{
-		fprintf(stream, CommentFormat, WrapYTokenComment);
-		fprintf(stream, TokenFormat, WrapYToken);
-		fprintf(stream, "%s\n", texture->WrapY->Name);
-	}
+	fprintf(stream, CommentFormat, WrapYTokenComment);
+	fprintf(stream, TokenFormat, WrapYToken);
+	fprintf(stream, "%s\n", texture->WrapY.Name);
 
-	if (texture->WrapZ isnt null)
-	{
-		fprintf(stream, CommentFormat, WrapZTokenComment);
-		fprintf(stream, TokenFormat, WrapZToken);
-		fprintf(stream, "%s\n", texture->WrapZ->Name);
-	}
+	fprintf(stream, CommentFormat, WrapZTokenComment);
+	fprintf(stream, TokenFormat, WrapZToken);
+	fprintf(stream, "%s\n", texture->WrapZ.Name);
 
 	if (Files.TryClose(stream) is false)
 	{

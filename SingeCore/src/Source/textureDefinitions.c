@@ -1,7 +1,7 @@
 #include "graphics/textureDefinitions.h"
 #include "GL/glew.h"
 
-const struct _textureTypes TextureTypes = {
+struct _textureTypes TextureTypes = {
 	.Default = {.Name = "2d", .Value = GL_TEXTURE_2D },
 	.CubeMap = {.Name = "cubemap", .Value = GL_TEXTURE_CUBE_MAP },
 	.CubeMapFace = {.Name = "cubemap", .Value = GL_TEXTURE_CUBE_MAP_POSITIVE_X }
@@ -68,7 +68,7 @@ const struct _textureSettings TextureSettings = {
 	.WrapZ = GL_TEXTURE_WRAP_R
 };
 
-const struct _textureFilters FilterTypes = {
+struct _textureFilters FilterTypes = {
 	.Nearest = {.Name = "nearest", .Value = GL_NEAREST},
 	.Linear = {.Name = "linear", .Value = GL_LINEAR},
 	.NearestMipMapNearest = {.Name = "nearestNearest", .Value = GL_NEAREST_MIPMAP_NEAREST},
@@ -77,7 +77,7 @@ const struct _textureFilters FilterTypes = {
 	.LinearMipMapLinear = {.Name = "linearLinear", .Value = GL_LINEAR_MIPMAP_LINEAR},
 };
 
-const struct _textureWrapModes WrapModes = {
+struct _textureWrapModes WrapModes = {
 	.ClampToEdge = {.Name = "clamp", .Value = GL_CLAMP_TO_EDGE },
 	.ClampToBorder = {.Name = "clampToBorder", .Value = GL_CLAMP_TO_BORDER },
 	.MirroredRepeat = {.Name = "mirroredRepeat", .Value = GL_MIRRORED_REPEAT},

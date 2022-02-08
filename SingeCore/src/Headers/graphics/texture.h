@@ -25,12 +25,12 @@ struct _texture {
 	size_t Width;
 	BufferFormat BufferFormat;
 	TextureFormat Format;
-	TextureType* Type;
-	FilterType* MinificationFilter;
-	FilterType* MagnificationFilter;
-	WrapMode* WrapX;
-	WrapMode* WrapY;
-	WrapMode* WrapZ;
+	TextureType Type;
+	FilterType MinificationFilter;
+	FilterType MagnificationFilter;
+	WrapMode WrapX;
+	WrapMode WrapY;
+	WrapMode WrapZ;
 };
 
 struct _textureMethods
