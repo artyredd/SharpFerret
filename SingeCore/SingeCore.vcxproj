@@ -321,12 +321,15 @@
     <None Include="assets\shaders\outlineShader.shader" />
     <None Include="assets\shaders\outlineShader.vertexshader" />
     <None Include="assets\shaders\shaderFormat.shader" />
+    <None Include="assets\shaders\skybox.fragmentshader" />
     <None Include="assets\shaders\skybox.shader" />
+    <None Include="assets\shaders\skybox.vertexshader" />
     <None Include="assets\shaders\text.fragmentshader" />
     <None Include="assets\shaders\text.shader" />
     <None Include="assets\shaders\text.vertexshader" />
     <None Include="assets\textures\cube_uv.texture" />
     <None Include="assets\textures\cube_specular.texture" />
+    <None Include="assets\textures\skybox.texture" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="assets\prefabs\lightBase.gameobject" />

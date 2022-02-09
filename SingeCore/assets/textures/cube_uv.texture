@@ -2,6 +2,6 @@ path: assets/textures/cube_uv.png
 type: 2d
 minificationFilter: linear
 magnificationFilter: linear
-wrapX: clamped
-wrapY: clamped
-wrapZ: clamped
+wrapX: clamp
+wrapY: clamp
+wrapZ: clamp

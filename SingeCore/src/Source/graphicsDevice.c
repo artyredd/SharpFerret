@@ -214,11 +214,11 @@ static void SetDepthTest(const Comparison comparison)
 static void ActivateTexture(const TextureType textureType, const unsigned int textureHandle, const int uniformHandle, const unsigned int slot)
 {
 	unsigned int type = textureType.Value.AsUInt;
-	glEnable(type);
+	//glEnable(type);
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(type, textureHandle);
 	glUniform1i(uniformHandle, slot);
-	glDisable(type);
+	//glDisable(type);
 }
 
 static unsigned int CreateTexture(TextureType type)

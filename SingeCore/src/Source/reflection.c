@@ -21,7 +21,7 @@ static bool TryGetMemberByName(parsableValue* values, const size_t count, const 
 {
 	for (size_t i = 0; i < count; i++)
 	{
-		if (Strings.Contains(buffer, bufferLength, values[i].Name, min(strlen(values[i].Name), SIGNIFICANT_VARIABLE_NAME_SIZE)))
+		if (Strings.Equals(buffer, bufferLength, values[i].Name, min(strlen(values[i].Name), SIGNIFICANT_VARIABLE_NAME_SIZE)))
 		{
 			*out_value = values[i];
 			return true;

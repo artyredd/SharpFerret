@@ -110,6 +110,8 @@ int main()
 
 	Images.Dispose(icon);
 
+	GameObject skybox = GameObjects.Load("assets/prefabs/skybox.gameobject");
+
 	// load the default material so we can render gameobjects that have no set material
 	Material defaultMaterial = Materials.Load("assets/materials/default.material");
 	GameObjects.SetDefaultMaterial(defaultMaterial);
@@ -273,7 +275,7 @@ int main()
 
 	Transforms.RotateOnAxis(plane->Transform, 0.5f * (float)GLM_PI, Vector3.Forward);
 
-	GameObject skybox = GameObjects.Load("assets/prefabs/skybox.gameobject");
+	
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -385,8 +387,6 @@ int main()
 		Transforms.SetPosition(spotLight->Transform, position);
 		Transforms.SetRotation(spotLight->Transform, camera->Transform->Rotation);
 
-		GameObjects.Draw(skybox, scene);
-
 		GameObjects.Draw(lightMarker, scene);
 		GameObjects.Draw(otherLightMarker, scene);
 
@@ -399,6 +399,8 @@ int main()
 		GameObjects.Draw(city, scene);
 
 		Texts.Draw(text, scene);
+
+		GameObjects.Draw(skybox, scene);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -453,7 +455,7 @@ int main()
 
 	if (AllocCount() > FreeCount())
 	{
-		throw(MemoryLeakException);
+		//throw(MemoryLeakException);
 	}
 
 	if (GraphicsDevice.TryVerifyCleanup() is false)

@@ -659,6 +659,8 @@ static Shader Load(const char* path)
 
 		shader->Settings = info.Settings;
 
+		shader->DepthFunction = info.DepthFunction;
+
 		shader->StencilFunction = info.StencilComparison;
 		shader->StencilMask = info.StencilMask;
 		shader->StencilValue = info.StencilValue;

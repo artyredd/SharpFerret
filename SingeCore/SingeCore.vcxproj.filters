@@ -475,6 +475,15 @@
     <None Include="assets\shaders\text.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="assets\shaders\skybox.fragmentshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\skybox.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\textures\skybox.texture">
+      <Filter>Resource Files\Textures</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="assets\prefabs\lightBase.gameobject">

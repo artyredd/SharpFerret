@@ -7,6 +7,6 @@ back: assets/textures/skybox/back.jpg
 type: cubemap
 minificationFilter: linear
 magnificationFilter: linear
-wrapX: clamped
-wrapY: clamped
-wrapZ: clamped
+wrapX: clamp
+wrapY: clamp
+wrapZ: clamp

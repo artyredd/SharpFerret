@@ -13,7 +13,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "cglm", "external\cglm-282ea
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glew_static", "external\glew-2.2.0\build\vc15\glew_static.vcxproj", "{664E6F0D-6784-4760-9565-D54F8EB1EDF4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw", "external\glfw-3.3.5\build\src\glfw.vcxproj", "{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw", "external\glfw-3.3.5\build\src\glfw.vcxproj", "{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,14 +47,14 @@ Global
 		{664E6F0D-6784-4760-9565-D54F8EB1EDF4}.Release|x64.Build.0 = Release|x64
 		{664E6F0D-6784-4760-9565-D54F8EB1EDF4}.RelWithDebInfo|x64.ActiveCfg = Release|x64
 		{664E6F0D-6784-4760-9565-D54F8EB1EDF4}.RelWithDebInfo|x64.Build.0 = Release|x64
-		{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}.Debug|x64.ActiveCfg = Release|x64
-		{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}.Debug|x64.Build.0 = Release|x64
-		{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}.MinSizeRel|x64.ActiveCfg = MinSizeRel|x64
-		{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}.MinSizeRel|x64.Build.0 = MinSizeRel|x64
-		{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}.Release|x64.ActiveCfg = Release|x64
-		{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}.Release|x64.Build.0 = Release|x64
-		{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|x64
-		{34C958AB-307B-3E4A-9FD0-D28464AD9E0F}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
+		{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}.Debug|x64.ActiveCfg = Debug|x64
+		{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}.Debug|x64.Build.0 = Debug|x64
+		{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}.MinSizeRel|x64.ActiveCfg = MinSizeRel|x64
+		{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}.MinSizeRel|x64.Build.0 = MinSizeRel|x64
+		{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}.Release|x64.ActiveCfg = Release|x64
+		{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}.Release|x64.Build.0 = Release|x64
+		{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}.RelWithDebInfo|x64.ActiveCfg = RelWithDebInfo|x64
+		{12717F9D-97DB-39B0-8DE5-2A90CEB7A2F3}.RelWithDebInfo|x64.Build.0 = RelWithDebInfo|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

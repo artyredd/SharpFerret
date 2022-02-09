@@ -475,17 +475,17 @@ static Texture Load(const char* path)
 
 	if (Configs.TryLoadConfig(path, &TextureConfigDefinition, &state))
 	{
-		if (state.Type.Value.AsUInt is TextureTypes.Default.Value.AsUInt)
-		{
-			Load2dTexture(state, &texture);
-		}
-		else if (state.Type.Value.AsUInt is TextureTypes.CubeMap.Value.AsUInt)
+		if (state.Type.Value.AsUInt is TextureTypes.CubeMap.Value.AsUInt)
 		{
 			LoadCubemap(state, &texture);
 
 			// since a cubemap has multiple source textures it's path is not set when we create the texture
 			// asign the path name to the texture instead of any one source
 			texture->Path = Strings.DuplicateTerminated(path);
+		}
+		else
+		{
+			Load2dTexture(state, &texture);
 		}
 
 		texture->MagnificationFilter = state.MagnificationFilter;
