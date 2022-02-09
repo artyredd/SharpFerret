@@ -45,6 +45,10 @@ struct _materialUniforms {
 	Uniform SpecularMap;
 	Uniform UseDiffuseMap;
 	Uniform UseSpecularMap;
+	Uniform UseReflectionMap;
+	Uniform ReflectionMap;
+	Uniform UseAreaMap;
+	Uniform AreaMap;
 };
 
 struct _uniforms {

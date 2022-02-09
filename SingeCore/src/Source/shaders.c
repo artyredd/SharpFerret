@@ -54,9 +54,13 @@ const struct _uniforms Uniforms = {
 		.Shininess = {.Index = 12, .Name = "material.shininess" },
 		.UseDiffuseMap = {.Index = 13, .Name = "material.useDiffuseMap" },
 		.UseSpecularMap = {.Index = 14, .Name = "material.useSpecularMap" },
+		.UseReflectionMap = { .Index = 15, .Name = "material.useReflectionMap"},
+		.ReflectionMap = {.Index = 16, .Name = "material.reflectionMap"},
+		.UseAreaMap = {.Index = 17, .Name = "material.useAreaMap"},
+		.AreaMap = {.Index = 18, .Name = "material.areaMap"}
 	},
 	.Lights = {
-		.Index = 15,
+		.Index = 19,
 		.Name = "Lights",
 		.Size = (sizeof(struct _lightUniforms) / sizeof(struct _uniform)),
 		.Count = MAX_POINT_LIGHTS

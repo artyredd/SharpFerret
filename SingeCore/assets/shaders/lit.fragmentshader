@@ -15,8 +15,11 @@
 //	sampler2D diffuseMap;
 //	bool useSpecularMap;
 //	sampler2D specularMap;
+//	bool useReflectionMap;
+//	sampler2D reflectionMap;
+//	samplerCube areaMap;
 //} material;
-
+//
 struct _light{
 	bool enabled;
 	int lightType;

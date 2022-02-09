@@ -29,6 +29,8 @@ static Material Load(const char* path);
 static bool Save(const Material material, const char* path);
 static void SetName(Material, const char* name);
 static void SetSpecularTexture(Material material, Texture texture);
+static void SetAreaTexture(Material, const Texture);
+static void SetReflectionTexture(Material, const Texture);
 
 const struct _materialMethods Materials = {
 	.Dispose = &Dispose,
@@ -43,7 +45,9 @@ const struct _materialMethods Materials = {
 	.SetColor = &SetColor,
 	.SetColors = &SetColors,
 	.SetName = &SetName,
-	.SetSpecularTexture = &SetSpecularTexture
+	.SetSpecularTexture = &SetSpecularTexture,
+	.SetAreaTexture = SetAreaTexture,
+	.SetReflectionTexture = SetReflectionTexture
 };
 
 #define DEFAULT_MATERIAL_SETTINGS (ShaderSettings.UseCameraPerspective | ShaderSettings.BackfaceCulling)
@@ -69,6 +73,8 @@ static void Dispose(Material material)
 
 	Textures.Dispose(material->MainTexture);
 	Textures.Dispose(material->SpecularTexture);
+	Textures.Dispose(material->ReflectionMap);
+	Textures.Dispose(material->AreaMap);
 
 	SafeFree(material);
 }
@@ -176,6 +182,10 @@ static Material InstanceMaterial(Material material)
 	newMaterial->MainTexture = mainTexture;
 
 	newMaterial->SpecularTexture = Textures.Instance(material->SpecularTexture);
+
+	newMaterial->AreaMap = Textures.Instance(material->AreaMap);
+
+	newMaterial->ReflectionMap = Textures.Instance(material->ReflectionMap);
 
 	if (material->Name isnt null)
 	{
@@ -468,6 +478,10 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 
 			SetMaterialTexture(shader, Uniforms.Material.SpecularMap, Uniforms.Material.UseSpecularMap, material->SpecularTexture, 1);
 
+			SetMaterialTexture(shader, Uniforms.Material.ReflectionMap, Uniforms.Material.UseReflectionMap, material->ReflectionMap, 2);
+
+			SetMaterialTexture(shader, Uniforms.Material.AreaMap, Uniforms.Material.UseAreaMap, material->AreaMap, 3);
+
 			// draw the triangles
 			RenderMeshes.Draw(mesh);
 
@@ -493,6 +507,20 @@ static void SetSpecularTexture(Material material, Texture texture)
 	GuardNotNull(material);
 	Textures.Dispose(material->SpecularTexture);
 	material->SpecularTexture = Textures.Instance(texture);
+}
+
+static void SetAreaTexture(Material material, const Texture texture)
+{
+	GuardNotNull(material);
+	Textures.Dispose(material->AreaMap);
+	material->AreaMap = Textures.Instance(texture);
+}
+
+static void SetReflectionTexture(Material material, const Texture texture)
+{
+	GuardNotNull(material);
+	Textures.Dispose(material->ReflectionMap);
+	material->ReflectionMap = Textures.Instance(texture);
 }
 
 static void SetShader(Material material, Shader shader, size_t index)
@@ -552,6 +580,10 @@ static void SetName(Material material, const char* name)
 #define DiffuseColorToken "diffuse"
 #define SpecularStrengthComment "# float [0-1]; how strong the specular highlights should be"
 #define SpecularStrengthToken "specularStrength"
+#define ReflectionMapComment "# the 2d texture path that should be used to determine which parts of this material should be reflective"
+#define ReflectionMapToken "reflectionMap"
+#define AreaMapComment "# the 3d cubemap texture path that should be used to determine what is shown in reflections off of this object"
+#define AreaMapToken "areaMap"
 
 #define MAX_PATH_LENGTH 512
 
@@ -835,6 +867,18 @@ static bool Save(const Material material, const char* path)
 	{
 		fprintf(file, ExportCommentFormat, SpecularTextureComment);
 		fprintf(file, ExportTokenFormat, SpecularTextureToken, material->SpecularTexture->Path);
+	}
+
+	if (material->ReflectionMap isnt null)
+	{
+		fprintf(file, ExportCommentFormat, ReflectionMapComment);
+		fprintf(file, ExportTokenFormat, ReflectionMapToken, material->ReflectionMap->Path);
+	}
+
+	if (material->AreaMap isnt null)
+	{
+		fprintf(file, ExportCommentFormat, AreaMapComment);
+		fprintf(file, ExportTokenFormat, AreaMapToken, material->AreaMap->Path);
 	}
 
 	return Files.TryClose(file);

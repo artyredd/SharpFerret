@@ -48,6 +48,14 @@ struct _material {
 	/// </summary>
 	Texture SpecularTexture;
 	/// <summary>
+	/// The 2d texture that should be used to determine which parts of an object should be reflective
+	/// </summary>
+	Texture ReflectionMap;
+	/// <summary>
+	/// The 3d cubemap that should be used to generate reflections on the object
+	/// </summary>
+	Texture AreaMap;
+	/// <summary>
 	/// The name, or path of this material
 	/// </summary>
 	char* Name;
@@ -77,6 +85,14 @@ struct _materialMethods {
 	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
 	/// </summary>
 	void (*SetSpecularTexture)(Material, const Texture);
+	/// <summary>
+	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
+	/// </summary>
+	void (*SetAreaTexture)(Material, const Texture);
+	/// <summary>
+	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
+	/// </summary>
+	void (*SetReflectionTexture)(Material, const Texture);
 	/// <summary>
 	/// Creates a new instance of the provided shade, disposes the old one and reassigns the main texture of the provided shader
 	/// </summary>

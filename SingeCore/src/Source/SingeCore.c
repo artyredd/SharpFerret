@@ -275,8 +275,13 @@ int main()
 
 	Transforms.RotateOnAxis(plane->Transform, 0.5f * (float)GLM_PI, Vector3.Forward);
 
-	
+	Materials.SetAreaTexture(cube->Material, skybox->Material->MainTexture);
+	Materials.SetReflectionTexture(cube->Material, cube->Material->SpecularTexture);
 
+	Materials.SetAreaTexture(ball->Material, skybox->Material->MainTexture);
+	Materials.SetAreaTexture(otherBall->Material, skybox->Material->MainTexture);
+
+	Materials.SetAreaTexture(car->Material, skybox->Material->MainTexture);
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -376,7 +381,7 @@ int main()
 
 		vec3 spinDirection = { 0, 1, 0 };
 
-		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
+		//Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
 
 		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000);//, );
 		Texts.SetText(text, text->Text, count);
