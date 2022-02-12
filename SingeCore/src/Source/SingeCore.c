@@ -97,6 +97,8 @@ int main()
 
 	glEnable(GL_STENCIL_TEST);
 
+	glEnable(GL_FRAMEBUFFER_SRGB);
+
 
 	SetCursorMode(CursorModes.Disabled);
 
@@ -271,6 +273,8 @@ int main()
 	Scenes.AddLight(scene, otherLight);
 	Scenes.AddLight(scene, spotLight);
 
+	spotLight->EdgeSoftness = 0.195f;
+
 	GameObject plane = GameObjects.Load("assets/prefabs/plane.gameobject");
 
 	Transforms.RotateOnAxis(plane->Transform, 0.5f * (float)GLM_PI, Vector3.Forward);
@@ -282,6 +286,12 @@ int main()
 	Materials.SetAreaTexture(otherBall->Material, skybox->Material->MainTexture);
 
 	Materials.SetAreaTexture(car->Material, skybox->Material->MainTexture);
+	Materials.SetAreaTexture(plane->Material, skybox->Material->MainTexture);
+
+	int lightMode = 0;
+
+	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -363,6 +373,7 @@ int main()
 			//light->Range = amount / 100;
 			//otherLight->Range = amount / 100;
 			spotLight->EdgeSoftness = amount / 1000;
+			//lightMode = (lightMode + 1) % 4;
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
 		{
@@ -370,6 +381,7 @@ int main()
 			//light->Range = amount / 100;
 			//otherLight->Range = amount / 100;
 			spotLight->EdgeSoftness = amount / 1000;
+			lightMode = (lightMode - 1) % 4;
 		}
 		if (GetKey(KeyCodes.L))
 		{
@@ -377,31 +389,93 @@ int main()
 			otherLight->Enabled = otherLight->Enabled ? false : true;
 		}
 
+		char* mode;
+
+		if (lightMode is 1)
+		{
+			mode = "ambient";
+			SetVector4(light->Diffuse, 0, 0, 0, 0);
+			SetVector4(otherLight->Diffuse, 0, 0, 0, 0);
+			SetVector4(spotLight->Diffuse, 0, 0, 0, 0);
+			SetVector4(light->Specular, 0, 0, 0, 0);
+			SetVector4(otherLight->Specular, 0, 0, 0, 0);
+			SetVector4(spotLight->Specular, 0, 0, 0, 0);
+			SetVector4(light->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4(otherLight->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4(spotLight->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+		}
+		else if (lightMode is 2)
+		{
+			mode = "diffuse";
+			SetVector4(light->Ambient, 0, 0, 0, 0);
+			SetVector4(otherLight->Ambient, 0, 0, 0, 0);
+			SetVector4(spotLight->Ambient, 0, 0, 0, 0);
+			SetVector4(light->Specular, 0, 0, 0, 0);
+			SetVector4(otherLight->Specular, 0, 0, 0, 0);
+			SetVector4(spotLight->Specular, 0, 0, 0, 0);
+			SetVector4(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4(otherLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4(spotLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+		}
+		else if (lightMode is 3)
+		{
+			mode = "specular";
+			SetVector4(light->Ambient, 0, 0, 0, 0);
+			SetVector4(otherLight->Ambient, 0, 0, 0, 0);
+			SetVector4(spotLight->Ambient, 0, 0, 0, 0);
+			SetVector4(light->Diffuse, 0, 0, 0, 0);
+			SetVector4(otherLight->Diffuse, 0, 0, 0, 0);
+			SetVector4(spotLight->Diffuse, 0, 0, 0, 0);
+			SetVector4(light->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4(otherLight->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4(spotLight->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+		}
+		else
+		{
+			mode = "all";
+			SetVector4(light->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
+			SetVector4(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
+			SetVector4(light->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
+
+			SetVector4(otherLight->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
+			SetVector4(otherLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
+			SetVector4(otherLight->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
+
+			SetVector4(spotLight->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
+			SetVector4(spotLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
+			SetVector4(spotLight->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
+		}
+
+
 		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
 
 		vec3 spinDirection = { 0, 1, 0 };
 
 		//Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
 
-		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000);//, );
+		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nMode: %s", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000, mode);
 		Texts.SetText(text, text->Text, count);
 
 		FPSCamera.Update(camera);
 
 		Transforms.SetPosition(camera->Transform, position);
-		Transforms.SetPosition(spotLight->Transform, position);
-		Transforms.SetRotation(spotLight->Transform, camera->Transform->Rotation);
+		//Transforms.SetPosition(spotLight->Transform, position);
+		//Transforms.SetRotation(spotLight->Transform, camera->Transform->Rotation);
 
 		GameObjects.Draw(lightMarker, scene);
 		GameObjects.Draw(otherLightMarker, scene);
 
 		GameObjects.Draw(cube, scene);
 
+		GameObjects.Draw(sphere, scene);
+
 		GameObjects.Draw(car, scene);
 		GameObjects.Draw(ball, scene);
 		GameObjects.Draw(otherBall, scene);
 		GameObjects.Draw(room, scene);
 		GameObjects.Draw(city, scene);
+
+		GameObjects.Draw(plane, scene);
 
 		Texts.Draw(text, scene);
 
@@ -436,6 +510,7 @@ int main()
 	GameObjects.Destroy(plane);
 	GameObjects.Destroy(otherLightMarker);
 	GameObjects.Destroy(skybox);
+	GameObjects.Destroy(sphere);
 
 	Materials.Dispose(textMaterial);
 	Materials.Dispose(defaultMaterial);

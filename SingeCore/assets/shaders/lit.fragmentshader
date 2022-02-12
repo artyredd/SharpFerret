@@ -11,6 +11,7 @@
 //	vec4 diffuse;
 //	vec4 specular;
 //	float shininess;
+//	float reflectivity;
 //	bool useDiffuseMap;
 //	sampler2D diffuseMap;
 //	bool useSpecularMap;
@@ -19,7 +20,8 @@
 //	sampler2D reflectionMap;
 //	samplerCube areaMap;
 //} material;
-//
+
+
 struct _light{
 	bool enabled;
 	int lightType;
@@ -69,7 +71,7 @@ vec4 CalculateFinalColor(_light light,
 	}
 	else
 	{
-		specularPortion = shininessScalar * light.specular * material.specular;
+		specularPortion = light.specular * shininessScalar * material.specular;
 	}
 
 	// less than 0 is infinite range
@@ -94,12 +96,9 @@ vec4 CalculateFinalColor(_light light,
 	return (ambientPortion + diffusePortion + specularPortion);
 }
 
-vec4 CalculatePointLight(_light light, _material material, float intensity)
+vec4 CalculatePointLight(_light light, vec3 lightPosition, _material material, float intensity)
 {
 	vec3 norm = normalize(normal);
-
-	// calculate the position of light
-	vec3 lightPosition = light.position;
 
 	// calculate the direction from the fragment to the light
 	vec3 lightDirection = normalize(lightPosition - fragmentPosition);
@@ -107,18 +106,15 @@ vec4 CalculatePointLight(_light light, _material material, float intensity)
 	// calculate the diffuse scaler
 	float diffuseScalar = max(dot(norm, lightDirection), 0.0);
 
-	// reflect the light direction along the normal axis
-	// so we can compare that reflected direction to our viewer to determine
-	// the specular scalar
-	vec3 reflectedDirection = reflect(lightDirection, normalize(norm));
-
 	// calculate the direction from the fragment to the viewer
 	// so we can compare that direction with the reflected direction
 	// to calculate the specular scalar
-	vec3 viewDirection = normalize(-cameraPosition - fragmentPosition);
+	vec3 viewDirection = normalize(-fragmentPosition);
+
+	vec3 halfwayDir = normalize(lightDirection + viewDirection);
 
 	// the specular scalar is the angle between the view direction and the reflected direction
-	float specularScalar = max(dot(viewDirection, reflectedDirection), 0.0);
+	float specularScalar = max(dot(normal, halfwayDir), 0.0);
 
 	// apply shininess to the specular scalar
 	float shininessScalar = pow(specularScalar, material.shininess);
@@ -127,49 +123,51 @@ vec4 CalculatePointLight(_light light, _material material, float intensity)
 	return CalculateFinalColor(light, material, diffuseScalar, shininessScalar, lightPosition, intensity);
 }
 
-vec4 CalculateDirectionalLight(_light light, _material material)
+vec4 CalculateDirectionalLight(_light light, vec3 lightPosition, _material material)
 {
 	vec3 norm = normalize(normal);
 
 	// calculate the direction from the fragment to the light
-	vec3 lightDirection = normalize(-light.direction);
+	vec3 lightDirection = normalize(lightPosition - fragmentPosition);
 
 	// calculate the diffuse scaler
 	float diffuseScalar = max(dot(norm, lightDirection), 0.0);
 
-	// reflect the light direction along the normal axis
-	// so we can compare that reflected direction to our viewer to determine
-	// the specular scalar
-	vec3 reflectedDirection = reflect(lightDirection, normalize(norm));
-
 	// calculate the direction from the fragment to the viewer
 	// so we can compare that direction with the reflected direction
 	// to calculate the specular scalar
-	vec3 viewDirection = normalize(-cameraPosition - fragmentPosition);
+	vec3 viewDirection = normalize(-fragmentPosition);
 
 	// the specular scalar is the angle between the view direction and the reflected direction
-	float specularScalar = max(dot(viewDirection, reflectedDirection), 0.0);
+	vec3 halfwayDir = normalize(lightDirection + viewDirection);
+
+	// the specular scalar is the angle between the view direction and the reflected direction
+	float specularScalar = max(dot(normal, halfwayDir), 0.0);
 
 	// apply shininess to the specular scalar
 	float shininessScalar = pow(specularScalar, material.shininess);
 	
 	// calculate the color portions of each element of the light
-	return CalculateFinalColor(light, material, diffuseScalar, shininessScalar, light.position, 1.0);
+	return CalculateFinalColor(light, material, diffuseScalar, shininessScalar, lightPosition, 1.0);
 }
 
-vec4 CalculateSpotLight(_light light, _material material)
+vec4 CalculateSpotLight(_light light, vec3 lightPosition, _material material)
 {
-	vec3 lightDirection = normalize(light.position - fragmentPosition);
+	vec3 lightDirection = normalize(lightPosition - fragmentPosition);
 
-	float outerCutoff = (light.edgeSoftness + 1) * light.radius;
+//	float outerCutoff = (light.edgeSoftness + 1) * light.radius;
+//
+//	float theta     = dot(lightDirection, normalize(-light.direction));
+//	float epsilon   = light.radius - outerCutoff;
+//	float intensity = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);
 
 	float theta     = dot(lightDirection, normalize(-light.direction));
-	float epsilon   = light.radius - outerCutoff;
-	float intensity = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);
+	float epsilon   =  	0.9978 - 0.953;
+	float intensity = clamp((theta - 0.953) / epsilon, 0.0, 1.0);   
 
 	if(theta > light.radius) 
 	{
-	  return CalculatePointLight(light, material, 1.0 - intensity);
+	  return CalculatePointLight(light, lightPosition, material, intensity);
 	}
 	else
 	{
@@ -191,6 +189,8 @@ vec4 GetLightingColor(_material material)
 	{
 		_light light = Lights[i];
 
+		vec3 lightPosition = vec3(view * vec4(light.position,1));
+
 		if(light.enabled == false)
 		{
 			continue;
@@ -201,17 +201,17 @@ vec4 GetLightingColor(_material material)
 		// point light
 		if(type == 0)
 		{
-			color += CalculatePointLight(light, material, 1.0);
+			color += CalculatePointLight(light, lightPosition, material, 1.0);
 		} 
 		// directional light
 		else if(type == 1)
 		{
-			color += CalculateDirectionalLight(light, material);
+			color += CalculateDirectionalLight(light, lightPosition, material);
 		}
 		// spot light
 		else if(type == 2)
 		{
-			color += CalculateSpotLight(light, material);
+			color += CalculateSpotLight(light, lightPosition, material);
 		}
 	}
 

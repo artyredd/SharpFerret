@@ -49,6 +49,7 @@ struct _materialUniforms {
 	Uniform ReflectionMap;
 	Uniform UseAreaMap;
 	Uniform AreaMap;
+	Uniform Reflectivity;
 };
 
 struct _uniforms {

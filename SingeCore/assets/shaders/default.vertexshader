@@ -27,8 +27,8 @@ void main(){
 	// UV of the vertex. No special space for this one.
 	texcoords = 1-vertexUV;
 
-	//normal = normalize(mat3(transpose(inverse(viewMatrix * modelMatrix))) * normalVector);
-	normal = mat3(transpose(inverse(model))) * normalVector;
+	normal = vec3(mat3(transpose(inverse(view * model))) * normalVector);
+	//normal = mat3(transpose(inverse(model))) * normalVector;
 
-	fragmentPosition = vec3(model * vec4(pos, 1));
+	fragmentPosition = vec3(view * model * vec4(pos, 1));
 }

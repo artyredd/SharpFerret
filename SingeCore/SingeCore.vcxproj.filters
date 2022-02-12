@@ -484,6 +484,12 @@
     <None Include="assets\textures\skybox.texture">
       <Filter>Resource Files\Textures</Filter>
     </None>
+    <None Include="assets\prefabs\sphere.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
+    </None>
+    <None Include="assets\materials\plane.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="assets\prefabs\lightBase.gameobject">

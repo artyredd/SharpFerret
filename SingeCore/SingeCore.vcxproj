@@ -290,6 +290,7 @@
     <None Include="assets\materials\default.material" />
     <None Include="assets\materials\guiMaterial.material" />
     <None Include="assets\materials\outline.material" />
+    <None Include="assets\materials\plane.material" />
     <None Include="assets\materials\silver.material" />
     <None Include="assets\materials\textMaterial.material" />
     <None Include="assets\materials\textureMaterial.material" />
@@ -304,6 +305,7 @@
     <None Include="assets\prefabs\plane.gameobject" />
     <None Include="assets\prefabs\room.gameobject" />
     <None Include="assets\prefabs\house.gameobject" />
+    <None Include="assets\prefabs\sphere.gameobject" />
     <None Include="assets\shaders\ColorUV.fragmentshader" />
     <None Include="assets\shaders\debugOrientation.fragmentshader" />
     <None Include="assets\shaders\debugOrientation.shader" />

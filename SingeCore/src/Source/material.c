@@ -98,6 +98,7 @@ static Material Create(Shader shader, Texture texture)
 	SetVector4(material->SpecularColor, 1, 1, 1, 1);
 
 	material->Shininess = 0.5f;
+	material->Reflectivity = 0.0f;
 
 	return material;
 }
@@ -198,6 +199,7 @@ static Material InstanceMaterial(Material material)
 	Vectors4CopyTo(material->AmbientColor, newMaterial->AmbientColor);
 
 	newMaterial->Shininess = material->Shininess;
+	newMaterial->Reflectivity = material->Reflectivity;
 
 	return newMaterial;
 }
@@ -384,7 +386,7 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index, Scene 
 	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Position, &handle))
 	{
 		vec3 pos;
-		if (light->Type is LightTypes.Spot)
+		/*if (light->Type is LightTypes.Spot)
 		{
 			mat4 matrix;
 			glm_mat4_mul(Transforms.Refresh(light->Transform), scene->MainCamera->State.View, matrix);
@@ -393,7 +395,9 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index, Scene 
 		else
 		{
 			glm_vec3_rotate_m4(Transforms.Refresh(light->Transform), light->Transform->Position, pos);
-		}
+		}*/
+
+		glm_mat4_mulv3(Transforms.Refresh(light->Transform), light->Transform->Position, 1.0f, pos);
 
 		glUniform3fv(handle, 1, pos);
 	}
@@ -466,7 +470,9 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 
 			SetUniformVector4(shader, Uniforms.Material.Color, material->Color);
 
-			SetUniformFloat(shader, Uniforms.Material.Shininess, material->Shininess * 128.0f);
+			SetUniformFloat(shader, Uniforms.Material.Shininess, material->Shininess);
+
+			SetUniformFloat(shader, Uniforms.Material.Reflectivity, material->Reflectivity);
 
 			SetUniformVector4(shader, Uniforms.Material.Specular, material->SpecularColor);
 
@@ -584,6 +590,8 @@ static void SetName(Material material, const char* name)
 #define ReflectionMapToken "reflectionMap"
 #define AreaMapComment "# the 3d cubemap texture path that should be used to determine what is shown in reflections off of this object"
 #define AreaMapToken "areaMap"
+#define ReflectivityComment "# float [0-1]; the reflectivity of this material"
+#define ReflectivityToken "reflectivity"
 
 #define MAX_PATH_LENGTH 512
 
@@ -599,6 +607,7 @@ struct _materialDefinition
 	Color Ambient;
 	Color Diffuse;
 	float Shininess;
+	float Reflectivity;
 };
 
 static const char* Tokens[] = {
@@ -609,7 +618,8 @@ static const char* Tokens[] = {
 	SpecularColorToken,
 	AmbientColorToken,
 	ShininessToken,
-	DiffuseColorToken
+	DiffuseColorToken,
+	ReflectivityToken
 };
 
 static const size_t TokenLengths[] = {
@@ -620,7 +630,8 @@ static const size_t TokenLengths[] = {
 	sizeof(SpecularColorToken),
 	sizeof(AmbientColorToken),
 	sizeof(ShininessToken),
-	sizeof(DiffuseColorToken)
+	sizeof(DiffuseColorToken),
+	sizeof(ReflectivityToken)
 };
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _materialDefinition* state)
@@ -643,6 +654,8 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 		return Floats.TryDeserialize(buffer, length, &state->Shininess);
 	case 7: // diffuse color
 		return Vector4s.TryDeserialize(buffer, length, state->Diffuse);
+	case 8: // shininess
+		return Floats.TryDeserialize(buffer, length, &state->Reflectivity);
 	default:
 		return false;
 	}
@@ -676,7 +689,8 @@ static Material Load(const char* path)
 		.ShaderPaths = null,
 		.MainTexturePath = null,
 		.SpecularTexturePath = null,
-		.Shininess = 32.0f
+		.Shininess = 32.0f,
+		.Reflectivity = 0.0f
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, &state))
@@ -693,6 +707,7 @@ static Material Load(const char* path)
 			Vectors4CopyTo(state.Diffuse, material->DiffuseColor);
 
 			material->Shininess = state.Shininess;
+			material->Reflectivity = state.Reflectivity;
 
 			size_t shaderCount = state.ShaderCount;
 
@@ -880,6 +895,11 @@ static bool Save(const Material material, const char* path)
 		fprintf(file, ExportCommentFormat, AreaMapComment);
 		fprintf(file, ExportTokenFormat, AreaMapToken, material->AreaMap->Path);
 	}
+
+	fprintf(file, NEWLINE);
+
+	fprintf(file, ExportCommentFormat, ReflectivityComment);
+	fprintf(file, "%s: %f"NEWLINE, ReflectivityToken, material->Reflectivity);
 
 	return Files.TryClose(file);
 }

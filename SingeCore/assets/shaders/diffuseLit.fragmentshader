@@ -20,6 +20,7 @@ uniform struct _material	{
 	vec4 diffuse;
 	vec4 specular;
 	float shininess;
+	float reflectivity;
 	bool useDiffuseMap;
 	sampler2D diffuseMap;
 	bool useSpecularMap;
@@ -37,7 +38,7 @@ vec4 GetReflection()
 		return vec4(0);
 	}
 
-	vec3 I = normalize(fragmentPosition - cameraPosition);
+	vec3 I = normalize(fragmentPosition);
     vec3 R = reflect(I, normalize(normal));
 
 	if(material.useReflectionMap)
@@ -52,5 +53,5 @@ vec4 GetLightingColor(_material material);
 
 void main()
 {
-	color = GetReflection() + (GetLightingColor(material) * material.color);
+	color = (material.reflectivity * GetReflection()) + (GetLightingColor(material) * material.color);
 }

@@ -57,10 +57,11 @@ const struct _uniforms Uniforms = {
 		.UseReflectionMap = { .Index = 15, .Name = "material.useReflectionMap"},
 		.ReflectionMap = {.Index = 16, .Name = "material.reflectionMap"},
 		.UseAreaMap = {.Index = 17, .Name = "material.useAreaMap"},
-		.AreaMap = {.Index = 18, .Name = "material.areaMap"}
+		.AreaMap = {.Index = 18, .Name = "material.areaMap"},
+		.Reflectivity = {.Index = 19, .Name = "material.reflectivity"},
 	},
 	.Lights = {
-		.Index = 19,
+		.Index = 20,
 		.Name = "Lights",
 		.Size = (sizeof(struct _lightUniforms) / sizeof(struct _uniform)),
 		.Count = MAX_POINT_LIGHTS
