@@ -25,7 +25,7 @@ void main(){
 	gl_Position =  projection * view * model * vec4(pos,1);
 	
 	// UV of the vertex. No special space for this one.
-	texcoords = 1-vertexUV;
+	texcoords = 1 - vertexUV;
 
 	normal = vec3(mat3(transpose(inverse(view * model))) * normalVector);
 	//normal = mat3(transpose(inverse(model))) * normalVector;

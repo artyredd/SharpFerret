@@ -97,7 +97,7 @@ int main()
 
 	glEnable(GL_STENCIL_TEST);
 
-	glEnable(GL_FRAMEBUFFER_SRGB);
+	//glEnable(GL_FRAMEBUFFER_SRGB);
 
 
 	SetCursorMode(CursorModes.Disabled);

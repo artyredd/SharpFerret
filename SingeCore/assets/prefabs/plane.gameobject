@@ -1,4 +1,4 @@
-model: assets/models/plane.obj
+model: assets/models/sphere.obj
 material: assets/materials/plane.material
 transform:
 position: -15 2 0
