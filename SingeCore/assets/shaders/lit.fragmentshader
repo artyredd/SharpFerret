@@ -20,7 +20,7 @@
 //	sampler2D reflectionMap;
 //	samplerCube areaMap;
 //} material;
-
+//
 
 struct _light{
 	bool enabled;
@@ -155,19 +155,16 @@ vec4 CalculateSpotLight(_light light, vec3 lightPosition, _material material)
 {
 	vec3 lightDirection = normalize(lightPosition - fragmentPosition);
 
-//	float outerCutoff = (light.edgeSoftness + 1) * light.radius;
-//
-//	float theta     = dot(lightDirection, normalize(-light.direction));
-//	float epsilon   = light.radius - outerCutoff;
-//	float intensity = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);
+	float innerCutoff = atan( light.range / (light.radius / light.edgeSoftness));
+	float outerCutoff = atan( light.range / light.radius);
 
 	float theta     = dot(lightDirection, normalize(-light.direction));
-	float epsilon   =  	0.9978 - 0.953;
-	float intensity = clamp((theta - 0.953) / epsilon, 0.0, 1.0);   
+	float epsilon   =  innerCutoff - outerCutoff;
+	float intensity = clamp((theta - outerCutoff) / epsilon, 0.0, 1.0);   
 
-	if(theta > light.radius) 
+	if(theta > innerCutoff) 
 	{
-	  return CalculatePointLight(light, lightPosition, material, intensity);
+	  return CalculatePointLight(light, lightPosition, material, 1 - intensity);
 	}
 	else
 	{

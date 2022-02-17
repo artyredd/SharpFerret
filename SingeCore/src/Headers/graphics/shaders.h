@@ -166,6 +166,12 @@ struct _shaderMethods {
 	/// Disables the shader on the graphics device
 	/// </summary>
 	void (*Disable)(Shader);
+	bool(*SetVector2)(Shader, Uniform, vec2 value);
+	bool(*SetVector3)(Shader, Uniform, vec3 value);
+	bool(*SetVector4)(Shader, Uniform, vec4 value);
+	bool(*SetMatrix)(Shader, Uniform, mat4 value);
+	bool(*SetFloat)(Shader, Uniform, float value);
+	bool(*SetInt)(Shader, Uniform, int value);
 };
 
 const extern struct _shaderMethods Shaders;

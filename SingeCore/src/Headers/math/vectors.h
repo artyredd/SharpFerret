@@ -39,9 +39,9 @@ typedef _declspec(align(16)) vec4 mat4[4];
 #define AddZ(vector, z) vector[2] += z
 #define AddW(vector, w) vector[3] += w
 
-#define SetVector2(vec2, x, y) vec2[0] = x; vec2[1] = y
-#define SetVector3(vec3, x, y, z) vec3[0] = x; vec3[1] = y; vec3[2] = z
-#define SetVector4(vec4, x, y, z, w) vec4[0] = x; vec4[1] = y; vec4[2] = z; vec4[3] = w
+#define SetVector2Macro(vec2, x, y) vec2[0] = x; vec2[1] = y
+#define SetVector3Macro(vec3, x, y, z) vec3[0] = x; vec3[1] = y; vec3[2] = z
+#define SetVector4Macro(vec4, x, y, z, w) vec4[0] = x; vec4[1] = y; vec4[2] = z; vec4[3] = w
 
 #define AddVector3(vec3, x, y, z) vec3[0] += x; vec3[1] += y; vec3[2] += z
 #define AddVector4(vec4, x, y, z, w) vec4[0] += x; vec4[1] += y; vec4[2] += z; vec4[3] += w
@@ -64,8 +64,8 @@ typedef _declspec(align(16)) vec4 mat4[4];
 
 #define MultiplyVectors3(left, right) left[0] *= right[0]; left[1] *= right[1]; left[2] *= right[2]
 
-#define InitializeVector3(vec3) SetVector3(vec3,0,0,0);
-#define InitializeVector4(vec3) SetVector4(vec3,0,0,0,0);
+#define InitializeVector3(vec3) SetVector3Macro(vec3,0,0,0);
+#define InitializeVector4(vec3) SetVector4Macro(vec3,0,0,0,0);
 #define InitializeMat4(mat4) glm_mat4_identity(mat4)
 
 #define SetMatrices4(left,right) SetVectors4(left[0],right[0]);SetVectors4(left[1],right[1]);SetVectors4(left[2],right[2]);SetVectors4(left[3],right[3])

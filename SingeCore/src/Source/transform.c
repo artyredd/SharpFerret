@@ -108,8 +108,8 @@ static Transform CreateTransform()
 	transform->InvertTransform = false;
 
 	InitializeVector3(transform->Position);
-	SetVector3(transform->Scale, 1, 1, 1);
-	SetVector4(transform->Rotation, 0, 0, 0, 1);
+	SetVector3Macro(transform->Scale, 1, 1, 1);
+	SetVector4Macro(transform->Rotation, 0, 0, 0, 1);
 
 	InitializeMat4(transform->State.State);
 

@@ -241,7 +241,7 @@ int main()
 	Light spotLight = Lights.Create();
 
 	spotLight->Type = LightTypes.Spot;
-	SetVector4(spotLight->Ambient, 0, 0, 0, 0);
+	SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
 
 	// light body
 	Transforms.SetPositions(light->Transform, 5, 5, 0);
@@ -273,7 +273,7 @@ int main()
 	Scenes.AddLight(scene, otherLight);
 	Scenes.AddLight(scene, spotLight);
 
-	spotLight->EdgeSoftness = 0.195f;
+	spotLight->EdgeSoftness = 0.5f;
 
 	GameObject plane = GameObjects.Load("assets/prefabs/plane.gameobject");
 
@@ -361,18 +361,21 @@ int main()
 		}
 		if (GetAxis(Axes.Horizontal) < 0)
 		{
-			Transforms.TranslateX(text->GameObject->Transform, -modifier);
+			spotLight->Range += DeltaTime();
+			//Transforms.TranslateX(text->GameObject->Transform, -modifier);
 		}
 		else if (GetAxis(Axes.Horizontal) > 0)
 		{
-			Transforms.TranslateX(text->GameObject->Transform, modifier);
+			spotLight->Range -= DeltaTime();
+			//Transforms.TranslateX(text->GameObject->Transform, modifier);
 		}
 		if (GetAxis(Axes.Vertical) < 0)
 		{
 			++amount;
 			//light->Range = amount / 100;
 			//otherLight->Range = amount / 100;
-			spotLight->EdgeSoftness = amount / 1000;
+			spotLight->Radius = amount / 1000;
+			//spotLight->EdgeSoftness = amount / 1000;
 			//lightMode = (lightMode + 1) % 4;
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
@@ -380,7 +383,7 @@ int main()
 			--amount;
 			//light->Range = amount / 100;
 			//otherLight->Range = amount / 100;
-			spotLight->EdgeSoftness = amount / 1000;
+			spotLight->Radius = amount / 1000;
 			lightMode = (lightMode - 1) % 4;
 		}
 		if (GetKey(KeyCodes.L))
@@ -394,56 +397,56 @@ int main()
 		if (lightMode is 1)
 		{
 			mode = "ambient";
-			SetVector4(light->Diffuse, 0, 0, 0, 0);
-			SetVector4(otherLight->Diffuse, 0, 0, 0, 0);
-			SetVector4(spotLight->Diffuse, 0, 0, 0, 0);
-			SetVector4(light->Specular, 0, 0, 0, 0);
-			SetVector4(otherLight->Specular, 0, 0, 0, 0);
-			SetVector4(spotLight->Specular, 0, 0, 0, 0);
-			SetVector4(light->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4(otherLight->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4(spotLight->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4Macro(light->Diffuse, 0, 0, 0, 0);
+			SetVector4Macro(otherLight->Diffuse, 0, 0, 0, 0);
+			SetVector4Macro(spotLight->Diffuse, 0, 0, 0, 0);
+			SetVector4Macro(light->Specular, 0, 0, 0, 0);
+			SetVector4Macro(otherLight->Specular, 0, 0, 0, 0);
+			SetVector4Macro(spotLight->Specular, 0, 0, 0, 0);
+			SetVector4Macro(light->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4Macro(otherLight->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4Macro(spotLight->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
 		}
 		else if (lightMode is 2)
 		{
 			mode = "diffuse";
-			SetVector4(light->Ambient, 0, 0, 0, 0);
-			SetVector4(otherLight->Ambient, 0, 0, 0, 0);
-			SetVector4(spotLight->Ambient, 0, 0, 0, 0);
-			SetVector4(light->Specular, 0, 0, 0, 0);
-			SetVector4(otherLight->Specular, 0, 0, 0, 0);
-			SetVector4(spotLight->Specular, 0, 0, 0, 0);
-			SetVector4(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4(otherLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4(spotLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4Macro(light->Ambient, 0, 0, 0, 0);
+			SetVector4Macro(otherLight->Ambient, 0, 0, 0, 0);
+			SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
+			SetVector4Macro(light->Specular, 0, 0, 0, 0);
+			SetVector4Macro(otherLight->Specular, 0, 0, 0, 0);
+			SetVector4Macro(spotLight->Specular, 0, 0, 0, 0);
+			SetVector4Macro(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4Macro(otherLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4Macro(spotLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
 		}
 		else if (lightMode is 3)
 		{
 			mode = "specular";
-			SetVector4(light->Ambient, 0, 0, 0, 0);
-			SetVector4(otherLight->Ambient, 0, 0, 0, 0);
-			SetVector4(spotLight->Ambient, 0, 0, 0, 0);
-			SetVector4(light->Diffuse, 0, 0, 0, 0);
-			SetVector4(otherLight->Diffuse, 0, 0, 0, 0);
-			SetVector4(spotLight->Diffuse, 0, 0, 0, 0);
-			SetVector4(light->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4(otherLight->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4(spotLight->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4Macro(light->Ambient, 0, 0, 0, 0);
+			SetVector4Macro(otherLight->Ambient, 0, 0, 0, 0);
+			SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
+			SetVector4Macro(light->Diffuse, 0, 0, 0, 0);
+			SetVector4Macro(otherLight->Diffuse, 0, 0, 0, 0);
+			SetVector4Macro(spotLight->Diffuse, 0, 0, 0, 0);
+			SetVector4Macro(light->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4Macro(otherLight->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
+			SetVector4Macro(spotLight->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
 		}
 		else
 		{
 			mode = "all";
-			SetVector4(light->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
-			SetVector4(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
-			SetVector4(light->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
+			SetVector4Macro(light->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
+			SetVector4Macro(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
+			SetVector4Macro(light->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
 
-			SetVector4(otherLight->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
-			SetVector4(otherLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
-			SetVector4(otherLight->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
+			SetVector4Macro(otherLight->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
+			SetVector4Macro(otherLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
+			SetVector4Macro(otherLight->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
 
-			SetVector4(spotLight->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
-			SetVector4(spotLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
-			SetVector4(spotLight->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
+			SetVector4Macro(spotLight->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
+			SetVector4Macro(spotLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
+			SetVector4Macro(spotLight->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
 		}
 
 
@@ -453,7 +456,7 @@ int main()
 
 		//Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
 
-		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nMode: %s", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000, mode);
+		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nMode: %s\nRange: %f\nRadius: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000, mode, spotLight->Range, spotLight->Radius);
 		Texts.SetText(text, text->Text, count);
 
 		FPSCamera.Update(camera);

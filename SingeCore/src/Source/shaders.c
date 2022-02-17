@@ -23,6 +23,12 @@ static Shader CreateShader(void);
 static Shader CreateEmpty(void);
 static void Enable(Shader);
 static void Disable(Shader);
+static bool UniformSetVector2(Shader shader, Uniform uniform, vec2 value);
+static bool UniformSetVector3(Shader shader, Uniform uniform, vec3 value);
+static bool UniformSetVector4(Shader shader, Uniform uniform, vec4 value);
+static bool UniformSetMatrix(Shader shader, Uniform uniform, mat4 value);
+static bool UniformSetFloat(Shader shader, Uniform uniform, float value);
+static bool UniformSetInt(Shader shader, Uniform uniform, int value);
 
 const struct _uniforms Uniforms = {
 	.MVP = {.Index = 0, .Name = "MVP" },
@@ -81,7 +87,13 @@ const struct _shaderMethods Shaders = {
 	.SetSetting = &SetSetting,
 	.HasSetting = &HasSetting,
 	.TryGetUniformArray = &TryGetUniformArray,
-	.TryGetUniformArrayField = &TryGetUniformArrayField
+	.TryGetUniformArrayField = &TryGetUniformArrayField,
+	.SetVector2 = &UniformSetVector2,
+	.SetVector3 = &UniformSetVector3,
+	.SetVector4 = &UniformSetVector4,
+	.SetMatrix = &UniformSetMatrix,
+	.SetFloat = &UniformSetFloat,
+	.SetInt = &UniformSetInt,
 };
 
 // the boolean flags are stored in a bit mask
@@ -306,4 +318,42 @@ static bool HasSetting(Shader shader, ShaderSetting setting)
 	GuardNotNull(shader);
 
 	return HasFlag(shader->Settings, setting);
+}
+
+#define SetUniformMacro(shader, uniform, method) int handle;\
+if (Shaders.TryGetUniform(shader, uniform, &handle))\
+{\
+	method;\
+	return true;\
+}\
+return false;
+
+static bool UniformSetVector2(Shader shader, Uniform uniform, vec2 value)
+{
+	SetUniformMacro(shader, uniform, glUniform2fv(handle, 1, value));
+}
+
+static bool UniformSetVector3(Shader shader, Uniform uniform, vec3 value)
+{
+	SetUniformMacro(shader, uniform, glUniform3fv(handle, 1, value));
+}
+
+static bool UniformSetVector4(Shader shader, Uniform uniform, vec4 value)
+{
+	SetUniformMacro(shader, uniform, glUniform4fv(handle, 1, value));
+}
+
+static bool UniformSetMatrix(Shader shader, Uniform uniform, mat4 value)
+{
+	SetUniformMacro(shader, uniform, glUniformMatrix4fv(handle, 1, false, &value[0][0]));
+}
+
+static bool UniformSetFloat(Shader shader, Uniform uniform, float value)
+{
+	SetUniformMacro(shader, uniform, glUniform1f(handle, value););
+}
+
+static bool UniformSetInt(Shader shader, Uniform uniform, int value)
+{
+	SetUniformMacro(shader, uniform, glUniform1i(handle, value););
 }

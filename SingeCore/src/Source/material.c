@@ -92,10 +92,10 @@ static Material Create(Shader shader, Texture texture)
 		material->Count = 1;
 	}
 
-	SetVector4(material->Color, 1, 1, 1, 1);
-	SetVector4(material->AmbientColor, 1, 1, 1, 1);
-	SetVector4(material->DiffuseColor, 1, 1, 1, 1);
-	SetVector4(material->SpecularColor, 1, 1, 1, 1);
+	SetVector4Macro(material->Color, 1, 1, 1, 1);
+	SetVector4Macro(material->AmbientColor, 1, 1, 1, 1);
+	SetVector4Macro(material->DiffuseColor, 1, 1, 1, 1);
+	SetVector4Macro(material->SpecularColor, 1, 1, 1, 1);
 
 	material->Shininess = 0.5f;
 	material->Reflectivity = 0.0f;
@@ -267,33 +267,6 @@ static void PrepareSettings(Shader shader)
 	}
 }
 
-static void SetUniformVector3(Shader shader, Uniform uniform, vec3 vector3)
-{
-	int handle;
-	if (Shaders.TryGetUniform(shader, uniform, &handle))
-	{
-		glUniform3fv(handle, 1, vector3);
-	}
-}
-
-static void SetUniformVector4(Shader shader, Uniform uniform, vec4 vector4)
-{
-	int handle;
-	if (Shaders.TryGetUniform(shader, uniform, &handle))
-	{
-		glUniform4fv(handle, 1, vector4);
-	}
-}
-
-static void SetUniformFloat(Shader shader, Uniform uniform, float value)
-{
-	int handle;
-	if (Shaders.TryGetUniform(shader, uniform, &handle))
-	{
-		glUniform1f(handle, value);
-	}
-}
-
 static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, unsigned int slot)
 {
 	if (texture isnt null)
@@ -314,15 +287,6 @@ static void SetMaterialTexture(Shader shader, Uniform textureUniform, Uniform ma
 		SetTextureUniform(shader, textureUniform, texture, slot);
 
 		glUniform1i(enableHandle, texture isnt null);
-	}
-}
-
-static void SetUniformMatrix4(Shader shader, Uniform uniform, mat4 matrix4)
-{
-	int handle;
-	if (Shaders.TryGetUniform(shader, uniform, &handle))
-	{
-		glUniformMatrix4fv(handle, 1, false, &matrix4[0][0]);
 	}
 }
 
@@ -386,17 +350,8 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index, Scene 
 	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Position, &handle))
 	{
 		vec3 pos;
-		/*if (light->Type is LightTypes.Spot)
-		{
-			mat4 matrix;
-			glm_mat4_mul(Transforms.Refresh(light->Transform), scene->MainCamera->State.View, matrix);
-			glm_vec3_rotate_m4(matrix, light->Transform->Position, pos);
-		}
-		else
-		{
-			glm_vec3_rotate_m4(Transforms.Refresh(light->Transform), light->Transform->Position, pos);
-		}*/
 
+		// update the position of the light to include it's parent's transform and any rotation
 		glm_mat4_mulv3(Transforms.Refresh(light->Transform), light->Transform->Position, 1.0f, pos);
 
 		glUniform3fv(handle, 1, pos);
@@ -460,25 +415,25 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 
 			SetLightUniforms(shader, scene);
 
-			SetUniformMatrix4(shader, Uniforms.ModelMatrix, modelMatrix);
+			Shaders.SetMatrix(shader, Uniforms.ModelMatrix, modelMatrix);
 
-			SetUniformMatrix4(shader, Uniforms.ViewMatrix, scene->MainCamera->State.View);
+			Shaders.SetMatrix(shader, Uniforms.ViewMatrix, scene->MainCamera->State.View);
 
-			SetUniformMatrix4(shader, Uniforms.ProjectionMatrix, scene->MainCamera->State.Projection);
+			Shaders.SetMatrix(shader, Uniforms.ProjectionMatrix, scene->MainCamera->State.Projection);
 
-			SetUniformVector3(shader, Uniforms.CameraPosition, scene->MainCamera->Transform->Position);
+			Shaders.SetVector3(shader, Uniforms.CameraPosition, scene->MainCamera->Transform->Position);
 
-			SetUniformVector4(shader, Uniforms.Material.Color, material->Color);
+			Shaders.SetVector4(shader, Uniforms.Material.Color, material->Color);
 
-			SetUniformFloat(shader, Uniforms.Material.Shininess, material->Shininess);
+			Shaders.SetFloat(shader, Uniforms.Material.Shininess, material->Shininess);
 
-			SetUniformFloat(shader, Uniforms.Material.Reflectivity, material->Reflectivity);
+			Shaders.SetFloat(shader, Uniforms.Material.Reflectivity, material->Reflectivity);
 
-			SetUniformVector4(shader, Uniforms.Material.Specular, material->SpecularColor);
+			Shaders.SetVector4(shader, Uniforms.Material.Specular, material->SpecularColor);
 
-			SetUniformVector4(shader, Uniforms.Material.Diffuse, material->DiffuseColor);
+			Shaders.SetVector4(shader, Uniforms.Material.Diffuse, material->DiffuseColor);
 
-			SetUniformVector4(shader, Uniforms.Material.Ambient, material->AmbientColor);
+			Shaders.SetVector4(shader, Uniforms.Material.Ambient, material->AmbientColor);
 
 			SetMaterialTexture(shader, Uniforms.Material.DiffuseMap, Uniforms.Material.UseDiffuseMap, material->MainTexture, 0);
 
@@ -551,7 +506,7 @@ static void SetColors(Material material, const float r, const float g, const flo
 {
 	GuardNotNull(material);
 
-	SetVector4(material->Color, r, g, b, a);
+	SetVector4Macro(material->Color, r, g, b, a);
 }
 
 static void SetName(Material material, const char* name)
