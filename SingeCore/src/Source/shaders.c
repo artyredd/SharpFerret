@@ -29,6 +29,12 @@ static bool UniformSetVector4(Shader shader, Uniform uniform, vec4 value);
 static bool UniformSetMatrix(Shader shader, Uniform uniform, mat4 value);
 static bool UniformSetFloat(Shader shader, Uniform uniform, float value);
 static bool UniformSetInt(Shader shader, Uniform uniform, int value);
+static bool UniformFieldSetInt(Shader shader, Uniform uniform, size_t index, Uniform field, int value);
+static bool UniformFieldSetVector2(Shader shader, Uniform uniform, size_t index, Uniform field, vec2 value);
+static bool UniformFieldSetFloat(Shader shader, Uniform uniform, size_t index, Uniform field, float value);
+static bool UniformFieldSetVector3(Shader shader, Uniform uniform, size_t index, Uniform field, vec3 value);
+static bool UniformFieldSetVector4(Shader shader, Uniform uniform, size_t index, Uniform field, vec4 value);
+static bool UniformFieldSetMatrix(Shader shader, Uniform uniform, size_t index, Uniform field, mat4 value);
 
 const struct _uniforms Uniforms = {
 	.MVP = {.Index = 0, .Name = "MVP" },
@@ -94,6 +100,12 @@ const struct _shaderMethods Shaders = {
 	.SetMatrix = &UniformSetMatrix,
 	.SetFloat = &UniformSetFloat,
 	.SetInt = &UniformSetInt,
+	.SetArrayFieldVector2 = &UniformFieldSetVector2,
+	.SetArrayFieldVector3 = &UniformFieldSetVector3,
+	.SetArrayFieldVector4 = &UniformFieldSetVector4,
+	.SetArrayFieldMatrix = &UniformFieldSetMatrix,
+	.SetArrayFieldFloat = &UniformFieldSetFloat,
+	.SetArrayFieldInt = &UniformFieldSetInt,
 };
 
 // the boolean flags are stored in a bit mask
@@ -320,40 +332,74 @@ static bool HasSetting(Shader shader, ShaderSetting setting)
 	return HasFlag(shader->Settings, setting);
 }
 
-#define SetUniformMacro(shader, uniform, method) int handle;\
-if (Shaders.TryGetUniform(shader, uniform, &handle))\
+
+#define SetUniformBase(uniformGetter,method) int handle;\
+if (uniformGetter)\
 {\
 	method;\
 	return true;\
 }\
 return false;
 
+#define SetUniformMacro(method) SetUniformBase(Shaders.TryGetUniform(shader, uniform, &handle), method)
+#define SetUniformFieldMacro(method) SetUniformBase(Shaders.TryGetUniformArrayField(shader, uniform, index, field, &handle), method)
+
 static bool UniformSetVector2(Shader shader, Uniform uniform, vec2 value)
 {
-	SetUniformMacro(shader, uniform, glUniform2fv(handle, 1, value));
+	SetUniformMacro(glUniform2fv(handle, 1, value));
 }
 
 static bool UniformSetVector3(Shader shader, Uniform uniform, vec3 value)
 {
-	SetUniformMacro(shader, uniform, glUniform3fv(handle, 1, value));
+	SetUniformMacro(glUniform3fv(handle, 1, value));
 }
 
 static bool UniformSetVector4(Shader shader, Uniform uniform, vec4 value)
 {
-	SetUniformMacro(shader, uniform, glUniform4fv(handle, 1, value));
+	SetUniformMacro(glUniform4fv(handle, 1, value));
 }
 
 static bool UniformSetMatrix(Shader shader, Uniform uniform, mat4 value)
 {
-	SetUniformMacro(shader, uniform, glUniformMatrix4fv(handle, 1, false, &value[0][0]));
+	SetUniformMacro(glUniformMatrix4fv(handle, 1, false, &value[0][0]));
 }
 
 static bool UniformSetFloat(Shader shader, Uniform uniform, float value)
 {
-	SetUniformMacro(shader, uniform, glUniform1f(handle, value););
+	SetUniformMacro(glUniform1f(handle, value));
 }
 
 static bool UniformSetInt(Shader shader, Uniform uniform, int value)
 {
-	SetUniformMacro(shader, uniform, glUniform1i(handle, value););
+	SetUniformMacro(glUniform1i(handle, value));
+}
+
+static bool UniformFieldSetInt(Shader shader, Uniform uniform, size_t index, Uniform field, int value)
+{
+	SetUniformFieldMacro(glUniform1i(handle, value));
+}
+
+static bool UniformFieldSetFloat(Shader shader, Uniform uniform, size_t index, Uniform field, float value)
+{
+	SetUniformFieldMacro(glUniform1f(handle, value));
+}
+
+static bool UniformFieldSetVector2(Shader shader, Uniform uniform, size_t index, Uniform field, vec2 value)
+{
+	SetUniformFieldMacro(glUniform2fv(handle, 1, value));
+}
+
+static bool UniformFieldSetVector3(Shader shader, Uniform uniform, size_t index, Uniform field, vec3 value)
+{
+	SetUniformFieldMacro(glUniform3fv(handle, 1, value));
+}
+
+static bool UniformFieldSetVector4(Shader shader, Uniform uniform, size_t index, Uniform field, vec4 value)
+{
+	SetUniformFieldMacro(glUniform4fv(handle, 1, value));
+}
+
+static bool UniformFieldSetMatrix(Shader shader, Uniform uniform, size_t index, Uniform field, mat4 value)
+{
+	SetUniformFieldMacro(glUniformMatrix4fv(handle, 1, false, &value[0][0]));
 }

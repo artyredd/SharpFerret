@@ -281,30 +281,30 @@ static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, u
 
 static void SetMaterialTexture(Shader shader, Uniform textureUniform, Uniform mapUniform, Texture texture, unsigned int slot)
 {
-	int enableHandle;
-	if (Shaders.TryGetUniform(shader, mapUniform, &enableHandle))
+	if (Shaders.SetInt(shader, mapUniform, texture isnt null))
 	{
 		SetTextureUniform(shader, textureUniform, texture, slot);
-
-		glUniform1i(enableHandle, texture isnt null);
 	}
 }
 
 static bool TrySetLightUniforms(Shader shader, Light light, size_t index, Scene scene)
 {
 	/*
+	struct _light{
+		bool enabled;
 		int lightType;
-		vec4 color;
-		float intensity;
+		vec4 ambient;
+		vec4 diffuse;
+		vec4 specular;
 		float range;
 		float radius;
+		float edgeSoftness;
 		vec3 position;
+		vec3 direction;
+	};
 	*/
-	int handle;
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Enabled, &handle))
-	{
-		glUniform1i(handle, light->Enabled);
-	}
+
+	Shaders.SetArrayFieldInt(shader, Uniforms.Lights, index, Uniforms.Light.Enabled, light->Enabled);
 
 	// no sense setting the other ones if it's not enabled
 	if (light->Enabled is false)
@@ -312,41 +312,23 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index, Scene 
 		return true;
 	}
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Type, &handle))
-	{
-		glUniform1i(handle, light->Type);
-	}
+	Shaders.SetArrayFieldInt(shader, Uniforms.Lights, index, Uniforms.Light.Type, light->Type);
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Ambient, &handle))
-	{
-		glUniform4fv(handle, 1, light->Ambient);
-	}
+	Shaders.SetArrayFieldVector4(shader, Uniforms.Lights, index, Uniforms.Light.Ambient, light->Ambient);
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Diffuse, &handle))
-	{
-		glUniform4fv(handle, 1, light->Diffuse);
-	}
+	Shaders.SetArrayFieldVector4(shader, Uniforms.Lights, index, Uniforms.Light.Diffuse, light->Diffuse);
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Specular, &handle))
-	{
-		glUniform4fv(handle, 1, light->Specular);
-	}
+	Shaders.SetArrayFieldVector4(shader, Uniforms.Lights, index, Uniforms.Light.Specular, light->Specular);
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Range, &handle))
-	{
-		glUniform1f(handle, light->Range);
-	}
+	Shaders.SetArrayFieldFloat(shader, Uniforms.Lights, index, Uniforms.Light.Range, light->Range);
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Radius, &handle))
-	{
-		glUniform1f(handle, light->Radius);
-	}
+	Shaders.SetArrayFieldFloat(shader, Uniforms.Lights, index, Uniforms.Light.Radius, light->Radius);
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Model, &handle))
-	{
-		glUniformMatrix4fv(handle, 1, false, &Transforms.Refresh(light->Transform)[0][0]);
-	}
+	Shaders.SetArrayFieldMatrix(shader, Uniforms.Lights, index, Uniforms.Light.Model, Transforms.Refresh(light->Transform));
 
+	Shaders.SetArrayFieldFloat(shader, Uniforms.Lights, index, Uniforms.Light.EdgeSoftness, light->EdgeSoftness);
+
+	int handle;
 	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.Position, &handle))
 	{
 		vec3 pos;
@@ -364,10 +346,6 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index, Scene 
 		glUniform3fv(handle, 1, direction);
 	}
 
-	if (Shaders.TryGetUniformArrayField(shader, Uniforms.Lights, index, Uniforms.Light.EdgeSoftness, &handle))
-	{
-		glUniform1f(handle, light->EdgeSoftness);
-	}
 
 	return true;
 }
@@ -411,18 +389,23 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 		{
 			Shaders.Enable(shader);
 
+			// turn on or off various settings like blending etc..
 			PrepareSettings(shader);
 
+			// set the light uniforms if we need to
 			SetLightUniforms(shader, scene);
 
+			// set MVP stuff for shaders
 			Shaders.SetMatrix(shader, Uniforms.ModelMatrix, modelMatrix);
 
 			Shaders.SetMatrix(shader, Uniforms.ViewMatrix, scene->MainCamera->State.View);
 
 			Shaders.SetMatrix(shader, Uniforms.ProjectionMatrix, scene->MainCamera->State.Projection);
 
+			// set various commmonly used uniforms in shaders
 			Shaders.SetVector3(shader, Uniforms.CameraPosition, scene->MainCamera->Transform->Position);
 
+			// set material if it's used 
 			Shaders.SetVector4(shader, Uniforms.Material.Color, material->Color);
 
 			Shaders.SetFloat(shader, Uniforms.Material.Shininess, material->Shininess);
