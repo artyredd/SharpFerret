@@ -13,7 +13,7 @@
 #include <string.h>
 #include "singine/strings.h"
 
-static Shader CompileShader(const StringArray vertexPaths, const StringArray fragmentPaths);
+static Shader CompileShader(const StringArray vertexPaths, const StringArray fragmentPaths, const StringArray geometryPaths);
 static Shader Load(const char* path);
 static bool Save(Shader shader, const char* path);
 
@@ -61,21 +61,8 @@ Shader CompiledShaders[CompiledHandleDictionarySize];
 size_t HandleDictionaryCount = 0;
 size_t HandleDictionaryLength = CompiledHandleDictionarySize;
 
-// checks if the combination of the two shader souce files have already been compiled
-// if they are a handle is returned
-static bool TryGetStoredShader(const StringArray vertexPaths, const StringArray fragmentPaths, Shader* out_shader)
+static size_t HashShaderPaths(const StringArray vertexPaths, const StringArray fragmentPaths, const StringArray geometryPaths)
 {
-	if (vertexPaths is null or vertexPaths->Count < 1)
-	{
-		return false;
-	}
-
-	if (fragmentPaths is null or fragmentPaths->Count < 1)
-	{
-		return false;
-	}
-
-	// hash the two paths
 	size_t hash = Hashing.Hash(vertexPaths->Strings[0]);
 
 	for (size_t i = 1; i < vertexPaths->Count; i++)
@@ -91,6 +78,37 @@ static bool TryGetStoredShader(const StringArray vertexPaths, const StringArray 
 
 		hash = Hashing.ChainHash(string, hash);
 	}
+
+	// geometry shaders are optional
+	if (geometryPaths->Count isnt 0)
+	{
+		for (size_t i = 0; i < geometryPaths->Count; i++)
+		{
+			const char* string = geometryPaths->Strings[i];
+
+			hash = Hashing.ChainHash(string, hash);
+		}
+	}
+
+	return hash;
+}
+
+// checks if the combination of the two shader souce files have already been compiled
+// if they are a handle is returned
+static bool TryGetStoredShader(const StringArray vertexPaths, const StringArray fragmentPaths, const StringArray geometryPaths, Shader* out_shader)
+{
+	if (vertexPaths is null or vertexPaths->Count < 1)
+	{
+		return false;
+	}
+
+	if (fragmentPaths is null or fragmentPaths->Count < 1)
+	{
+		return false;
+	}
+
+	// hash the two paths
+	size_t hash = HashShaderPaths(vertexPaths, fragmentPaths, geometryPaths);
 
 	// mod the hash with the array size
 	size_t index = hash % CompiledHandleDictionarySize;
@@ -103,7 +121,7 @@ static bool TryGetStoredShader(const StringArray vertexPaths, const StringArray 
 }
 
 // stored the given handle within the compiled handle dictionary, returns true when no collision occurs
-static bool TryStoreShader(const StringArray vertexPaths, const StringArray fragmentPaths, Shader shader)
+static bool TryStoreShader(const StringArray vertexPaths, const StringArray fragmentPaths, const StringArray geometryPaths, Shader shader)
 {
 	if (vertexPaths is null or vertexPaths->Count < 1)
 	{
@@ -116,21 +134,7 @@ static bool TryStoreShader(const StringArray vertexPaths, const StringArray frag
 	}
 
 	// hash the two paths
-	size_t hash = Hashing.Hash(vertexPaths->Strings[0]);
-
-	for (size_t i = 1; i < vertexPaths->Count; i++)
-	{
-		const char* string = vertexPaths->Strings[i];
-
-		hash = Hashing.ChainHash(string, hash);
-	}
-
-	for (size_t i = 0; i < fragmentPaths->Count; i++)
-	{
-		const char* string = fragmentPaths->Strings[i];
-
-		hash = Hashing.ChainHash(string, hash);
-	}
+	size_t hash = HashShaderPaths(vertexPaths, fragmentPaths, geometryPaths);
 
 	// mod the hash with the array size
 	size_t index = hash % CompiledHandleDictionarySize;
@@ -305,7 +309,7 @@ static bool TryCreateProgram(unsigned int* out_handle)
 	return handle != 0;
 }
 
-static bool TryCompileProgram(unsigned int vertexHandle, unsigned int fragmentHandle, unsigned int* out_handle)
+static bool TryCompileProgram(unsigned int vertexHandle, unsigned int fragmentHandle, unsigned int geometryHandle, unsigned int* out_handle)
 {
 	// default the out handle to 0
 	// we don't want to set this to non-zero unless we are successfull
@@ -320,6 +324,12 @@ static bool TryCompileProgram(unsigned int vertexHandle, unsigned int fragmentHa
 	// attach the shaders
 	glAttachShader(programHandle, vertexHandle);
 	glAttachShader(programHandle, fragmentHandle);
+
+	// geometry shaders are optional
+	if (geometryHandle isnt 0)
+	{
+		glAttachShader(programHandle, geometryHandle);
+	}
 
 	// linke the shaders together
 	glLinkProgram(programHandle);
@@ -342,7 +352,7 @@ static bool TryCompileProgram(unsigned int vertexHandle, unsigned int fragmentHa
 	return true;
 }
 
-static Shader CompileShader(const StringArray vertexPaths, const StringArray fragmentPaths)
+static Shader CompileShader(const StringArray vertexPaths, const StringArray fragmentPaths, const StringArray geometryPaths)
 {
 	GuardNotNull(vertexPaths);
 	GuardNotNull(fragmentPaths);
@@ -350,10 +360,11 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 	// trim all the paths
 	StringArrays.Trim(vertexPaths);
 	StringArrays.Trim(fragmentPaths);
+	StringArrays.Trim(geometryPaths);
 
 	// check if we have already compiled the provided shader pieces
 	Shader shader;
-	if (TryGetStoredShader(vertexPaths, fragmentPaths, &shader))
+	if (TryGetStoredShader(vertexPaths, fragmentPaths, geometryPaths, &shader))
 	{
 		return Shaders.Instance(shader);
 	}
@@ -375,9 +386,17 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 		throw(FailedToCompileShaderException);
 	}
 
+	unsigned int geometryHandle = 0;
+
+	if (geometryPaths->Count > 0 && TryCompile(geometryPaths, ShaderTypes.Geometry, &geometryHandle) is false)
+	{
+		fprintf(stderr, FailedToCompileMessage, "geometry", geometryPaths->Strings[0]);
+		throw(FailedToCompileShaderException);
+	}
+
 	// create the program using the pieces
 	unsigned int programHandle;
-	if (TryCompileProgram(vertexHandle, fragmentHandle, &programHandle) is false)
+	if (TryCompileProgram(vertexHandle, fragmentHandle, geometryHandle, &programHandle) is false)
 	{
 		fprintf(stderr, FailedToCompileProgramMessage);
 		for (size_t i = 0; i < vertexPaths->Count; i++)
@@ -388,6 +407,11 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 		for (size_t i = 0; i < fragmentPaths->Count; i++)
 		{
 			fprintf(stderr, "\t Fragment Piece: %s"NEWLINE, fragmentPaths->Strings[i]);
+		}
+
+		for (size_t i = 0; i < fragmentPaths->Count; i++)
+		{
+			fprintf(stderr, "\t Geometry Piece: %s"NEWLINE, geometryPaths->Strings[i]);
 		}
 
 		throw(FailedToCompileShaderException);
@@ -402,7 +426,7 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 	shader->FragmentPath = Strings.DuplicateTerminated(fragmentPaths->Strings[0]);
 
 	// since we didnt find the shader in the dictionary store it
-	if (TryStoreShader(vertexPaths, fragmentPaths, shader) is false)
+	if (TryStoreShader(vertexPaths, fragmentPaths, geometryPaths, shader) is false)
 	{
 		// this should never fail becuase in order for this block to be executed
 		// we must not have previously stored the shader
@@ -474,6 +498,7 @@ static const char* GetStencilComparisonName(unsigned int comparison)
 struct _shaderInfo {
 	struct _stringArray FragmentPieces;
 	struct _stringArray VertexPieces;
+	struct _stringArray GeometryPieces;
 	unsigned int Settings;
 	Comparison DepthFunction;
 	Comparison StencilComparison;
@@ -485,10 +510,12 @@ struct _shaderInfo {
 
 #define ExportTokenFormat "\n%s: %s\n"
 
-#define VertexShaderComment "# The path to the vertex shader that should be used for this shader"
+#define VertexShaderComment "# The paths to the vertex shader that should be used for this shader"
 #define VertexShaderToken "vertexShader"
-#define FragmentShaderComment "# The path to the fragment shader that should be used for this shader"
+#define FragmentShaderComment "# The paths to the fragment shader that should be used for this shader"
 #define FragmentShaderToken "fragmentShader"
+#define GeometryShaderComment "# the paths to any geometry shaders that should be used for this shader"
+#define GeometryShaderToken "geometryShader"
 #define UseBackfaceCullingComment "# whether or not backface culling should be enabled for this shader"
 #define UseBackfaceCullingToken "enableBackfaceCulling"
 #define UseCameraPerspectiveComment "# whether or not this shader should use camera perspective, (GUI elements for example shouldnt)"
@@ -522,7 +549,8 @@ static const char* Tokens[] = {
 	UseCustomStencilAttributesToken,
 	CustomStencilFuncionToken,
 	CustomStencilValueToken,
-	CustomStencilMaskToken
+	CustomStencilMaskToken,
+	GeometryShaderToken,
 };
 
 static const size_t TokenLengths[] = {
@@ -538,6 +566,7 @@ static const size_t TokenLengths[] = {
 	sizeof(CustomStencilFuncionToken),
 	sizeof(CustomStencilValueToken),
 	sizeof(CustomStencilMaskToken),
+	sizeof(GeometryShaderToken)
 };
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _shaderInfo* state)
@@ -603,6 +632,8 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 	case 11: // stencil mask
 		count = sscanf_s(buffer, "%xui", &(state->StencilMask));
 		return count == 1;
+	case 12: // fragment path
+		return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->GeometryPieces);
 	default:
 		return false;
 	}
@@ -638,6 +669,11 @@ static Shader Load(const char* path)
 			.StringLengths = null,
 			.Strings = null
 		},
+		.GeometryPieces = {
+			.Count = 0,
+			.StringLengths = null,
+			.Strings = null
+		},
 		.Settings = 0,
 		.DepthFunction = Comparisons.LessThan,
 		.StencilComparison = Comparisons.Always,
@@ -648,7 +684,7 @@ static Shader Load(const char* path)
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &info))
 	{
 		// check to see if we already compiled a shader similar to this one
-		shader = CompileShader(&info.VertexPieces, &info.FragmentPieces);
+		shader = CompileShader(&info.VertexPieces, &info.FragmentPieces, &info.GeometryPieces);
 
 		// if we didn't load the shader but compiled it instead, set the name to the path given
 		if (shader->Name is null)
@@ -669,6 +705,7 @@ static Shader Load(const char* path)
 	// always free these strings, CompileShader will make copies if it needs to
 	StringArrays.DisposeMembers(&info.FragmentPieces);
 	StringArrays.DisposeMembers(&info.VertexPieces);
+	StringArrays.DisposeMembers(&info.GeometryPieces);
 
 	if (shader is null)
 	{

@@ -8,7 +8,7 @@
 
 struct _shaderCompilerMethods {
 	// Compiles a new shader using the default shader settings using the provided vertex and fragment paths
-	Shader(*CompileShader)(const StringArray vertexPaths, const StringArray fragmentPaths);
+	Shader(*CompileShader)(const StringArray vertexPaths, const StringArray fragmentPaths, const StringArray geometryPaths);
 	// loads a shader from the provided path
 	Shader(*Load)(const char* path);
 	// Saves the provided shader to the provided path
