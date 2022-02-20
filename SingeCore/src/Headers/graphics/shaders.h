@@ -114,6 +114,8 @@ extern const struct _shaderSettings ShaderSettings;
 typedef struct _shader* Shader;
 
 struct _shader {
+	// Whether or not this shader should be used
+	bool Enabled;
 	char* Name;
 	char* VertexPath;
 	char* FragmentPath;

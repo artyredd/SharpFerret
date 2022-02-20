@@ -385,7 +385,7 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 	{
 		Shader shader = material->Shaders[i];
 
-		if (shader isnt null)
+		if (shader isnt null && shader->Enabled)
 		{
 			Shaders.Enable(shader);
 

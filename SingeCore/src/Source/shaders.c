@@ -169,6 +169,7 @@ static Shader CreateShaderWithUniforms(bool allocUniforms)
 	}
 
 	newShader->Settings = DEFAULT_SHADER_SETTINGS;
+	newShader->Enabled = true;
 
 	return newShader;
 }
@@ -195,6 +196,7 @@ static Shader Instance(Shader shader)
 	// value types
 	CopyMember(shader, newShader, Uniforms);
 	CopyMember(shader, newShader, Settings);
+	CopyMember(shader, newShader, Enabled);
 
 	// references
 	CopyMember(shader, newShader, Name);
