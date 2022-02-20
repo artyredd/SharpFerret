@@ -25,7 +25,7 @@ const struct _renderMeshMethods RenderMeshes = {
 
 static void OnBufferDispose(SharedHandle handle)
 {
-	glDeleteBuffers(1, &handle->Handle);
+	GraphicsDevice.DeleteBuffer(handle->Handle);
 }
 
 static void OnNameDispose(InstancedResource resource, void* state)
@@ -123,23 +123,22 @@ static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedHandle destin
 {
 	destinationBuffer->Handle = 0;
 
-	GLuint index_buffer; // Save this for later rendering
-	glGenBuffers(1, &index_buffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+	GLuint indexBuffer = GraphicsDevice.GenerateBuffer();
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeInBytes, buffer, GL_STATIC_DRAW);
 
 	GLint size = 0;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 	if (sizeInBytes != size)
 	{
-		glDeleteBuffers(1, &index_buffer);
+		GraphicsDevice.DeleteBuffer(indexBuffer);
 
 		fprintf(stderr, "Failed to bind a buffer for a model, attempted to bind %lli bytes but only bound %i bytes", sizeInBytes, size);
 
 		return false;
 	}
 
-	destinationBuffer->Handle = index_buffer;
+	destinationBuffer->Handle = indexBuffer;
 
 	return true;
 }

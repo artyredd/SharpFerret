@@ -39,6 +39,12 @@ static void ModifyTexture(const TextureType, TextureSetting, const TextureValue)
 static void DeleteTexture(unsigned int handle);
 static bool TryVerifyCleanup(void);
 
+static unsigned int GenerateBuffer(void);
+static void DeleteBuffer(unsigned int handle);
+
+static unsigned int GenerateRenderBuffer(void);
+static void DeleteRenderBuffer(unsigned int handle);
+
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
 	.EnableCulling = &EnableCulling,
@@ -59,7 +65,11 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.DeleteTexture = DeleteTexture,
 	.TryVerifyCleanup = TryVerifyCleanup,
 	.LoadTexture = LoadTexture,
-	.ModifyTexture = ModifyTexture
+	.ModifyTexture = ModifyTexture,
+	.GenerateBuffer = &GenerateBuffer,
+	.DeleteBuffer = &DeleteBuffer,
+	.GenerateRenderBuffer = &GenerateRenderBuffer,
+	.DeleteRenderBuffer = &DeleteRenderBuffer,
 };
 
 bool blendingEnabled = false;
@@ -81,7 +91,7 @@ unsigned int maxTextures = GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
 
 // texture instance counts
 size_t activeTextures = 0;
-
+size_t activeBuffers = 0;
 
 static void EnableDepthTesting(void)
 {
@@ -251,6 +261,39 @@ static void ModifyTexture(TextureType type, TextureSetting setting, const Textur
 {
 	glTexParameteri(type.Value.AsUInt, setting, value.Value.AsInt);
 }
+static unsigned int GenerateBuffer()
+{
+	unsigned int handle;
+	glGenBuffers(1, &handle);
+
+	++(activeBuffers);
+
+	return handle;
+}
+
+static void DeleteBuffer(unsigned int handle)
+{
+	glDeleteBuffers(1, &handle);
+
+	--(activeBuffers);
+}
+
+static unsigned int GenerateRenderBuffer()
+{
+	unsigned int handle;
+	glGenRenderbuffers(1, &handle);
+
+	++(activeBuffers);
+
+	return handle;
+}
+
+static void DeleteRenderBuffer(unsigned int handle)
+{
+	glDeleteRenderbuffers(1, &handle);
+
+	--(activeBuffers);
+}
 
 static bool TryVerifyCleanup(void)
 {
@@ -260,6 +303,10 @@ static bool TryVerifyCleanup(void)
 	fprintf(stderr, "Orphaned Textures: %lli"NEWLINE, activeTextures);
 
 	result &= activeTextures is 0;
+
+	fprintf(stderr, "Orphaned Buffers: %lli"NEWLINE, activeBuffers);
+
+	result &= activeBuffers is 0;
 
 	return result;
 }
