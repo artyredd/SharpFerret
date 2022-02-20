@@ -406,25 +406,10 @@
     <None Include="assets\materials\cube.material">
       <Filter>Resource Files\Materials</Filter>
     </None>
-    <None Include="assets\shaders\debugOrientation.shader">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="assets\shaders\debugOrientationGUI.shader">
-      <Filter>Resource Files\Shaders</Filter>
-    </None>
-    <None Include="assets\shaders\ColorUV.fragmentshader">
-      <Filter>Resource Files\Shaders\Shaders</Filter>
-    </None>
-    <None Include="assets\shaders\debugOrientation.fragmentshader">
-      <Filter>Resource Files\Shaders\Shaders</Filter>
-    </None>
     <None Include="assets\shaders\default.fragmentshader">
       <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\diffuseLit.fragmentshader">
-      <Filter>Resource Files\Shaders\Shaders</Filter>
-    </None>
-    <None Include="assets\shaders\DistanceGlow.fragmentshader">
       <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\outlineShader.fragmentshader">
@@ -433,13 +418,7 @@
     <None Include="assets\shaders\text.fragmentshader">
       <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
-    <None Include="assets\shaders\debugOrientation.vertexshader">
-      <Filter>Resource Files\Shaders\Shaders</Filter>
-    </None>
     <None Include="assets\shaders\default.vertexshader">
-      <Filter>Resource Files\Shaders\Shaders</Filter>
-    </None>
-    <None Include="assets\shaders\DistanceGlow.vertexshader">
       <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
     <None Include="assets\shaders\GUIShader.vertexshader">
@@ -489,6 +468,18 @@
     </None>
     <None Include="assets\materials\plane.material">
       <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\shaders\debug_normal.fragmentshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\debug_normal.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\debug_normal.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\debug_normal.geometryshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

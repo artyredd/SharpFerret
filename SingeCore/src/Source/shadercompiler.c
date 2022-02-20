@@ -436,63 +436,6 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 	return shader;
 }
 
-const char* validStencilComparisons[] = {
-	"always",
-	"never",
-	"equal",
-	"notEqual",
-	"greaterThan",
-	"lessThan",
-	"lessThanOrEqual",
-	"greaterThanOrEqual"
-};
-
-// this is violating DRY here to alleviate my headache with the fact that const unsigned integers are not constants at compile time when contained in structs
-// other copy can be found in graphicsDevice.c
-const unsigned int stencilComparisons[] = {
-	GL_ALWAYS,
-	GL_NEVER,
-	GL_EQUAL,
-	GL_NOTEQUAL,
-	GL_GREATER,
-	GL_LESS,
-	GL_LEQUAL,
-	GL_GEQUAL
-};
-
-static bool TryGetStencilComparison(const char* buffer, size_t bufferSize, unsigned int* out_comparison)
-{
-	// default to GL_ALWAYS
-	*out_comparison = stencilComparisons[0];
-
-	for (size_t i = 0; i < (sizeof(validStencilComparisons) / sizeof(char*)); i++)
-	{
-		const char* word = validStencilComparisons[i];
-
-		if (Strings.Contains(buffer, bufferSize, word, strlen(word)))
-		{
-			*out_comparison = stencilComparisons[i];
-			return true;
-		}
-	}
-
-	return false;
-}
-
-static const char* GetStencilComparisonName(unsigned int comparison)
-{
-	for (size_t i = 0; i < sizeof(stencilComparisons) / sizeof(unsigned int); i++)
-	{
-		if (comparison == stencilComparisons[i])
-		{
-			return validStencilComparisons[i];
-		}
-	}
-
-	// default return always
-	return validStencilComparisons[0];
-}
-
 #define MaxPathLength 512
 
 struct _shaderInfo {

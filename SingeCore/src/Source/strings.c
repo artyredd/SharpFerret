@@ -349,9 +349,10 @@ static void TrimArray(StringArray array)
 {
 	GuardNotNull(array);
 
-	// doesn't make much sense to trim non-existent strings
-	GuardNotNull(array->Strings);
-	GuardNotNull(array->StringLengths);
+	if (array->Strings is null || array->StringLengths is null)
+	{
+		return;
+	}
 
 	for (size_t i = 0; i < array->Count; i++)
 	{
