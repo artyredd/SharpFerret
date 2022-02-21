@@ -22,7 +22,8 @@ const struct _textureFormats TextureFormats = {
 	.BGRAInteger = GL_BGRA_INTEGER,
 	.StencilIndex = GL_STENCIL_INDEX,
 	.DepthComponent = GL_DEPTH_COMPONENT,
-	.DepthStencil = GL_DEPTH_STENCIL
+	.DepthStencil = GL_DEPTH_STENCIL,
+	.Depth24Stencil8 = GL_DEPTH24_STENCIL8
 };
 
 const struct _bufferFormat BufferFormats =
@@ -45,7 +46,8 @@ const struct _bufferFormat BufferFormats =
 	.UInt8888 = GL_UNSIGNED_INT_8_8_8_8 ,
 	.UInt8888Rev = GL_UNSIGNED_INT_8_8_8_8_REV ,
 	.UInt1010102 = GL_UNSIGNED_INT_10_10_10_2 ,
-	.UInt2101010Rev = GL_UNSIGNED_INT_2_10_10_10_REV
+	.UInt2101010Rev = GL_UNSIGNED_INT_2_10_10_10_REV,
+	.UInt248 = GL_UNSIGNED_INT_24_8
 };
 
 const struct _textureSettings TextureSettings = {

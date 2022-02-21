@@ -46,6 +46,7 @@ struct _textureFormats {
 	TextureFormat StencilIndex;
 	TextureFormat DepthComponent;
 	TextureFormat DepthStencil;
+	TextureFormat Depth24Stencil8;
 };
 
 extern const struct _textureFormats TextureFormats;
@@ -75,6 +76,7 @@ struct _bufferFormat
 	BufferFormat UInt8888Rev;
 	BufferFormat UInt1010102;
 	BufferFormat UInt2101010Rev;
+	BufferFormat UInt248;
 };
 
 extern const struct _bufferFormat BufferFormats;

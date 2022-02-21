@@ -17,5 +17,5 @@ void main(){
 	gl_Position =  model * vec4(pos,1);
 	
 	// UV of the vertex. No special space for this one.
-	UV = vec2(vertexPosition_modelspace.x, vertexPosition_modelspace.y);
+	UV = pos.xy;
 }

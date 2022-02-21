@@ -193,11 +193,13 @@
     <ClCompile Include="src\Source\colors.c" />
     <ClCompile Include="src\Source\config.c" />
     <ClCompile Include="src\Source\floats.c" />
+    <ClCompile Include="src\Source\framebuffers.c" />
     <ClCompile Include="src\Source\instancedResource.c" />
     <ClCompile Include="src\Source\ints.c" />
     <ClCompile Include="src\Source\light.c" />
     <ClCompile Include="src\Source\range.c" />
     <ClCompile Include="src\Source\reflection.c" />
+    <ClCompile Include="src\Source\renderbuffers.c" />
     <ClCompile Include="src\Source\scene.c" />
     <ClCompile Include="src\Source\strings.c" />
     <ClCompile Include="src\Source\cunit.c" />
@@ -240,11 +242,13 @@
     <ClInclude Include="src\Headers\graphics\camera.h" />
     <ClInclude Include="src\Headers\graphics\colors.h" />
     <ClInclude Include="src\Headers\graphics\font.h" />
+    <ClInclude Include="src\Headers\graphics\framebuffers.h" />
     <ClInclude Include="src\Headers\graphics\graphicsDevice.h" />
     <ClInclude Include="src\Headers\Graphics\imaging.h" />
     <ClInclude Include="src\Headers\graphics\light.h" />
     <ClInclude Include="src\Headers\graphics\material.h" />
     <ClInclude Include="src\Headers\graphics\recttransform.h" />
+    <ClInclude Include="src\Headers\graphics\renderbuffers.h" />
     <ClInclude Include="src\Headers\graphics\renderMesh.h" />
     <ClInclude Include="src\Headers\graphics\renderModel.h" />
     <ClInclude Include="src\Headers\graphics\scene.h" />

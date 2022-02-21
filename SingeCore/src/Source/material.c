@@ -287,7 +287,7 @@ static void SetMaterialTexture(Shader shader, Uniform textureUniform, Uniform ma
 	}
 }
 
-static bool TrySetLightUniforms(Shader shader, Light light, size_t index, Scene scene)
+static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 {
 	/*
 	struct _light{
@@ -366,7 +366,7 @@ static void SetLightUniforms(Shader shader, Scene scene)
 	{
 		Light light = scene->Lights[i];
 
-		if (TrySetLightUniforms(shader, light, i, scene) is false)
+		if (TrySetLightUniforms(shader, light, i) is false)
 		{
 			fprintf(stderr, "Failed to set a light uniform for light at index: %lli"NEWLINE, i);
 			return;

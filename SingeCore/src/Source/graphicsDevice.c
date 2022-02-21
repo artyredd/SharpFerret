@@ -3,6 +3,17 @@
 #include <stdlib.h>
 #include "graphics/textureDefinitions.h"
 
+const struct _frameBufferAttachments FrameBufferAttachments = {
+	.Depth = GL_DEPTH_ATTACHMENT,
+	.Color = GL_COLOR_ATTACHMENT0,
+	.DepthStencil = GL_DEPTH_STENCIL_ATTACHMENT
+};
+
+const struct _frameBufferComponents FrameBufferComponents = {
+	.Texture = 0,
+	.RenderBuffer = 1
+};
+
 struct _comparisons Comparisons = {
 	.Always = { "always", GL_ALWAYS },
 	.Never = { "never", GL_NEVER },
@@ -35,6 +46,7 @@ static void SetDepthTest(const Comparison);
 static void ActivateTexture(const TextureType, const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
 static unsigned int CreateTexture(const TextureType);
 static void LoadTexture(const TextureType, TextureFormat, BufferFormat, Image, unsigned int offset);
+static void LoadBufferTexture(const TextureType, const TextureFormat, const BufferFormat, size_t width, size_t height, unsigned int offset);
 static void ModifyTexture(const TextureType, TextureSetting, const TextureValue);
 static void DeleteTexture(unsigned int handle);
 static bool TryVerifyCleanup(void);
@@ -44,6 +56,16 @@ static void DeleteBuffer(unsigned int handle);
 
 static unsigned int GenerateRenderBuffer(void);
 static void DeleteRenderBuffer(unsigned int handle);
+static void UseRenderBuffer(unsigned int handle);
+
+static unsigned int GenerateFrameBuffer(void);
+static void DeleteFrameBuffer(unsigned int handle);
+
+static void UseFrameBuffer(unsigned int handle);
+
+static void AttachFrameBufferComponent(FrameBufferComponent componentType, FrameBufferAttachment attachmentType, unsigned int attachmentHandle);
+
+static void AllocRenderBuffer(unsigned int handle, TextureFormat format, size_t width, size_t height);
 
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
@@ -70,6 +92,13 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.DeleteBuffer = &DeleteBuffer,
 	.GenerateRenderBuffer = &GenerateRenderBuffer,
 	.DeleteRenderBuffer = &DeleteRenderBuffer,
+	.GenerateFrameBuffer = &GenerateFrameBuffer,
+	.DeleteFrameBuffer = &DeleteFrameBuffer,
+	.UseFrameBuffer = &UseFrameBuffer,
+	.LoadBufferTexture = &LoadBufferTexture,
+	.AttachFrameBufferComponent = AttachFrameBufferComponent,
+	.UseRenderBuffer = &UseRenderBuffer,
+	.AllocRenderBuffer = AllocRenderBuffer,
 };
 
 bool blendingEnabled = false;
@@ -89,9 +118,11 @@ unsigned int depthComparison;
 unsigned int nextTexture = 0;
 unsigned int maxTextures = GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
 
+// 0 is no/default
+unsigned int currentFrameBuffer = 0;
+
 // texture instance counts
 size_t activeTextures = 0;
-size_t activeBuffers = 0;
 
 static void EnableDepthTesting(void)
 {
@@ -257,43 +288,64 @@ static void LoadTexture(TextureType type, TextureFormat colorFormat, BufferForma
 	glTexImage2D(type.Value.AsUInt + offset, 0, colorFormat, image->Width, image->Height, 0, colorFormat, pixelFormat, image->Pixels);
 }
 
+static void LoadBufferTexture(const TextureType type, const TextureFormat colorFormat, const BufferFormat pixelFormat, size_t width, size_t height, unsigned int offset)
+{
+	glTexImage2D(type.Value.AsUInt + offset, 0, colorFormat, (int)width, (int)height, 0, colorFormat, pixelFormat, null);
+}
+
 static void ModifyTexture(TextureType type, TextureSetting setting, const TextureValue value)
 {
 	glTexParameteri(type.Value.AsUInt, setting, value.Value.AsInt);
 }
-static unsigned int GenerateBuffer()
+
+static void UseFrameBuffer(unsigned int handle)
 {
-	unsigned int handle;
-	glGenBuffers(1, &handle);
-
-	++(activeBuffers);
-
-	return handle;
+	if (handle isnt currentFrameBuffer)
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, handle);
+		currentFrameBuffer = handle;
+	}
 }
 
-static void DeleteBuffer(unsigned int handle)
+static void AttachFrameBufferComponent(FrameBufferComponent componentType, FrameBufferAttachment attachmentType, unsigned int attachmentHandle)
 {
-	glDeleteBuffers(1, &handle);
-
-	--(activeBuffers);
+	if (componentType is FrameBufferComponents.Texture)
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, attachmentHandle, 0);
+	}
+	else if (componentType is FrameBufferComponents.RenderBuffer)
+	{
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentType, GL_RENDERBUFFER, attachmentHandle);
+	}
 }
 
-static unsigned int GenerateRenderBuffer()
+static void UseRenderBuffer(unsigned int handle)
 {
-	unsigned int handle;
-	glGenRenderbuffers(1, &handle);
-
-	++(activeBuffers);
-
-	return handle;
+	glBindRenderbuffer(GL_RENDERBUFFER, handle);
 }
 
-static void DeleteRenderBuffer(unsigned int handle)
+static void AllocRenderBuffer(unsigned int handle, TextureFormat format, size_t width, size_t height)
 {
-	glDeleteRenderbuffers(1, &handle);
-
-	--(activeBuffers);
+	glRenderbufferStorage(handle,format, width, height);
 }
+
+#define BufferObjectBase(name, generateMethod, deleteMethod) size_t active ## name ## s= 0;\
+static unsigned int Generate ## name()\
+{\
+unsigned int handle;\
+	generateMethod\
+++( active ## name ## s); \
+return handle; \
+}\
+static void Delete ## name(unsigned int handle)\
+{\
+	deleteMethod\
+	--( active ## name ## s);\
+}\
+
+BufferObjectBase(Buffer, glGenBuffers(1, &handle); , glDeleteBuffers(1, &handle););
+BufferObjectBase(RenderBuffer, glGenRenderbuffers(1, &handle); , glDeleteRenderbuffers(1, &handle););
+BufferObjectBase(FrameBuffer, glGenFramebuffers(1, &handle);, glDeleteFramebuffers(1, &handle););
 
 static bool TryVerifyCleanup(void)
 {
@@ -304,9 +356,17 @@ static bool TryVerifyCleanup(void)
 
 	result &= activeTextures is 0;
 
-	fprintf(stderr, "Orphaned Buffers: %lli"NEWLINE, activeBuffers);
+	fprintf(stderr, "Orphaned Mesh Buffers: %lli"NEWLINE, activeBuffers);
 
 	result &= activeBuffers is 0;
+
+	fprintf(stderr, "Orphaned Render Buffers: %lli"NEWLINE, activeRenderBuffers);
+
+	result &= activeRenderBuffers is 0;
+
+	fprintf(stderr, "Orphaned Frame Buffers: %lli"NEWLINE, activeFrameBuffers);
+
+	result &= activeFrameBuffers is 0;
 
 	return result;
 }

@@ -42,6 +42,9 @@
 #include "tests.h"
 #include "graphics/scene.h"
 
+#include "graphics/renderbuffers.h"
+#include "graphics/framebuffers.h"
+
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
 
@@ -120,7 +123,7 @@ int main()
 
 	Material textMaterial = Materials.Load("assets/materials/textMaterial.material");
 
-	Material textureMaterial = Materials.Load("assets/materials/debugOrientationGUI.material");
+	Material textureMaterial = Materials.Load("assets/materials/textMaterial.material");
 
 	Material outlineMaterial = Materials.Load("assets/materials/outline.material");
 
@@ -292,6 +295,21 @@ int main()
 
 	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
 
+	FrameBuffer frameBuffer = FrameBuffers.Create();
+
+	Texture colorBuffer;
+	Textures.TryCreateBufferTexture(TextureTypes.Default, TextureFormats.RGB, BufferFormats.UByte, window->Transform.Width, window->Transform.Height, &colorBuffer);
+
+	RenderBuffer depthAndStencilBuffer = RenderBuffers.Create(window->Transform.Width, window->Transform.Height, TextureFormats.Depth24Stencil8);
+
+	FrameBuffers.AttachTexture(frameBuffer, colorBuffer, 0);
+	FrameBuffers.AttachRenderBuffer(frameBuffer, depthAndStencilBuffer);
+
+	Materials.SetMainTexture(square->Material, colorBuffer);
+
+	Textures.Dispose(colorBuffer);
+	RenderBuffers.Dispose(depthAndStencilBuffer);
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -361,12 +379,12 @@ int main()
 		}
 		if (GetAxis(Axes.Horizontal) < 0)
 		{
-			spotLight->Range += DeltaTime();
+			spotLight->Range += (float)DeltaTime();
 			//Transforms.TranslateX(text->GameObject->Transform, -modifier);
 		}
 		else if (GetAxis(Axes.Horizontal) > 0)
 		{
-			spotLight->Range -= DeltaTime();
+			spotLight->Range -= (float)DeltaTime();
 			//Transforms.TranslateX(text->GameObject->Transform, modifier);
 		}
 		if (GetAxis(Axes.Vertical) < 0)
@@ -454,7 +472,7 @@ int main()
 
 		vec3 spinDirection = { 0, 1, 0 };
 
-		//Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
+		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
 
 		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nMode: %s\nRange: %f\nRadius: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000, mode, spotLight->Range, spotLight->Radius);
 		Texts.SetText(text, text->Text, count);
@@ -464,6 +482,8 @@ int main()
 		Transforms.SetPosition(camera->Transform, position);
 		//Transforms.SetPosition(spotLight->Transform, position);
 		//Transforms.SetRotation(spotLight->Transform, camera->Transform->Rotation);
+
+		FrameBuffers.Use(frameBuffer);
 
 		GameObjects.Draw(lightMarker, scene);
 		GameObjects.Draw(otherLightMarker, scene);
@@ -480,9 +500,13 @@ int main()
 
 		GameObjects.Draw(plane, scene);
 
-		Texts.Draw(text, scene);
-
 		GameObjects.Draw(skybox, scene);
+
+		GraphicsDevice.UseFrameBuffer(0);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		GameObjects.Draw(square, scene);
+		Texts.Draw(text, scene);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
@@ -519,6 +543,8 @@ int main()
 	Materials.Dispose(defaultMaterial);
 	Materials.Dispose(textureMaterial);
 	Materials.Dispose(outlineMaterial);
+
+	FrameBuffers.Dispose(frameBuffer);
 
 	Cameras.Dispose(camera);
 

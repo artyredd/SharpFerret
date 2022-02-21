@@ -19,6 +19,7 @@ static Texture Blank(void);
 static void Save(Texture texture, const char* path);
 static Texture Load(const char* path);
 static TextureFormat GetFormat(Image image);
+static bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, Texture* out_texture);
 
 const struct _textureMethods Textures = {
 	.Dispose = &Dispose,
@@ -27,7 +28,8 @@ const struct _textureMethods Textures = {
 	.Instance = &InstanceTexture,
 	.Blank = Blank,
 	.Load = &Load,
-	.Save = &Save
+	.Save = &Save,
+	.TryCreateBufferTexture = TryCreateBufferTexture
 };
 
 // this is only ran when there is only one remaining instance of the texture being disposed
@@ -154,7 +156,38 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const Te
 	// ignore const violation, we are intentionally passing a const value here
 	// this is known to be problematic
 #pragma warning(disable: 4090)
-	texture->Type = DEFAULT_TEXTURE_TYPE;
+	texture->Type = type;
+#pragma warning(default: 4090)
+
+	* out_texture = texture;
+
+	return true;
+}
+
+static bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, Texture* out_texture)
+{
+	unsigned int handle = GraphicsDevice.CreateTexture(type);
+
+	GraphicsDevice.LoadBufferTexture(type, format, bufferFormat, width, height, 0);
+
+	DefaultTryModifyTexture(null);
+
+	Texture texture = CreateTexture(true);
+
+	texture->Height = height;
+	texture->Width = width;
+
+	texture->Handle->Handle = handle;
+
+	texture->BufferFormat = bufferFormat;
+	texture->Format = format;
+
+	texture->Path = null;
+
+	// ignore const violation, we are intentionally passing a const value here
+	// this is known to be problematic
+#pragma warning(disable: 4090)
+	texture->Type = type;
 #pragma warning(default: 4090)
 
 	* out_texture = texture;

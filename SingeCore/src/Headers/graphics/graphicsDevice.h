@@ -4,6 +4,24 @@
 #include "graphics/imaging.h"
 #include "graphics/textureDefinitions.h"
 
+typedef unsigned int FrameBufferAttachment;
+
+struct _frameBufferAttachments {
+	FrameBufferAttachment Depth;
+	FrameBufferAttachment Color;
+	FrameBufferAttachment DepthStencil;
+};
+
+extern const struct _frameBufferAttachments FrameBufferAttachments;
+
+typedef unsigned int FrameBufferComponent;
+
+struct _frameBufferComponents {
+	FrameBufferComponent RenderBuffer;
+	FrameBufferComponent Texture;
+};
+
+extern const struct _frameBufferComponents FrameBufferComponents;
 
 typedef parsableValue Comparison;
 
@@ -62,6 +80,10 @@ struct _graphicsDeviceMethods
 	/// </summary>
 	void (*LoadTexture)(const TextureType, TextureFormat, BufferFormat, Image, unsigned int offset);
 	/// <summary>
+	/// Loads an empty texture on the graphics device
+	/// </summary>
+	void (*LoadBufferTexture)(const TextureType, const TextureFormat, const BufferFormat, size_t width, size_t height, unsigned int offset);
+	/// <summary>
 	/// Modifies the currenly bound texture with the provided setting and value
 	/// </summary>
 	void (*ModifyTexture)(const TextureType, TextureSetting, const TextureValue);
@@ -73,6 +95,20 @@ struct _graphicsDeviceMethods
 	void (*DeleteBuffer)(unsigned int handle);
 	unsigned int (*GenerateRenderBuffer)(void);
 	void (*DeleteRenderBuffer)(unsigned int handle);
+	unsigned int (*GenerateFrameBuffer)(void);
+	void (*DeleteFrameBuffer)(unsigned int handle);
+	// Bindes the provided frame buffer as the active one, all following read and write calls will be done to the provided buffer,
+	// if 0 is provided the default buffer will be used
+	void (*UseFrameBuffer)(unsigned int handle);
+	void (*AttachFrameBufferComponent)(FrameBufferComponent componentType, FrameBufferAttachment attachmentType, unsigned int attachmentHandle);
+	/// <summary>
+	/// Sets the current render buffer to the provided handle
+	/// </summary>
+	void (*UseRenderBuffer)(unsigned int handle);
+	/// <summary>
+	/// Allocs the provided sized render buffer on the graphics device
+	/// </summary>
+	void (*AllocRenderBuffer)(unsigned int handle, TextureFormat format, size_t width, size_t height);
 	/// <summary>
 	/// Verifies that cleanup was properly performed before program exit
 	/// </summary>

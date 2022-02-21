@@ -13,22 +13,34 @@ uniform struct _material	{
 	vec4 diffuse;
 	vec4 specular;
 	float shininess;
+	bool useDiffuseMap;
 	sampler2D diffuseMap;
+	bool useSpecularMap;
 	sampler2D specularMap;
 } material;
 
-void main(){
-
-	// Output color = color of the texture at the specified UV
-	//color = texture( myTextureSampler, UV ) * mainColor;
-	//color = vec4(1,0,0,1);
-	//color = material.color;
-
+void main()
+{
 	vec4 result = vec4(0);
 
 	result += material.ambient;
-	result += texture( material.diffuseMap, UV ) * material.diffuse;
-	result += texture( material.specularMap, UV ) * material.specular;
+
+	if(material.useDiffuseMap)
+	{
+		result += texture( material.diffuseMap, UV ) * material.diffuse;
+	}
+	else{
+		 result += material.diffuse;
+	}
+
+	if(material.useSpecularMap)
+	{
+		result += texture( material.specularMap, UV ) * material.specular;
+	}
+	else{
+		 result += material.specular;
+	}
+	
 
 	color = result * material.color;
 }
