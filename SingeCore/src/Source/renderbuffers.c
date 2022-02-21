@@ -36,12 +36,12 @@ static RenderBuffer Create(size_t width, size_t height, TextureFormat format)
 
 	buffer->Handle->Handle = handle;
 
-	GraphicsDevice.UseRenderBuffer(handle);
-	
 	GraphicsDevice.AllocRenderBuffer(handle, format, width, height);
 
 	// unbind the render buffer so we don't accidently mutate it with following calls
 	GraphicsDevice.UseRenderBuffer(0);
+
+	buffer->Format = format;
 
 	return buffer;
 }

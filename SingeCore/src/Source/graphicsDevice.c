@@ -326,7 +326,8 @@ static void UseRenderBuffer(unsigned int handle)
 
 static void AllocRenderBuffer(unsigned int handle, TextureFormat format, size_t width, size_t height)
 {
-	glRenderbufferStorage(handle,format, width, height);
+	glBindRenderbuffer(GL_RENDERBUFFER, handle);
+	glRenderbufferStorage(GL_RENDERBUFFER,format, (GLsizei)width, (GLsizei)height);
 }
 
 #define BufferObjectBase(name, generateMethod, deleteMethod) size_t active ## name ## s= 0;\

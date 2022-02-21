@@ -297,6 +297,8 @@ int main()
 
 	FrameBuffer frameBuffer = FrameBuffers.Create();
 
+	FrameBuffers.Use(frameBuffer);
+
 	Texture colorBuffer;
 	Textures.TryCreateBufferTexture(TextureTypes.Default, TextureFormats.RGB, BufferFormats.UByte, window->Transform.Width, window->Transform.Height, &colorBuffer);
 
@@ -485,6 +487,8 @@ int main()
 
 		FrameBuffers.Use(frameBuffer);
 
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
 		GameObjects.Draw(lightMarker, scene);
 		GameObjects.Draw(otherLightMarker, scene);
 
@@ -503,6 +507,7 @@ int main()
 		GameObjects.Draw(skybox, scene);
 
 		GraphicsDevice.UseFrameBuffer(0);
+
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		GameObjects.Draw(square, scene);

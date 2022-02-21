@@ -84,6 +84,9 @@ static bool DefaultTryModifyTexture(void* state)
 	{
 		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MinifyingFilter, DEFAULT_MINIFYING_FILTER);
 		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.MagnifyingFilter, DEFAULT_MAGNIFYING_FILTER);
+		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapX, DEFAULT_WRAPX);
+		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapY, DEFAULT_WRAPY);
+		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapZ, DEFAULT_WRAPZ);
 	}
 
 	return true;

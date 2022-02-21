@@ -2,6 +2,7 @@
 
 // Input vertex data, different for all executions of this shader.
 layout(location = 0) in vec3 vertexPosition_modelspace;
+layout(location = 1) in vec2 texcoords;
 
 //// Output data ; will be interpolated for each fragment.
 out vec2 UV;
@@ -17,5 +18,5 @@ void main(){
 	gl_Position =  model * vec4(pos,1);
 	
 	// UV of the vertex. No special space for this one.
-	UV = pos.xy;
+	UV = vec2(texcoords.x, 1-texcoords.y);
 }

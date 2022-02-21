@@ -23,7 +23,7 @@ void main()
 {
 	vec4 result = vec4(0);
 
-	result += material.ambient;
+	//result += material.ambient;
 
 	if(material.useDiffuseMap)
 	{
@@ -32,15 +32,6 @@ void main()
 	else{
 		 result += material.diffuse;
 	}
-
-	if(material.useSpecularMap)
-	{
-		result += texture( material.specularMap, UV ) * material.specular;
-	}
-	else{
-		 result += material.specular;
-	}
-	
 
 	color = result * material.color;
 }
