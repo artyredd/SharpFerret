@@ -7,7 +7,23 @@ static void Use(FrameBuffer);
 static void AttachTexture(FrameBuffer, Texture, unsigned int offset);
 static void AttachRenderBuffer(FrameBuffer, RenderBuffer);
 
+// the handle for the default framebuffer
+static struct _sharedHandle DefaultHandle = {
+	.Handle = 0,
+	// Active instances is large here because this is alloced at compile time and cannot be disposed
+	// without throwing an exception, this should never be disposed
+	.ActiveInstances = 0xDEADBEEF
+};
+
+// the default frame buffer, all calls to handle 0 go directly to graphics device
+static struct _frameBuffer Default = { 
+	.Handle = &DefaultHandle,
+	null, 
+	null 
+};
+
 const struct _frameBufferMethods FrameBuffers = {
+	.Default = &Default,
 	.Dispose = &Dispose,
 	.Create = &Create,
 	.Use = &Use,

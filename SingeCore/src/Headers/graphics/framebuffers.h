@@ -22,6 +22,10 @@ struct _frameBuffer {
 };
 
 struct _frameBufferMethods {
+	/// <summary>
+	/// The default framebuffer, when used all draw, read, write calls go directly to the graphics device
+	/// </summary>
+	const FrameBuffer Default;
 	FrameBuffer(*Create)(void);
 	// Set the provided render buffer as the buffer that should be used 
 	// if null is provided the default framebuffer is used

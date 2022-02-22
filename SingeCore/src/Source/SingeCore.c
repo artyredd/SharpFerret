@@ -312,6 +312,22 @@ int main()
 	Textures.Dispose(colorBuffer);
 	RenderBuffers.Dispose(depthAndStencilBuffer);
 
+	GameObject gameobjects[] = {
+		lightMarker,
+		otherLightMarker,
+		cube,
+		sphere,
+		car,
+		ball,
+		otherBall,
+		room,
+		city,
+		plane,
+		skybox
+	};
+
+	size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -412,6 +428,30 @@ int main()
 			otherLight->Enabled = otherLight->Enabled ? false : true;
 		}
 
+		// toggle debug normals
+		if (GetKey(KeyCodes.N))
+		{
+			for (size_t i = 0; i < gameobjectCount; i++)
+			{
+				// get the material
+				Material material = gameobjects[i]->Material;
+
+				// iterate the shaders and disable any normal shaders by name
+				for (size_t ithShader = 0; ithShader < material->Count; ithShader++)
+				{
+					static const char* path = "assets/shaders/debug_normal.shader";
+					static const size_t length = sizeof("assets/shaders/debug_normal.shader") - 1;
+
+					Shader shader = material->Shaders[ithShader];
+
+					if (Strings.Equals(path, length, shader->Name, strlen(shader->Name)))
+					{
+						shader->Enabled = !shader->Enabled;
+					}
+				}
+			}
+		}
+
 		char* mode;
 
 		if (lightMode is 1)
@@ -489,24 +529,9 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		GameObjects.Draw(lightMarker, scene);
-		GameObjects.Draw(otherLightMarker, scene);
+		GameObjects.DrawMany(gameobjects, sizeof(gameobjects)/sizeof(GameObject), scene);
 
-		GameObjects.Draw(cube, scene);
-
-		GameObjects.Draw(sphere, scene);
-
-		GameObjects.Draw(car, scene);
-		GameObjects.Draw(ball, scene);
-		GameObjects.Draw(otherBall, scene);
-		GameObjects.Draw(room, scene);
-		GameObjects.Draw(city, scene);
-
-		GameObjects.Draw(plane, scene);
-
-		GameObjects.Draw(skybox, scene);
-
-		GraphicsDevice.UseFrameBuffer(0);
+		FrameBuffers.Use(FrameBuffers.Default);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
