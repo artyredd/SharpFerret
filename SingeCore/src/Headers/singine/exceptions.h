@@ -71,4 +71,6 @@ static Exception NoActiveWindowException = 0x60000006;
 static Exception FailedToCompileShaderException = 0x50000001;
 static Exception FailedToLocationMVPUniformException = 0x50000002;
 static Exception FailedToBindMeshException = 0x50000003;
+// thrown when the resolution of one object should match another object's but they do not
+static Exception ResolutionMismatchException = 0x50000004;
 //

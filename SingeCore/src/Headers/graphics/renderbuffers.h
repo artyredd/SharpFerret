@@ -12,6 +12,14 @@ struct _renderBuffer {
 	/// The format for this buffer
 	/// </summary>
 	TextureFormat Format;
+	/// <summary>
+	/// The width of the buffer
+	/// </summary>
+	size_t Width;
+	/// <summary>
+	/// The height of the buffer
+	/// </summary>
+	size_t Height;
 };
 
 struct _renderBufferMethods {

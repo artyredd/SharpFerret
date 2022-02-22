@@ -274,6 +274,7 @@
     <ClInclude Include="src\Headers\modeling\model.h" />
     <ClInclude Include="src\Headers\scripts\fpsCamera.h" />
     <ClInclude Include="src\Headers\singine\config.h" />
+    <ClInclude Include="src\Headers\singine\defaults.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />
     <ClInclude Include="src\Headers\singine\file.h" />
     <ClInclude Include="src\Headers\singine\gameobject.h" />

@@ -1,8 +1,9 @@
 #include "graphics/framebuffers.h"
 #include "singine/memory.h"
+#include "singine/defaults.h"
 
 static void Dispose(FrameBuffer);
-static FrameBuffer Create(void);
+static FrameBuffer Create(FrameBufferType);
 static void Use(FrameBuffer);
 static void AttachTexture(FrameBuffer, Texture, unsigned int offset);
 static void AttachRenderBuffer(FrameBuffer, RenderBuffer);
@@ -19,7 +20,9 @@ static struct _sharedHandle DefaultHandle = {
 static struct _frameBuffer Default = { 
 	.Handle = &DefaultHandle,
 	null, 
-	null 
+	null,
+	.Height = DEFAULT_VIEWPORT_RESOLUTION_Y,
+	.Width = DEFAULT_VIEWPORT_RESOLUTION_X
 };
 
 const struct _frameBufferMethods FrameBuffers = {
@@ -29,6 +32,18 @@ const struct _frameBufferMethods FrameBuffers = {
 	.Use = &Use,
 	.AttachTexture = AttachTexture,
 	.AttachRenderBuffer = AttachRenderBuffer
+};
+
+#define FrameBufferType_None 0
+#define FrameBufferType_Default 4
+#define FrameBufferType_Read 1
+#define FrameBufferType_Draw 2
+
+const struct _frameBufferTypes FrameBufferTypes = {
+	.None = FrameBufferType_None,
+	.Default = FrameBufferType_Default,
+	.Read = FrameBufferType_Read,
+	.Draw = FrameBufferType_Draw
 };
 
 static void OnDispose(FrameBuffer state)
@@ -55,7 +70,7 @@ static void Dispose(FrameBuffer buffer)
 	SafeFree(buffer);
 }
 
-static FrameBuffer Create(void)
+static FrameBuffer Create(FrameBufferType type)
 {
 	FrameBuffer buffer = SafeAlloc(sizeof(struct _frameBuffer));
 
@@ -63,12 +78,46 @@ static FrameBuffer Create(void)
 
 	buffer->Handle->Handle = GraphicsDevice.GenerateFrameBuffer();
 
+	// check if we need to disable the draw or read buffers
+	if ((type | FrameBufferTypes.Draw) is false)
+	{
+		GraphicsDevice.SetDrawBuffer(ColorBufferTypes.None);
+	}
+	if ((type | FrameBufferTypes.Read) is false)
+	{
+		GraphicsDevice.SetReadBuffer(ColorBufferTypes.None);
+	}
+
 	return buffer;
 }
 
 static void Use(FrameBuffer buffer)
 {
+	// change the viewport if we need to
+	GraphicsDevice.SetResolution(0, 0, buffer->Width, buffer->Height);
+	// set the current framebuffer to this one if we need to
 	GraphicsDevice.UseFrameBuffer(buffer->Handle->Handle);
+}
+
+static void StoreDimensions(FrameBuffer buffer, size_t width, size_t height)
+{
+	// only store the width and height if there values are 0
+	if (buffer->Width is 0 || buffer->Height is 0)
+	{
+		buffer->Width = width;
+		buffer->Height = height;
+	}
+	else
+	{
+		// if the height and width have already been set ensure that the dimensions
+		// provided exactly match, it would make no sense to have a 1920x1080 color buffer
+		// but a 1024x1024 depth buffer
+		if (buffer->Width isnt width || buffer->Height isnt height)
+		{
+			fprintf(stderr, "The resoltion of the current buffer %llix%lli does not match the provided resoltuion of %llix%lli, all attachments of the frame buffer must have the same resolution.", buffer->Width,buffer->Height, width, height);
+			throw(ResolutionMismatchException);
+		}
+	}
 }
 
 static void AttachTexture(FrameBuffer buffer, Texture texture, unsigned int offset)
@@ -80,8 +129,15 @@ static void AttachTexture(FrameBuffer buffer, Texture texture, unsigned int offs
 	{
 		GraphicsDevice.AttachFrameBufferComponent(FrameBufferComponents.Texture, FrameBufferAttachments.Color + offset, texture->Handle->Handle);
 	}
+	else if (texture->Format is TextureFormats.DepthComponent)
+	{
+		GraphicsDevice.AttachFrameBufferComponent(FrameBufferComponents.Texture, FrameBufferAttachments.Depth, texture->Handle->Handle);
+	}
 
 	buffer->Texture = Textures.Instance(texture);
+
+	// check to see if we need to store the height
+	StoreDimensions(buffer, texture->Width, texture->Height);
 }
 
 static void AttachRenderBuffer(FrameBuffer buffer, RenderBuffer renderBuffer)
@@ -96,4 +152,7 @@ static void AttachRenderBuffer(FrameBuffer buffer, RenderBuffer renderBuffer)
 	}
 
 	buffer->RenderBuffer = RenderBuffers.Instance(renderBuffer);
+
+	// check to see if we need to store the height
+	StoreDimensions(buffer, renderBuffer->Width, renderBuffer->Height);
 }

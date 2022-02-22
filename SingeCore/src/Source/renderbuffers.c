@@ -42,6 +42,8 @@ static RenderBuffer Create(size_t width, size_t height, TextureFormat format)
 	GraphicsDevice.UseRenderBuffer(0);
 
 	buffer->Format = format;
+	buffer->Height = height;
+	buffer->Width = width;
 
 	return buffer;
 }
@@ -53,6 +55,8 @@ static RenderBuffer Instance(RenderBuffer buffer)
 	newBuffer->Handle = SharedHandles.Instance(buffer->Handle);
 	
 	newBuffer->Format = buffer->Format;
+	newBuffer->Width = buffer->Width;
+	newBuffer->Height = buffer->Height;
 
 	return newBuffer;
 }

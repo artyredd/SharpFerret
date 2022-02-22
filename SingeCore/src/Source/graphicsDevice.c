@@ -25,6 +25,19 @@ struct _comparisons Comparisons = {
 	.GreaterThanOrEqual = { "greaterOrEqual", GL_GEQUAL }
 };
 
+const struct _bufferTypes ColorBufferTypes = {
+	.None = GL_NONE,
+	.FrontLeft = GL_FRONT_LEFT, 
+	.FrontRight = GL_FRONT_RIGHT, 
+	.BackLeft = GL_BACK_LEFT, 
+	.BackRight = GL_BACK_RIGHT, 
+	.Front = GL_FRONT, 
+	.Back = GL_BACK, 
+	.Left = GL_LEFT,
+	.Right = GL_RIGHT,
+	.Color = GL_COLOR_ATTACHMENT0
+};
+
 static void EnableBlending(void);
 static void DisableBlending(void);
 
@@ -67,6 +80,11 @@ static void AttachFrameBufferComponent(FrameBufferComponent componentType, Frame
 
 static void AllocRenderBuffer(unsigned int handle, TextureFormat format, size_t width, size_t height);
 
+static void SetResolution(signed long long int x, signed long long int y, size_t width, size_t height);
+
+static void SetReadBuffer(ColorBufferType);
+static void SetDrawBuffer(ColorBufferType);
+
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
 	.EnableCulling = &EnableCulling,
@@ -99,6 +117,7 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.AttachFrameBufferComponent = AttachFrameBufferComponent,
 	.UseRenderBuffer = &UseRenderBuffer,
 	.AllocRenderBuffer = AllocRenderBuffer,
+	.SetResolution = &SetResolution,
 };
 
 bool blendingEnabled = false;
@@ -328,6 +347,38 @@ static void AllocRenderBuffer(unsigned int handle, TextureFormat format, size_t 
 {
 	glBindRenderbuffer(GL_RENDERBUFFER, handle);
 	glRenderbufferStorage(GL_RENDERBUFFER,format, (GLsizei)width, (GLsizei)height);
+}
+
+static void SetReadBuffer(ColorBufferType mode)
+{
+	glReadBuffer(mode);
+}
+
+static void SetDrawBuffer(ColorBufferType mode)
+{
+	glDrawBuffer(mode);
+}
+
+size_t viewportWidth;
+size_t viewportHeight;
+signed long long int viewportX;
+signed long long int viewportY;
+
+
+static void SetResolution(signed long long int x, signed long long int y, size_t width, size_t height)
+{
+	if (viewportWidth isnt width || 
+		viewportHeight isnt height ||
+		viewportX isnt x ||
+		viewportY isnt y)
+	{
+		glViewport((int)x, (int)y, (unsigned int)width, (unsigned int)height);
+
+		viewportX = x;
+		viewportY = y;
+		viewportWidth = width;
+		viewportHeight = height;
+	}
 }
 
 #define BufferObjectBase(name, generateMethod, deleteMethod) size_t active ## name ## s= 0;\

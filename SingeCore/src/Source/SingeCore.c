@@ -44,6 +44,7 @@
 
 #include "graphics/renderbuffers.h"
 #include "graphics/framebuffers.h"
+#include "singine/defaults.h"
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
@@ -71,7 +72,7 @@ int main()
 	Windows.SetHint(WindowHints.Resizable, true);
 	Windows.SetHint(WindowHints.Decorated, true);
 
-	window = Windows.Create(1920, 1080, "Singine");
+	window = Windows.Create(DEFAULT_VIEWPORT_RESOLUTION_X, DEFAULT_VIEWPORT_RESOLUTION_Y, "Singine");
 
 	SetInputWindow(window);
 
@@ -295,21 +296,24 @@ int main()
 
 	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
 
-	FrameBuffer frameBuffer = FrameBuffers.Create();
+	FrameBuffer frameBuffer = FrameBuffers.Create(FrameBufferTypes.None);
 
 	FrameBuffers.Use(frameBuffer);
 
-	Texture colorBuffer;
-	Textures.TryCreateBufferTexture(TextureTypes.Default, TextureFormats.RGB, BufferFormats.UByte, window->Transform.Width, window->Transform.Height, &colorBuffer);
+	size_t framebufferWidth = 1024;
+	size_t framebufferHeight = 1024;
+
+	Texture depthBuffer;
+	Textures.TryCreateBufferTexture(TextureTypes.Default, TextureFormats.DepthComponent, BufferFormats.Float, framebufferWidth, framebufferHeight, &depthBuffer);
 
 	RenderBuffer depthAndStencilBuffer = RenderBuffers.Create(window->Transform.Width, window->Transform.Height, TextureFormats.Depth24Stencil8);
 
-	FrameBuffers.AttachTexture(frameBuffer, colorBuffer, 0);
-	FrameBuffers.AttachRenderBuffer(frameBuffer, depthAndStencilBuffer);
+	FrameBuffers.AttachTexture(frameBuffer, depthBuffer, 0);
+	//FrameBuffers.AttachRenderBuffer(frameBuffer, depthAndStencilBuffer);
 
-	Materials.SetMainTexture(square->Material, colorBuffer);
+	Materials.SetMainTexture(square->Material, depthBuffer);
 
-	Textures.Dispose(colorBuffer);
+	Textures.Dispose(depthBuffer);
 	RenderBuffers.Dispose(depthAndStencilBuffer);
 
 	GameObject gameobjects[] = {
@@ -525,15 +529,21 @@ int main()
 		//Transforms.SetPosition(spotLight->Transform, position);
 		//Transforms.SetRotation(spotLight->Transform, camera->Transform->Rotation);
 
-		FrameBuffers.Use(frameBuffer);
+		FrameBuffers.Use(FrameBuffers.Default);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		GameObjects.DrawMany(gameobjects, sizeof(gameobjects)/sizeof(GameObject), scene);
 
-		FrameBuffers.Use(FrameBuffers.Default);
+		FrameBuffers.Use(frameBuffer);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+
+		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene);
+
+		FrameBuffers.Use(FrameBuffers.Default);
+
+		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		GameObjects.Draw(square, scene);
 		Texts.Draw(text, scene);

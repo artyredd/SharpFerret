@@ -4,6 +4,22 @@
 #include "graphics/imaging.h"
 #include "graphics/textureDefinitions.h"
 
+typedef unsigned int ColorBufferType;
+struct _bufferTypes {
+	ColorBufferType None;
+	ColorBufferType FrontLeft;
+	ColorBufferType FrontRight;
+	ColorBufferType BackLeft;
+	ColorBufferType BackRight;
+	ColorBufferType Front;
+	ColorBufferType Back;
+	ColorBufferType Left;
+	ColorBufferType Right;
+	ColorBufferType Color;
+};
+
+extern const struct _bufferTypes ColorBufferTypes;
+
 typedef unsigned int FrameBufferAttachment;
 
 struct _frameBufferAttachments {
@@ -109,6 +125,12 @@ struct _graphicsDeviceMethods
 	/// Allocs the provided sized render buffer on the graphics device
 	/// </summary>
 	void (*AllocRenderBuffer)(unsigned int handle, TextureFormat format, size_t width, size_t height);
+	/// <summary>
+	/// Sets the rendering resolution for draw, reads, and writes on the graphics device
+	/// </summary>
+	void (*SetResolution)(signed long long int x, signed long long int y, size_t width, size_t height);
+	void (*SetReadBuffer)(ColorBufferType);
+	void (*SetDrawBuffer)(ColorBufferType);
 	/// <summary>
 	/// Verifies that cleanup was properly performed before program exit
 	/// </summary>
