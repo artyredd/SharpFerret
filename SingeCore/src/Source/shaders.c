@@ -8,6 +8,7 @@
 #include "singine/parsing.h"
 #include "singine/guards.h"
 #include <stdlib.h>
+#include <Headers/graphics/texture.h>
 
 
 static void DisableSetting(Shader shader, ShaderSetting setting);
@@ -35,6 +36,7 @@ static bool UniformFieldSetFloat(Shader shader, Uniform uniform, size_t index, U
 static bool UniformFieldSetVector3(Shader shader, Uniform uniform, size_t index, Uniform field, vec3 value);
 static bool UniformFieldSetVector4(Shader shader, Uniform uniform, size_t index, Uniform field, vec4 value);
 static bool UniformFieldSetMatrix(Shader shader, Uniform uniform, size_t index, Uniform field, mat4 value);
+static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, unsigned int slot);
 
 const struct _uniforms Uniforms = {
 	.MVP = {.Index = 0, .Name = "MVP" },
@@ -72,8 +74,10 @@ const struct _uniforms Uniforms = {
 		.AreaMap = {.Index = 18, .Name = "material.areaMap"},
 		.Reflectivity = {.Index = 19, .Name = "material.reflectivity"},
 	},
+	.LightShadowMaps = {.Index = 20, .Name = "LightShadowMaps" },
+	.LightShadowCubeMaps = {.Index = 21, .Name = "LightShadowCubeMaps" },
 	.Lights = {
-		.Index = 20,
+		.Index = 22,
 		.Name = "Lights",
 		.Size = (sizeof(struct _lightUniforms) / sizeof(struct _uniform)),
 		.Count = MAX_POINT_LIGHTS
@@ -333,6 +337,18 @@ static bool HasSetting(Shader shader, ShaderSetting setting)
 	GuardNotNull(shader);
 
 	return HasFlag(shader->Settings, setting);
+}
+
+static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, unsigned int slot)
+{
+	if (texture isnt null)
+	{
+		int uniformHandle;
+		if (Shaders.TryGetUniform(shader, uniform, &uniformHandle))
+		{
+			GraphicsDevice.ActivateTexture(texture->Type, texture->Handle->Handle, uniformHandle, slot);
+		}
+	}
 }
 
 

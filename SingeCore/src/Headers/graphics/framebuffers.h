@@ -48,6 +48,11 @@ struct _frameBuffer {
 	/// The height of this frame buffer
 	/// </summary>
 	size_t Height;
+	/// <summary>
+	/// The mask that is used to clear the frame buffer when .Clear() or .ClearThenUse() is called, this is normall set when
+	/// you create the framebuffer
+	/// </summary>
+	unsigned int ClearMask;
 };
 
 struct _frameBufferMethods {
@@ -59,6 +64,8 @@ struct _frameBufferMethods {
 	// Set the provided render buffer as the buffer that should be used 
 	// if null is provided the default framebuffer is used
 	void (*Use)(FrameBuffer);
+	void (*Clear)(FrameBuffer);
+	void (*ClearAndUse)(FrameBuffer);
 	void (*AttachTexture)(FrameBuffer, Texture, unsigned int offset);
 	void (*AttachRenderBuffer)(FrameBuffer, RenderBuffer);
 	void (*Dispose)(FrameBuffer);

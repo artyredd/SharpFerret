@@ -4,6 +4,17 @@
 #include "graphics/imaging.h"
 #include "graphics/textureDefinitions.h"
 
+typedef unsigned int ClearMask;
+
+struct _clearMasks {
+	ClearMask None;
+	ClearMask Color;
+	ClearMask Stencil;
+	ClearMask Depth;
+};
+
+extern const struct _clearMasks ClearMasks;
+
 typedef unsigned int ColorBufferType;
 struct _bufferTypes {
 	ColorBufferType None;
@@ -135,6 +146,10 @@ struct _graphicsDeviceMethods
 	/// Verifies that cleanup was properly performed before program exit
 	/// </summary>
 	bool (*TryVerifyCleanup)(void);
+	/// <summary>
+	/// Clears the currently bound frame buffer
+	/// </summary>
+	void (*ClearCurrentFrameBuffer)(unsigned int clearMask);
 };
 
 extern const struct _graphicsDeviceMethods GraphicsDevice;

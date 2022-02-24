@@ -2,6 +2,7 @@
 #include "graphics/colors.h"
 #include "math/vectors.h"
 #include "graphics/transform.h"
+#include <Headers/graphics/framebuffers.h>
 
 #define DEFAULT_AMBIENT_LIGHT_INTENSITY 1.0f
 #define DEFAULT_DIFFUSE_LIGHT_INTENSITY 0.5f
@@ -10,6 +11,13 @@
 #define DEFAULT_LIGHT_RADIUS 0.87f // in degrees
 #define DEFAULT_LIGHT_RANGE 5.0f // in distance units
 #define DEFAULT_LIGHT_EDGE_SOFTNESS 0.057f;
+
+struct _shadowMapSettings {
+	size_t ResolutionX;
+	size_t ResolutionY;
+};
+
+extern struct _shadowMapSettings ShadowMaps;
 
 typedef int LightType;
 
@@ -73,6 +81,10 @@ struct _light {
 	/// The transform for this light
 	/// </summary>
 	Transform Transform;
+	/// <summary>
+	/// The framebuffer that is contains the shadow map for this light, this may contain a 2d texture(direction) or cubemap(point, spotlight)
+	/// </summary>
+	FrameBuffer FrameBuffer;
 };
 
 struct _lightMethods {

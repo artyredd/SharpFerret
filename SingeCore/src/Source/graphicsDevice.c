@@ -3,6 +3,13 @@
 #include <stdlib.h>
 #include "graphics/textureDefinitions.h"
 
+const struct _clearMasks ClearMasks =
+{  
+	.Depth = GL_DEPTH_BUFFER_BIT,
+	.Stencil = GL_STENCIL_BUFFER_BIT,
+	.Color = GL_COLOR_BUFFER_BIT
+};
+
 const struct _frameBufferAttachments FrameBufferAttachments = {
 	.Depth = GL_DEPTH_ATTACHMENT,
 	.Color = GL_COLOR_ATTACHMENT0,
@@ -85,6 +92,8 @@ static void SetResolution(signed long long int x, signed long long int y, size_t
 static void SetReadBuffer(ColorBufferType);
 static void SetDrawBuffer(ColorBufferType);
 
+static void ClearCurrentFrameBuffer(unsigned int clearMask);
+
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
 	.EnableCulling = &EnableCulling,
@@ -118,6 +127,9 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.UseRenderBuffer = &UseRenderBuffer,
 	.AllocRenderBuffer = AllocRenderBuffer,
 	.SetResolution = &SetResolution,
+	.SetDrawBuffer = &SetDrawBuffer,
+	.SetReadBuffer = &SetReadBuffer,
+	.ClearCurrentFrameBuffer = &ClearCurrentFrameBuffer
 };
 
 bool blendingEnabled = false;
@@ -274,11 +286,9 @@ static void SetDepthTest(const Comparison comparison)
 static void ActivateTexture(const TextureType textureType, const unsigned int textureHandle, const int uniformHandle, const unsigned int slot)
 {
 	unsigned int type = textureType.Value.AsUInt;
-	//glEnable(type);
 	glActiveTexture(GL_TEXTURE0 + slot);
 	glBindTexture(type, textureHandle);
 	glUniform1i(uniformHandle, slot);
-	//glDisable(type);
 }
 
 static unsigned int CreateTexture(TextureType type)
@@ -357,6 +367,11 @@ static void SetReadBuffer(ColorBufferType mode)
 static void SetDrawBuffer(ColorBufferType mode)
 {
 	glDrawBuffer(mode);
+}
+
+static void ClearCurrentFrameBuffer(unsigned int clearMask)
+{
+	glClear(clearMask);
 }
 
 size_t viewportWidth;

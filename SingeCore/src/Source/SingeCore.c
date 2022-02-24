@@ -300,31 +300,13 @@ int main()
 
 	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
 
-	FrameBuffer frameBuffer = FrameBuffers.Create(FrameBufferTypes.None);
-
-	FrameBuffers.Use(frameBuffer);
-
-	size_t framebufferWidth = 512;
-	size_t framebufferHeight = 512;
-
-	Texture depthBuffer;
-	Textures.TryCreateBufferTexture(TextureTypes.Default, TextureFormats.DepthComponent, BufferFormats.Float, framebufferWidth, framebufferHeight, &depthBuffer);
-
-	RenderBuffer depthAndStencilBuffer = RenderBuffers.Create(window->Transform.Width, window->Transform.Height, TextureFormats.Depth24Stencil8);
-
-	FrameBuffers.AttachTexture(frameBuffer, depthBuffer, 0);
-	//FrameBuffers.AttachRenderBuffer(frameBuffer, depthAndStencilBuffer);
-
 	Material depthMaterial = Materials.Load("assets/materials/depthMap.material");
 
 	GameObjects.SetMaterial(square, depthMaterial);
 
-	Materials.SetMainTexture(square->Material, depthBuffer);
+	Materials.SetMainTexture(square->Material, light->FrameBuffer->Texture);
 
 	Materials.Dispose(depthMaterial);
-
-	Textures.Dispose(depthBuffer);
-	RenderBuffers.Dispose(depthAndStencilBuffer);
 
 	GameObject gameobjects[] = {
 		lightMarker,
@@ -360,8 +342,6 @@ int main()
 	UpdateTime();
 	do {
 		UpdateTime();
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		Vectors3CopyTo(camera->Transform->Position, position);
 
@@ -547,29 +527,23 @@ int main()
 		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nMode: %s\nRange: %f\nRadius: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000, mode, spotLight->Range, spotLight->Radius);
 		Texts.SetText(text, text->Text, count);
 
+		// update the FPS camera
 		FPSCamera.Update(camera);
-
 		Transforms.SetPosition(camera->Transform, position);
-		//Transforms.SetPosition(spotLight->Transform, position);
-		//Transforms.SetRotation(spotLight->Transform, camera->Transform->Rotation);
 
 		// draw shadowmap for light
-		FrameBuffers.Use(frameBuffer);
+		FrameBuffers.ClearAndUse(light->FrameBuffer);
 
 		scene->MainCamera = shadowCamera;
-
-		glClear(GL_DEPTH_BUFFER_BIT);
 
 		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, overrideMaterial);
 
 		// draw scene
-		FrameBuffers.Use(FrameBuffers.Default);
-
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		FrameBuffers.ClearAndUse(FrameBuffers.Default);
 
 		scene->MainCamera = camera;
 
-		GameObjects.DrawMany(gameobjects, sizeof(gameobjects)/sizeof(GameObject), scene, null);
+		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, null);
 
 		GameObjects.Draw(square, scene);
 		Texts.Draw(text, scene);
@@ -610,8 +584,6 @@ int main()
 	Materials.Dispose(textureMaterial);
 	Materials.Dispose(outlineMaterial);
 	Materials.Dispose(overrideMaterial);
-
-	FrameBuffers.Dispose(frameBuffer);
 
 	Cameras.Dispose(camera);
 

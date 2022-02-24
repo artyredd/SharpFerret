@@ -347,6 +347,29 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 	}
 
 
+	// determine if we need to set a 2d or 3d texture for this light
+	bool uniformExists = false;
+	handle = 0;
+
+	if (light->Type is LightTypes.Directional)
+	{
+		uniformExists = Shaders.TryGetUniformArray(shader, Uniforms.LightShadowMaps, index, &handle);
+	}
+	else
+	{
+		uniformExists = Shaders.TryGetUniformArray(shader, Uniforms.LightShadowCubeMaps, index, &handle);
+	}
+	
+	if (uniformExists)
+	{
+		Texture texture = light->ShadowFrameBuffer->Texture;
+
+		// MAGIC NUMBER ALERT
+		// index+4 is used here becuase 0,1,2,3 are all resevered for the current material's texture units
+		// all other texture units are used for lighting
+		GraphicsDevice.ActivateTexture(texture->Type, texture->Handle->Handle, handle, (int)(index + 4));
+	}
+
 	return true;
 }
 

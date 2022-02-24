@@ -1,12 +1,15 @@
 #include "graphics/framebuffers.h"
 #include "singine/memory.h"
 #include "singine/defaults.h"
+#include "GL/glew.h"
 
 static void Dispose(FrameBuffer);
 static FrameBuffer Create(FrameBufferType);
 static void Use(FrameBuffer);
 static void AttachTexture(FrameBuffer, Texture, unsigned int offset);
 static void AttachRenderBuffer(FrameBuffer, RenderBuffer);
+static void Clear(FrameBuffer);
+static void ClearThenUse(FrameBuffer);
 
 // the handle for the default framebuffer
 static struct _sharedHandle DefaultHandle = {
@@ -22,7 +25,8 @@ static struct _frameBuffer Default = {
 	null, 
 	null,
 	.Height = DEFAULT_VIEWPORT_RESOLUTION_Y,
-	.Width = DEFAULT_VIEWPORT_RESOLUTION_X
+	.Width = DEFAULT_VIEWPORT_RESOLUTION_X,
+	.ClearMask = (GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT)
 };
 
 const struct _frameBufferMethods FrameBuffers = {
@@ -31,7 +35,9 @@ const struct _frameBufferMethods FrameBuffers = {
 	.Create = &Create,
 	.Use = &Use,
 	.AttachTexture = AttachTexture,
-	.AttachRenderBuffer = AttachRenderBuffer
+	.AttachRenderBuffer = AttachRenderBuffer,
+	.ClearAndUse = &ClearThenUse,
+	.Clear = &Clear
 };
 
 #define FrameBufferType_None 0
@@ -78,25 +84,30 @@ static FrameBuffer Create(FrameBufferType type)
 
 	buffer->Handle->Handle = GraphicsDevice.GenerateFrameBuffer();
 
+	GraphicsDevice.UseFrameBuffer(buffer->Handle->Handle);
+
 	// check if we need to disable the draw or read buffers
-	if ((type | FrameBufferTypes.Draw) is false)
+	if ((type & FrameBufferTypes.Draw) is 0)
 	{
 		GraphicsDevice.SetDrawBuffer(ColorBufferTypes.None);
 	}
-	if ((type | FrameBufferTypes.Read) is false)
+
+	if ((type & FrameBufferTypes.Read) is 0)
 	{
 		GraphicsDevice.SetReadBuffer(ColorBufferTypes.None);
 	}
 
+	GraphicsDevice.UseFrameBuffer(0);
+
 	return buffer;
 }
 
+#define UseFrameBufferMacro() GraphicsDevice.SetResolution(0, 0, buffer->Width, buffer->Height);\
+GraphicsDevice.UseFrameBuffer(buffer->Handle->Handle);
+
 static void Use(FrameBuffer buffer)
 {
-	// change the viewport if we need to
-	GraphicsDevice.SetResolution(0, 0, buffer->Width, buffer->Height);
-	// set the current framebuffer to this one if we need to
-	GraphicsDevice.UseFrameBuffer(buffer->Handle->Handle);
+	UseFrameBufferMacro();
 }
 
 static void StoreDimensions(FrameBuffer buffer, size_t width, size_t height)
@@ -155,4 +166,16 @@ static void AttachRenderBuffer(FrameBuffer buffer, RenderBuffer renderBuffer)
 
 	// check to see if we need to store the height
 	StoreDimensions(buffer, renderBuffer->Width, renderBuffer->Height);
+}
+
+static void Clear(FrameBuffer buffer)
+{
+	GraphicsDevice.ClearCurrentFrameBuffer(buffer->ClearMask);
+}
+
+static void ClearThenUse(FrameBuffer buffer)
+{	
+	UseFrameBufferMacro();
+
+	GraphicsDevice.ClearCurrentFrameBuffer(buffer->ClearMask);
 }

@@ -3,9 +3,10 @@
 #include "math/vectors.h"
 #include "sharedBuffer.h"
 #include "graphics/graphicsDevice.h"
+#include "graphics/texture.h"
 
 #define MAX_UNIFORMS 1024
-#define MAX_POINT_LIGHTS 100
+#define MAX_POINT_LIGHTS 50
 
 // represents a uniform within a shader and the information used to load it and cache it effectively
 typedef const struct _uniform Uniform;
@@ -62,6 +63,8 @@ struct _uniforms {
 	struct _lightUniforms Light;
 	Uniform LightCount;
 	struct _materialUniforms Material;
+	Uniform LightShadowMaps;
+	Uniform LightShadowCubeMaps;
 };
 
 // Global uniforms likely to be widely used across many shaders to provide basic functionality
@@ -180,6 +183,7 @@ struct _shaderMethods {
 	bool (*SetArrayFieldVector3)(Shader shader, Uniform uniform, size_t index, Uniform field, vec3 value);
 	bool (*SetArrayFieldVector4)(Shader shader, Uniform uniform, size_t index, Uniform field, vec4 value);
 	bool (*SetArrayFieldMatrix)(Shader shader, Uniform uniform, size_t index, Uniform field, mat4 value);
+	bool(*SetTexture)(Shader shader, Uniform uniform, Texture texture, unsigned int slot);
 };
 
 const extern struct _shaderMethods Shaders;
