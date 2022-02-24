@@ -1,0 +1,26 @@
+#version 330 core
+
+out vec4 color;
+  
+in vec2 texcoords;
+
+
+uniform struct _material	{ 
+	vec4 color;
+	bool useDiffuseMap;
+	sampler2D diffuseMap;
+} material;
+
+void main()
+{             
+	if(material.useDiffuseMap)
+	{
+		float depthValue = texture(material.diffuseMap, texcoords).r;
+
+		color = material.color * vec4(vec3(depthValue), 1.0);
+	}
+	else{
+		// if we don't have a texture for some reason output blue as warning color
+		color = vec4(0,1,0,1);
+	}
+}  

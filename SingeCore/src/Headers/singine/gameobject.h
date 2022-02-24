@@ -57,7 +57,7 @@ struct _gameObjectMethods {
 	/// Clears and changes the length of the rendermesh array to the provided count
 	/// </summary>
 	void (*Resize)(GameObject, size_t count);
-	void (*DrawMany)(GameObject* array, size_t count, Scene);
+	void (*DrawMany)(GameObject* array, size_t count, Scene, Material override);
 	void (*Draw)(GameObject, Scene);
 	GameObject(*Duplicate)(GameObject);
 	void (*SetName)(GameObject, char* name);

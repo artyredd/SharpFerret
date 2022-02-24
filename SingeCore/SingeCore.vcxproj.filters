@@ -496,6 +496,30 @@
     <None Include="assets\shaders\debug_normal.geometryshader">
       <Filter>Resource Files\Shaders\Shaders</Filter>
     </None>
+    <None Include="assets\shaders\stub_mvp.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\empty.fragmentshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\depthMap.fragmentshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\depthMap.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\materials\depthMap.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\materials\shadow.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\shaders\depthMap.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\shadow.shader">
+      <Filter>Resource Files\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="assets\prefabs\lightBase.gameobject">

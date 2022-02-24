@@ -409,7 +409,7 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 			fprintf(stderr, "\t Fragment Piece: %s"NEWLINE, fragmentPaths->Strings[i]);
 		}
 
-		for (size_t i = 0; i < fragmentPaths->Count; i++)
+		for (size_t i = 0; i < geometryPaths->Count; i++)
 		{
 			fprintf(stderr, "\t Geometry Piece: %s"NEWLINE, geometryPaths->Strings[i]);
 		}

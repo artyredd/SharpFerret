@@ -36,7 +36,7 @@ struct _light{
 	mat4 lightMatrix;
 };
 
-#define MaxLights 100
+#define MaxLights 50
 
 uniform _light [MaxLights] Lights;
 uniform int LightCount;

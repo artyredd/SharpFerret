@@ -206,6 +206,7 @@ static Shader Instance(Shader shader)
 	CopyMember(shader, newShader, StencilFunction);
 	CopyMember(shader, newShader, StencilValue);
 	CopyMember(shader, newShader, StencilMask);
+	CopyMember(shader, newShader, DepthFunction);
 
 	// if the shader were given is an empty shader that doesn't have a handle we dont need to increment the instance count
 	if (shader->Handle isnt null)

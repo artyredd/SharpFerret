@@ -34,7 +34,7 @@ static Camera CreateCamera();
 
 const struct _cameraMethods Cameras = {
 	.Refresh = &RefreshCamera,
-	.CreateCamera = &CreateCamera,
+	.Create = &CreateCamera,
 	.ForceRefresh = &ForceRefresh,
 	.SetAspectRatio = &SetAspectRatio,
 	.SetFarClippingDistance = &SetFarClippingDistance,
@@ -146,6 +146,8 @@ static void ForceRefresh(Camera camera)
 	Recalculate(camera);
 }
 
+// ignore C5103, states invalid tokens generated, but tokens do compile and work as expected
+#pragma warning(disable:5103)
 // Produce duplicate methods during pre-processor compile
 #define SetFloatBase(name,fieldName) static void Set ## name(Camera camera, float value)\
 {\
@@ -162,6 +164,8 @@ SetFloatBase(LeftDistance, LeftDistance);
 SetFloatBase(RightDistance, RightDistance);
 SetFloatBase(TopDistance, TopDistance);
 SetFloatBase(BottomDistance, BottomDistance);
+#pragma warning(default:5103)
+
 
 static Camera CreateCamera()
 {

@@ -196,13 +196,11 @@ int main()
 
 	SafeFree(squareMesh);
 
-	GameObjects.SetMaterial(square, font->Material);
-
 	GameObject subSquare = GameObjects.Duplicate(square);
 
 	GameObjects.SetMaterial(subSquare, textureMaterial);
 
-	Materials.SetColors(subSquare->Material, 1, 0, 0, 1);
+	Materials.SetColor(subSquare->Material, Colors.White);
 
 	Transforms.SetParent(subSquare->Transform, square->Transform);
 
@@ -270,7 +268,12 @@ int main()
 	Transforms.SetParent(lightMarker->Transform, light->Transform);
 
 	light->Enabled = true;
-	otherLight->Enabled = true;
+	light->Type = LightTypes.Directional;
+
+	// point directional light directly at ground
+	Transforms.SetRotationOnAxis(light->Transform, 1, Vector3.Right);
+
+	otherLight->Enabled = false;
 
 	// add the light to the scene
 	Scenes.AddLight(scene, light);
@@ -278,6 +281,7 @@ int main()
 	Scenes.AddLight(scene, spotLight);
 
 	spotLight->EdgeSoftness = 0.5f;
+	spotLight->Enabled = false;
 
 	GameObject plane = GameObjects.Load("assets/prefabs/plane.gameobject");
 
@@ -311,7 +315,13 @@ int main()
 	FrameBuffers.AttachTexture(frameBuffer, depthBuffer, 0);
 	//FrameBuffers.AttachRenderBuffer(frameBuffer, depthAndStencilBuffer);
 
+	Material depthMaterial = Materials.Load("assets/materials/depthMap.material");
+
+	GameObjects.SetMaterial(square, depthMaterial);
+
 	Materials.SetMainTexture(square->Material, depthBuffer);
+
+	Materials.Dispose(depthMaterial);
 
 	Textures.Dispose(depthBuffer);
 	RenderBuffers.Dispose(depthAndStencilBuffer);
@@ -334,6 +344,16 @@ int main()
 
 	Camera shadowCamera = Cameras.Create();
 	shadowCamera->Orthographic = true;
+
+	Quaternion shadowRotation;
+
+	glm_quat_forp(light->Transform->Position, Vector3.Zero, Vector3.Up, shadowRotation);
+
+	Transforms.SetRotation(light->Transform, shadowRotation);
+
+	Transforms.SetRotation(shadowCamera->Transform, light->Transform->Rotation);
+
+	Material overrideMaterial = Materials.Load("assets/materials/shadow.material");
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -536,13 +556,17 @@ int main()
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
-		GameObjects.DrawMany(gameobjects, sizeof(gameobjects)/sizeof(GameObject), scene);
+		scene->MainCamera = camera;
+
+		GameObjects.DrawMany(gameobjects, sizeof(gameobjects)/sizeof(GameObject), scene, null);
 
 		FrameBuffers.Use(frameBuffer);
 
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+		scene->MainCamera = camera;
 
-		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene);
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, overrideMaterial);
 
 		FrameBuffers.Use(FrameBuffers.Default);
 
@@ -586,6 +610,7 @@ int main()
 	Materials.Dispose(defaultMaterial);
 	Materials.Dispose(textureMaterial);
 	Materials.Dispose(outlineMaterial);
+	Materials.Dispose(overrideMaterial);
 
 	FrameBuffers.Dispose(frameBuffer);
 

@@ -3,7 +3,6 @@
 #include "graphics/shaders.h"
 #include "graphics/texture.h"
 #include "graphics/renderMesh.h"
-#include "graphics/camera.h"
 #include "graphics/colors.h"
 #include "graphics/scene.h"
 

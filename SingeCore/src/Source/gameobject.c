@@ -17,7 +17,7 @@ static void Dispose(GameObject);
 static void Draw(GameObject, Scene);
 static GameObject CreateGameObject(void);
 static void SetMaterial(GameObject, Material);
-static void DrawMany(GameObject* array, size_t count, Scene camera);
+static void DrawMany(GameObject* array, size_t count, Scene camera, Material override);
 static void DestroyMany(GameObject* array, size_t count);
 static Material GetDefaultMaterial(void);
 static void SetDefaultMaterial(Material);
@@ -204,11 +204,40 @@ static void Draw(GameObject gameobject, Scene scene)
 	}
 }
 
-static void DrawMany(GameObject* array, size_t count, Scene scene)
+static void DrawWithMaterial(GameObject gameobject, Scene scene, Material material)
 {
-	for (size_t i = 0; i < count; i++)
+	// since it's more than  likely the gameobject itself is the parent to all of the transforms
+	// it controls we should refresh it's transform first
+	Transforms.Refresh(gameobject->Transform);
+
+	for (size_t i = 0; i < gameobject->Count; i++)
 	{
-		Draw(array[i], scene);
+		RenderMesh mesh = gameobject->Meshes[i];
+
+		if (mesh is null)
+		{
+			continue;
+		}
+
+		Materials.Draw(material, mesh, scene);
+	}
+}
+
+static void DrawMany(GameObject* array, size_t count, Scene scene, Material override)
+{
+	if (override isnt null)
+	{
+		for (size_t i = 0; i < count; i++)
+		{
+			DrawWithMaterial(array[i], scene, override);
+		}
+	}
+	else
+	{
+		for (size_t i = 0; i < count; i++)
+		{
+			Draw(array[i], scene);
+		}
 	}
 }
 
