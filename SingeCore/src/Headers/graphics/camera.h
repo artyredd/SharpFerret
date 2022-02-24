@@ -8,6 +8,7 @@ static float DefaultFieldOfView = 70.0f;
 static float DefaultAspectRatio = 16.0f / 9.0f;
 static float DefaultNearClippingPlane = 0.1f;
 static float DefaultFarClippingPlane = 100.0f;
+static float DefaultOrthographicDistance = 10.0f;
 
 /// <summary>
 /// holds the internal state of the camera, NOT meant to be manually modified, use _camera methods
@@ -53,12 +54,32 @@ struct _camera
 	/// The distance from the camera where objects should not be rendered
 	/// </summary>
 	float FarClippingDistance;
+	/// <summary>
+	/// Orthographic; The left distance from the center of the camera
+	/// </summary>
+	float LeftDistance;
+	/// <summary>
+	/// Orthographic; The right distance from the center of the camera
+	/// </summary>
+	float RightDistance;
+	/// <summary>
+	/// Orthographic; The top distance from the center of the camera
+	/// </summary>
+	float TopDistance;
+	/// <summary>
+	/// Orthographic; The bottom distance from the center of the camera
+	/// </summary>
+	float BottomDistance;
+	/// <summary>
+	/// Whether or not the camera should use ortho or perspective for the projection
+	/// </summary>
+	bool Orthographic;
 	Transform Transform;
 	struct cameraState State;
 };
 
 struct _cameraMethods {
-	Camera(*CreateCamera)();
+	Camera(*Create)();
 	/// <summary>
 	/// Refreshes the camera's transform
 	/// </summary>
@@ -66,11 +87,15 @@ struct _cameraMethods {
 	/// <summary>
 	/// Forces the camera to recalculate it's fields and members on the next draw call, use the provided methods to modify fields instead of manually
 	/// </summary>
-	void(*ForceRefresh)(Camera);
-	void(*SetFoV)(Camera, float);
-	void(*SetAspectRatio)(Camera, float);
-	void(*SetNearClippingDistance)(Camera, float);
-	void(*SetFarClippingDistance)(Camera, float);
+	void (*ForceRefresh)(Camera);
+	void (*SetFoV)(Camera, float);
+	void (*SetAspectRatio)(Camera, float);
+	void (*SetNearClippingDistance)(Camera, float);
+	void (*SetFarClippingDistance)(Camera, float);
+	void (*SetLeftDistance)(Camera camera, float value);
+	void (*SetRightDistance)(Camera camera, float value);
+	void (*SetTopDistance)(Camera camera, float value);
+	void (*SetBottomDistance)(Camera camera, float value);
 	/// <summary>
 	/// Diposes the managed resources and frees this object
 	/// </summary>

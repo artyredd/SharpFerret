@@ -19,10 +19,17 @@
 static vec4* RefreshCamera(Camera camera);
 static void Dispose(Camera camera);
 static void ForceRefresh(Camera camera);
+
+// a macro produces these methods, it will always show message of not found here
 static void SetFoV(Camera camera, float value);
 static void SetAspectRatio(Camera camera, float value);
 static void SetNearClippingDistance(Camera camera, float value);
 static void SetFarClippingDistance(Camera camera, float value);
+static void SetLeftDistance(Camera camera, float value);
+static void SetRightDistance(Camera camera, float value);
+static void SetTopDistance(Camera camera, float value);
+static void SetBottomDistance(Camera camera, float value);
+
 static Camera CreateCamera();
 
 const struct _cameraMethods Cameras = {
@@ -44,11 +51,24 @@ static void Dispose(Camera camera)
 
 static void RecalculateProjection(Camera camera)
 {
-	glm_perspective(glm_rad(camera->FieldOfView),
-		camera->AspectRatio,
-		camera->NearClippingDistance,
-		camera->FarClippingDistance,
-		camera->State.Projection);
+	if (camera->Orthographic)
+	{
+		glm_ortho(camera->LeftDistance, 
+			camera->RightDistance, 
+			camera->BottomDistance, 
+			camera->TopDistance,
+			camera->NearClippingDistance,
+			camera->FarClippingDistance,
+			camera->State.Projection);
+	}
+	else
+	{
+		glm_perspective(glm_rad(camera->FieldOfView),
+			camera->AspectRatio,
+			camera->NearClippingDistance,
+			camera->FarClippingDistance,
+			camera->State.Projection);
+	}
 }
 
 static void RecalculateView(Camera camera)
@@ -126,33 +146,22 @@ static void ForceRefresh(Camera camera)
 	Recalculate(camera);
 }
 
-static void SetFoV(Camera camera, float value)
-{
-	PreventUneccesaryAssignment(camera->FieldOfView, value, == );
-	camera->FieldOfView = value;
-	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
+// Produce duplicate methods during pre-processor compile
+#define SetFloatBase(name,fieldName) static void Set ## name(Camera camera, float value)\
+{\
+	PreventUneccesaryAssignment(camera-> ## fieldName, value, == );\
+	camera-> ## fieldName = value;\
+	SetFlag(camera->State.Modified, ProjectionModifiedFlag);\
 }
 
-static void SetAspectRatio(Camera camera, float value)
-{
-	PreventUneccesaryAssignment(camera->AspectRatio, value, == );
-	camera->AspectRatio = value;
-	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
-}
-
-static void SetNearClippingDistance(Camera camera, float value)
-{
-	PreventUneccesaryAssignment(camera->NearClippingDistance, value, == );
-	camera->NearClippingDistance = value;
-	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
-}
-
-static void SetFarClippingDistance(Camera camera, float value)
-{
-	PreventUneccesaryAssignment(camera->FarClippingDistance, value, == );
-	camera->FarClippingDistance = value;
-	SetFlag(camera->State.Modified, ProjectionModifiedFlag);
-}
+SetFloatBase(FoV, FieldOfView);
+SetFloatBase(AspectRatio, AspectRatio);
+SetFloatBase(NearClippingDistance, NearClippingDistance);
+SetFloatBase(FarClippingDistance, FarClippingDistance);
+SetFloatBase(LeftDistance, LeftDistance);
+SetFloatBase(RightDistance, RightDistance);
+SetFloatBase(TopDistance, TopDistance);
+SetFloatBase(BottomDistance, BottomDistance);
 
 static Camera CreateCamera()
 {
@@ -177,6 +186,11 @@ static Camera CreateCamera()
 
 	// mark the state as needing a full refresh
 	camera->State.Modified = AllModifiedFlag;
+
+	camera->LeftDistance = DefaultOrthographicDistance;
+	camera->RightDistance = DefaultOrthographicDistance;
+	camera->TopDistance = DefaultOrthographicDistance;
+	camera->BottomDistance = DefaultOrthographicDistance;
 
 	return camera;
 }

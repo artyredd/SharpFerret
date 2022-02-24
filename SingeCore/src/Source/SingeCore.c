@@ -62,8 +62,8 @@ int main()
 	Windows.SetHint(WindowHints.MSAASamples, 4);
 
 	// use opengl 3.3
-	Windows.SetHint(ContextHints.VersionMajor, 3);
-	Windows.SetHint(ContextHints.VersionMinor, 3);
+	Windows.SetHint(ContextHints.VersionMajor, 4);
+	Windows.SetHint(ContextHints.VersionMinor, 4);
 
 	Windows.SetHint(OpenGLHints.ForwardCompatibility, true); // To make MacOS happy; should not be needed
 	Windows.SetHint(OpenGLHints.Profile, GLFW_OPENGL_CORE_PROFILE);
@@ -128,7 +128,7 @@ int main()
 
 	Material outlineMaterial = Materials.Load("assets/materials/outline.material");
 
-	Camera camera = Cameras.CreateCamera();
+	Camera camera = Cameras.Create();
 
 	// bind a vertex array for OpenGL this is required to render objects
 	GLuint VertexArrayID;
@@ -300,8 +300,8 @@ int main()
 
 	FrameBuffers.Use(frameBuffer);
 
-	size_t framebufferWidth = 1024;
-	size_t framebufferHeight = 1024;
+	size_t framebufferWidth = 512;
+	size_t framebufferHeight = 512;
 
 	Texture depthBuffer;
 	Textures.TryCreateBufferTexture(TextureTypes.Default, TextureFormats.DepthComponent, BufferFormats.Float, framebufferWidth, framebufferHeight, &depthBuffer);
@@ -331,6 +331,9 @@ int main()
 	};
 
 	size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
+
+	Camera shadowCamera = Cameras.Create();
+	shadowCamera->Orthographic = true;
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();

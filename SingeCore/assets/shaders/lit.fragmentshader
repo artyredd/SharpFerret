@@ -20,7 +20,7 @@
 //	sampler2D reflectionMap;
 //	samplerCube areaMap;
 //} material;
-//
+
 
 struct _light{
 	bool enabled;
@@ -33,12 +33,15 @@ struct _light{
 	float edgeSoftness;
 	vec3 position;
 	vec3 direction;
+	mat4 lightMatrix;
 };
 
 #define MaxLights 100
 
 uniform _light [MaxLights] Lights;
 uniform int LightCount;
+uniform sampler2D LightShadowMaps[MaxLights];
+uniform samplerCube LightShadowCubeMaps[MaxLights];
 
 vec4 CalculateFinalColor(_light light, 
 	_material material,
