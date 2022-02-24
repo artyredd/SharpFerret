@@ -191,10 +191,10 @@ static Camera CreateCamera()
 	// mark the state as needing a full refresh
 	camera->State.Modified = AllModifiedFlag;
 
-	camera->LeftDistance = DefaultOrthographicDistance;
+	camera->LeftDistance = -DefaultOrthographicDistance;
 	camera->RightDistance = DefaultOrthographicDistance;
 	camera->TopDistance = DefaultOrthographicDistance;
-	camera->BottomDistance = DefaultOrthographicDistance;
+	camera->BottomDistance = -DefaultOrthographicDistance;
 
 	return camera;
 }

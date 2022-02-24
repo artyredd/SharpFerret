@@ -351,6 +351,7 @@ int main()
 
 	Transforms.SetRotation(light->Transform, shadowRotation);
 
+	Transforms.SetPosition(shadowCamera->Transform, light->Transform->Position);
 	Transforms.SetRotation(shadowCamera->Transform, light->Transform->Rotation);
 
 	Material overrideMaterial = Materials.Load("assets/materials/shadow.material");
@@ -552,6 +553,16 @@ int main()
 		//Transforms.SetPosition(spotLight->Transform, position);
 		//Transforms.SetRotation(spotLight->Transform, camera->Transform->Rotation);
 
+		// draw shadowmap for light
+		FrameBuffers.Use(frameBuffer);
+
+		scene->MainCamera = shadowCamera;
+
+		glClear(GL_DEPTH_BUFFER_BIT);
+
+		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, overrideMaterial);
+
+		// draw scene
 		FrameBuffers.Use(FrameBuffers.Default);
 
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -559,18 +570,6 @@ int main()
 		scene->MainCamera = camera;
 
 		GameObjects.DrawMany(gameobjects, sizeof(gameobjects)/sizeof(GameObject), scene, null);
-
-		FrameBuffers.Use(frameBuffer);
-
-		scene->MainCamera = camera;
-
-		glClear(GL_DEPTH_BUFFER_BIT);
-
-		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, overrideMaterial);
-
-		FrameBuffers.Use(FrameBuffers.Default);
-
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 
 		GameObjects.Draw(square, scene);
 		Texts.Draw(text, scene);
