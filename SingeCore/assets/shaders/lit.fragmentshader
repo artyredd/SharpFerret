@@ -70,12 +70,12 @@ float CalculateShadow(vec3 lightPosition, _material material, int index)
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
 	
-	float bias = 0;//max(0.05 * (1.0 - dot(normal, lightDirection)), 0.005);  
+	float bias = max(0.05 * (1.0 - dot(normal, lightDirection)), 0.005);  
 
     // check whether current frag pos is in shadow
     float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;  
 
-    return 1.0;
+    return 1 - shadow;
 }
 
 vec4 CalculateFinalColor(_light light, 
@@ -130,8 +130,8 @@ vec4 CalculateFinalColor(_light light,
 
 	float shadow = CalculateShadow(lightPosition, material, index);
 
-	//specularPortion *= shadow;
-	//diffusePortion *= shadow;
+	specularPortion *= shadow;
+	diffusePortion *= shadow;
 
 	// combine all portions into final color for this light and return
 	return (ambientPortion + diffusePortion + specularPortion);
