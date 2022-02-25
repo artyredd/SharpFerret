@@ -212,7 +212,7 @@ static void PrepareSettings(Shader shader)
 	// check to see if we need to DISABLE back face culling(by default it's on)
 	if (HasFlag(settings, ShaderSettings.BackfaceCulling))
 	{
-		GraphicsDevice.EnableCulling();
+		GraphicsDevice.EnableCulling(shader->CullingType);
 	}
 	else
 	{

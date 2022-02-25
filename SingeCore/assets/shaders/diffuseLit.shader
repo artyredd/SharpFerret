@@ -5,7 +5,7 @@ vertexShader: assets/shaders/default.vertexshader
 fragmentShader: assets/shaders/diffuseLit.fragmentshader, assets/shaders/lit.fragmentshader
 
 # whether or not backface culling should be enabled for this shader
-enableBackfaceCulling: true
+culling: back
 
 # whether or not this shader should use camera perspective, (GUI elements for example shouldnt)
 useCameraPerspective: true

@@ -5,6 +5,6 @@ vertexShader: assets/shaders/depthMap.vertexshader
 fragmentShader: assets/shaders/depthMap.fragmentShader
 
 # whether or not backface culling should be enabled for this shader
-enableBackfaceCulling: true
+culling: back
 
 depthTest: less

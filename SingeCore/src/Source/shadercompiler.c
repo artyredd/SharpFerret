@@ -445,6 +445,7 @@ struct _shaderInfo {
 	unsigned int Settings;
 	Comparison DepthFunction;
 	Comparison StencilComparison;
+	CullingType CullingType;
 	unsigned int StencilValue;
 	unsigned int StencilMask;
 };
@@ -460,7 +461,7 @@ struct _shaderInfo {
 #define GeometryShaderComment "# the paths to any geometry shaders that should be used for this shader"
 #define GeometryShaderToken "geometryShader"
 #define UseBackfaceCullingComment "# whether or not backface culling should be enabled for this shader"
-#define UseBackfaceCullingToken "enableBackfaceCulling"
+#define UseBackfaceCullingToken "culling"
 #define UseCameraPerspectiveComment "# whether or not this shader should use camera perspective, (GUI elements for example shouldnt)"
 #define UseCameraPerspectiveToken "useCameraPerspective"
 #define UseTransparencyComment "# whether or not blending (transparency) should be enabled"
@@ -523,9 +524,13 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 	case 1: // fragment path
 		return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->FragmentPieces);
 	case 2: // backface culling
-		if (TryParseBoolean(buffer, length, &enabled))
+		if (TryGetCullingType(buffer, length, &state->CullingType))
 		{
-			AssignFlag(state->Settings, ShaderSettings.BackfaceCulling, enabled);
+			if(state->CullingType.Value.AsUInt isnt CullingTypes.None.Value.AsUInt)
+			{
+				SetFlag(state->Settings, ShaderSettings.BackfaceCulling);
+			}
+
 			return true;
 		}
 		return false;
@@ -621,7 +626,8 @@ static Shader Load(const char* path)
 		.DepthFunction = Comparisons.LessThan,
 		.StencilComparison = Comparisons.Always,
 		.StencilMask = 0xFF,
-		.StencilValue = 1
+		.StencilValue = 1,
+		.CullingType = CullingTypes.Back
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &info))

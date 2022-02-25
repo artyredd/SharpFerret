@@ -50,6 +50,19 @@ struct _frameBufferComponents {
 
 extern const struct _frameBufferComponents FrameBufferComponents;
 
+typedef parsableValue CullingType;
+
+struct _cullingTypes {
+	CullingType None;
+	CullingType Front;
+	CullingType Back;
+};
+
+extern struct _cullingTypes CullingTypes;
+
+#define MAX_CULLING_TYPES sizeof(CullingTypes)/sizeof(CullingType)
+#define TryGetCullingType(buffer, length, out_value) ParsableValues.TryGetMemberByName(&CullingTypes, MAX_CULLING_TYPES, buffer, length, out_value)
+
 typedef parsableValue Comparison;
 
 struct _comparisons {
@@ -71,7 +84,7 @@ extern struct _comparisons Comparisons;
 struct _graphicsDeviceMethods
 {
 	void (*EnableBlending)(void);
-	void (*EnableCulling)(void);
+	void (*EnableCulling)(const CullingType);
 	void (*DisableBlending)(void);
 	void (*DisableCulling)(void);
 	void (*EnableStencilWriting)(void);

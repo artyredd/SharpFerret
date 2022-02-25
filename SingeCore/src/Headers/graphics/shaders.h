@@ -5,6 +5,8 @@
 #include "graphics/graphicsDevice.h"
 #include "graphics/texture.h"
 
+#define DEFAULT_CULLING_TYPE CullingTypes.Back
+
 #define MAX_UNIFORMS 1024
 #define MAX_POINT_LIGHTS 50
 
@@ -129,6 +131,10 @@ struct _shader {
 	/// This is a quick mask that stores advanced toggles for this shader and how it should be drawn, these are applied to only this shader
 	/// </summary>
 	unsigned int Settings;
+	/// <summary>
+	/// The type of culling type that should be used when this shader is enabled
+	/// </summary>
+	Comparison CullingType;
 	Comparison DepthFunction;
 	/// <summary>
 	/// If UseStencilBuffer within the settings is true then this is used to compare a fragments value with StencilValue to determine whether

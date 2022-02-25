@@ -5,7 +5,7 @@ vertexShader: assets/shaders/toon.vertexshader
 fragmentShader: assets/shaders/toon.fragmentshader
 
 # whether or not backface culling is enabled for this shader
-backfaceCulling: true
+culling: back
 
 # whether or not blending(transparency) should be enabled for this shader
 blending: true

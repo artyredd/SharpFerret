@@ -16,6 +16,12 @@ const struct _frameBufferAttachments FrameBufferAttachments = {
 	.DepthStencil = GL_DEPTH_STENCIL_ATTACHMENT
 };
 
+struct _cullingTypes CullingTypes = {
+	.None = { "none", GL_NONE },
+	.Front = { "front", GL_FRONT },
+	.Back = { "back", GL_BACK }
+};
+
 const struct _frameBufferComponents FrameBufferComponents = {
 	.Texture = 0,
 	.RenderBuffer = 1
@@ -48,7 +54,7 @@ const struct _bufferTypes ColorBufferTypes = {
 static void EnableBlending(void);
 static void DisableBlending(void);
 
-static void EnableCulling(void);
+static void EnableCulling(const CullingType);
 static void DisableCulling(void);
 
 static void EnableWritingToStencilBuffer(void);
@@ -145,6 +151,7 @@ Comparison defaultStencilComparison = { "always", GL_ALWAYS };
 unsigned int defaultStencilComparisonValue = 1;
 unsigned int defaultStencilComparisonMask = 0xFF;
 unsigned int depthComparison;
+unsigned int cullingType = GL_BACK;
 
 unsigned int nextTexture = 0;
 unsigned int maxTextures = GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
@@ -192,12 +199,19 @@ static void DisableBlending(void)
 	}
 }
 
-static void EnableCulling(void)
+static void EnableCulling(const CullingType type)
 {
 	if (cullingEnabled is false)
 	{
 		glEnable(GL_CULL_FACE);
+
 		cullingEnabled = true;
+	}
+
+	if (cullingType isnt type.Value.AsUInt)
+	{
+		glCullFace(type.Value.AsUInt);
+		cullingType = type.Value.AsUInt;
 	}
 }
 

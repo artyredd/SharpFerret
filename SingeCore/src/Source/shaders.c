@@ -175,6 +175,7 @@ static Shader CreateShaderWithUniforms(bool allocUniforms)
 
 	newShader->Settings = DEFAULT_SHADER_SETTINGS;
 	newShader->Enabled = true;
+	newShader->CullingType = DEFAULT_CULLING_TYPE;
 
 	return newShader;
 }
