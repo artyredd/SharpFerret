@@ -65,6 +65,7 @@ struct _uniforms {
 	struct _materialUniforms Material;
 	Uniform LightShadowMaps;
 	Uniform LightShadowCubeMaps;
+	Uniform LightMatrices;
 };
 
 // Global uniforms likely to be widely used across many shaders to provide basic functionality

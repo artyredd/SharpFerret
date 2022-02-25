@@ -271,14 +271,14 @@ int main()
 	light->Type = LightTypes.Directional;
 
 	// point directional light directly at ground
-	Transforms.SetRotationOnAxis(light->Transform, 1, Vector3.Right);
+	Transforms.SetRotationOnAxis(light->Transform, 0, Vector3.Right);
 
 	otherLight->Enabled = false;
 
 	// add the light to the scene
 	Scenes.AddLight(scene, light);
-	Scenes.AddLight(scene, otherLight);
-	Scenes.AddLight(scene, spotLight);
+	//Scenes.AddLight(scene, otherLight);
+	//Scenes.AddLight(scene, spotLight);
 
 	spotLight->EdgeSoftness = 0.5f;
 	spotLight->Enabled = false;
@@ -333,10 +333,11 @@ int main()
 
 	Transforms.SetRotation(light->Transform, shadowRotation);
 
-	Transforms.SetPosition(shadowCamera->Transform, light->Transform->Position);
-	Transforms.SetRotation(shadowCamera->Transform, light->Transform->Rotation);
-
 	Material overrideMaterial = Materials.Load("assets/materials/shadow.material");
+
+	RectTransforms.SetTransform(square->Transform, Anchors.LowerRight, Pivots.LowerRight, 0, 0, 0.25, 0.25);
+
+	light->Range = 7.5f;
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -517,7 +518,6 @@ int main()
 			SetVector4Macro(spotLight->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
 		}
 
-
 		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
 
 		vec3 spinDirection = { 0, 1, 0 };
@@ -531,12 +531,7 @@ int main()
 		FPSCamera.Update(camera);
 		Transforms.SetPosition(camera->Transform, position);
 
-		// draw shadowmap for light
-		FrameBuffers.ClearAndUse(light->FrameBuffer);
-
-		scene->MainCamera = shadowCamera;
-
-		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, overrideMaterial);
+		GameObjects.GenerateShadowMaps(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, overrideMaterial, shadowCamera);
 
 		// draw scene
 		FrameBuffers.ClearAndUse(FrameBuffers.Default);

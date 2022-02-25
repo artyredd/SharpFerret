@@ -362,12 +362,17 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 	
 	if (uniformExists)
 	{
-		Texture texture = light->ShadowFrameBuffer->Texture;
+		Texture texture = light->FrameBuffer->Texture;
 
 		// MAGIC NUMBER ALERT
 		// index+4 is used here becuase 0,1,2,3 are all resevered for the current material's texture units
 		// all other texture units are used for lighting
 		GraphicsDevice.ActivateTexture(texture->Type, texture->Handle->Handle, handle, (int)(index + 4));
+	}
+
+	if (Shaders.TryGetUniformArray(shader, Uniforms.LightMatrices, index, &handle))
+	{
+		glUniformMatrix4fv(handle, 1, false, &light->LightMatrix[0][0]);
 	}
 
 	return true;

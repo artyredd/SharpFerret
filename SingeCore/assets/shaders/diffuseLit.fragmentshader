@@ -10,6 +10,8 @@ in vec3 normal;
 // the model * position of vertex
 in vec3 fragmentPosition;
 
+in vec4 lightFragmentPositions[25];
+
 uniform vec3 cameraPosition;
 
 uniform mat4 view;

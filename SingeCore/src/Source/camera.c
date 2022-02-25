@@ -40,7 +40,11 @@ const struct _cameraMethods Cameras = {
 	.SetFarClippingDistance = &SetFarClippingDistance,
 	.SetNearClippingDistance = &SetNearClippingDistance,
 	.SetFoV = &SetFoV,
-	.Dispose = &Dispose
+	.Dispose = &Dispose,
+	.SetLeftDistance = &SetLeftDistance,
+	.SetRightDistance = SetRightDistance,
+	.SetTopDistance = SetTopDistance,
+	.SetBottomDistance = SetBottomDistance
 };
 
 static void Dispose(Camera camera)

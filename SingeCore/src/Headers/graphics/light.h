@@ -85,6 +85,10 @@ struct _light {
 	/// The framebuffer that is contains the shadow map for this light, this may contain a 2d texture(direction) or cubemap(point, spotlight)
 	/// </summary>
 	FrameBuffer FrameBuffer;
+	/// <summary>
+	/// The matrix that should be set for this light to calculate fragment position during runtime
+	/// </summary>
+	mat4 LightMatrix;
 };
 
 struct _lightMethods {

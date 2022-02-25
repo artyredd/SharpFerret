@@ -76,8 +76,9 @@ const struct _uniforms Uniforms = {
 	},
 	.LightShadowMaps = {.Index = 20, .Name = "LightShadowMaps" },
 	.LightShadowCubeMaps = {.Index = 21, .Name = "LightShadowCubeMaps" },
+	.LightMatrices = {.Index = 22, .Name = "LightMatrices"},
 	.Lights = {
-		.Index = 22,
+		.Index = 23,
 		.Name = "Lights",
 		.Size = (sizeof(struct _lightUniforms) / sizeof(struct _uniform)),
 		.Count = MAX_POINT_LIGHTS

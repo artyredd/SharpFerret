@@ -8,6 +8,7 @@
 #include "math/ints.h"
 #include "singine/parsing.h"
 #include "modeling/importer.h"
+#include "cglm/quat.h"
 
 Material DefaultMaterial = null;
 
@@ -27,6 +28,8 @@ static void Clear(GameObject);
 static void Resize(GameObject, size_t count);
 static GameObject Load(const char* path);
 static bool Save(GameObject, const char* path);
+static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera);
+
 
 const struct _gameObjectMethods GameObjects = {
 	.Create = &CreateGameObject,
@@ -44,7 +47,8 @@ const struct _gameObjectMethods GameObjects = {
 	.Resize = &Resize,
 	.CreateEmpty = &CreateEmpty,
 	.Load = &Load,
-	.Save = &Save
+	.Save = &Save,
+	.GenerateShadowMaps = GenerateShadowMaps
 };
 
 static void DisposeRenderMeshArray(GameObject gameobject)
@@ -298,6 +302,62 @@ static void Resize(GameObject gameobject, size_t count)
 	{
 		gameobject->Meshes[i] = null;
 	}
+}
+
+static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera)
+{
+	// if there is no lighting return
+	if (scene->LightCount is 0)
+	{
+		return;
+	}
+
+	Camera previousCam = scene->MainCamera;
+	scene->MainCamera = shadowCamera;
+
+	for (size_t currentLight = 0; currentLight < scene->LightCount; currentLight++)
+	{
+		Light light = scene->Lights[currentLight];
+
+		// first set up the "camera" that will be the light
+		// set the tranform
+		Transforms.SetPosition(shadowCamera->Transform, light->Transform->Position);
+		Transforms.SetRotation(shadowCamera->Transform, light->Transform->Rotation);
+
+		if (light->Type is LightTypes.Directional)
+		{
+			shadowCamera->Orthographic = true;
+			
+			// use the method to flag the camera as needing to be refreshed
+			/*Cameras.SetLeftDistance(shadowCamera, -light->Radius);
+			shadowCamera->RightDistance = light->Radius;
+			shadowCamera->BottomDistance = -light->Radius;
+			shadowCamera->TopDistance = light->Radius;*/
+		}
+		else
+		{
+			shadowCamera->Orthographic = false;
+		}
+
+		//shadowCamera->FarClippingDistance = light->Range;
+
+		// enable the frame buffer for the light
+		FrameBuffers.ClearAndUse(light->FrameBuffer);
+
+		// draw the objects into the framebuffer
+
+		// since there is lighting iterate through the scenes lights
+		// for each light generate it's shadow map by rendering the scene with the provided material
+		for (size_t i = 0; i < count; i++)
+		{
+			DrawWithMaterial(array[i], scene, shadowMaterial);
+		}
+
+		// now that the camera's transform should have been updated set it's property
+		Matrix4CopyTo(shadowCamera->State.State, light->LightMatrix);
+	}
+
+	scene->MainCamera = previousCam;
 }
 
 #define MaxPathLength 512
