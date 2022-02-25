@@ -520,6 +520,9 @@
     <None Include="assets\shaders\shadow.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
+    <None Include="assets\shaders\stub_model.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="assets\prefabs\lightBase.gameobject">

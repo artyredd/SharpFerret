@@ -74,6 +74,7 @@ static unsigned int CreateTexture(const TextureType);
 static void LoadTexture(const TextureType, TextureFormat, BufferFormat, Image, unsigned int offset);
 static void LoadBufferTexture(const TextureType, const TextureFormat, const BufferFormat, size_t width, size_t height, unsigned int offset);
 static void ModifyTexture(const TextureType, TextureSetting, const TextureValue);
+static void ModifyTextureProperty(TextureType type, TextureSetting setting, const float* value);
 static void DeleteTexture(unsigned int handle);
 static bool TryVerifyCleanup(void);
 
@@ -135,7 +136,8 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.SetResolution = &SetResolution,
 	.SetDrawBuffer = &SetDrawBuffer,
 	.SetReadBuffer = &SetReadBuffer,
-	.ClearCurrentFrameBuffer = &ClearCurrentFrameBuffer
+	.ClearCurrentFrameBuffer = &ClearCurrentFrameBuffer,
+	.ModifyTextureProperty = ModifyTextureProperty
 };
 
 bool blendingEnabled = false;
@@ -334,6 +336,11 @@ static void LoadTexture(TextureType type, TextureFormat colorFormat, BufferForma
 static void LoadBufferTexture(const TextureType type, const TextureFormat colorFormat, const BufferFormat pixelFormat, size_t width, size_t height, unsigned int offset)
 {
 	glTexImage2D(type.Value.AsUInt + offset, 0, colorFormat, (int)width, (int)height, 0, colorFormat, pixelFormat, null);
+}
+
+static void ModifyTextureProperty(TextureType type, TextureSetting setting, const float* value)
+{
+	glTexParameterfv(type.Value.AsUInt, setting, value);
 }
 
 static void ModifyTexture(TextureType type, TextureSetting setting, const TextureValue value)

@@ -329,17 +329,17 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 			shadowCamera->Orthographic = true;
 			
 			// use the method to flag the camera as needing to be refreshed
-			/*Cameras.SetLeftDistance(shadowCamera, -light->Radius);
+			Cameras.SetLeftDistance(shadowCamera, -light->Radius);
 			shadowCamera->RightDistance = light->Radius;
 			shadowCamera->BottomDistance = -light->Radius;
-			shadowCamera->TopDistance = light->Radius;*/
+			shadowCamera->TopDistance = light->Radius;
 		}
 		else
 		{
 			shadowCamera->Orthographic = false;
 		}
 
-		//shadowCamera->FarClippingDistance = light->Range;
+		shadowCamera->FarClippingDistance = light->Range;
 
 		// enable the frame buffer for the light
 		FrameBuffers.ClearAndUse(light->FrameBuffer);

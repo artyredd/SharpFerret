@@ -101,6 +101,7 @@ struct _textureSettings {
 	TextureSetting WrapX;
 	TextureSetting WrapY;
 	TextureSetting WrapZ;
+	TextureSetting BorderColor;
 };
 
 extern const struct _textureSettings TextureSettings;

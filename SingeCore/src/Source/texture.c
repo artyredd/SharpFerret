@@ -8,6 +8,7 @@
 #include "singine/parsing.h"
 #include <string.h>
 #include "singine/reflection.h"
+#include <Headers/graphics/colors.h>
 
 typedef Image CubeMapImages[6];
 
@@ -87,6 +88,7 @@ static bool DefaultTryModifyTexture(void* state)
 		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapX, DEFAULT_WRAPX);
 		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapY, DEFAULT_WRAPY);
 		GraphicsDevice.ModifyTexture(TextureTypes.Default, TextureSettings.WrapZ, DEFAULT_WRAPZ);
+		GraphicsDevice.ModifyTextureProperty(TextureTypes.Default, TextureSettings.BorderColor, Colors.White);
 	}
 
 	return true;

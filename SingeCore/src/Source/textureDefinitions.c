@@ -67,7 +67,8 @@ const struct _textureSettings TextureSettings = {
 	.SwizzleRGBA = GL_TEXTURE_SWIZZLE_RGBA,
 	.WrapX = GL_TEXTURE_WRAP_S,
 	.WrapY = GL_TEXTURE_WRAP_T,
-	.WrapZ = GL_TEXTURE_WRAP_R
+	.WrapZ = GL_TEXTURE_WRAP_R,
+	.BorderColor = GL_TEXTURE_BORDER_COLOR
 };
 
 struct _textureFilters FilterTypes = {

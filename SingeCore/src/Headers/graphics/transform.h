@@ -134,6 +134,8 @@ struct _transformMethods {
 	void (*RotateOnAxis)(Transform, float amountInRads, vec3 axis);
 	void (*SetRotationOnAxis)(Transform, float amountInRads, vec3 axis);
 	void (*AddScale)(Transform, vec3 amount);
+	void (*LookAt)(Transform, vec3 target);
+	void (*LookAtPositions)(Transform, float x, float y, float z);
 
 	// Sets the provided transform's parent as the provided parent
 	void (*SetParent)(Transform, Transform parent);

@@ -326,6 +326,7 @@
     <None Include="assets\shaders\depthMap.vertexshader" />
     <None Include="assets\shaders\empty.fragmentshader" />
     <None Include="assets\shaders\shadow.shader" />
+    <None Include="assets\shaders\stub_model.vertexshader" />
     <None Include="assets\shaders\stub_mvp.vertexshader" />
     <None Include="assets\shaders\diffuseLit.fragmentshader" />
     <None Include="assets\shaders\diffuseLit.shader" />

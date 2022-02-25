@@ -246,7 +246,7 @@ int main()
 	SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
 
 	// light body
-	Transforms.SetPositions(light->Transform, 5, 5, 0);
+	Transforms.SetPositions(light->Transform, 0, 100, 100);
 	Transforms.SetPositions(otherLight->Transform, -5, 5, 0);
 
 	Transforms.SetPositions(camera->Transform, -3, 3, 3);
@@ -269,9 +269,11 @@ int main()
 
 	light->Enabled = true;
 	light->Type = LightTypes.Directional;
+	light->Radius = 100.0f;
+	light->Range = 1000.0f;
 
-	// point directional light directly at ground
-	Transforms.SetRotationOnAxis(light->Transform, 0, Vector3.Right);
+	// point directional light at center
+	Transforms.LookAt(light->Transform, Vector3.Zero);
 
 	otherLight->Enabled = false;
 
@@ -336,8 +338,6 @@ int main()
 	Material overrideMaterial = Materials.Load("assets/materials/shadow.material");
 
 	RectTransforms.SetTransform(square->Transform, Anchors.LowerRight, Pivots.LowerRight, 0, 0, 0.25, 0.25);
-
-	light->Range = 7.5f;
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();

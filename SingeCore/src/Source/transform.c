@@ -45,6 +45,8 @@ static void ClearChildren(Transform);
 static Transform Load(File);
 static void Save(Transform, File);
 static void SetChildCapacity(Transform, size_t count);
+static void LookAt(Transform, vec3 target);
+static void LookAtPositions(Transform, float x, float y, float z);
 
 const struct _transformMethods Transforms = {
 	.Dispose = &Dispose,
@@ -72,7 +74,9 @@ const struct _transformMethods Transforms = {
 	.ClearChildren = &ClearChildren,
 	.Save = &Save,
 	.Load = &Load,
-	.SetChildCapacity = &SetChildCapacity
+	.SetChildCapacity = &SetChildCapacity,
+	.LookAt = LookAt,
+	.LookAtPositions = LookAtPositions
 };
 
 static void Dispose(Transform transform)
@@ -535,6 +539,22 @@ static void SetRotation(Transform transform, Quaternion rotation)
 	}
 
 	SetVectors4(transform->Rotation, rotation);
+	SetFlag(transform->State.Modified, RotationModifiedFlag);
+}
+
+static void LookAt(Transform transform, vec3 target)
+{
+	glm_quat_forp(transform->Position, target, Vector3.Up, transform->Rotation);
+
+	SetFlag(transform->State.Modified, RotationModifiedFlag);
+}
+
+static void LookAtPositions(Transform transform, float x, float y, float z)
+{
+	vec3 target = {x, y, z};
+
+	glm_quat_forp(transform->Position, target, Vector3.Up, transform->Rotation);
+
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
