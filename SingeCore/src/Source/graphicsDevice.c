@@ -24,7 +24,8 @@ struct _cullingTypes CullingTypes = {
 
 const struct _frameBufferComponents FrameBufferComponents = {
 	.Texture = 0,
-	.RenderBuffer = 1
+	.RenderBuffer = 1,
+	.Cubemap = 2
 };
 
 struct _comparisons Comparisons = {
@@ -101,6 +102,8 @@ static void SetDrawBuffer(ColorBufferType);
 
 static void ClearCurrentFrameBuffer(unsigned int clearMask);
 
+static void ClearTexture(const TextureType);
+
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
 	.EnableCulling = &EnableCulling,
@@ -137,7 +140,8 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.SetDrawBuffer = &SetDrawBuffer,
 	.SetReadBuffer = &SetReadBuffer,
 	.ClearCurrentFrameBuffer = &ClearCurrentFrameBuffer,
-	.ModifyTextureProperty = ModifyTextureProperty
+	.ModifyTextureProperty = ModifyTextureProperty,
+	.ClearTexture = ClearTexture
 };
 
 bool blendingEnabled = false;
@@ -307,6 +311,11 @@ static void ActivateTexture(const TextureType textureType, const unsigned int te
 	glUniform1i(uniformHandle, slot);
 }
 
+static void ClearTexture(const TextureType textureType)
+{
+	glBindTexture(textureType.Value.AsUInt, 0);
+}
+
 static unsigned int CreateTexture(TextureType type)
 {
 	unsigned int handle;
@@ -366,6 +375,10 @@ static void AttachFrameBufferComponent(FrameBufferComponent componentType, Frame
 	else if (componentType is FrameBufferComponents.RenderBuffer)
 	{
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachmentType, GL_RENDERBUFFER, attachmentHandle);
+	}
+	else if (componentType is FrameBufferComponents.Cubemap)
+	{
+		glFramebufferTexture(GL_FRAMEBUFFER, attachmentType, attachmentHandle, 0);
 	}
 }
 

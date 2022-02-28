@@ -46,6 +46,7 @@ typedef unsigned int FrameBufferComponent;
 struct _frameBufferComponents {
 	FrameBufferComponent RenderBuffer;
 	FrameBufferComponent Texture;
+	FrameBufferComponent Cubemap;
 };
 
 extern const struct _frameBufferComponents FrameBufferComponents;
@@ -132,6 +133,7 @@ struct _graphicsDeviceMethods
 	/// Binds the provided texture to an open texture slot on the graphics device
 	/// </summary>
 	void (*ActivateTexture)(const TextureType, const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
+	void (*ClearTexture)(const TextureType type);
 	unsigned int (*GenerateBuffer)(void);
 	void (*DeleteBuffer)(unsigned int handle);
 	unsigned int (*GenerateRenderBuffer)(void);

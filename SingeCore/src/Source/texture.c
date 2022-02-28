@@ -129,6 +129,10 @@ static bool TryCreateCubeMapAdvanced(CubeMapImages images, Texture* out_texture,
 
 	* out_texture = texture;
 
+	GraphicsDevice.ClearTexture(TextureTypes.Default);
+	GraphicsDevice.ClearTexture(TextureTypes.CubeMap);
+	GraphicsDevice.ClearTexture(TextureTypes.CubeMapFace);
+
 	return true;
 }
 
@@ -166,6 +170,11 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const Te
 
 	* out_texture = texture;
 
+	// make sure we don't have a dangling texture
+	GraphicsDevice.ClearTexture(TextureTypes.Default);
+	GraphicsDevice.ClearTexture(TextureTypes.CubeMap);
+	GraphicsDevice.ClearTexture(TextureTypes.CubeMapFace);
+
 	return true;
 }
 
@@ -173,7 +182,19 @@ static bool TryCreateBufferTexture(const TextureType type, const TextureFormat f
 {
 	unsigned int handle = GraphicsDevice.CreateTexture(type);
 
-	GraphicsDevice.LoadBufferTexture(type, format, bufferFormat, width, height, 0);
+	// if it's a depth map we should use CubeMapFace 6 times instead of a single texture with the Depth type
+	if (type.Value.AsUInt is TextureTypes.CubeMap.Value.AsUInt)
+	{
+		for (unsigned int i = 0; i < 6; i++)
+		{
+			GraphicsDevice.LoadBufferTexture(TextureTypes.CubeMapFace, format, bufferFormat, width, height, i);
+		}
+	}
+	else
+	{
+		// default to using a 2d texture
+		GraphicsDevice.LoadBufferTexture(type, format, bufferFormat, width, height, 0);
+	}
 
 	DefaultTryModifyTexture(null);
 
@@ -196,6 +217,10 @@ static bool TryCreateBufferTexture(const TextureType type, const TextureFormat f
 #pragma warning(default: 4090)
 
 	* out_texture = texture;
+
+	GraphicsDevice.ClearTexture(TextureTypes.Default);
+	GraphicsDevice.ClearTexture(TextureTypes.CubeMap);
+	GraphicsDevice.ClearTexture(TextureTypes.CubeMapFace);
 
 	return true;
 }

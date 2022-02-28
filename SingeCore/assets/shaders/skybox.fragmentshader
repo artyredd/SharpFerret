@@ -4,10 +4,19 @@ out vec4 color;
 in vec3 texcoords;
 
 uniform struct _material	{ 
+	vec4 color;
+	bool useDiffuseMap;
 	samplerCube diffuseMap;
 } material;
 
 void main()
 {    
-    color = texture(material.diffuseMap, texcoords);
+	if(material.useDiffuseMap)
+	{
+		color = texture(material.diffuseMap, texcoords);
+	}
+	else
+	{
+		color = material.color;
+	}
 }

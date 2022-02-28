@@ -88,11 +88,14 @@ struct _light {
 	/// <summary>
 	/// The matrix that should be set for this light to calculate fragment position during runtime
 	/// </summary>
-	mat4 LightMatrix;
+	mat4 LightMatrices[6];
+	vec3 PreviousState[2];
 };
 
 struct _lightMethods {
-	Light(*Create)(void);
+	Light(*Create)(LightType);
+	void (*RefreshMatrices)(Light);
+	void (*CreateFrameBuffer)(Light light);
 	void (*Dispose)(Light);
 };
 

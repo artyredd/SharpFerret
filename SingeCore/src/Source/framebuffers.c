@@ -133,16 +133,23 @@ static void StoreDimensions(FrameBuffer buffer, size_t width, size_t height)
 
 static void AttachTexture(FrameBuffer buffer, Texture texture, unsigned int offset)
 {
+	FrameBufferComponent componentType = FrameBufferComponents.Texture;
+
+	if (texture->Type.Value.AsUInt is TextureTypes.CubeMap.Value.AsUInt)
+	{
+		componentType = FrameBufferComponents.Cubemap;
+	}
+
 	if (texture->Format is TextureFormats.Depth24Stencil8)
 	{
-		GraphicsDevice.AttachFrameBufferComponent(FrameBufferComponents.Texture, FrameBufferAttachments.DepthStencil, texture->Handle->Handle);
+		GraphicsDevice.AttachFrameBufferComponent(componentType, FrameBufferAttachments.DepthStencil, texture->Handle->Handle);
 	}else if(texture->Format is TextureFormats.RGB)
 	{
-		GraphicsDevice.AttachFrameBufferComponent(FrameBufferComponents.Texture, FrameBufferAttachments.Color + offset, texture->Handle->Handle);
+		GraphicsDevice.AttachFrameBufferComponent(componentType, FrameBufferAttachments.Color + offset, texture->Handle->Handle);
 	}
 	else if (texture->Format is TextureFormats.DepthComponent)
 	{
-		GraphicsDevice.AttachFrameBufferComponent(FrameBufferComponents.Texture, FrameBufferAttachments.Depth, texture->Handle->Handle);
+		GraphicsDevice.AttachFrameBufferComponent(componentType, FrameBufferAttachments.Depth, texture->Handle->Handle);
 	}
 
 	buffer->Texture = Textures.Instance(texture);

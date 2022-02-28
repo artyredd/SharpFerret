@@ -237,12 +237,11 @@ int main()
 	scene->MainCamera = camera;
 
 	// create a test light for manual testing
-	Light light = Lights.Create();
-	Light otherLight = Lights.Create();
+	Light light = Lights.Create(LightTypes.Directional);
+	Light otherLight = Lights.Create(LightTypes.Directional);
 
-	Light spotLight = Lights.Create();
+	Light spotLight = Lights.Create(LightTypes.Point);
 
-	spotLight->Type = LightTypes.Spot;
 	SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
 
 	// light body
@@ -268,7 +267,6 @@ int main()
 	Transforms.SetParent(lightMarker->Transform, light->Transform);
 
 	light->Enabled = true;
-	light->Type = LightTypes.Directional;
 	light->Radius = 100.0f;
 	light->Range = 1000.0f;
 
@@ -320,8 +318,7 @@ int main()
 		otherBall,
 		room,
 		city,
-		plane,
-		skybox
+		plane
 	};
 
 	size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
@@ -335,7 +332,9 @@ int main()
 
 	Transforms.SetRotation(light->Transform, shadowRotation);
 
-	Material overrideMaterial = Materials.Load("assets/materials/shadow.material");
+	Material shadowMapMaterial = Materials.Load("assets/materials/shadow.material");
+
+	Material shadowCubeMapMaterial = Materials.Load("assets/materials/shadowCubemap.material");
 
 	RectTransforms.SetTransform(square->Transform, Anchors.LowerRight, Pivots.LowerRight, 0, 0, 0.25, 0.25);
 
@@ -531,7 +530,7 @@ int main()
 		FPSCamera.Update(camera);
 		Transforms.SetPosition(camera->Transform, position);
 
-		GameObjects.GenerateShadowMaps(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, overrideMaterial, shadowCamera);
+		GameObjects.GenerateShadowMaps(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, shadowMapMaterial, shadowCubeMapMaterial, shadowCamera);
 
 		// draw scene
 		FrameBuffers.ClearAndUse(FrameBuffers.Default);
@@ -539,6 +538,8 @@ int main()
 		scene->MainCamera = camera;
 
 		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, null);
+
+		GameObjects.Draw(skybox, scene);
 
 		GameObjects.Draw(square, scene);
 		Texts.Draw(text, scene);
@@ -578,7 +579,8 @@ int main()
 	Materials.Dispose(defaultMaterial);
 	Materials.Dispose(textureMaterial);
 	Materials.Dispose(outlineMaterial);
-	Materials.Dispose(overrideMaterial);
+	Materials.Dispose(shadowMapMaterial);
+	Materials.Dispose(shadowCubeMapMaterial);
 
 	Cameras.Dispose(camera);
 
