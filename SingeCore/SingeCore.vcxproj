@@ -300,7 +300,9 @@
     <None Include="assets\materials\outline.material" />
     <None Include="assets\materials\plane.material" />
     <None Include="assets\materials\shadow.material" />
+    <None Include="assets\materials\shadowCubmap.material" />
     <None Include="assets\materials\silver.material" />
+    <None Include="assets\materials\skybox.material" />
     <None Include="assets\materials\textMaterial.material" />
     <None Include="assets\materials\textureMaterial.material" />
     <None Include="assets\materials\uvMaterial.material" />
@@ -314,7 +316,10 @@
     <None Include="assets\prefabs\plane.gameobject" />
     <None Include="assets\prefabs\room.gameobject" />
     <None Include="assets\prefabs\house.gameobject" />
+    <None Include="assets\prefabs\skybox.gameobject" />
     <None Include="assets\prefabs\sphere.gameobject" />
+    <None Include="assets\shaders\cubemap.geometryshader" />
+    <None Include="assets\shaders\cubemapShadow.shader" />
     <None Include="assets\shaders\debug_normal.fragmentshader" />
     <None Include="assets\shaders\debug_normal.shader" />
     <None Include="assets\shaders\debug_normal.vertexshader" />
@@ -325,6 +330,7 @@
     <None Include="assets\shaders\depthMap.shader" />
     <None Include="assets\shaders\depthMap.vertexshader" />
     <None Include="assets\shaders\empty.fragmentshader" />
+    <None Include="assets\shaders\linearCubemap.fragmentshader" />
     <None Include="assets\shaders\shadow.shader" />
     <None Include="assets\shaders\stub_model.vertexshader" />
     <None Include="assets\shaders\stub_mvp.vertexshader" />

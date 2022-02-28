@@ -3,6 +3,7 @@
 #include "singine/file.h"
 #include "cunit.h"
 #include "string.h"
+#include "cglm/cam.h"
 
 static bool TryParseVector3(const char* buffer, const size_t length, float* out_vector3);
 static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector);
@@ -30,6 +31,12 @@ const struct _vector4Methods Vector4s = {
 	.TryDeserialize = &TryDeserializeVec4,
 	.TrySerialize = &TrySerializeVec4,
 	.TrySerializeStream = &TrySerializeVec4Stream
+};
+
+static void LookAt(mat4 matrix, vec3 position, vec3 target, vec3 upDirection);
+
+const struct _matrixMethods Matrices = {
+	.LookAt = LookAt
 };
 
 #define Vector2SerializationFormat "%f %f"
@@ -197,4 +204,9 @@ bool RunVectorUnitTests()
 	suite->Dispose(suite);
 
 	return pass;
+}
+
+static void LookAt(mat4 matrix, vec3 position, vec3 target, vec3 upDirection)
+{
+	glm_look(position, target, upDirection, matrix);
 }

@@ -370,9 +370,32 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 		GraphicsDevice.ActivateTexture(texture->Type, texture->Handle->Handle, handle, (int)(index + 4));
 	}
 
+	// check to see if we need to load the light matrix into the shader so we can render the RESULTS of a shadowmap
 	if (Shaders.TryGetUniformArray(shader, Uniforms.LightMatrices, index, &handle))
 	{
-		glUniformMatrix4fv(handle, 1, false, &light->LightMatrix[0][0]);
+		// if it's a directional light we don't need to load more than one of the light matrices
+		// since we only render 1 face
+		glUniformMatrix4fv(handle, 1, false, &light->LightMatrices[0][0][0]);
+	}
+
+	// becuase lights that aren't directional need cubemaps to render shadowmaps, we should check to see if we need to load the
+	// light matrices for the geometry shader
+	if (light->Type isnt LightTypes.Directional)
+	{
+		// only loop through all the try gets if we find the first index
+		if (Shaders.TryGetUniformArray(shader, Uniforms.LightCubmapMatrices, 0, &handle))
+		{
+			glUniformMatrix4fv(handle, 1, false, &light->LightMatrices[0][0][0]);
+
+			for (size_t i = 1; i < 6; i++)
+			{
+				if (Shaders.TryGetUniformArray(shader, Uniforms.LightCubmapMatrices, index, &handle))
+				{
+					// since this is a 
+					glUniformMatrix4fv(handle, 1, false, &light->LightMatrices[i][0][0]);
+				}
+			}
+		}
 	}
 
 	return true;

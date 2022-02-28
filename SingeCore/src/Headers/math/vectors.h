@@ -153,4 +153,10 @@ static struct _matrixConstants {
 	.Zero = GLM_MAT4_ZERO_INIT
 };
 
+struct _matrixMethods {
+	void(*LookAt)(mat4 matrix, vec3 position, vec3 target, vec3 upDirection);
+};
+
+extern const struct _matrixMethods Matrices;
+
 bool RunVectorUnitTests();

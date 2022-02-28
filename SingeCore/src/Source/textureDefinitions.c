@@ -4,7 +4,7 @@
 struct _textureTypes TextureTypes = {
 	.Default = {.Name = "2d", .Value = GL_TEXTURE_2D },
 	.CubeMap = {.Name = "cubemap", .Value = GL_TEXTURE_CUBE_MAP },
-	.CubeMapFace = {.Name = "cubemap", .Value = GL_TEXTURE_CUBE_MAP_POSITIVE_X }
+	.CubeMapFace = {.Name = "cubemap face", .Value = GL_TEXTURE_CUBE_MAP_POSITIVE_X }
 };
 
 const struct _textureFormats TextureFormats = {
