@@ -8,11 +8,15 @@
 static bool TryParseVector3(const char* buffer, const size_t length, float* out_vector3);
 static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector);
 static bool TrySerializeVec3Stream(File stream, const float* vector);
+static void Vector3Set(vec3, float x, float y, float z);
+static void Vector3CopyTo(vec3 source, vec3 destination);
 
 const struct _vector3Methods Vector3s = {
 	.TryDeserialize = &TryParseVector3,
 	.TrySerialize = &TrySerializeVec3,
-	.TrySerializeStream = &TrySerializeVec3Stream
+	.TrySerializeStream = &TrySerializeVec3Stream,
+	.Set = Vector3Set,
+	.CopyTo = Vector3CopyTo
 };
 
 static bool TryParseVector2(const char* buffer, const size_t length, float* out_vector2);
@@ -69,6 +73,18 @@ static bool TryParseVector2(const char* buffer, size_t length, float* out_vector
 		&out_vector2[1]);
 
 	return count == 2;
+}
+
+static void Vector3Set(vec3 vector, float x, float y, float z)
+{
+	vector[0] = x;
+	vector[1] = y;
+	vector[2] = z;
+}
+
+static void Vector3CopyTo(vec3 source, vec3 destination)
+{
+	Vectors3CopyTo(source, destination);
 }
 
 static bool TrySerializeVec3Stream(File stream, const float* vector)

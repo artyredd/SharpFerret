@@ -339,7 +339,7 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 
 		if (light->Type is LightTypes.Directional)
 		{
-			shadowCamera->Orthographic = true;
+			shadowCamera->Orthographic = light->Orthographic;
 			
 			// use the method to flag the camera as needing to be refreshed
 			Cameras.SetLeftDistance(shadowCamera, -light->Radius);
@@ -467,6 +467,7 @@ static GameObject Load(const char* path)
 			Model model;
 			if (Importers.TryImport(state.ModelPath, FileFormats.Obj, &model) is false)
 			{
+				fprintf(stderr, "Failed to import the model at path: %s"NEWLINE, state.ModelPath);
 				throw(FailedToImportModelException);
 			}
 

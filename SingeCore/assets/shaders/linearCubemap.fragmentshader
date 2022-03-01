@@ -3,8 +3,8 @@
 in vec4 fragmentPosition;
 
 
-uniform vec3 lightPos;
-uniform float far_plane;
+vec3 lightPos = {0,3,0};
+float far_plane = 50.0;
 
 void main()
 {

@@ -294,13 +294,14 @@
     <None Include="assets\materials\cube.material" />
     <None Include="assets\materials\debugOrientation.material" />
     <None Include="assets\materials\debugOrientationGUI.material" />
+    <None Include="assets\materials\debug_cubeDepthMap.material" />
     <None Include="assets\materials\default.material" />
     <None Include="assets\materials\depthMap.material" />
     <None Include="assets\materials\guiMaterial.material" />
     <None Include="assets\materials\outline.material" />
     <None Include="assets\materials\plane.material" />
     <None Include="assets\materials\shadow.material" />
-    <None Include="assets\materials\shadowCubmap.material" />
+    <None Include="assets\materials\shadowCubemap.material" />
     <None Include="assets\materials\silver.material" />
     <None Include="assets\materials\skybox.material" />
     <None Include="assets\materials\textMaterial.material" />
@@ -320,6 +321,9 @@
     <None Include="assets\prefabs\sphere.gameobject" />
     <None Include="assets\shaders\cubemap.geometryshader" />
     <None Include="assets\shaders\cubemapShadow.shader" />
+    <None Include="assets\shaders\debug_cubeDepthMap.fragmentshader" />
+    <None Include="assets\shaders\debug_cubeDepthMap.shader" />
+    <None Include="assets\shaders\debug_cubeDepthMap.vertexshader" />
     <None Include="assets\shaders\debug_normal.fragmentshader" />
     <None Include="assets\shaders\debug_normal.shader" />
     <None Include="assets\shaders\debug_normal.vertexshader" />

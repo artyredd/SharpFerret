@@ -1,7 +1,7 @@
 # the id of the gameobject at runtime
 id: 0
 # the model path that should be loaded for this gameobject
-model: assets/models/floor.obj
+model: assets/models/room.obj
 # the material definition path of this gameobject
 material: assets/materials/default.material
 transform:

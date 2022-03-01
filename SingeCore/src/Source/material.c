@@ -314,6 +314,8 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 
 	Shaders.SetArrayFieldInt(shader, Uniforms.Lights, index, Uniforms.Light.Type, light->Type);
 
+	Shaders.SetArrayFieldFloat(shader, Uniforms.Lights, index, Uniforms.Light.Intensity, light->Intensity);
+
 	Shaders.SetArrayFieldVector4(shader, Uniforms.Lights, index, Uniforms.Light.Ambient, light->Ambient);
 
 	Shaders.SetArrayFieldVector4(shader, Uniforms.Lights, index, Uniforms.Light.Diffuse, light->Diffuse);
@@ -323,8 +325,6 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 	Shaders.SetArrayFieldFloat(shader, Uniforms.Lights, index, Uniforms.Light.Range, light->Range);
 
 	Shaders.SetArrayFieldFloat(shader, Uniforms.Lights, index, Uniforms.Light.Radius, light->Radius);
-
-	Shaders.SetArrayFieldMatrix(shader, Uniforms.Lights, index, Uniforms.Light.Model, Transforms.Refresh(light->Transform));
 
 	Shaders.SetArrayFieldFloat(shader, Uniforms.Lights, index, Uniforms.Light.EdgeSoftness, light->EdgeSoftness);
 

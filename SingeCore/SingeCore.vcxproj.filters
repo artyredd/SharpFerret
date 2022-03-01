@@ -526,7 +526,7 @@
     <None Include="assets\shaders\cubemapShadow.shader">
       <Filter>Resource Files\Shaders</Filter>
     </None>
-    <None Include="assets\materials\shadowCubmap.material">
+    <None Include="assets\materials\shadowCubemap.material">
       <Filter>Resource Files\Materials</Filter>
     </None>
     <None Include="assets\shaders\cubemap.geometryshader">
@@ -540,6 +540,18 @@
     </None>
     <None Include="assets\materials\skybox.material">
       <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\shaders\debug_cubeDepthMap.fragmentshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\debug_cubeDepthMap.vertexshader">
+      <Filter>Resource Files\Shaders\Shaders</Filter>
+    </None>
+    <None Include="assets\materials\debug_cubeDepthMap.material">
+      <Filter>Resource Files\Materials</Filter>
+    </None>
+    <None Include="assets\shaders\debug_cubeDepthMap.shader">
+      <Filter>Resource Files\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

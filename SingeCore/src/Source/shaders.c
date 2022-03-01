@@ -56,7 +56,7 @@ const struct _uniforms Uniforms = {
 		 .Direction = {.Index = 7, .Name = "direction" },
 		 .EdgeSoftness = {.Index = 8, .Name = "edgeSoftness" },
 		 .Enabled = {.Index = 9, .Name = "enabled" },
-		 .Model = {.Index = 10, .Name = "model" }
+		 .Intensity = {.Index = 10, .Name = "intensity"}
 	},
 	.Material = {
 		.DiffuseMap = {.Index = 6, .Name = "material.diffuseMap" },

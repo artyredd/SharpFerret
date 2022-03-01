@@ -52,6 +52,7 @@
 Window window;
 
 void DebugCameraPosition(Camera camera);
+void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled);
 
 int main()
 {
@@ -238,15 +239,15 @@ int main()
 
 	// create a test light for manual testing
 	Light light = Lights.Create(LightTypes.Directional);
-	Light otherLight = Lights.Create(LightTypes.Directional);
+	Light otherLight = Lights.Create(LightTypes.Point);
 
-	Light spotLight = Lights.Create(LightTypes.Point);
+	Light spotLight = Lights.Create(LightTypes.Spot);
 
 	SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
 
 	// light body
-	Transforms.SetPositions(light->Transform, 0, 100, 100);
-	Transforms.SetPositions(otherLight->Transform, -5, 5, 0);
+	Transforms.SetPositions(light->Transform, 0, 10, 10);
+	Transforms.SetPositions(otherLight->Transform, 0, 3, 0);
 
 	Transforms.SetPositions(camera->Transform, -3, 3, 3);
 
@@ -267,13 +268,15 @@ int main()
 	Transforms.SetParent(lightMarker->Transform, light->Transform);
 
 	light->Enabled = true;
-	light->Radius = 100.0f;
-	light->Range = 1000.0f;
+	light->Radius = 50.0f;
+	light->Range = 100.0f;
+
+	otherLight->Enabled = true;
+	otherLight->Radius = 30.0f;
+	light->Range = 50.0f;
 
 	// point directional light at center
 	Transforms.LookAt(light->Transform, Vector3.Zero);
-
-	otherLight->Enabled = false;
 
 	// add the light to the scene
 	Scenes.AddLight(scene, light);
@@ -337,6 +340,16 @@ int main()
 	Material shadowCubeMapMaterial = Materials.Load("assets/materials/shadowCubemap.material");
 
 	RectTransforms.SetTransform(square->Transform, Anchors.LowerRight, Pivots.LowerRight, 0, 0, 0.25, 0.25);
+
+	bool showNormals = false;
+
+	ToggleNormalShaders(gameobjects, gameobjectCount, showNormals);
+
+	// debug the shadow map of the world with the skybox
+	/*Material cubeDepthMapMaterial = Materials.Load("assets/materials/debug_cubeDepthMap.material");
+	GameObjects.SetMaterial(skybox, cubeDepthMapMaterial);
+	Materials.SetMainTexture(skybox->Material, otherLight->FrameBuffer->Texture);
+	Materials.Dispose(cubeDepthMapMaterial);*/
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -416,19 +429,12 @@ int main()
 		if (GetAxis(Axes.Vertical) < 0)
 		{
 			++amount;
-			//light->Range = amount / 100;
-			//otherLight->Range = amount / 100;
-			spotLight->Radius = amount / 1000;
-			//spotLight->EdgeSoftness = amount / 1000;
-			//lightMode = (lightMode + 1) % 4;
+			light->Intensity = amount / 1000;
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
 		{
 			--amount;
-			//light->Range = amount / 100;
-			//otherLight->Range = amount / 100;
-			spotLight->Radius = amount / 1000;
-			lightMode = (lightMode - 1) % 4;
+			light->Intensity = amount / 1000;
 		}
 		if (GetKey(KeyCodes.L))
 		{
@@ -439,82 +445,9 @@ int main()
 		// toggle debug normals
 		if (GetKey(KeyCodes.N))
 		{
-			for (size_t i = 0; i < gameobjectCount; i++)
-			{
-				// get the material
-				Material material = gameobjects[i]->Material;
+			ToggleNormalShaders(gameobjects, gameobjectCount, !showNormals);
 
-				// iterate the shaders and disable any normal shaders by name
-				for (size_t ithShader = 0; ithShader < material->Count; ithShader++)
-				{
-					static const char* path = "assets/shaders/debug_normal.shader";
-					static const size_t length = sizeof("assets/shaders/debug_normal.shader") - 1;
-
-					Shader shader = material->Shaders[ithShader];
-
-					if (Strings.Equals(path, length, shader->Name, strlen(shader->Name)))
-					{
-						shader->Enabled = !shader->Enabled;
-					}
-				}
-			}
-		}
-
-		char* mode;
-
-		if (lightMode is 1)
-		{
-			mode = "ambient";
-			SetVector4Macro(light->Diffuse, 0, 0, 0, 0);
-			SetVector4Macro(otherLight->Diffuse, 0, 0, 0, 0);
-			SetVector4Macro(spotLight->Diffuse, 0, 0, 0, 0);
-			SetVector4Macro(light->Specular, 0, 0, 0, 0);
-			SetVector4Macro(otherLight->Specular, 0, 0, 0, 0);
-			SetVector4Macro(spotLight->Specular, 0, 0, 0, 0);
-			SetVector4Macro(light->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4Macro(otherLight->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4Macro(spotLight->Ambient, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-		}
-		else if (lightMode is 2)
-		{
-			mode = "diffuse";
-			SetVector4Macro(light->Ambient, 0, 0, 0, 0);
-			SetVector4Macro(otherLight->Ambient, 0, 0, 0, 0);
-			SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
-			SetVector4Macro(light->Specular, 0, 0, 0, 0);
-			SetVector4Macro(otherLight->Specular, 0, 0, 0, 0);
-			SetVector4Macro(spotLight->Specular, 0, 0, 0, 0);
-			SetVector4Macro(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4Macro(otherLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4Macro(spotLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-		}
-		else if (lightMode is 3)
-		{
-			mode = "specular";
-			SetVector4Macro(light->Ambient, 0, 0, 0, 0);
-			SetVector4Macro(otherLight->Ambient, 0, 0, 0, 0);
-			SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
-			SetVector4Macro(light->Diffuse, 0, 0, 0, 0);
-			SetVector4Macro(otherLight->Diffuse, 0, 0, 0, 0);
-			SetVector4Macro(spotLight->Diffuse, 0, 0, 0, 0);
-			SetVector4Macro(light->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4Macro(otherLight->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-			SetVector4Macro(spotLight->Specular, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 0, 0, 1.0f);
-		}
-		else
-		{
-			mode = "all";
-			SetVector4Macro(light->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
-			SetVector4Macro(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
-			SetVector4Macro(light->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
-
-			SetVector4Macro(otherLight->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
-			SetVector4Macro(otherLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
-			SetVector4Macro(otherLight->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
-
-			SetVector4Macro(spotLight->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1.0f);
-			SetVector4Macro(spotLight->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1.0f);
-			SetVector4Macro(spotLight->Specular, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, DEFAULT_SPECULAR_LIGHT_INTENSITY, 1.0f);
+			showNormals = !showNormals;
 		}
 
 		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
@@ -523,7 +456,7 @@ int main()
 
 		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
 
-		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nMode: %s\nRange: %f\nRadius: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000, mode, spotLight->Range, spotLight->Radius);
+		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nIntensity: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000, light->Intensity);
 		Texts.SetText(text, text->Text, count);
 
 		// update the FPS camera
@@ -618,4 +551,27 @@ void DebugCameraPosition(Camera camera)
 	Transforms.GetDirection(camera->Transform, Directions.Forward, forwardVector);
 	PrintVector3(forwardVector, stdout);
 	fprintf(stdout, NEWLINE);
+}
+
+void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled)
+{
+	for (size_t i = 0; i < size; i++)
+	{
+		// get the material
+		Material material = gameobjects[i]->Material;
+
+		// iterate the shaders and disable any normal shaders by name
+		for (size_t ithShader = 0; ithShader < material->Count; ithShader++)
+		{
+			static const char* path = "assets/shaders/debug_normal.shader";
+			static const size_t length = sizeof("assets/shaders/debug_normal.shader") - 1;
+
+			Shader shader = material->Shaders[ithShader];
+
+			if (Strings.Equals(path, length, shader->Name, strlen(shader->Name)))
+			{
+				shader->Enabled = enabled;
+			}
+		}
+	}
 }

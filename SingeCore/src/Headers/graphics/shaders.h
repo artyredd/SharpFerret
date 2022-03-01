@@ -35,7 +35,7 @@ struct _lightUniforms {
 	Uniform Direction;
 	Uniform EdgeSoftness;
 	Uniform Enabled;
-	Uniform Model;
+	Uniform Intensity;
 };
 
 struct _materialUniforms {

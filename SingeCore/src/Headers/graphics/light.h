@@ -4,11 +4,13 @@
 #include "graphics/transform.h"
 #include <Headers/graphics/framebuffers.h>
 
+#define DEFAULT_LIGHT_INTENSITY 1.0f
+
 #define DEFAULT_AMBIENT_LIGHT_INTENSITY 1.0f
 #define DEFAULT_DIFFUSE_LIGHT_INTENSITY 0.5f
 #define DEFAULT_SPECULAR_LIGHT_INTENSITY 1.0f
 
-#define DEFAULT_LIGHT_RADIUS 0.87f // in degrees
+#define DEFAULT_LIGHT_RADIUS 0.87f // in degrees for spot light, in distance units for point and directional
 #define DEFAULT_LIGHT_RANGE 5.0f // in distance units
 #define DEFAULT_LIGHT_EDGE_SOFTNESS 0.057f;
 
@@ -47,6 +49,10 @@ struct _light {
 	/// Wether or not this light is enabled, when false it is not used to render objects
 	/// </summary>
 	bool Enabled;
+	/// <summary>
+	/// The overall intensity of the light, this is multiplied last after all other portions
+	/// </summary>
+	float Intensity;
 	/// <summary>
 	/// The ambient color and intensity of the light
 	/// </summary>

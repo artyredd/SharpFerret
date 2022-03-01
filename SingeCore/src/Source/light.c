@@ -34,6 +34,7 @@ static Light Create(LightType type)
 	light->EdgeSoftness = DEFAULT_LIGHT_EDGE_SOFTNESS;
 	light->Type = type;
 	light->Enabled = true;
+	light->Intensity = DEFAULT_LIGHT_INTENSITY;
 
 	light->Transform = Transforms.Create();
 

@@ -1,6 +1,7 @@
 #version 330 core
 out vec4 color;
 
+in vec3 fragmentPosition;
 in vec3 texcoords;
 
 uniform struct _material	{ 
@@ -9,11 +10,17 @@ uniform struct _material	{
 	samplerCube diffuseMap;
 } material;
 
+vec3 lightPosition = {0, 3, 0};
+float far_plane = 50.0;
+
 void main()
 {    
 	if(material.useDiffuseMap)
-	{
-		color = texture(material.diffuseMap, texcoords);
+	{ 
+        vec3 fragToLight = fragmentPosition - lightPosition;
+        // use the light to fragment vector to sample from the depth map    
+        float closestDepth = texture(material.diffuseMap, fragToLight).r;
+        color = vec4(vec3(closestDepth / far_plane), 1.0);  
 	}
 	else
 	{

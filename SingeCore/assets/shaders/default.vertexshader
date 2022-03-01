@@ -12,8 +12,8 @@ out vec3 normal;
 out vec3 fragmentPosition;
 
 
-#define MaxLights 50
-out vec4 lightFragmentPositions[25];
+#define MaxLights 10
+out vec4 lightFragmentPositions[MaxLights];
 
 //out mat4 view;
 
@@ -24,6 +24,7 @@ uniform mat4 projection;
 
 
 uniform mat4 LightMatrices[MaxLights];
+
 uniform int LightCount;
 
 void main(){

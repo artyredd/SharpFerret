@@ -1,10 +1,9 @@
-//#version 330
-//
 //vec3 fragmentPosition;
 //vec2 texcoords;
 //vec3 cameraPosition;
 //vec3 normal;
-//vec4 lightFragmentPositions[50];
+//vec4 lightFragmentPositions[10];
+//mat4 view;
 //
 //uniform struct _material	{ 
 //	vec4 ambient;
@@ -22,7 +21,6 @@
 //	samplerCube areaMap;
 //} material;
 
-
 struct _light{
 	bool enabled;
 	int lightType;
@@ -34,25 +32,39 @@ struct _light{
 	float edgeSoftness;
 	vec3 position;
 	vec3 direction;
+	float intensity;
 };
 
-#define MaxLights 50
+#define MaxLights 10
 
 uniform _light [MaxLights] Lights;
 uniform int LightCount;
 uniform sampler2D LightShadowMaps[MaxLights];
 uniform samplerCube LightShadowCubeMaps[MaxLights];
 
-float near_plane = 0.1;
-float far_plane = 100.0;
-
-float LinearizeDepth(float depth)
+float CalculateCubemapShadow(_light light, vec3 lightPosition, _material material, int index)
 {
-    float z = depth * 2.0 - 1.0; // Back to NDC 
-    return (2.0 * near_plane * far_plane) / (far_plane + near_plane - z * (far_plane - near_plane));
+	// get vector between fragment position and light position
+    vec3 fragToLight = fragmentPosition - lightPosition;
+
+    // use the light to fragment vector to sample from the depth map    
+    float closestDepth = texture(LightShadowCubeMaps[index], fragToLight).r;
+
+    // it is currently in linear range between [0,1]. Re-transform back to original value
+    closestDepth *= light.range;
+
+    // now get current linear depth as the length between the fragment and light position
+    float currentDepth = length(fragToLight);
+
+	float bias = 0.05;
+
+    // now test for shadows
+    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
+
+    return 1 - shadow;
 }
 
-float CalculateShadow(vec3 lightPosition, _material material, int index)
+float Calculate2dShadow(_light light, vec3 lightPosition, _material material, int index)
 {
 	vec3 lightDirection = normalize(lightPosition - fragmentPosition);
 
@@ -145,13 +157,24 @@ vec4 CalculateFinalColor(_light light,
 		specularPortion *= attenuation;
 	}
 
-	float shadow = CalculateShadow(lightPosition, material, index);
+	float shadow = 1.0;
+
+	// directional
+	if(light.lightType == 1)
+	{
+		shadow = Calculate2dShadow(light, lightPosition, material, index);
+	}
+	// point and spot
+	else if(light.lightType == 2 || light.lightType == 0)
+	{
+		//shadow = CalculateCubemapShadow(light, lightPosition, material, index);
+	}
 
 	specularPortion *= shadow;
 	diffusePortion *= shadow;
 
 	// combine all portions into final color for this light and return
-	return (ambientPortion + diffusePortion + specularPortion);
+	return (ambientPortion + diffusePortion + specularPortion) * light.intensity;
 }
 
 vec4 CalculatePointLight(_light light, vec3 lightPosition, _material material, float intensity, int index)

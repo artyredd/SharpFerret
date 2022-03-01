@@ -55,6 +55,12 @@ static bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 #pragma warning(default: 4189)
 	if (file is null)
 	{
+		char buffer[1024];
+
+		strerror_s(buffer, 1024, error);
+
+		fprintf(stderr, "Error opening file %s: %s"NEWLINE, path, buffer);
+
 		return false;
 	}
 

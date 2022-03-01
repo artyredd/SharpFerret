@@ -123,6 +123,8 @@ static struct _vectorDirections {
 };
 
 struct _vector3Methods {
+	void (*Set)(vec3, float x, float y, float z);
+	void (*CopyTo)(vec3 source, vec3 destination);
 	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec3);
 	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
 	bool (*TrySerializeStream)(File stream, const float* vector);
