@@ -339,7 +339,7 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 
 		if (light->Type is LightTypes.Directional)
 		{
-			shadowCamera->Orthographic = light->Orthographic;
+			shadowCamera->Orthographic = true;
 			
 			// use the method to flag the camera as needing to be refreshed
 			Cameras.SetLeftDistance(shadowCamera, -light->Radius);

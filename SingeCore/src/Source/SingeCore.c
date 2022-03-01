@@ -261,26 +261,25 @@ int main()
 
 	GameObject otherLightMarker = GameObjects.Duplicate(lightMarker);
 
-	//Transforms.SetPosition(lightMarker->Transform, light->Transform->Position);
-	//Transforms.SetPosition(otherLightMarker->Transform, otherLight->Transform->Position);
-
 	Transforms.SetParent(otherLightMarker->Transform, otherLight->Transform);
 	Transforms.SetParent(lightMarker->Transform, light->Transform);
 
 	light->Enabled = true;
 	light->Radius = 50.0f;
 	light->Range = 100.0f;
+	light->Intensity = 0.5f;
 
 	otherLight->Enabled = true;
-	otherLight->Radius = 30.0f;
-	light->Range = 50.0f;
+	otherLight->Radius = 10.0f;
+	otherLight->Range = 10.0f;
+	otherLight->Intensity = 1.0f;
 
 	// point directional light at center
 	Transforms.LookAt(light->Transform, Vector3.Zero);
 
 	// add the light to the scene
-	Scenes.AddLight(scene, light);
-	//Scenes.AddLight(scene, otherLight);
+	//Scenes.AddLight(scene, light);
+	Scenes.AddLight(scene, otherLight);
 	//Scenes.AddLight(scene, spotLight);
 
 	spotLight->EdgeSoftness = 0.5f;
@@ -298,8 +297,6 @@ int main()
 
 	Materials.SetAreaTexture(car->Material, skybox->Material->MainTexture);
 	Materials.SetAreaTexture(plane->Material, skybox->Material->MainTexture);
-
-	int lightMode = 0;
 
 	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
 
@@ -327,13 +324,6 @@ int main()
 	size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
 
 	Camera shadowCamera = Cameras.Create();
-	shadowCamera->Orthographic = true;
-
-	Quaternion shadowRotation;
-
-	glm_quat_forp(light->Transform->Position, Vector3.Zero, Vector3.Up, shadowRotation);
-
-	Transforms.SetRotation(light->Transform, shadowRotation);
 
 	Material shadowMapMaterial = Materials.Load("assets/materials/shadow.material");
 
@@ -344,12 +334,6 @@ int main()
 	bool showNormals = false;
 
 	ToggleNormalShaders(gameobjects, gameobjectCount, showNormals);
-
-	// debug the shadow map of the world with the skybox
-	/*Material cubeDepthMapMaterial = Materials.Load("assets/materials/debug_cubeDepthMap.material");
-	GameObjects.SetMaterial(skybox, cubeDepthMapMaterial);
-	Materials.SetMainTexture(skybox->Material, otherLight->FrameBuffer->Texture);
-	Materials.Dispose(cubeDepthMapMaterial);*/
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -419,27 +403,25 @@ int main()
 		if (GetAxis(Axes.Horizontal) < 0)
 		{
 			spotLight->Range += (float)DeltaTime();
-			//Transforms.TranslateX(text->GameObject->Transform, -modifier);
 		}
 		else if (GetAxis(Axes.Horizontal) > 0)
 		{
 			spotLight->Range -= (float)DeltaTime();
-			//Transforms.TranslateX(text->GameObject->Transform, modifier);
 		}
 		if (GetAxis(Axes.Vertical) < 0)
 		{
 			++amount;
-			light->Intensity = amount / 1000;
+			otherLight->Intensity = amount / 1000;
 		}
 		else if (GetAxis(Axes.Vertical) > 0)
 		{
 			--amount;
-			light->Intensity = amount / 1000;
+			otherLight->Intensity = amount / 1000;
 		}
 		if (GetKey(KeyCodes.L))
 		{
-			light->Enabled = light->Enabled ? false : true;
-			otherLight->Enabled = otherLight->Enabled ? false : true;
+			light->Enabled = !light->Enabled;
+			otherLight->Enabled = !otherLight->Enabled;
 		}
 
 		// toggle debug normals
@@ -452,11 +434,18 @@ int main()
 
 		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
 
-		vec3 spinDirection = { 0, 1, 0 };
+		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), Vector3.Up);
 
-		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), spinDirection);
+		int count = sprintf_s(text->Text, text->Length, 
+			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nIntensity: %f", 
+			FrameTime(), 
+			HighestFrameTime(), 
+			AverageFrameTime(),
+			1.0 / FrameTime(), 
+			"amount", 
+			amount / 1000, 
+			otherLight->Intensity);
 
-		int count = sprintf_s(text->Text, text->Length, "%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nIntensity: %f", FrameTime(), HighestFrameTime(), AverageFrameTime(), 1.0 / FrameTime(), "amount", amount / 1000, light->Intensity);
 		Texts.SetText(text, text->Text, count);
 
 		// update the FPS camera

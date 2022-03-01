@@ -198,8 +198,8 @@ vec4 CalculatePointLight(_light light, vec3 lightPosition, _material material, f
 	float specularScalar = max(dot(norm, halfwayDir), 0.0);
 
 	// apply shininess to the specular scalar
-	float shininessScalar = max(pow(specularScalar, material.shininess), 0);
-	
+	float shininessScalar = max(pow(specularScalar, material.shininess), 0.0);
+
 	// calculate the color portions of each element of the light
 	return CalculateFinalColor(light, material, diffuseScalar, shininessScalar, lightPosition, intensity, index);
 }
