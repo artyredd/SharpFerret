@@ -6,7 +6,7 @@ toy game engine written in standard C
 - Native performant text-mesh
 - Dynamic gameobject instantiation and destruction support
 - Recursive Transforms for gameobjects
-- Point, Spot, and Direction lighting
+- Point, Spot, and Directional lighting
 
 ## Showcase
 A simple showcase with a single moving lightsource, several gameobjects within runtime transform changes.  
