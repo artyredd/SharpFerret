@@ -104,6 +104,9 @@ static void ClearCurrentFrameBuffer(unsigned int clearMask);
 
 static void ClearTexture(const TextureType);
 
+static void EnableStencil(void);
+static void DisableStencil(void);
+
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
 	.EnableCulling = &EnableCulling,
@@ -141,11 +144,14 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.SetReadBuffer = &SetReadBuffer,
 	.ClearCurrentFrameBuffer = &ClearCurrentFrameBuffer,
 	.ModifyTextureProperty = ModifyTextureProperty,
-	.ClearTexture = ClearTexture
+	.ClearTexture = ClearTexture,
+	.EnableStencil = EnableStencil,
+	.DisableStencil = DisableStencil
 };
 
 bool blendingEnabled = false;
 bool cullingEnabled = false;
+bool stencilTestEnabled = false;
 bool writingToStencilBufferEnabled = false;
 bool depthTestingEnabled = false;
 
@@ -228,6 +234,25 @@ static void DisableCulling(void)
 		glDisable(GL_CULL_FACE);
 
 		cullingEnabled = false;
+	}
+}
+
+
+static void EnableStencil(void)
+{
+	if (stencilTestEnabled is false)
+	{
+		stencilTestEnabled = true;
+		glEnable(GL_STENCIL_TEST);
+	}
+}
+
+static void DisableStencil(void)
+{
+	if (stencilTestEnabled)
+	{
+		stencilTestEnabled = false;
+		glDisable(GL_STENCIL_TEST);
 	}
 }
 

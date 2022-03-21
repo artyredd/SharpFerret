@@ -19,6 +19,7 @@ static Scene Create(void)
 
 static void Dispose(Scene scene)
 {
+	SafeFree(scene->Lights);
 	SafeFree(scene);
 }
 

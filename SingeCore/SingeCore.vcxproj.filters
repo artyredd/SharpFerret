@@ -403,13 +403,13 @@
     <None Include="assets\materials\outline.material">
       <Filter>Resource Files\Materials</Filter>
     </None>
-    <None Include="assets\prefabs\house.gameobject">
+    <None Include="assets\prefabs\statue.gameobject">
       <Filter>Resource Files\Prefabs</Filter>
     </None>
     <None Include="assets\prefabs\monkey.gameobject">
       <Filter>Resource Files\Prefabs</Filter>
     </None>
-    <None Include="assets\prefabs\plane.gameobject">
+    <None Include="assets\prefabs\reflectiveSphere.gameobject">
       <Filter>Resource Files\Prefabs</Filter>
     </None>
     <None Include="assets\prefabs\lightBulb.gameobject">
@@ -481,7 +481,7 @@
     <None Include="assets\prefabs\sphere.gameobject">
       <Filter>Resource Files\Prefabs</Filter>
     </None>
-    <None Include="assets\materials\plane.material">
+    <None Include="assets\materials\mirror.material">
       <Filter>Resource Files\Materials</Filter>
     </None>
     <None Include="assets\shaders\debug_normal.fragmentshader">

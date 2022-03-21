@@ -24,7 +24,6 @@
 #include "singine/parsing.h"
 #include "graphics/renderMesh.h"
 #include "graphics/camera.h"
-#include "input.h"
 #include "cglm/affine.h"
 #include "math/quaternions.h"
 #include "cglm/quat.h"
@@ -56,8 +55,10 @@ void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled);
 
 int main()
 {
+	// UNIT TESTING
 	Tests.RunAll();
 
+	// create a window to bind to GDI
 	Windows.StartRuntime();
 
 	Windows.SetHint(WindowHints.MSAASamples, 4);
@@ -75,14 +76,21 @@ int main()
 
 	window = Windows.Create(DEFAULT_VIEWPORT_RESOLUTION_X, DEFAULT_VIEWPORT_RESOLUTION_Y, "Singine");
 
-	SetInputWindow(window);
+	// load window icon
+	Image icon = Images.LoadImage("assets/textures/icon.png");
+	Windows.SetIcon(window, icon);
+	Images.Dispose(icon);
 
-	//sWindow.SetMode(window, WindowModes.FullScreen);
+	SetInputWindow(window);
 
 	Windows.SetClearColor(0.4f, 0.4f, 0.0f, 0.0f);
 
 	// bind graphics card with GDI
 	Windows.SetCurrent(window);
+
+	Windows.SetMode(window, WindowModes.Windowed);
+
+	SetCursorMode(CursorModes.Disabled);
 
 	// initiliaze GLEW
 	glewExperimental = true;
@@ -92,66 +100,151 @@ int main()
 		throw(IndexOutOfRangeException);
 	}
 
-	// Enable depth test
-	glEnable(GL_DEPTH_TEST);
-	// Accept fragment if it closer to the camera than the former one
-	glDepthFunc(GL_LESS);
+	// set up the basic GDI settings
+	GraphicsDevice.EnableDepthTesting();
+	GraphicsDevice.SetDepthTest(Comparisons.LessThan);
 
-	// Cull triangles which normal is not towards the camera
-	glEnable(GL_CULL_FACE);
+	GraphicsDevice.EnableCulling(CullingTypes.Back);
 
-	glEnable(GL_STENCIL_TEST);
+	GraphicsDevice.EnableStencil();
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	GraphicsDevice.SetStencilFull(Comparisons.Always, 1, 0xFF);
+	GraphicsDevice.SetStencilMask(0xFF);
 
-	//glEnable(GL_FRAMEBUFFER_SRGB);
-
-
-	SetCursorMode(CursorModes.Disabled);
-
-	Image icon = Images.LoadImage("assets/textures/icon.png");
-
-	Windows.SetIcon(window, icon);
-
-	Windows.SetMode(window, WindowModes.Windowed);
-
+	// set frame cap to infinite for testing purposes
 	glfwSwapInterval(0);
-
-	Images.Dispose(icon);
-
-	GameObject skybox = GameObjects.Load("assets/prefabs/skybox.gameobject");
-
-	// load the default material so we can render gameobjects that have no set material
-	Material defaultMaterial = Materials.Load("assets/materials/default.material");
-	GameObjects.SetDefaultMaterial(defaultMaterial);
-
-	Material textMaterial = Materials.Load("assets/materials/textMaterial.material");
-
-	Material textureMaterial = Materials.Load("assets/materials/textMaterial.material");
-
-	Material outlineMaterial = Materials.Load("assets/materials/outline.material");
-
-	Camera camera = Cameras.Create();
-
-	Cameras.SetFarClippingDistance(camera, 500.0f);
 
 	// bind a vertex array for OpenGL this is required to render objects
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
 	glBindVertexArray(VertexArrayID);
 
+
+	// load the default material so we can render gameobjects that have no set material
+	Material defaultMaterial = Materials.Load("assets/materials/default.material");
+	GameObjects.SetDefaultMaterial(defaultMaterial);
+
+
+	// load all the gameobjects we use in the main game loop
+	GameObject skybox = GameObjects.Load("assets/prefabs/skybox.gameobject");
 	GameObject room = GameObjects.Load("assets/prefabs/room.gameobject");
-
 	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
-
-	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
-	Fonts.SetMaterial(font, textMaterial);
+	
+	GameObject otherCube = GameObjects.Duplicate(cube);
+	GameObjects.SetMaterial(otherCube, defaultMaterial);
+	Transforms.ScaleAll(otherCube->Transform, 1.2f);
+	Materials.SetColors(otherCube->Material, 1, 1, 1, 1);
 
 	GameObject ball = GameObjects.Load("assets/prefabs/ball.gameobject");
-
 	GameObject otherBall = GameObjects.Duplicate(ball);
+
 	GameObject car = GameObjects.Load("assets/prefabs/proto.gameobject");
+	Materials.SetColor(car->Material, Colors.Green);
 
-	GameObject city = GameObjects.Load("assets/prefabs/house.gameobject");
+	GameObject statue = GameObjects.Load("assets/prefabs/statue.gameobject");
+	GameObject reflectiveSphere = GameObjects.Load("assets/prefabs/reflectiveSphere.gameobject");
+	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
+	GameObject lightMarker = GameObjects.Duplicate(cube);
 
+	// assign the area textures so reflective materials will reflect the skybox
+	Materials.SetAreaTexture(cube->Material, skybox->Material->MainTexture);
+	Materials.SetReflectionTexture(cube->Material, cube->Material->SpecularTexture);
+
+	Materials.SetAreaTexture(reflectiveSphere->Material, skybox->Material->MainTexture);
+	Materials.SetAreaTexture(statue->Material, skybox->Material->MainTexture);
+
+	// load the font we use in-game
+	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
+
+	// since text-mesh fonts are actual gameobjects like all others, set the material so we can see it
+	Material textMaterial = Materials.Load("assets/materials/textMaterial.material");
+
+	Fonts.SetMaterial(font, textMaterial);
+
+	Materials.Dispose(textMaterial);
+
+	// create a text object so we can display frame times
+	Text text = Texts.CreateEmpty(font, 512);
+
+	float fontSize = 0.06125f;
+
+	RectTransforms.SetTransform(text->GameObject->Transform, Anchors.UpperLeft, Pivots.UpperLeft, 0, -fontSize, fontSize, fontSize);
+
+	// create a test light for manual testing
+	Light light = Lights.Create(LightTypes.Directional);
+
+	// light body
+	Transforms.SetPositions(light->Transform, -1, 20, -20);
+
+	Transforms.SetPositions(lightMarker->Transform, 0, 0, 0);
+
+	Material outlineMaterial = Materials.Load("assets/materials/outline.material");
+
+	GameObjects.SetMaterial(lightMarker, outlineMaterial);
+
+	Materials.Dispose(outlineMaterial);
+
+	Transforms.ScaleAll(lightMarker->Transform, 0.25f);
+
+	Transforms.SetParent(lightMarker->Transform, light->Transform);
+
+	// point directional light at center
+	Transforms.LookAt(light->Transform, Vector3.Zero);
+
+	light->Enabled = true;
+	light->Radius = 50.0f;
+	light->Range = 100.0f;
+	light->Intensity = 0.5f;
+	light->Orthographic = true;
+
+	// create a scene to render
+	Camera camera = Cameras.Create();
+	Cameras.SetFarClippingDistance(camera, 500.0f);
+
+	// don't spawn camera at origin, it's disorienting
+	Transforms.SetPositions(camera->Transform, -3, 3, 3);
+
+	Scene scene = Scenes.Create();
+
+	scene->MainCamera = camera;
+
+	// add the light to the scene
+	Scenes.AddLight(scene, light);
+
+	// group up the gameobjects so we can call GameObjects.DrawMany instead of .Draw for each object
+	GameObject gameobjects[] = {
+		lightMarker,
+		cube,
+		sphere,
+		car,
+		ball,
+		otherBall,
+		room,
+		statue,
+		reflectiveSphere
+	};
+
+	size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
+
+	// load the shadow material used to render shadowmaps
+	// and create a camera that should be used to render to the framebuffer for shadows
+	Camera shadowCamera = Cameras.Create();
+
+	Material shadowMapMaterial = Materials.Load("assets/materials/shadow.material");
+
+	// main game loop
+	bool showNormals = false;
+
+	ToggleNormalShaders(gameobjects, gameobjectCount, showNormals);
+	
+
+	// set some parents and positions so all the objects aren't all sitting at world origin
+	Transforms.SetParent(otherBall->Transform, ball->Transform);
+	Transforms.SetScales(otherBall->Transform, 0.5, 0.5, 0.5);
+	Transforms.SetPositions(otherBall->Transform, 0, 0, 3);
+	Transforms.SetPositions(car->Transform, -7, 0, -7);
+	Transforms.SetPositions(ball->Transform, 5, 1, 5);
+	Transforms.SetRotationOnAxis(statue->Transform, (float)GLM_PI, Vector3.Up);
 
 	float speed = 10.0f;
 
@@ -161,198 +254,18 @@ int main()
 
 	vec3 positionModifier;
 
-	Transforms.SetParent(otherBall->Transform, ball->Transform);
-	Transforms.SetScales(otherBall->Transform, 0.5, 0.5, 0.5);
-	Transforms.SetPositions(otherBall->Transform, 0, 0, 3);
-	Transforms.SetPositions(car->Transform, -7, 0, -7);
-	Transforms.SetPositions(ball->Transform, 5, 1, 5);
-
-	Mesh squareMesh = Meshes.Create();
-
-	float verts[18] = {
-		-1, 1, 0,
-		-1, -1, 0,
-		1, -1, 0,
-		1, 1, 0,
-		-1, 1, 0,
-		1, -1, 0
-	};
-
-	float textures[12] = {
-		0,0,
-		0,1,
-		1,1,
-		1,0,
-		0,0,
-		1,1,
-	};
-
-	squareMesh->VertexCount = 3 * 2 * 3;
-	squareMesh->Vertices = verts;
-
-	squareMesh->TextureCount = 12;
-	squareMesh->TextureVertices = textures;
-
-	GameObject square = CreateGameObjectFromMesh(squareMesh);
-
-	Transforms.ScaleAll(square->Transform, 0.5f);
-
-	SafeFree(squareMesh);
-
-	GameObject subSquare = GameObjects.Duplicate(square);
-
-	GameObjects.SetMaterial(subSquare, textureMaterial);
-
-	Materials.SetColor(subSquare->Material, Colors.White);
-
-	Transforms.SetParent(subSquare->Transform, square->Transform);
-
-	RectTransforms.SetTransform(subSquare->Transform, Anchors.LowerLeft, Pivots.UpperLeft, 0, 0, 0.5f, 0.5f);
-
-
-	// orient the camera so we see some geometry without moving the camera
-	//Transforms.SetPositions(camera->Transform, 2.11f, 1.69f, 8.39f);
-	Transforms.SetPositions(camera->Transform, 0, 0, 0);
-
-	Text text = Texts.CreateEmpty(font, 512);
-
-	float fontSize = 0.06125f;
-
-	RectTransforms.SetTransform(text->GameObject->Transform, Anchors.Center, Pivots.UpperLeft, 0, -fontSize, fontSize, fontSize);
-
-	float amount = 0;
-
-	Materials.SetColor(car->Material, Colors.Green);
-
-	GameObject otherCube = GameObjects.Duplicate(cube);
-
-	GameObjects.SetMaterial(otherCube, defaultMaterial);
-	Transforms.ScaleAll(otherCube->Transform, 1.2f);
-	Materials.SetColors(otherCube->Material, 1, 1, 1, 1);
-
-
-	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-	glStencilFunc(GL_ALWAYS, 1, 0xFF);
-	glStencilMask(0xFF);
-
-	Scene scene = Scenes.Create();
-
-	scene->MainCamera = camera;
-
-	// create a test light for manual testing
-	Light light = Lights.Create(LightTypes.Directional);
-	Light otherLight = Lights.Create(LightTypes.Point);
-
-	Light spotLight = Lights.Create(LightTypes.Spot);
-
-	SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
-
-	// light body
-	Transforms.SetPositions(light->Transform, 0, 7, 7);
-	Transforms.SetPositions(otherLight->Transform, 0, 5, 0);
-
-	Transforms.SetPositions(camera->Transform, -3, 3, 3);
-
-	GameObject lightMarker = GameObjects.Duplicate(cube);
-
-	Transforms.SetPositions(lightMarker->Transform, 0, 0, 0);
-
-	GameObjects.SetMaterial(lightMarker, outlineMaterial);
-
-	Transforms.ScaleAll(lightMarker->Transform, 0.25f);
-
-	GameObject otherLightMarker = GameObjects.Duplicate(lightMarker);
-
-	Transforms.SetPositions(otherLightMarker->Transform, 0, 0, 1);
-
-	Transforms.SetParent(otherLightMarker->Transform, otherLight->Transform);
-	Transforms.SetParent(lightMarker->Transform, light->Transform);
-
-	light->Enabled = true;
-	light->Radius = 20.0f;
-	light->Range = 20.0f;
-	light->Intensity = 0.5f;
-	light->Orthographic = true;
-
-	otherLight->Enabled = true;
-	otherLight->Radius = 40.0f;
-	otherLight->Range = 20.0f;
-	otherLight->Intensity = 0.5f;
-	otherLight->Orthographic = true;
-
-	// point directional light at center
-	Transforms.LookAt(light->Transform, Vector3.Zero);
-	Transforms.LookAt(otherLight->Transform, cube->Transform->Position);
-
-	// add the light to the scene
-	Scenes.AddLight(scene, otherLight);
-	Scenes.AddLight(scene, light);
-	
-	//Scenes.AddLight(scene, spotLight);
-
-	spotLight->EdgeSoftness = 0.5f;
-	spotLight->Enabled = false;
-
-	GameObject plane = GameObjects.Load("assets/prefabs/plane.gameobject");
-
-	Transforms.RotateOnAxis(plane->Transform, 0.5f * (float)GLM_PI, Vector3.Forward);
-
-	Materials.SetAreaTexture(cube->Material, skybox->Material->MainTexture);
-	Materials.SetReflectionTexture(cube->Material, cube->Material->SpecularTexture);
-
-	Materials.SetAreaTexture(ball->Material, skybox->Material->MainTexture);
-	Materials.SetAreaTexture(otherBall->Material, skybox->Material->MainTexture);
-
-	Materials.SetAreaTexture(car->Material, skybox->Material->MainTexture);
-	Materials.SetAreaTexture(plane->Material, skybox->Material->MainTexture);
-
-	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
-
-	Material depthMaterial = Materials.Load("assets/materials/depthMap.material");
-
-	GameObjects.SetMaterial(square, depthMaterial);
-
-	Materials.SetMainTexture(square->Material, light->FrameBuffer->Texture);
-
-	Materials.Dispose(depthMaterial);
-
-	GameObject gameobjects[] = {
-		lightMarker,
-		otherLightMarker,
-		cube,
-		sphere,
-		car,
-		ball,
-		otherBall,
-		room,
-		city,
-		plane
-	};
-
-	size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
-
-	Camera shadowCamera = Cameras.Create();
-
-	Material shadowMapMaterial = Materials.Load("assets/materials/shadow.material");
-
-	RectTransforms.SetTransform(square->Transform, Anchors.LowerRight, Pivots.LowerRight, 0, 0, 0.25, 0.25);
-
-	bool showNormals = false;
-
-	ToggleNormalShaders(gameobjects, gameobjectCount, showNormals);
-	
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
+		// ensure deltaTime is updated
 		UpdateTime();
-
-		Vectors3CopyTo(camera->Transform->Position, position);
 
 		float modifier = speed * (float)DeltaTime();
 
 		rotateAmount += modifier;
 
-		vec3 ballPosition = { 5,2 + (float)sin(rotateAmount), 5 };
+		// move the soccer balls to test transform inheritance
+		vec3 ballPosition = { 5, (2 + (float)sin(rotateAmount)), 5 };
 
 		Transforms.SetPosition(ball->Transform, ballPosition);
 
@@ -369,6 +282,9 @@ int main()
 		Transforms.AddPosition(car->Transform, carDirection);
 
 		Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / 8.0f) * modifier, Vector3.Up);
+
+		// make a copy of camera's position
+		Vectors3CopyTo(camera->Transform->Position, position);
 
 		if (GetKey(KeyCodes.A))
 		{
@@ -406,29 +322,6 @@ int main()
 			ScaleVector3(positionModifier, modifier);
 			AddVectors3(position, positionModifier);
 		}
-		if (GetAxis(Axes.Horizontal) < 0)
-		{
-			spotLight->Range += (float)DeltaTime();
-		}
-		else if (GetAxis(Axes.Horizontal) > 0)
-		{
-			spotLight->Range -= (float)DeltaTime();
-		}
-		if (GetAxis(Axes.Vertical) < 0)
-		{
-			++amount;
-			otherLight->Intensity = amount / 1000;
-		}
-		else if (GetAxis(Axes.Vertical) > 0)
-		{
-			--amount;
-			otherLight->Intensity = amount / 1000;
-		}
-		if (GetKey(KeyCodes.L))
-		{
-			light->Enabled = !light->Enabled;
-			otherLight->Enabled = !otherLight->Enabled;
-		}
 
 		// toggle debug normals
 		if (GetKey(KeyCodes.N))
@@ -442,17 +335,12 @@ int main()
 
 		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), Vector3.Up);
 
-		/*int count = sprintf_s(text->Text, text->Length, 
-			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nIntensity: %f", 
+		int count = sprintf_s(text->Text, text->Length, 
+			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS", 
 			FrameTime(), 
 			HighestFrameTime(), 
 			AverageFrameTime(),
-			1.0 / FrameTime(), 
-			"amount", 
-			amount / 1000, 
-			otherLight->Intensity);*/
-
-		int count = sprintf_s(text->Text, text->Length, "Native\nHigh Performance\nText Mesh");
+			1.0 / FrameTime());
 
 		Texts.SetText(text, text->Text, count);
 
@@ -471,21 +359,17 @@ int main()
 
 		GameObjects.Draw(skybox, scene);
 
-		GameObjects.Draw(square, scene);
 		Texts.Draw(text, scene);
 
 		// swap the back buffer with the front one
 		glfwSwapBuffers(window->Handle);
 
-		//DebugCameraPosition(camera);
-
 		PollInput();
 
 	} while (GetKey(KeyCodes.Escape) != true && Windows.ShouldClose(window) != true);
 
+	// destroy all the game loop objects
 	Lights.Dispose(light);
-	Lights.Dispose(otherLight);
-	Lights.Dispose(spotLight);
 
 	Texts.Dispose(text);
 
@@ -496,46 +380,40 @@ int main()
 	GameObjects.Destroy(car);
 	GameObjects.Destroy(room);
 	GameObjects.Destroy(cube);
-	GameObjects.Destroy(square);
 	GameObjects.Destroy(otherCube);
-	GameObjects.Destroy(subSquare);
 	GameObjects.Destroy(lightMarker);
-	GameObjects.Destroy(plane);
-	GameObjects.Destroy(otherLightMarker);
+	GameObjects.Destroy(reflectiveSphere);
 	GameObjects.Destroy(skybox);
 	GameObjects.Destroy(sphere);
+	GameObjects.Destroy(statue);
 
-	Materials.Dispose(textMaterial);
 	Materials.Dispose(defaultMaterial);
-	Materials.Dispose(textureMaterial);
-	Materials.Dispose(outlineMaterial);
 	Materials.Dispose(shadowMapMaterial);
 
 	Cameras.Dispose(camera);
+	Cameras.Dispose(shadowCamera);
 
 	Scenes.Dispose(scene);
 
 	Windows.Dispose(window);
 
-	GameObjects.Destroy(city);
-
 	Windows.StopRuntime();
 
-
-
-	// ensure leak free
-	PrintAlloc(stdout);
-	PrintFree(stdout);
-
-	if (AllocCount() > FreeCount())
-	{
-		//throw(MemoryLeakException);
-	}
-
+	// make sure we didn't orphan any textures, buffers, etc.. on the GDI
 	if (GraphicsDevice.TryVerifyCleanup() is false)
 	{
 		throw(MemoryLeakException);
 	}
+
+	// make sure we didn't forget to free any dynamically allocated memory
+
+	// some memory may not be freed by the runtime
+	// this is normal as some features are lazily allocated and never freed
+	// (becuase they would only be freed at application close any ways)
+	// these numbers may not be equal(see above statement) but should never grow past
+	// a static number 8 calls
+	PrintAlloc(stdout);
+	PrintFree(stdout);
 }
 
 void DebugCameraPosition(Camera camera)

@@ -88,6 +88,8 @@ struct _graphicsDeviceMethods
 	void (*EnableCulling)(const CullingType);
 	void (*DisableBlending)(void);
 	void (*DisableCulling)(void);
+	void (*EnableStencil)(void);
+	void (*DisableStencil)(void);
 	void (*EnableStencilWriting)(void);
 	void (*DisableStencilWriting)(void);
 	void(*SetStencilMask)(const unsigned int mask);

@@ -299,7 +299,7 @@
     <None Include="assets\materials\depthMap.material" />
     <None Include="assets\materials\guiMaterial.material" />
     <None Include="assets\materials\outline.material" />
-    <None Include="assets\materials\plane.material" />
+    <None Include="assets\materials\mirror.material" />
     <None Include="assets\materials\shadow.material" />
     <None Include="assets\materials\shadowCubemap.material" />
     <None Include="assets\materials\silver.material" />
@@ -314,9 +314,9 @@
     <None Include="assets\prefabs\lightBulb.gameobject" />
     <None Include="assets\prefabs\lightFilament.gameobject" />
     <None Include="assets\prefabs\monkey.gameobject" />
-    <None Include="assets\prefabs\plane.gameobject" />
+    <None Include="assets\prefabs\reflectiveSphere.gameobject" />
     <None Include="assets\prefabs\room.gameobject" />
-    <None Include="assets\prefabs\house.gameobject" />
+    <None Include="assets\prefabs\statue.gameobject" />
     <None Include="assets\prefabs\skybox.gameobject" />
     <None Include="assets\prefabs\sphere.gameobject" />
     <None Include="assets\shaders\cubemap.geometryshader" />
