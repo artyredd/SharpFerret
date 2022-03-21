@@ -322,7 +322,7 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 	// set the aspect ratio to fit the shadow maps
 	Cameras.SetAspectRatio(shadowCamera, (float)ShadowMaps.ResolutionX / (float)ShadowMaps.ResolutionY);
 
-	Cameras.SetFarClippingDistance(shadowCamera, 100.0f);
+	Cameras.SetFarClippingDistance(shadowCamera, 500.0f);
 
 	for (size_t currentLight = 0; currentLight < scene->LightCount; currentLight++)
 	{
@@ -335,8 +335,12 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 
 		// first set up the "camera" that will be the light
 		// set the tranform
+		Transforms.Refresh(light->Transform);
+
 		Transforms.SetPosition(shadowCamera->Transform, light->Transform->Position);
 		Transforms.SetRotation(shadowCamera->Transform, light->Transform->Rotation);
+
+		Cameras.Refresh(shadowCamera);
 
 		shadowCamera->Orthographic = light->Orthographic;
 

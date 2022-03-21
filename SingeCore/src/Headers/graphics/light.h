@@ -7,7 +7,7 @@
 #define DEFAULT_LIGHT_INTENSITY 1.0f
 
 #define DEFAULT_AMBIENT_LIGHT_INTENSITY 1.0f
-#define DEFAULT_DIFFUSE_LIGHT_INTENSITY 0.5f
+#define DEFAULT_DIFFUSE_LIGHT_INTENSITY 1.0f
 #define DEFAULT_SPECULAR_LIGHT_INTENSITY 1.0f
 
 #define DEFAULT_LIGHT_RADIUS 0.87f // in degrees for spot light, in distance units for point and directional

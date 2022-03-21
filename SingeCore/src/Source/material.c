@@ -542,6 +542,8 @@ static void SetName(Material material, const char* name)
 #define AreaMapToken "areaMap"
 #define ReflectivityComment "# float [0-1]; the reflectivity of this material"
 #define ReflectivityToken "reflectivity"
+#define ReflectionTextureComment "# path; the texture that should be used to determine what parts of this material are reflective"
+#define ReflectionTextureToken "reflectionMap"
 
 #define MAX_PATH_LENGTH 512
 
@@ -558,6 +560,7 @@ struct _materialDefinition
 	Color Diffuse;
 	float Shininess;
 	float Reflectivity;
+	char* ReflectionTexturePath;
 };
 
 static const char* Tokens[] = {
@@ -569,7 +572,8 @@ static const char* Tokens[] = {
 	AmbientColorToken,
 	ShininessToken,
 	DiffuseColorToken,
-	ReflectivityToken
+	ReflectivityToken,
+	ReflectionMapToken
 };
 
 static const size_t TokenLengths[] = {
@@ -581,7 +585,8 @@ static const size_t TokenLengths[] = {
 	sizeof(AmbientColorToken),
 	sizeof(ShininessToken),
 	sizeof(DiffuseColorToken),
-	sizeof(ReflectivityToken)
+	sizeof(ReflectivityToken),
+	sizeof(ReflectionMapToken)
 };
 
 static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _materialDefinition* state)
@@ -606,6 +611,8 @@ static bool OnTokenFound(size_t index, const char* buffer, const size_t length, 
 		return Vector4s.TryDeserialize(buffer, length, state->Diffuse);
 	case 8: // shininess
 		return Floats.TryDeserialize(buffer, length, &state->Reflectivity);
+	case 9: // reflection map
+		return TryParseString(buffer, length, MAX_PATH_LENGTH, &state->ReflectionTexturePath);
 	default:
 		return false;
 	}
@@ -640,7 +647,8 @@ static Material Load(const char* path)
 		.MainTexturePath = null,
 		.SpecularTexturePath = null,
 		.Shininess = 32.0f,
-		.Reflectivity = 0.0f
+		.Reflectivity = 0.0f,
+		.ReflectionTexturePath = null
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, &state))
@@ -725,6 +733,20 @@ static Material Load(const char* path)
 				}
 
 				Materials.SetSpecularTexture(material, texture);
+
+				Textures.Dispose(texture);
+			}
+
+			if (state.ReflectionTexturePath isnt null)
+			{
+				Texture texture = Textures.Load(state.ReflectionTexturePath);
+
+				if (texture is null)
+				{
+					throw(FailedToLoadTextureException)
+				}
+
+				Materials.SetReflectionTexture(material, texture);
 
 				Textures.Dispose(texture);
 			}

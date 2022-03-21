@@ -142,6 +142,9 @@ int main()
 	Materials.SetColor(car->Material, Colors.Green);
 
 	GameObject statue = GameObjects.Load("assets/prefabs/statue.gameobject");
+	GameObject otherStatue = GameObjects.Load("assets/prefabs/mirrorStatue.gameobject");
+	Transforms.RotateOnAxis(otherStatue->Transform, (float)GLM_PI/2, Vector3.Up);
+
 	GameObject reflectiveSphere = GameObjects.Load("assets/prefabs/reflectiveSphere.gameobject");
 	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
 	GameObject lightMarker = GameObjects.Duplicate(cube);
@@ -152,6 +155,7 @@ int main()
 
 	Materials.SetAreaTexture(reflectiveSphere->Material, skybox->Material->MainTexture);
 	Materials.SetAreaTexture(statue->Material, skybox->Material->MainTexture);
+	Materials.SetAreaTexture(otherStatue->Material, skybox->Material->MainTexture);
 
 	// load the font we use in-game
 	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
@@ -192,7 +196,7 @@ int main()
 	Transforms.LookAt(light->Transform, Vector3.Zero);
 
 	light->Enabled = true;
-	light->Radius = 50.0f;
+	light->Radius = 100.0f;
 	light->Range = 100.0f;
 	light->Intensity = 0.5f;
 	light->Orthographic = true;
@@ -221,6 +225,7 @@ int main()
 		otherBall,
 		room,
 		statue,
+		otherStatue,
 		reflectiveSphere
 	};
 
@@ -244,7 +249,7 @@ int main()
 	Transforms.SetPositions(otherBall->Transform, 0, 0, 3);
 	Transforms.SetPositions(car->Transform, -7, 0, -7);
 	Transforms.SetPositions(ball->Transform, 5, 1, 5);
-	Transforms.SetRotationOnAxis(statue->Transform, (float)GLM_PI, Vector3.Up);
+	Transforms.SetRotationOnAxis(statue->Transform, (float)GLM_PI/2, Vector3.Up);
 
 	float speed = 10.0f;
 
@@ -253,6 +258,7 @@ int main()
 	vec3 position;
 
 	vec3 positionModifier;
+	vec3 lightOffset = { -1, 20, -20 };
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
@@ -282,6 +288,17 @@ int main()
 		Transforms.AddPosition(car->Transform, carDirection);
 
 		Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / 8.0f) * modifier, Vector3.Up);
+
+		// rotate sun
+		vec3 newLightPos;
+
+		Quaternion lightRotation;
+		glm_quatv(lightRotation, (rotateAmount / (float)GLM_PI)/16.0f, Vector3.Up);
+		glm_quat_rotatev(lightRotation, lightOffset, newLightPos);
+
+		Transforms.SetPosition(light->Transform, newLightPos);
+		Transforms.LookAt(light->Transform, Vector3.Zero);
+		//Transforms.RotateOnAxis(lightPivot, , Vector3.Up);
 
 		// make a copy of camera's position
 		Vectors3CopyTo(camera->Transform->Position, position);
@@ -386,6 +403,7 @@ int main()
 	GameObjects.Destroy(skybox);
 	GameObjects.Destroy(sphere);
 	GameObjects.Destroy(statue);
+	GameObjects.Destroy(otherStatue);
 
 	Materials.Dispose(defaultMaterial);
 	Materials.Dispose(shadowMapMaterial);

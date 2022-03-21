@@ -298,6 +298,7 @@
     <None Include="assets\materials\default.material" />
     <None Include="assets\materials\depthMap.material" />
     <None Include="assets\materials\guiMaterial.material" />
+    <None Include="assets\materials\marble.material" />
     <None Include="assets\materials\outline.material" />
     <None Include="assets\materials\mirror.material" />
     <None Include="assets\materials\shadow.material" />
@@ -354,6 +355,8 @@
     <None Include="assets\shaders\text.vertexshader" />
     <None Include="assets\textures\cube_uv.texture" />
     <None Include="assets\textures\cube_specular.texture" />
+    <None Include="assets\textures\marble_specular.texture" />
+    <None Include="assets\textures\marble_uv.texture" />
     <None Include="assets\textures\skybox.texture" />
   </ItemGroup>
   <ItemGroup>

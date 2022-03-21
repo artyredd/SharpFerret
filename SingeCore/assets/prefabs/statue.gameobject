@@ -1,5 +1,5 @@
-model: assets/models/PEGASUS.obj
-material: assets/materials/mirror.material
+model: assets/models/SEINE.obj
+material: assets/materials/marble.material
 transform:
-position: 0 -2 -15
-scale: 0.5 0.5 0.5
+position: 0 -1 -9
+# scale: 1 1 1
