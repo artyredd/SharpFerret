@@ -7,6 +7,8 @@ uniform mat4 LightCubemapMatrices[6];
 
 out vec4 fragmentPosition; // FragPos from GS (output per emitvertex)
 
+uniform mat4 projection;
+
 void main()
 {
     for(int face = 0; face < 6; ++face)
@@ -15,7 +17,7 @@ void main()
         for(int i = 0; i < 3; ++i) // for each triangle vertex
         {
             fragmentPosition = gl_in[i].gl_Position;
-            gl_Position = LightCubemapMatrices[face] * fragmentPosition;
+            gl_Position = projection * LightCubemapMatrices[face] * fragmentPosition;
             EmitVertex();
         }    
         EndPrimitive();

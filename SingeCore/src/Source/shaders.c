@@ -74,15 +74,13 @@ const struct _uniforms Uniforms = {
 		.AreaMap = {.Index = 18, .Name = "material.areaMap"},
 		.Reflectivity = {.Index = 19, .Name = "material.reflectivity"},
 	},
-	.LightShadowMaps = {.Index = 20, .Name = "LightShadowMaps" },
-	.LightShadowCubeMaps = {.Index = 21, .Name = "LightShadowCubeMaps" },
-	.LightMatrices = {.Index = 22, .Name = "LightMatrices"},
-	.LightCubmapMatrices = {.Index = 23, .Name = "LightCubemapMatrices"},
+	.LightViewMatrix = {.Index = 20, .Name = "LightViewMatrix" },
+	.LightShadowMaps = {.Index = 21, .Name = "LightShadowMaps" },
 	.Lights = {
-		.Index = 24,
+		.Index = 22 + MAX_LIGHTS,
 		.Name = "Lights",
 		.Size = (sizeof(struct _lightUniforms) / sizeof(struct _uniform)),
-		.Count = MAX_POINT_LIGHTS
+		.Count = MAX_LIGHTS
 	},
 };
 

@@ -131,6 +131,8 @@ int main()
 
 	Camera camera = Cameras.Create();
 
+	Cameras.SetFarClippingDistance(camera, 500.0f);
+
 	// bind a vertex array for OpenGL this is required to render objects
 	GLuint VertexArrayID;
 	glGenVertexArrays(1, &VertexArrayID);
@@ -146,7 +148,7 @@ int main()
 	GameObject ball = GameObjects.Load("assets/prefabs/ball.gameobject");
 
 	GameObject otherBall = GameObjects.Duplicate(ball);
-	GameObject car = GameObjects.Load("assets/prefabs/car.gameobject");
+	GameObject car = GameObjects.Load("assets/prefabs/proto.gameobject");
 
 	GameObject city = GameObjects.Load("assets/prefabs/house.gameobject");
 
@@ -216,7 +218,7 @@ int main()
 
 	float fontSize = 0.06125f;
 
-	RectTransforms.SetTransform(text->GameObject->Transform, Anchors.UpperLeft, Pivots.UpperLeft, 0, 0, fontSize, fontSize);
+	RectTransforms.SetTransform(text->GameObject->Transform, Anchors.Center, Pivots.UpperLeft, 0, -fontSize, fontSize, fontSize);
 
 	float amount = 0;
 
@@ -246,8 +248,8 @@ int main()
 	SetVector4Macro(spotLight->Ambient, 0, 0, 0, 0);
 
 	// light body
-	Transforms.SetPositions(light->Transform, 0, 10, 10);
-	Transforms.SetPositions(otherLight->Transform, 0, 3, 0);
+	Transforms.SetPositions(light->Transform, 0, 7, 7);
+	Transforms.SetPositions(otherLight->Transform, 0, 5, 0);
 
 	Transforms.SetPositions(camera->Transform, -3, 3, 3);
 
@@ -261,25 +263,31 @@ int main()
 
 	GameObject otherLightMarker = GameObjects.Duplicate(lightMarker);
 
+	Transforms.SetPositions(otherLightMarker->Transform, 0, 0, 1);
+
 	Transforms.SetParent(otherLightMarker->Transform, otherLight->Transform);
 	Transforms.SetParent(lightMarker->Transform, light->Transform);
 
 	light->Enabled = true;
-	light->Radius = 50.0f;
-	light->Range = 100.0f;
+	light->Radius = 20.0f;
+	light->Range = 20.0f;
 	light->Intensity = 0.5f;
+	light->Orthographic = true;
 
 	otherLight->Enabled = true;
-	otherLight->Radius = 10.0f;
-	otherLight->Range = 10.0f;
-	otherLight->Intensity = 1.0f;
+	otherLight->Radius = 40.0f;
+	otherLight->Range = 20.0f;
+	otherLight->Intensity = 0.5f;
+	otherLight->Orthographic = true;
 
 	// point directional light at center
 	Transforms.LookAt(light->Transform, Vector3.Zero);
+	Transforms.LookAt(otherLight->Transform, cube->Transform->Position);
 
 	// add the light to the scene
-	//Scenes.AddLight(scene, light);
 	Scenes.AddLight(scene, otherLight);
+	Scenes.AddLight(scene, light);
+	
 	//Scenes.AddLight(scene, spotLight);
 
 	spotLight->EdgeSoftness = 0.5f;
@@ -327,14 +335,12 @@ int main()
 
 	Material shadowMapMaterial = Materials.Load("assets/materials/shadow.material");
 
-	Material shadowCubeMapMaterial = Materials.Load("assets/materials/shadowCubemap.material");
-
 	RectTransforms.SetTransform(square->Transform, Anchors.LowerRight, Pivots.LowerRight, 0, 0, 0.25, 0.25);
 
 	bool showNormals = false;
 
 	ToggleNormalShaders(gameobjects, gameobjectCount, showNormals);
-
+	
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	UpdateTime();
 	do {
@@ -356,7 +362,7 @@ int main()
 
 		// drive car
 		vec3 carDirection;
-		Transforms.GetDirection(car->Transform, Directions.Forward, carDirection);
+		Transforms.GetDirection(car->Transform, Directions.Back, carDirection);
 
 		ScaleVector3(carDirection, modifier);
 
@@ -436,7 +442,7 @@ int main()
 
 		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), Vector3.Up);
 
-		int count = sprintf_s(text->Text, text->Length, 
+		/*int count = sprintf_s(text->Text, text->Length, 
 			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\n%s: %f\nIntensity: %f", 
 			FrameTime(), 
 			HighestFrameTime(), 
@@ -444,7 +450,9 @@ int main()
 			1.0 / FrameTime(), 
 			"amount", 
 			amount / 1000, 
-			otherLight->Intensity);
+			otherLight->Intensity);*/
+
+		int count = sprintf_s(text->Text, text->Length, "Native\nHigh Performance\nText Mesh");
 
 		Texts.SetText(text, text->Text, count);
 
@@ -452,7 +460,7 @@ int main()
 		FPSCamera.Update(camera);
 		Transforms.SetPosition(camera->Transform, position);
 
-		GameObjects.GenerateShadowMaps(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, shadowMapMaterial, shadowCubeMapMaterial, shadowCamera);
+		GameObjects.GenerateShadowMaps(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, shadowMapMaterial, shadowCamera);
 
 		// draw scene
 		FrameBuffers.ClearAndUse(FrameBuffers.Default);
@@ -502,7 +510,6 @@ int main()
 	Materials.Dispose(textureMaterial);
 	Materials.Dispose(outlineMaterial);
 	Materials.Dispose(shadowMapMaterial);
-	Materials.Dispose(shadowCubeMapMaterial);
 
 	Cameras.Dispose(camera);
 

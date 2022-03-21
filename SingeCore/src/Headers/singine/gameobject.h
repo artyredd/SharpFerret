@@ -69,7 +69,7 @@ struct _gameObjectMethods {
 	void (*Destroy)(GameObject);
 	GameObject(*Load)(const char* path);
 	bool (*Save)(GameObject, const char* path);
-	void (*GenerateShadowMaps)(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Material cubemapShadowMaterial, Camera shadowCamera);
+	void (*GenerateShadowMaps)(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera);
 };
 
 const extern struct _gameObjectMethods GameObjects;

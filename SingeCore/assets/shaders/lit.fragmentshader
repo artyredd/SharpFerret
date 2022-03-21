@@ -40,33 +40,10 @@ struct _light{
 uniform _light [MaxLights] Lights;
 uniform int LightCount;
 uniform sampler2D LightShadowMaps[MaxLights];
-uniform samplerCube LightShadowCubeMaps[MaxLights];
 
-float CalculateCubemapShadow(_light light, vec3 lightPosition, _material material, int index)
+float Calculate2dShadow(_light light, vec3 lightPosition, _material material, int index, sampler2D shadowMap)
 {
-	// get vector between fragment position and light position
-    vec3 fragToLight = fragmentPosition - lightPosition;
-
-    // use the light to fragment vector to sample from the depth map    
-    float closestDepth = texture(LightShadowCubeMaps[index], fragToLight).r;
-
-    // it is currently in linear range between [0,1]. Re-transform back to original value
-    closestDepth *= light.range;
-
-    // now get current linear depth as the length between the fragment and light position
-    float currentDepth = length(fragToLight);
-
-	float bias = 0.05;
-
-    // now test for shadows
-    float shadow = currentDepth -  bias > closestDepth ? 1.0 : 0.0;
-
-    return 1 - shadow;
-}
-
-float Calculate2dShadow(_light light, vec3 lightPosition, _material material, int index)
-{
-	vec3 lightDirection = normalize(lightPosition - fragmentPosition);
+	vec3 lightDirection = lightPosition - fragmentPosition;
 
 	vec4 lightFragPos = lightFragmentPositions[index];
 
@@ -82,7 +59,7 @@ float Calculate2dShadow(_light light, vec3 lightPosition, _material material, in
 	}
 
     // get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDepth = texture(LightShadowMaps[index], projCoords.xy).r; 
+    float closestDepth = texture(shadowMap, projCoords.xy).r; 
 
     // get depth of current fragment from light's perspective
     float currentDepth = projCoords.z;
@@ -92,12 +69,12 @@ float Calculate2dShadow(_light light, vec3 lightPosition, _material material, in
     // check whether current frag pos is in shadow
     float shadow = currentDepth - bias > closestDepth  ? 1.0 : 0.0;  
 
-	vec2 texelSize = 1.0 / textureSize(LightShadowMaps[index], 0);
+	vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
 	for(int x = -1; x <= 1; ++x)
 	{
 		for(int y = -1; y <= 1; ++y)
 		{
-			float pcfDepth = texture(LightShadowMaps[index], projCoords.xy + vec2(x, y) * texelSize).r; 
+			float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r; 
 			shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
 		}    
 	}
@@ -142,8 +119,8 @@ vec4 CalculateFinalColor(_light light,
 		specularPortion = shininessScalar * light.specular * material.specular;
 	}
 
-	// less than 0 is infinite range
-	if(light.range > 0)
+	// directional lights have infinite range
+	if(light.lightType != 1)
 	{
 		// calculate the distance between the light and fragment
 		float dist = length(lightPosition - fragmentPosition);
@@ -157,21 +134,10 @@ vec4 CalculateFinalColor(_light light,
 		specularPortion *= attenuation;
 	}
 
-	float shadow = 1.0;
-
-	// directional
-	if(light.lightType == 1)
-	{
-		shadow = Calculate2dShadow(light, lightPosition, material, index);
-	}
-	// point and spot
-	else if(light.lightType == 2 || light.lightType == 0)
-	{
-		//shadow = CalculateCubemapShadow(light, lightPosition, material, index);
-	}
-
-	specularPortion *= shadow;
-	diffusePortion *= shadow;
+//	float shadow = Calculate2dShadow(light, lightPosition, material, index);
+//
+//	specularPortion *= shadow;
+//	diffusePortion *= shadow;
 
 	// combine all portions into final color for this light and return
 	return (ambientPortion + diffusePortion + specularPortion) * light.intensity;
@@ -190,7 +156,7 @@ vec4 CalculatePointLight(_light light, vec3 lightPosition, _material material, f
 	// calculate the direction from the fragment to the viewer
 	// so we can compare that direction with the reflected direction
 	// to calculate the specular scalar
-	vec3 viewDirection = normalize(-fragmentPosition);
+	vec3 viewDirection = normalize(lightPosition - fragmentPosition);
 
 	vec3 halfwayDir = normalize(lightDirection + viewDirection);
 
@@ -265,7 +231,9 @@ vec4 GetLightingColor(_material material)
 {
 	vec4 color = vec4(0,0,0,1);
 
-	for(int i = 0; i < min(LightCount, MaxLights); i++)
+	int count = min(LightCount, MaxLights);
+
+	for(int i = 0; i < count; i++)
 	{
 		_light light = Lights[i];
 
@@ -278,22 +246,23 @@ vec4 GetLightingColor(_material material)
 
 		int type = light.lightType;
 
+		float shadow = Calculate2dShadow(light, lightPosition, material, i, LightShadowMaps[i]);
+
 		// point light
 		if(type == 0)
 		{
-			color += CalculatePointLight(light, lightPosition, material, 1.0, i);
+			color += CalculatePointLight(light, lightPosition, material, 1.0, i) * shadow;
 		} 
 		// directional light
 		else if(type == 1)
 		{
-			color += CalculateDirectionalLight(light, lightPosition, material, i);
+			color += CalculateDirectionalLight(light, lightPosition, material, i) * shadow;
 		}
 		// spot light
 		else if(type == 2)
 		{
-			color += CalculateSpotLight(light, lightPosition, material, i);
+			color += CalculateSpotLight(light, lightPosition, material, i) * shadow;
 		}
 	}
-
 	return color;
 }

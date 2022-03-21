@@ -23,6 +23,4 @@ void main(){
 	
 	// UV of the vertex. No special space for this one.
 	texcoords = vertexPosition_modelspace;
-
-	fragmentPosition = vec3(pos.xyww);
 }

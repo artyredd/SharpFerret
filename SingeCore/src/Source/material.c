@@ -346,21 +346,7 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 		glUniform3fv(handle, 1, direction);
 	}
 
-
-	// determine if we need to set a 2d or 3d texture for this light
-	bool uniformExists = false;
-	handle = 0;
-
-	if (light->Type is LightTypes.Directional)
-	{
-		uniformExists = Shaders.TryGetUniformArray(shader, Uniforms.LightShadowMaps, index, &handle);
-	}
-	else
-	{
-		uniformExists = Shaders.TryGetUniformArray(shader, Uniforms.LightShadowCubeMaps, index, &handle);
-	}
-	
-	if (uniformExists)
+	if (Shaders.TryGetUniformArray(shader, Uniforms.LightShadowMaps, index, &handle))
 	{
 		Texture texture = light->FrameBuffer->Texture;
 
@@ -371,31 +357,9 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 	}
 
 	// check to see if we need to load the light matrix into the shader so we can render the RESULTS of a shadowmap
-	if (Shaders.TryGetUniformArray(shader, Uniforms.LightMatrices, index, &handle))
+	if (Shaders.TryGetUniformArray(shader, Uniforms.LightViewMatrix, index, &handle))
 	{
-		// if it's a directional light we don't need to load more than one of the light matrices
-		// since we only render 1 face
-		glUniformMatrix4fv(handle, 1, false, &light->LightMatrices[0][0][0]);
-	}
-
-	// becuase lights that aren't directional need cubemaps to render shadowmaps, we should check to see if we need to load the
-	// light matrices for the geometry shader
-	if (light->Type isnt LightTypes.Directional)
-	{
-		// only loop through all the try gets if we find the first index
-		if (Shaders.TryGetUniformArray(shader, Uniforms.LightCubmapMatrices, 0, &handle))
-		{
-			glUniformMatrix4fv(handle, 1, false, &light->LightMatrices[0][0][0]);
-
-			for (size_t i = 1; i < 6; i++)
-			{
-				if (Shaders.TryGetUniformArray(shader, Uniforms.LightCubmapMatrices, index, &handle))
-				{
-					// since this is a 
-					glUniformMatrix4fv(handle, 1, false, &light->LightMatrices[i][0][0]);
-				}
-			}
-		}
+		glUniformMatrix4fv(handle, 1, false, &light->ViewMatrix[0][0]);
 	}
 
 	return true;
@@ -403,14 +367,11 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 
 static void SetLightUniforms(Shader shader, Scene scene)
 {
-	int countHandle;
-	if (Shaders.TryGetUniform(shader, Uniforms.LightCount, &countHandle) is false)
+	// if there is no light count in the shader don't set light uniforms for performance
+	if (Shaders.SetInt(shader, Uniforms.LightCount, (int)scene->LightCount) is false)
 	{
 		return;
 	}
-
-	// set the number of lughts that are going to be within the array
-	glUniform1i(countHandle, (GLint)scene->LightCount);
 
 	// set each element of the array
 	for (size_t i = 0; i < scene->LightCount; i++)

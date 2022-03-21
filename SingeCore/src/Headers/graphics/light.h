@@ -79,6 +79,10 @@ struct _light {
 	/// </summary>
 	float EdgeSoftness;
 	/// <summary>
+	/// Whether or not the light should render shadows as orthographic or perspective
+	/// </summary>
+	bool Orthographic;
+	/// <summary>
 	/// The type of light that should should be rendered as
 	/// 0 = point, 1 = directional, 2 = spotlight
 	/// </summary>
@@ -94,13 +98,11 @@ struct _light {
 	/// <summary>
 	/// The matrix that should be set for this light to calculate fragment position during runtime
 	/// </summary>
-	mat4 LightMatrices[6];
-	vec3 PreviousState[2];
+	mat4 ViewMatrix;
 };
 
 struct _lightMethods {
 	Light(*Create)(LightType);
-	void (*RefreshMatrices)(Light);
 	void (*CreateFrameBuffer)(Light light);
 	void (*Dispose)(Light);
 };

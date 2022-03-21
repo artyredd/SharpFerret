@@ -29,7 +29,7 @@ static void Clear(GameObject);
 static void Resize(GameObject, size_t count);
 static GameObject Load(const char* path);
 static bool Save(GameObject, const char* path);
-static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Material cubemapShadowMaterial, Camera shadowCamera);
+static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera);
 
 
 const struct _gameObjectMethods GameObjects = {
@@ -305,7 +305,7 @@ static void Resize(GameObject gameobject, size_t count)
 	}
 }
 
-static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Material cubemapShadowMaterial, Camera shadowCamera)
+static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera)
 {
 	// if there is no lighting return
 	if (scene->LightCount is 0)
@@ -317,47 +317,33 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 	scene->MainCamera = shadowCamera;
 
 	// make sure the FoV for the camera is 90deg (should fill the face of a cube)
-	Cameras.SetFoV(shadowCamera, 90.0f);
+	Cameras.SetFoV(shadowCamera, 120.0f);
 
 	// set the aspect ratio to fit the shadow maps
 	Cameras.SetAspectRatio(shadowCamera, (float)ShadowMaps.ResolutionX / (float)ShadowMaps.ResolutionY);
+
+	Cameras.SetFarClippingDistance(shadowCamera, 100.0f);
 
 	for (size_t currentLight = 0; currentLight < scene->LightCount; currentLight++)
 	{
 		Light light = scene->Lights[currentLight];
 
-		// refresh the transform and light matrices
-		Lights.RefreshMatrices(light);
+		if (light->Enabled is false)
+		{
+			continue;
+		}
 
 		// first set up the "camera" that will be the light
 		// set the tranform
 		Transforms.SetPosition(shadowCamera->Transform, light->Transform->Position);
 		Transforms.SetRotation(shadowCamera->Transform, light->Transform->Rotation);
 
-		// default to 2d shadow
-		Material material = shadowMaterial;
+		shadowCamera->Orthographic = light->Orthographic;
 
-		if (light->Type is LightTypes.Directional)
-		{
-			shadowCamera->Orthographic = true;
-			
-			// use the method to flag the camera as needing to be refreshed
-			Cameras.SetLeftDistance(shadowCamera, -light->Radius);
-			shadowCamera->RightDistance = light->Radius;
-			shadowCamera->BottomDistance = -light->Radius;
-			shadowCamera->TopDistance = light->Radius;
-		}
-		else
-		{
-			shadowCamera->Orthographic = false;
-
-			// if the camera is point or spotlight we need to render to cubemap instead, use the cubemap material
-			// this material should ideall use a geometry shader to write to all faces if needed
-			material = cubemapShadowMaterial;
-		}
-
-		// set the range of the shadow camera
-		Cameras.SetFarClippingDistance(shadowCamera, light->Range);
+		Cameras.SetLeftDistance(shadowCamera, -light->Radius);
+		Cameras.SetRightDistance(shadowCamera, light->Radius);
+		Cameras.SetBottomDistance(shadowCamera, -light->Radius);
+		Cameras.SetTopDistance(shadowCamera, light->Radius);
 
 		// enable the frame buffer for the light
 		// this will enable the 2d or cubemap framebuffer that was created for the light
@@ -369,11 +355,11 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 		// for each light generate it's shadow map by rendering the scene with the provided material
 		for (size_t i = 0; i < count; i++)
 		{
-			DrawWithMaterial(array[i], scene, material);
+			DrawWithMaterial(array[i], scene, shadowMaterial);
 		}
 
 		// now that the camera's transform should have been updated set it's property
-		Matrix4CopyTo(shadowCamera->State.State, light->LightMatrices[0]);
+		Matrix4CopyTo(shadowCamera->State.State, light->ViewMatrix);
 	}
 
 	scene->MainCamera = previousCam;

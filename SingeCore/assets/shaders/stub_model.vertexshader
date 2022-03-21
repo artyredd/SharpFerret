@@ -9,5 +9,5 @@ uniform mat4 model;
 void main()
 {
 	// Output position of the vertex, in clip space : MVP * position
-	gl_Position =  model * vec4(vertexPosition_modelspace, 1);
+	gl_Position =  model * vec4(vertexPosition_modelspace, 1.0);
 }
