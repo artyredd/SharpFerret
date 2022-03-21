@@ -9,7 +9,10 @@ toy game engine written in standard C
 - Point, Spot, and Direction lighting
 
 ## Showcase
-A simple showcase with a single moving lightsource, several gameobjects within runtime transform changes.
+A simple showcase with a single moving lightsource, several gameobjects within runtime transform changes.  
+
 Triangles: 2,143,197
-Shaders: 11 Fragment, 8 Vertex, 2 geometry
-![](https://thumbs.gfycat.com/BitterFrankDungbeetle-mobile.mp4)
+Shaders: 11 Fragment, 8 Vertex, 2 geometry    
+<video width="320" height="240" controls>
+  <source src="https://thumbs.gfycat.com/BitterFrankDungbeetle-mobile.mp4" type="video/mp4">
+</video>
