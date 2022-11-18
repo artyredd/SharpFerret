@@ -29,26 +29,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -136,7 +136,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>opengl32.lib;glew32s.lib;kernel32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)external\glew-2.2.0\lib\Release\x64;C:\_Programming\Repos\C\SingeEngine\external\ttf2mesh;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)external\glew-2.2.0\lib\Release\x64;$(SolutionDir)external\ttf2mesh;$(SolutionDir)external\glfw-3.3.5\include\GLFW;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <ShowProgress>LinkVerbose</ShowProgress>
       <IgnoreSpecificDefaultLibraries>/NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib</IgnoreSpecificDefaultLibraries>
@@ -156,7 +156,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>GLEW_STATIC;STB_IMAGE_IMPLEMENTATION</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)external\stb_image;$(SolutionDir)external\glew-2.2.0\include;$(SolutionDir)external\cglm-282ea84\include;$(SolutionDir)SingeCore\src\;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5\include;$(SolutionDir)SingeCore\src\Headers;$(SolutionDir)SingeCore\src\Source Files;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\stb_image;$(SolutionDir)external\glew\include;$(SolutionDir)external\cglm\include;$(SolutionDir)SingeCore\src\;$(SolutionDir)external\glfw\include;$(SolutionDir)SingeCore\src\Headers;$(SolutionDir)SingeCore\src\Source Files;$(SolutionDir)external\glfw\build\src\Release;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableAnalyzeExternal>true</DisableAnalyzeExternal>
       <LanguageStandard_C>stdc11</LanguageStandard_C>
       <CompileAs>CompileAsC</CompileAs>
@@ -169,25 +169,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>false</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glew32s.lib;kernel32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)external\glew-2.2.0\lib\Release\x64;C:\_Programming\Repos\C\SingeEngine\external\ttf2mesh;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>glfw3.lib;opengl32.lib;glew32s.lib;kernel32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)external\glew\lib\Release\x64;$(SolutionDir)external\ttf2mesh;$(SolutionDir)external\glfw\build\src\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
       <ShowProgress>LinkVerbose</ShowProgress>
       <IgnoreSpecificDefaultLibraries>/NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib</IgnoreSpecificDefaultLibraries>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\external\cglm-282ea84\win\cglm.vcxproj">
-      <Project>{ca8bcaf9-cd25-4133-8f62-3d1449b5d2fc}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\external\glew-2.2.0\build\vc15\glew_static.vcxproj">
-      <Project>{664e6f0d-6784-4760-9565-d54f8eb1edf4}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\external\glfw-3.3.5\build\src\glfw.vcxproj">
-      <Project>{12717f9d-97db-39b0-8de5-2a90ceb7a2f3}</Project>
-    </ProjectReference>
-  </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\camera.c" />
     <ClCompile Include="src\Source\colors.c" />
@@ -314,6 +303,7 @@
     <None Include="assets\prefabs\lamp.gameobject" />
     <None Include="assets\prefabs\lightBulb.gameobject" />
     <None Include="assets\prefabs\lightFilament.gameobject" />
+    <None Include="assets\prefabs\mirrorStatue.gameobject" />
     <None Include="assets\prefabs\monkey.gameobject" />
     <None Include="assets\prefabs\reflectiveSphere.gameobject" />
     <None Include="assets\prefabs\room.gameobject" />

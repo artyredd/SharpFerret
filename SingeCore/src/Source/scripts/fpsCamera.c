@@ -63,6 +63,4 @@ void Update(Camera camera)
 
 	// set the camera's rotation to the new rotation
 	Transforms.SetRotation(camera->Transform, FPSCamera.State.State);
-
-	SetMousePosition(0, 0);
 }

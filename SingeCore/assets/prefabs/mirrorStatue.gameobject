@@ -1,4 +1,4 @@
-model: assets/models/PEGASUS.obj
+model: assets/models/cube.obj
 material: assets/materials/mirror.material
 transform:
 position: 15 -30 10

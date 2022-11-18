@@ -362,8 +362,8 @@ int main()
 		Texts.SetText(text, text->Text, count);
 
 		// update the FPS camera
-		FPSCamera.Update(camera);
 		Transforms.SetPosition(camera->Transform, position);
+		FPSCamera.Update(camera);
 
 		GameObjects.GenerateShadowMaps(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, shadowMapMaterial, shadowCamera);
 

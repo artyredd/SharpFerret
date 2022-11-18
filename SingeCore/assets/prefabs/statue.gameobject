@@ -1,4 +1,4 @@
-model: assets/models/SEINE.obj
+model: assets/models/cube.obj
 material: assets/materials/marble.material
 transform:
 position: 0 -1 -9

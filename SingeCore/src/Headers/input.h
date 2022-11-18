@@ -204,13 +204,13 @@ static struct _axisDefinition AxisDefinitions[MAX_AXES] = {
 	// MouseX
 	{
 		.MinimumValue = 1.0,
-		.MaximumValue = 1000.0,
+		.MaximumValue = 4000.0,
 		.PreviousValue = 0.0
 	},
 	// MouseY
 	{
 		.MinimumValue = 1.0,
-		.MaximumValue = 1000.0,
+		.MaximumValue = 4000.0,
 		.PreviousValue = 0.0
 	},
 	// Horizontal

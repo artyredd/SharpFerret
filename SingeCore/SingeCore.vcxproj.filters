@@ -562,6 +562,9 @@
     <None Include="assets\textures\marble_specular.texture">
       <Filter>Resource Files\Textures</Filter>
     </None>
+    <None Include="assets\prefabs\mirrorStatue.gameobject">
+      <Filter>Resource Files\Prefabs</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="assets\prefabs\lightBase.gameobject">
