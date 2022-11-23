@@ -7,6 +7,25 @@
 static char GetByteGrouping(size_t value);
 static void PrintGroupedNumber(FILE* stream, size_t value);
 
+static void* SafeAlloc(size_t size);
+static void* SafeCalloc(size_t nitems, size_t size);
+static void* SafeAllocAligned(size_t alignment, size_t size);
+static void SafeFree(void* address);
+static bool TryRealloc(void* address, const size_t previousSize, const size_t newSize, void** out_address);
+static void ZeroArray(void* address, const size_t size);
+static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength);
+static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength);
+
+struct _memoryMethods Memory = {
+	.Alloc = &SafeAlloc,
+	.Free = &SafeFree,
+	.Calloc = &SafeCalloc,
+	.TryRealloc = &TryRealloc,
+	.ZeroArray = &ZeroArray,
+	.DuplicateAddress = &DuplicateAddress,
+	.ReallocOrCopy = &ReallocOrCopy
+};
+
 // Total amount of memory (bytes) allocated
 size_t ALLOC_SIZE;
 // Total amount of calls made to malloc()

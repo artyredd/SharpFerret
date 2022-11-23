@@ -2,12 +2,6 @@
 
 #include "csharp.h"
 
-#define _DECLARE_POINTER(RAW_POINTER,NAME,ID) typedef struct _##ID##pointer* NAME##Pointer;\
-
-#define DECLARE_POINTER(NAME,STRUCT_NAME,REFERENCE_NAME) _DECLARE_POINTER(RAW_POINTER,NAME,__COUNTER__)
-
-extern const struct _pointerMethods Pointers;
-
 typedef struct _pointer* Pointer;
 
 struct _pointer
@@ -22,7 +16,7 @@ struct _pointer
 
 struct _pointerMethods
 {
-	// Creates a new pointer object that managers NO memory
+	// Creates a new pointer object that manages NO memory
 	Pointer(*Create)(void);
 	// sets the value of the block of memory to the given value
 	void (*SetValue)(Pointer, void* value, size_t blockSize);
@@ -32,53 +26,38 @@ struct _pointerMethods
 
 extern const struct _pointerMethods Pointers;
 
+#define _DECLARE_STRUCT_NAME(ID) struct _##ID##pointer
 
-typedef struct _Material* MyClass;
+#define _CLASS_NAME(NAME) NAME##Pointer
 
-struct _MyClass
-{
-	int materialInstance;
-};
+#define _DECLARE_TYPEDEF(NAME,ID) typedef _DECLARE_STRUCT_NAME(ID)* _CLASS_NAME(NAME);
 
+#define _DECLARE_STRUCT(ID) _DECLARE_STRUCT_NAME(ID) { struct _pointer; };
 
-typedef struct _1pointer* MyClassPointer;
+#define _METHOD(ID,METHODNAME) _##ID##pointer##METHODNAME
 
-struct _1pointer
-{
-	struct _pointer;
-};
+#define _CREATE_NAME(ID) _METHOD(ID,Create)
 
-static MyClassPointer _1pointerCreate(void)
-{
-	return (MyClassPointer)Pointers.Create();
-}
+#define _DECLARE_CREATE(NAME,ID) static _CLASS_NAME(NAME) _CREATE_NAME(ID)(void) { return (_CLASS_NAME(NAME))Pointers.Create(); }
 
-static void _1pointerSetValue(MyClassPointer pointer, MyClass value)
-{
-	Pointers.SetValue( (Pointer)pointer, value, sizeof(struct _MyClass));
-}
+#define _SET_VALUE_NAME(ID) _METHOD(ID,SetValue)
 
-static bool _1pointerGetValue(MyClassPointer pointer, MyClass out_value)
-{
-	return Pointers.GetValue( (Pointer)pointer, out_value );
-}
+#define _DECLARE_SET_VALUE(REFERENCE_NAME,ID,STRUCT_NAME) static void _SET_VALUE_NAME(ID)(_CLASS_NAME(REFERENCE_NAME) pointer, REFERENCE_NAME value){ Pointers.SetValue((Pointer)pointer, value, sizeof(struct STRUCT_NAME)); }
 
-static void _1pointerDispose(MyClassPointer pointer)
-{
-	Pointers.Dispose((Pointer)pointer );
-}
+#define _GET_VALUE_NAME(ID) _METHOD(ID,GetValue)
 
-static struct _1pointerMethods
-{
-	// Creates a new pointer object that managers NO memory
-	MyClassPointer(*Create)(void);
-	// sets the value of the block of memory to the given value
-	void (*SetValue)(MyClassPointer, MyClass value);
-	bool (*GetValue)(MyClassPointer, MyClass value);
-	void (*Dispose)(MyClassPointer);
-} MyClassPointers = {
-	.Create = _1pointerCreate,
-	.Dispose = _1pointerDispose,
-	.SetValue = _1pointerSetValue,
-	.GetValue = _1pointerGetValue
-};
+#define _DECLARE_GET_VALUE(REFERENCE_NAME,ID) static bool _GET_VALUE_NAME(ID)(_CLASS_NAME(REFERENCE_NAME) pointer, REFERENCE_NAME out_value){ return Pointers.GetValue((Pointer)pointer, out_value); }
+
+#define _DISPOSE_NAME(ID) _METHOD(ID,Dispose)
+
+#define _DECLARE_DISPOSE(REFERENCE_NAME,ID) static void _DISPOSE_NAME(ID)(_CLASS_NAME(REFERENCE_NAME) pointer){ Pointers.Dispose((Pointer)pointer ); }
+
+#define _DECLARE_MEMBERS(NAME) _CLASS_NAME(NAME)(*Create)(void); void (*SetValue)(_CLASS_NAME(NAME), NAME value); bool (*GetValue)(_CLASS_NAME(NAME), NAME value); void (*Dispose)(_CLASS_NAME(NAME));
+
+#define _DECLARE_METHODS_STRUCT(REFERENCE_NAME, ID) static struct _##ID##pointerMethods{ _DECLARE_MEMBERS(REFERENCE_NAME) } REFERENCE_NAME##Pointers = { .Create = _CREATE_NAME(ID), .Dispose = _DISPOSE_NAME(ID),	.SetValue = _SET_VALUE_NAME(ID), .GetValue = _GET_VALUE_NAME(ID) };
+
+#define _DECLARE_METHODS(REFERENCE_NAME, STRUCT_NAME, ID)  _DECLARE_CREATE(REFERENCE_NAME,ID); _DECLARE_SET_VALUE(REFERENCE_NAME, ID, STRUCT_NAME); _DECLARE_GET_VALUE(REFERENCE_NAME,ID); _DECLARE_DISPOSE(REFERENCE_NAME,ID);
+
+#define _DEFINE_POINTER(REFERENCE_NAME, STRUCT_NAME, ID) _DECLARE_TYPEDEF(REFERENCE_NAME, ID); _DECLARE_STRUCT(ID); _DECLARE_METHODS(REFERENCE_NAME, STRUCT_NAME, ID); _DECLARE_METHODS_STRUCT(REFERENCE_NAME, ID);
+
+#define DEFINE_POINTER(REFERENCE_NAME, VALUE_NAME) _DEFINE_POINTER(REFERENCE_NAME, VALUE_NAME, __COUNTER__)

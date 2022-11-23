@@ -27,8 +27,25 @@ static Pointer Create(void)
 
 static void SetValue(Pointer pointer, void* value, size_t size)
 {
-	if (pointer && value && size)
+	if (pointer == false || value)
 	{
+		throw(NullReferenceException);
+	}
+
+	if (value)
+	{
+		if (pointer->Pointer)
+		{
+		
+		}
+		else
+		{
+			pointer->Pointer = SafeAlloc();
+		}
+	}
+	else
+	{
+		throw(InvalidArgumentException);
 	}
 }
 
