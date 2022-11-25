@@ -292,7 +292,7 @@ static bool TryCompile(const StringArray paths, ShaderType shaderType, unsigned 
 
 	for (size_t i = 0; i < paths->Count; i++)
 	{
-		SafeFree(dataArray[i]);
+		Memory.Free(dataArray[i]);
 	}
 
 	return compiled;

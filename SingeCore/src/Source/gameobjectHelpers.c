@@ -11,7 +11,7 @@ GameObject CreateGameObjectFromMesh(Mesh mesh)
 
 	GameObject parent = GameObjects.Create();
 
-	parent->Meshes = SafeAlloc(sizeof(RenderMesh));
+	parent->Meshes = Memory.Alloc(sizeof(RenderMesh));
 	parent->Count = 1;
 	parent->Meshes[0] = newMesh;
 
@@ -24,7 +24,7 @@ GameObject CreateFromRenderMesh(RenderMesh mesh)
 {
 	GameObject parent = GameObjects.Create();
 
-	parent->Meshes = SafeAlloc(sizeof(RenderMesh));
+	parent->Meshes = Memory.Alloc(sizeof(RenderMesh));
 	parent->Count = 1;
 	parent->Meshes[0] = RenderMeshes.Instance(mesh);;
 

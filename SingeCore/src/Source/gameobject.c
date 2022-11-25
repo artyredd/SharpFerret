@@ -71,16 +71,16 @@ static void Dispose(GameObject gameobject)
 
 	DisposeRenderMeshArray(gameobject);
 
-	SafeFree(gameobject->Meshes);
+	Memory.Free(gameobject->Meshes);
 
 	if (gameobject->Name isnt null)
 	{
-		SafeFree(gameobject->Name);
+		Memory.Free(gameobject->Name);
 	}
 
 	Materials.Dispose(gameobject->Material);
 
-	SafeFree(gameobject);
+	Memory.Free(gameobject);
 }
 
 static GameObject CreateGameObject()
@@ -90,7 +90,7 @@ static GameObject CreateGameObject()
 
 static GameObject CreateWithMaterial(Material material)
 {
-	GameObject gameObject = SafeAlloc(sizeof(struct _gameObject));
+	GameObject gameObject = Memory.Alloc(sizeof(struct _gameObject));
 
 	gameObject->Transform = Transforms.Create();
 	gameObject->Material = Materials.Instance(material);
@@ -100,7 +100,7 @@ static GameObject CreateWithMaterial(Material material)
 
 static GameObject CreateEmpty(size_t count)
 {
-	GameObject gameObject = SafeAlloc(sizeof(struct _gameObject));
+	GameObject gameObject = Memory.Alloc(sizeof(struct _gameObject));
 
 	gameObject->Transform = null;
 	gameObject->Material = null;
@@ -108,7 +108,7 @@ static GameObject CreateEmpty(size_t count)
 	if (count isnt 0)
 	{
 		gameObject->Count = count;
-		gameObject->Meshes = SafeAlloc(sizeof(RenderMesh) * count);
+		gameObject->Meshes = Memory.Alloc(sizeof(RenderMesh) * count);
 
 		// set all values to null
 		memset(gameObject->Meshes, 0, sizeof(RenderMesh) * count);
@@ -128,7 +128,7 @@ static void GameObjectCopyTo(GameObject source, GameObject destination)
 
 	if (source->Meshes isnt null)
 	{
-		destination->Meshes = SafeAlloc(sizeof(RenderMesh) * source->Count);
+		destination->Meshes = Memory.Alloc(sizeof(RenderMesh) * source->Count);
 
 		for (size_t i = 0; i < source->Count; i++)
 		{
@@ -160,7 +160,7 @@ static void SetName(GameObject gameobject, char* name)
 
 	if (gameobject->Name isnt null)
 	{
-		SafeFree(gameobject->Name);
+		Memory.Free(gameobject->Name);
 	}
 
 	if (name is null)
@@ -171,7 +171,7 @@ static void SetName(GameObject gameobject, char* name)
 
 	size_t length = min(strlen(name), MAX_GAMEOBJECT_NAME_LENGTH);
 
-	char* newName = SafeAlloc(length);
+	char* newName = Memory.Alloc(length);
 
 	strncpy_s(newName, length, name, length);
 
@@ -292,11 +292,11 @@ static void Resize(GameObject gameobject, size_t count)
 
 	if (gameobject->Count isnt count)
 	{
-		SafeFree(gameobject->Meshes);
+		Memory.Free(gameobject->Meshes);
 
 		gameobject->Count = count;
 
-		gameobject->Meshes = SafeAlloc(sizeof(RenderMesh) * count);
+		gameobject->Meshes = Memory.Alloc(sizeof(RenderMesh) * count);
 	}
 
 	for (size_t i = 0; i < count; i++)
@@ -526,8 +526,8 @@ static GameObject Load(const char* path)
 	}
 
 	// clear the strings we alloced to load the gameobject
-	SafeFree(state.MaterialPath);
-	SafeFree(state.ModelPath);
+	Memory.Free(state.MaterialPath);
+	Memory.Free(state.ModelPath);
 
 	return gameObject;
 }

@@ -105,7 +105,7 @@ bool TryParseLine(const char* buffer, const size_t bufferLength, const size_t ma
 	// make sure not to exceed the maxStringLength
 	size = min(size, maxStringLength);
 
-	char* result = SafeAlloc(size + 1);
+	char* result = Memory.Alloc(size + 1);
 
 	// copy the char over
 	memcpy(result, buffer + index, size);
@@ -150,7 +150,7 @@ bool TryParseString(const char* buffer, const size_t bufferLength, const size_t 
 	// make sure not to exceed the maxStringLength
 	size = min(size, maxStringLength);
 
-	char* result = SafeAlloc(size + 1);
+	char* result = Memory.Alloc(size + 1);
 
 	// copy the char over
 	memcpy(result, buffer + index, size);
@@ -220,8 +220,8 @@ bool TryParseStringArray(const char* buffer, const size_t bufferLength, char*** 
 	// (with a max of bufferSize/2 strings(512 magic number for laziness)
 
 	// alloc string array and size_t array to store the destination strings and lengths
-	size_t* lengths = SafeAlloc(sizeof(size_t) * count);
-	char** strings = SafeAlloc(sizeof(char*) * count);
+	size_t* lengths = Memory.Alloc(sizeof(size_t) * count);
+	char** strings = Memory.Alloc(sizeof(char*) * count);
 
 	for (size_t i = 0; i < count; i++)
 	{
@@ -231,7 +231,7 @@ bool TryParseStringArray(const char* buffer, const size_t bufferLength, char*** 
 		size_t subLength = stringPositions[(i << 1) + 1];
 
 		// alloc one more byte for nul terminator
-		char* string = SafeAlloc((sizeof(char) * subLength) + 1);
+		char* string = Memory.Alloc((sizeof(char) * subLength) + 1);
 
 		string[subLength] = '\0';
 
@@ -341,12 +341,12 @@ bool Test_TryParseStringArray(File stream)
 	Equals(0, memcmp(word, strings[index], strlen(word)), "%i");
 
 	// parse string allocs the strings for us free them
-	SafeFree(lengths);
+	Memory.Free(lengths);
 	for (size_t i = 0; i < count; i++)
 	{
-		SafeFree(strings[i]);
+		Memory.Free(strings[i]);
 	}
-	SafeFree(strings);
+	Memory.Free(strings);
 
 	// ensure no memory leak
 	Assert(AllocCount() <= FreeCount());

@@ -15,7 +15,7 @@ const struct _instancedResourceMethods InstancedResources = {
 
 static InstancedResource Create(void)
 {
-	InstancedResource resource = SafeAlloc(sizeof(struct _instancedResource));
+	InstancedResource resource = Memory.Alloc(sizeof(struct _instancedResource));
 
 	resource->Instances = 1;
 
@@ -39,7 +39,7 @@ static void Dispose(InstancedResource resource, void* state, void(*OnDispose)(In
 
 		// actually free the buffer since this is the last instance
 		resource->Resource = null;
-		SafeFree(resource);
+		Memory.Free(resource);
 		return;
 	}
 

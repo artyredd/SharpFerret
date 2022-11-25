@@ -97,10 +97,10 @@ const struct _modelImporterMethods Importers = {
 static void DisposeFileBuffer(FileBuffer buffer)
 {
 	// the character buffer is not alloced by CreateFileBuffer do not free it
-	SafeFree(buffer->NormalBuffer);
-	SafeFree(buffer->TextureBuffer);
-	SafeFree(buffer->VertexBuffer);
-	SafeFree(buffer);
+	Memory.Free(buffer->NormalBuffer);
+	Memory.Free(buffer->TextureBuffer);
+	Memory.Free(buffer->VertexBuffer);
+	Memory.Free(buffer);
 }
 
 static bool VerifyFormat(FileFormat format)
@@ -186,10 +186,10 @@ struct _bufferCollection {
 
 static void DisposeBufferCollection(struct _bufferCollection* buffers)
 {
-	SafeFree(buffers->Meshes);
-	SafeFree(buffers->Vertices);
-	SafeFree(buffers->Textures);
-	SafeFree(buffers->Normals);
+	Memory.Free(buffers->Meshes);
+	Memory.Free(buffers->Vertices);
+	Memory.Free(buffers->Textures);
+	Memory.Free(buffers->Normals);
 }
 
 static bool TryCountElements(File stream, char* buffer, const size_t bufferLength, struct _elementCounts* out_counts)
@@ -499,7 +499,7 @@ static bool TryParseObjects(File stream,
 			size_t indices[9];
 
 			// zero the array
-			ZeroArray(indices, sizeof(size_t) * 9);
+			Memory.ZeroArray(indices, sizeof(size_t) * 9);
 
 			offset = buffer + Sequences.FaceSize;
 
@@ -515,15 +515,15 @@ static bool TryParseObjects(File stream,
 			// make sure we have arrays to write values to
 			if (currentMesh->Vertices is null && vertexCount > 0)
 			{
-				currentMesh->Vertices = SafeAlloc(sizeof(float) * 3 * faceCount);
+				currentMesh->Vertices = Memory.Alloc(sizeof(float) * 3 * faceCount);
 			}
 			if (currentMesh->TextureVertices is null && textureCount > 0)
 			{
-				currentMesh->TextureVertices = SafeAlloc(sizeof(float) * 2 * faceCount);
+				currentMesh->TextureVertices = Memory.Alloc(sizeof(float) * 2 * faceCount);
 			}
 			if (currentMesh->Normals is null && normalCount > 0)
 			{
-				currentMesh->Normals = SafeAlloc(sizeof(float) * 3 * faceCount);
+				currentMesh->Normals = Memory.Alloc(sizeof(float) * 3 * faceCount);
 			}
 
 			// since there are 3 triplets loop
@@ -631,7 +631,7 @@ static bool TryImportModelStream(File stream,
 		.FaceCounts = FaceCounts
 	};
 
-	ZeroArray(FaceCounts, MAX_FACES * sizeof(size_t));
+	Memory.ZeroArray(FaceCounts, MAX_FACES * sizeof(size_t));
 
 	// count the occurences of the elements within the file
 	if (TryCountElements(stream,
@@ -644,17 +644,17 @@ static bool TryImportModelStream(File stream,
 		return false;
 	}
 
-	Mesh* meshes = SafeAlloc(sizeof(Mesh) * elementCounts.ObjectCount);
+	Mesh* meshes = Memory.Alloc(sizeof(Mesh) * elementCounts.ObjectCount);
 
 	// create a place to store all the vertices temporarily
 	struct _bufferCollection buffers = {
 		.Meshes = meshes,
 		.MeshIndex = 0,
-		.Vertices = SafeAlloc(sizeof(float) * elementCounts.VertexCount * 3),
+		.Vertices = Memory.Alloc(sizeof(float) * elementCounts.VertexCount * 3),
 		.VertexIndex = 0,
-		.Normals = SafeAlloc(sizeof(float) * elementCounts.NormalCount * 3),
+		.Normals = Memory.Alloc(sizeof(float) * elementCounts.NormalCount * 3),
 		.NormalIndex = 0,
-		.Textures = SafeAlloc(sizeof(float) * elementCounts.TextureCount * 2),
+		.Textures = Memory.Alloc(sizeof(float) * elementCounts.TextureCount * 2),
 		.TextureIndex = 0
 	};
 
@@ -664,7 +664,7 @@ static bool TryImportModelStream(File stream,
 		MutateNormal is null ? &VoidMutate : MutateNormal
 	) is false)
 	{
-		SafeFree(meshes);
+		Memory.Free(meshes);
 		DisposeBufferCollection(&buffers);
 		Files.TryClose(stream);
 		return false;

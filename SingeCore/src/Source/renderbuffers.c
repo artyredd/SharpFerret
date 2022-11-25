@@ -23,12 +23,12 @@ static void Dispose(RenderBuffer buffer)
 		SharedHandles.Dispose(buffer->Handle, buffer, OnDispose);
 	}
 	
-	SafeFree(buffer);
+	Memory.Free(buffer);
 }
 
 static RenderBuffer Create(size_t width, size_t height, TextureFormat format)
 {
-	RenderBuffer buffer = SafeAlloc(sizeof(struct _renderBuffer));
+	RenderBuffer buffer = Memory.Alloc(sizeof(struct _renderBuffer));
 
 	buffer->Handle = SharedHandles.Create();
 
@@ -50,7 +50,7 @@ static RenderBuffer Create(size_t width, size_t height, TextureFormat format)
 
 static RenderBuffer Instance(RenderBuffer buffer)
 {
-	RenderBuffer newBuffer = SafeAlloc(sizeof(struct _renderBuffer));
+	RenderBuffer newBuffer = Memory.Alloc(sizeof(struct _renderBuffer));
 
 	newBuffer->Handle = SharedHandles.Instance(buffer->Handle);
 	

@@ -135,10 +135,10 @@ const struct _shaderSettings ShaderSettings = {
 
 static void OnDispose(Shader shader)
 {
-	SafeFree(shader->Uniforms);
-	SafeFree(shader->VertexPath);
-	SafeFree(shader->FragmentPath);
-	SafeFree(shader->Name);
+	Memory.Free(shader->Uniforms);
+	Memory.Free(shader->VertexPath);
+	Memory.Free(shader->FragmentPath);
+	Memory.Free(shader->Name);
 
 	if (shader->Handle->Handle > 0)
 	{
@@ -156,20 +156,20 @@ static void Dispose(Shader shader)
 	// see OnDispose
 	SharedHandles.Dispose(shader->Handle, shader, &OnDispose);
 
-	SafeFree(shader);
+	Memory.Free(shader);
 }
 
 static Shader CreateShaderWithUniforms(bool allocUniforms)
 {
-	Shader newShader = SafeAlloc(sizeof(struct _shader));
+	Shader newShader = Memory.Alloc(sizeof(struct _shader));
 
 	if (allocUniforms)
 	{
 		newShader->Handle = SharedHandles.Create();
 
-		newShader->Uniforms = SafeAlloc(sizeof(struct _shaderUniforms));
+		newShader->Uniforms = Memory.Alloc(sizeof(struct _shaderUniforms));
 
-		ZeroArray(newShader->Uniforms->Handles, MAX_UNIFORMS);
+		Memory.ZeroArray(newShader->Uniforms->Handles, MAX_UNIFORMS);
 	}
 
 	newShader->Settings = DEFAULT_SHADER_SETTINGS;

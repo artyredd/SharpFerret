@@ -86,13 +86,13 @@ static void Dispose(Image image)
 		return;
 	}
 
-	SafeFree(image->Path);
-	// these pixels are provided by stbi and are freed using free() instead to keep acccurate SafeAlloc stats
+	Memory.Free(image->Path);
+	// these pixels are provided by stbi and are freed using free() instead to keep acccurate Memory.Alloc stats
 	free(image->Pixels);
-	SafeFree(image);
+	Memory.Free(image);
 }
 
 static Image CreateImage()
 {
-	return SafeAlloc(sizeof(struct _image));
+	return Memory.Alloc(sizeof(struct _image));
 }

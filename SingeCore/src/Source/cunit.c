@@ -17,7 +17,7 @@ TestSuite CreateSuite(char* name)
 		throw(InvalidArgumentException);
 	}
 
-	TestSuite suite = SafeAlloc(sizeof(struct testSuite));
+	TestSuite suite = Memory.Alloc(sizeof(struct testSuite));
 
 	suite->Name = name;
 	suite->Count = 0;
@@ -107,10 +107,10 @@ static void Dispose(TestSuite suite)
 
 		head = head->Next;
 
-		SafeFree(tmp);
+		Memory.Free(tmp);
 	}
 
-	SafeFree(suite);
+	Memory.Free(suite);
 }
 
 static bool RunTest(Test test, FILE* stream)
@@ -131,7 +131,7 @@ static bool RunTest(Test test, FILE* stream)
 
 static Test CreateTest(char* name, bool(*Method)(FILE*))
 {
-	Test newTest = SafeAlloc(sizeof(struct _test));
+	Test newTest = Memory.Alloc(sizeof(struct _test));
 
 	newTest->Name = name;
 	newTest->Method = Method;

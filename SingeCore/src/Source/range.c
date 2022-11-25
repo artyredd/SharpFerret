@@ -24,7 +24,7 @@ static float* ToArray(Range range)
 
 static Range Create(double min, double max)
 {
-	Range newRange = SafeAlloc(sizeof(struct range));
+	Range newRange = Memory.Alloc(sizeof(struct range));
 
 	newRange->Minimum = min;
 	newRange->Maximum = max;
@@ -34,5 +34,5 @@ static Range Create(double min, double max)
 
 static void Dispose(Range range)
 {
-	SafeFree(range);
+	Memory.Free(range);
 }

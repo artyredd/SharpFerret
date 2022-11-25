@@ -96,12 +96,12 @@ static void Dispose(Transform transform)
 		SetParent(transform, null);
 	}
 
-	SafeFree(transform);
+	Memory.Free(transform);
 }
 
 static Transform CreateTransform()
 {
-	Transform transform = SafeAlloc(sizeof(struct _transform));
+	Transform transform = Memory.Alloc(sizeof(struct _transform));
 
 	transform->Children = null;
 	transform->Parent = null;
@@ -385,16 +385,16 @@ static void ReallocChildren(Transform transform, size_t newCount)
 	size_t newLength = newCount * sizeof(Transform);
 
 	// if we fail to realloc the array make a new one =(
-	if (TryRealloc(transform->Children, previousLength, newLength, (void**)&transform->Children) is false)
+	if (Memory.TryRealloc(transform->Children, previousLength, newLength, (void**)&transform->Children) is false)
 	{
-		Transform* newArray = SafeAlloc(newLength);
+		Transform* newArray = Memory.Alloc(newLength);
 
 		for (size_t i = 0; i < transform->Length; i++)
 		{
 			newArray[i] = transform->Children[i];
 		}
 
-		SafeFree(transform->Children);
+		Memory.Free(transform->Children);
 
 		transform->Children = newArray;
 	}
@@ -414,7 +414,7 @@ static void SetChildCapacity(Transform transform, size_t count)
 
 	if (transform->Length is 0)
 	{
-		transform->Children = SafeAlloc(sizeof(Transform) * count);
+		transform->Children = Memory.Alloc(sizeof(Transform) * count);
 		transform->Length = count;
 		transform->FreeIndex = 0;
 

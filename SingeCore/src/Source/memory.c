@@ -1,7 +1,7 @@
 #include <malloc.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include "memory.h"
+#include "singine/memory.h"
 #include "csharp.h"
 
 static char GetByteGrouping(size_t value);
@@ -16,7 +16,7 @@ static void ZeroArray(void* address, const size_t size);
 static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength);
 static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength);
 
-struct _memoryMethods Memory = {
+const struct _memoryMethods Memory = {
 	.Alloc = &SafeAlloc,
 	.Free = &SafeFree,
 	.Calloc = &SafeCalloc,
@@ -85,7 +85,7 @@ void PrintFree(FILE* stream)
 /// <param name="nitems">This is the number of elements to be allocated.</param>
 /// <param name="size">This is the size of elements.</param>
 /// <returns>This function returns a pointer to the allocated memory, or NULL if the request fails.</returns>
-void* SafeCalloc(size_t nitems, size_t size)
+static void* SafeCalloc(size_t nitems, size_t size)
 {
 	void* ptr = calloc(nitems, size);
 
@@ -101,7 +101,7 @@ void* SafeCalloc(size_t nitems, size_t size)
 	return ptr;
 }
 
-void* SafeAlloc(size_t size)
+static void* SafeAlloc(size_t size)
 {
 	if (size is 0)
 	{
@@ -122,7 +122,7 @@ void* SafeAlloc(size_t size)
 	return ptr;
 }
 
-void* SafeAllocAligned(size_t alignment, size_t size)
+static void* SafeAllocAligned(size_t alignment, size_t size)
 {
 	void* ptr = _aligned_malloc(alignment, size);
 
@@ -138,7 +138,7 @@ void* SafeAllocAligned(size_t alignment, size_t size)
 	return ptr;
 }
 
-void SafeFree(void* address)
+static void SafeFree(void* address)
 {
 	if (address is null)
 	{
@@ -150,7 +150,7 @@ void SafeFree(void* address)
 	++FREE_COUNT;
 }
 
-bool TryRealloc(void* address, const size_t previousSize, const size_t newSize, void** out_address)
+static bool TryRealloc(void* address, const size_t previousSize, const size_t newSize, void** out_address)
 {
 	void* newAddress = realloc(address, newSize);
 
@@ -172,12 +172,12 @@ bool TryRealloc(void* address, const size_t previousSize, const size_t newSize, 
 	return false;
 }
 
-void ZeroArray(void* address, const size_t size)
+static void ZeroArray(void* address, const size_t size)
 {
 	memset(address, 0, size);
 }
 
-void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength)
+static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength)
 {
 	if (address is null)
 	{
@@ -197,7 +197,7 @@ void* DuplicateAddress(const void* address, const  size_t length, const  size_t 
 	return newAddress;
 }
 
-bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength)
+static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength)
 {
 	if (*address is null)
 	{

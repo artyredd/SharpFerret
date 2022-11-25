@@ -73,12 +73,12 @@ static void Dispose(FrameBuffer buffer)
 		RenderBuffers.Dispose(buffer->RenderBuffer);
 	}
 
-	SafeFree(buffer);
+	Memory.Free(buffer);
 }
 
 static FrameBuffer Create(FrameBufferType type)
 {
-	FrameBuffer buffer = SafeAlloc(sizeof(struct _frameBuffer));
+	FrameBuffer buffer = Memory.Alloc(sizeof(struct _frameBuffer));
 
 	buffer->Handle = SharedHandles.Create();
 

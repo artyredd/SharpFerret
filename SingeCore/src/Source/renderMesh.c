@@ -32,7 +32,7 @@ static void OnNameDispose(InstancedResource resource, void* state)
 {
 	if (state is null)
 	{
-		SafeFree(resource->Resource);
+		Memory.Free(resource->Resource);
 	}
 }
 
@@ -55,7 +55,7 @@ static void Dispose(RenderMesh mesh)
 
 	Transforms.Dispose(mesh->Transform);
 
-	SafeFree(mesh);
+	Memory.Free(mesh);
 }
 
 static void LoadAttributeBuffer(unsigned int Position, unsigned int Handle, unsigned int dimensions)
@@ -112,7 +112,7 @@ static void Draw(RenderMesh model)
 
 static RenderMesh CreateRenderMesh()
 {
-	RenderMesh mesh = SafeAlloc(sizeof(struct _renderMesh));
+	RenderMesh mesh = Memory.Alloc(sizeof(struct _renderMesh));
 
 	mesh->Transform = Transforms.Create();
 
@@ -241,7 +241,7 @@ static RenderMesh Duplicate(RenderMesh mesh)
 
 static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 {
-	RenderMesh* meshesArray = SafeAlloc(sizeof(RenderMesh) * model->Count);
+	RenderMesh* meshesArray = Memory.Alloc(sizeof(RenderMesh) * model->Count);
 
 	// all sub-meshes within a model share the same name
 	char* sharedName = Strings.DuplicateTerminated(model->Name);
@@ -256,7 +256,7 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 		RenderMesh newMesh;
 		if (RenderMeshes.TryBindMesh(mesh, &newMesh) is false)
 		{
-			SafeFree(meshesArray);
+			Memory.Free(meshesArray);
 			return false;
 		}
 

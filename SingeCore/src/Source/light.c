@@ -21,7 +21,7 @@ const struct _lightMethods Lights = {
 
 static Light Create(LightType type)
 {
-	Light light = SafeAlloc(sizeof(struct _light));
+	Light light = Memory.Alloc(sizeof(struct _light));
 
 	SetVector4Macro(light->Ambient, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, DEFAULT_AMBIENT_LIGHT_INTENSITY, 1);
 	SetVector4Macro(light->Diffuse, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, DEFAULT_DIFFUSE_LIGHT_INTENSITY, 1);
@@ -77,5 +77,5 @@ static void Dispose(Light light)
 	Transforms.Dispose(light->Transform);
 	FrameBuffers.Dispose(light->FrameBuffer);
 
-	SafeFree(light);
+	Memory.Free(light);
 }

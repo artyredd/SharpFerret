@@ -20,15 +20,15 @@ static void DisposeModel(Model model)
 			Meshes.Dispose(tmp);
 		}
 
-		SafeFree(model->Meshes);
+		Memory.Free(model->Meshes);
 
-		SafeFree(model->Name);
+		Memory.Free(model->Name);
 	}
 
-	SafeFree(model);
+	Memory.Free(model);
 }
 
 static Model CreateModel()
 {
-	return SafeAlloc(sizeof(struct _model));
+	return Memory.Alloc(sizeof(struct _model));
 }

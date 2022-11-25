@@ -33,7 +33,7 @@ const struct _fontCharacterMethods FontCharacters = {
 
 static FontCharacter CreateWhiteSpaceCharacter(Font font, size_t width)
 {
-	FontCharacter newCharacter = SafeAlloc(sizeof(struct _fontCharacter));
+	FontCharacter newCharacter = Memory.Alloc(sizeof(struct _fontCharacter));
 
 	RenderMesh emptyMesh = RenderMeshes.Create();
 
@@ -128,7 +128,7 @@ static void CreateCharactersFromModel(Font font, Model model)
 
 static Font Create(Model model)
 {
-	Font font = SafeAlloc(sizeof(struct _font));
+	Font font = Memory.Alloc(sizeof(struct _font));
 
 	font->Material = null;
 	font->MinY = FLT_MAX;
@@ -176,7 +176,7 @@ static void Dispose(Font font)
 		FontCharacters.Dispose(font->Characters[i]);
 	}
 
-	SafeFree(font);
+	Memory.Free(font);
 }
 
 static Font Import(char* path, FileFormat format)
@@ -240,7 +240,7 @@ static FontCharacter CreateCharacter(Mesh mesh)
 	}
 
 	//  create the new character
-	FontCharacter character = SafeAlloc(sizeof(struct _fontCharacter));
+	FontCharacter character = Memory.Alloc(sizeof(struct _fontCharacter));
 
 	character->Mesh = null;
 
@@ -249,7 +249,7 @@ static FontCharacter CreateCharacter(Mesh mesh)
 		fprintf_s(stderr, "Failed to load the character size for the character: %s", mesh->Name);
 
 		RenderMeshes.Dispose(newMesh);
-		SafeFree(character);
+		Memory.Free(character);
 
 		return null;
 	}
@@ -270,7 +270,7 @@ static void DisposeCharacter(FontCharacter character)
 
 	RenderMeshes.Dispose(character->Mesh);
 
-	SafeFree(character);
+	Memory.Free(character);
 }
 
 static FontCharacter GetFontCharacter(Font font, unsigned int desiredCharacter)

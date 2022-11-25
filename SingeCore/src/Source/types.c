@@ -17,7 +17,7 @@ const struct _pointerMethods Pointers =
 
 static Pointer Create(void)
 {
-	Pointer result = SafeAlloc(sizeof(Pointer));
+	Pointer result = Memory.Alloc(sizeof(Pointer));
 
 	result->BlockSize = 0;
 	result->Pointer = (size_t)null;
@@ -40,7 +40,7 @@ static void SetValue(Pointer pointer, void* value, size_t size)
 		}
 		else
 		{
-			pointer->Pointer = SafeAlloc();
+			pointer->Pointer = (size_t)Memory.Alloc(size);
 		}
 	}
 	else
@@ -60,5 +60,5 @@ static bool GetValue(Pointer pointer, void* out_value)
 
 static void Dispose(Pointer pointer)
 {
-	SafeFree(pointer);
+	Memory.Free(pointer);
 }

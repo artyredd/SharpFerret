@@ -40,7 +40,7 @@ static void OnTextureBufferDispose(Texture texture)
 	GraphicsDevice.DeleteTexture(texture->Handle->Handle);
 
 	// free the string
-	SafeFree(texture->Path);
+	Memory.Free(texture->Path);
 }
 
 static void Dispose(Texture texture)
@@ -54,12 +54,12 @@ static void Dispose(Texture texture)
 	// the handle disposal is ONLY ran when a single instance remains of the provided texture
 	SharedHandles.Dispose(texture->Handle, texture, &OnTextureBufferDispose);
 
-	SafeFree(texture);
+	Memory.Free(texture);
 }
 
 static Texture CreateTexture(bool allocBuffer)
 {
-	Texture texture = SafeAlloc(sizeof(struct _texture));
+	Texture texture = Memory.Alloc(sizeof(struct _texture));
 
 	if (allocBuffer)
 	{
@@ -559,13 +559,13 @@ static Texture Load(const char* path)
 		texture->Type = state.Type;
 	}
 
-	SafeFree(state.path);
-	SafeFree(state.left);
-	SafeFree(state.right);
-	SafeFree(state.forward);
-	SafeFree(state.back);
-	SafeFree(state.up);
-	SafeFree(state.down);
+	Memory.Free(state.path);
+	Memory.Free(state.left);
+	Memory.Free(state.right);
+	Memory.Free(state.forward);
+	Memory.Free(state.back);
+	Memory.Free(state.up);
+	Memory.Free(state.down);
 
 	return texture;
 }

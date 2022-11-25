@@ -50,7 +50,7 @@ const struct _cameraMethods Cameras = {
 static void Dispose(Camera camera)
 {
 	Transforms.Dispose(camera->Transform);
-	SafeFree(camera);
+	Memory.Free(camera);
 }
 
 static void RecalculateProjection(Camera camera)
@@ -173,7 +173,7 @@ SetFloatBase(BottomDistance, BottomDistance);
 
 static Camera CreateCamera()
 {
-	Camera camera = SafeAlloc(sizeof(struct _camera));
+	Camera camera = Memory.Alloc(sizeof(struct _camera));
 
 	camera->FieldOfView = DefaultFieldOfView;
 	camera->AspectRatio = DefaultAspectRatio;

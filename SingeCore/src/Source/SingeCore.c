@@ -229,7 +229,7 @@ int main()
 		reflectiveSphere
 	};
 
-	size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
+	const size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
 
 	// load the shadow material used to render shadowmaps
 	// and create a camera that should be used to render to the framebuffer for shadows
@@ -241,7 +241,6 @@ int main()
 	bool showNormals = false;
 
 	ToggleNormalShaders(gameobjects, gameobjectCount, showNormals);
-	
 
 	// set some parents and positions so all the objects aren't all sitting at world origin
 	Transforms.SetParent(otherBall->Transform, ball->Transform);

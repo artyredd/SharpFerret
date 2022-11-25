@@ -106,7 +106,7 @@ static Window CreateWindow(int width, int height, char* title)
 		StartRuntime();
 	}
 
-	Window window = SafeAlloc(sizeof(struct _windowObject));
+	Window window = Memory.Alloc(sizeof(struct _windowObject));
 
 	window->Title = title;
 
@@ -172,7 +172,7 @@ static void Dispose(Window window)
 		glfwDestroyWindow(window->Handle);
 	}
 
-	SafeFree(window);
+	Memory.Free(window);
 }
 
 static void SetHint(int attribute, int value)
@@ -281,7 +281,7 @@ static void SetIcon(Window window, Image image)
 	GuardNotNull(image);
 
 	// create copy for GLFW
-	GLFWimage* copy = SafeAlloc(sizeof(GLFWimage));
+	GLFWimage* copy = Memory.Alloc(sizeof(GLFWimage));
 
 	copy->pixels = image->Pixels;
 
@@ -290,7 +290,7 @@ static void SetIcon(Window window, Image image)
 
 	glfwSetWindowIcon(window->Handle, 1, copy);
 
-	SafeFree(copy);
+	Memory.Free(copy);
 }
 
 static int GetWindowAttribute(Window window, const int attribute)

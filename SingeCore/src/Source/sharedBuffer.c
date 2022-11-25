@@ -29,7 +29,7 @@ static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* sta
 		}
 
 		// actually free the buffer since this is the last instance
-		SafeFree(buffer);
+		Memory.Free(buffer);
 		return;
 	}
 
@@ -39,7 +39,7 @@ static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* sta
 
 static SharedHandle CreateSharedHandle()
 {
-	SharedHandle buffer = SafeAlloc(sizeof(struct _sharedHandle));
+	SharedHandle buffer = Memory.Alloc(sizeof(struct _sharedHandle));
 
 	buffer->Handle = 0;
 	buffer->ActiveInstances = 1;

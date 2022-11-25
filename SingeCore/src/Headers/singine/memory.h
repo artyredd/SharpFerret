@@ -4,6 +4,8 @@
 #include <stdio.h>
 #endif // !_stdio_h_
 
+#include "csharp.h"
+
 // These perform only helper methods for benchmarking the application
 
 /// <summary>
@@ -60,7 +62,7 @@ struct _memoryMethods {
 	void* (*AllocAligned)(size_t alignment, size_t size);
 
 	// Attempts to realloc the address to the new size, returns true if successfull, otherwise false
-	int (*TryRealloc)(void* address, const size_t previousSize, const size_t newSize, void** out_address);
+	bool (*TryRealloc)(void* address, const size_t previousSize, const size_t newSize, void** out_address);
 
 	// Fills the array with zeros
 	void (*ZeroArray)(void* address, const size_t size);
@@ -71,7 +73,7 @@ struct _memoryMethods {
 
 	// Attempts to realloc, or copy previousLength bytes to a new address, sets the pointer provided to the new address
 	// returns TRUE(1) when realloced, FALSE(0) when the bytes were copied
-	int (*ReallocOrCopy)(void** address, size_t previousLength, size_t newLength);
+	bool (*ReallocOrCopy)(void** address, size_t previousLength, size_t newLength);
 };
 
 extern const struct _memoryMethods Memory;
