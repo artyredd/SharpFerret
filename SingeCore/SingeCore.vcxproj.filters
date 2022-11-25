@@ -201,6 +201,9 @@
     <ClCompile Include="src\Source\framebuffers.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Source\types.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">
@@ -358,6 +361,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\singine\defaults.h">
       <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\types.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
