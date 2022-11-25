@@ -29,7 +29,7 @@ static double DeltaTime();
 static double FrameTime();
 
 struct _Time Time = {
-	.MaxDeltaTime = 0,
+	.MaxDeltaTime = 1.0 / 15.0,
 	.MinDeltaTime = 0,
 	.FrameCount = 0,
 	.Time = &TotalTime,
@@ -91,8 +91,8 @@ static void UpdateTime()
 
 	deltaTime = current - previousTime;
 
-	deltaTime = min(deltaTime, DELTA_TIME_MAX);
-	deltaTime = max(deltaTime, DELTA_TIME_MIN);
+	deltaTime = min(deltaTime, Time.MaxDeltaTime);
+	deltaTime = max(deltaTime, Time.MinDeltaTime);
 
 	previousTime = current;
 

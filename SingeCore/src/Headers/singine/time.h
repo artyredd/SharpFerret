@@ -5,22 +5,25 @@
 // when this is defined the limits (lowest, highest) are calculated
 #define CALCULATE_FRAME_TIME_LIMITS 
 
-// The smallest value DeltaTime can be, generally no purpose to this
-#define DELTA_TIME_MIN 0.0
-// The largest value DeltaTime can be, used to prevent time issues on low-end hardware or when the engine's thread is frozen etc..
-#define DELTA_TIME_MAX 1.0/15.0 // 15FPS
-
 struct _Time {
+	// The largest value DeltaTime can be, used to prevent time issues on low-end hardware or when the engine's thread is frozen etc..
 	double MaxDeltaTime;
+	// The smallest value DeltaTime can be, generally no purpose to this
 	double MinDeltaTime;
 	size_t FrameCount;
 
+	// Returns the total time since the start of the program in seconds
 	double (*Time)();
+
+	// Should be called once per frame to update DeltaTime()
 	void (*Update)();
+	// Returns the time between the current frame and the last frame, in seconds
 	double (*DeltaTime)();
 
 	struct _statistics {
 		double FrameTimePollingLength;
+
+		// Returns the total number of frames since the start of the program
 		double (*FrameTime)();
 
 		double (*LowestFrameTime)();
