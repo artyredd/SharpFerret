@@ -5,6 +5,7 @@
 // when this is defined the limits (lowest, highest) are calculated
 #define CALCULATE_FRAME_TIME_LIMITS 
 
+
 struct _Time {
 	// The largest value DeltaTime can be, used to prevent time issues on low-end hardware or when the engine's thread is frozen etc..
 	double MaxDeltaTime;
@@ -20,6 +21,7 @@ struct _Time {
 	// Returns the time between the current frame and the last frame, in seconds
 	double (*DeltaTime)();
 
+	// Various values and methods regarding the calculations and values of aspects of the time system
 	struct _statistics {
 		double FrameTimePollingLength;
 
@@ -35,4 +37,5 @@ struct _Time {
 	
 };
 
+// Methods and values of the time of the engine
 extern struct _Time Time;
