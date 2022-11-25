@@ -18,47 +18,73 @@ double lowestFrameTime = DBL_MAX;
 double highestFrameTime = DBL_MIN;
 double averageFrameTime;
 
-double Time()
+static double TotalTime();;
+static double LowestFrameTime();
+static double HighestFrameTime();
+static double AverageFrameTime();
+static void UpdateTime();
+static void SetFrameTimePollingLength(double length);
+static size_t FrameCount();
+static double DeltaTime();
+static double FrameTime();
+
+struct _Time Time = {
+	.MaxDeltaTime = 0,
+	.MinDeltaTime = 0,
+	.FrameCount = 0,
+	.Time = &TotalTime,
+	.Update = &UpdateTime,
+	.DeltaTime = &DeltaTime,
+	.Statistics = {
+		.FrameTimePollingLength = 0,
+		.FrameTime = &FrameTime,
+		.LowestFrameTime = &LowestFrameTime,
+		.HighestFrameTime = &HighestFrameTime,
+		.AverageFrameTime = &AverageFrameTime
+	}
+};
+
+static double TotalTime()
 {
 	return totalTime;
 }
 
-size_t FrameCount()
+static size_t FrameCount()
 {
 	return totalFrames;
 }
 
-double DeltaTime()
+static double DeltaTime()
 {
 	return deltaTime;
 }
 
-double FrameTime()
+static double FrameTime()
 {
 	return frameTime;
 }
 
-double LowestFrameTime()
+static double LowestFrameTime()
 {
 	return lowestFrameTime;
 }
 
-double HighestFrameTime()
+static double HighestFrameTime()
 {
 	return highestFrameTime;
 }
 
-double AverageFrameTime()
+static double AverageFrameTime()
 {
 	return averageFrameTime;
 }
 
-void SetFrameTimePollingLength(double length)
+static void SetFrameTimePollingLength(double length)
 {
 	frameTimeLength = length;
 }
 
-void UpdateTime()
+static void UpdateTime()
 {
 	// process delta time
 	double current = glfwGetTime();

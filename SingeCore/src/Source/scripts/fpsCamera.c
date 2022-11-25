@@ -37,8 +37,8 @@ void Update(Camera camera)
 	yAxis = FPSCamera.InvertY ? -yAxis : yAxis;
 	xAxis = FPSCamera.InvertX ? -xAxis : xAxis;
 
-	FPSCamera.State.HorizontalAngle += xAxis * DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseXSensitivity;
-	FPSCamera.State.VerticalAngle += yAxis * DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseYSensitivity;
+	FPSCamera.State.HorizontalAngle += xAxis * Time.DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseXSensitivity;
+	FPSCamera.State.VerticalAngle += yAxis * Time.DeltaTime() * FPSCamera.MouseSensitivity * FPSCamera.MouseYSensitivity;
 
 	// make sure the camera can't be flipped upside down
 	if (FPSCamera.State.VerticalAngle > FPSCamera.VerticalLimits.Maximum)

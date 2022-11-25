@@ -10,35 +10,26 @@
 // The largest value DeltaTime can be, used to prevent time issues on low-end hardware or when the engine's thread is frozen etc..
 #define DELTA_TIME_MAX 1.0/15.0 // 15FPS
 
-/// <summary>
-/// Returns the total number of frames since the start of the program
-/// </summary>
-/// <returns></returns>
-size_t FrameCount();
+struct _Time {
+	double MaxDeltaTime;
+	double MinDeltaTime;
+	size_t FrameCount;
 
-/// <summary>
-/// Returns the time between the current frame and the last frame, in seconds
-/// </summary>
-/// <returns></returns>
-double DeltaTime();
+	double (*Time)();
+	void (*Update)();
+	double (*DeltaTime)();
 
-// Should be called once per frame to update DeltaTime()
-void UpdateTime();
+	struct _statistics {
+		double FrameTimePollingLength;
+		double (*FrameTime)();
 
-/// <summary>
-/// Returns the total time since the start of the program in seconds
-/// </summary>
-/// <returns></returns>
-double Time();
+		double (*LowestFrameTime)();
 
-// The average time between frames in the last 5 seconds, length can be set with SetFrameTimePollingLength()
-double FrameTime();
+		double (*HighestFrameTime)();
 
-// Sets the length of time, in seconds, that frametime should be benchmarked
-void SetFrameTimePollingLength(double length);
+		double (*AverageFrameTime)();
+	} Statistics;
+	
+};
 
-double LowestFrameTime();
-
-double HighestFrameTime();
-
-double AverageFrameTime();
+extern struct _Time Time;

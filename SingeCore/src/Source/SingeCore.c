@@ -260,12 +260,12 @@ int main()
 	vec3 lightOffset = { -1, 20, -20 };
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
-	UpdateTime();
+	Time.Update();
 	do {
 		// ensure deltaTime is updated
-		UpdateTime();
+		Time.Update();
 
-		float modifier = speed * (float)DeltaTime();
+		float modifier = speed * (float)Time.DeltaTime();
 
 		rotateAmount += modifier;
 
@@ -347,16 +347,16 @@ int main()
 			showNormals = !showNormals;
 		}
 
-		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time())), 3, 3);
+		Transforms.SetPositions(otherCube->Transform, (float)(3 * cos(Time.Time())), 3, 3);
 
-		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time())), Vector3.Up);
+		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time.Time())), Vector3.Up);
 
 		int count = sprintf_s(text->Text, text->Length, 
 			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS", 
-			FrameTime(), 
-			HighestFrameTime(), 
-			AverageFrameTime(),
-			1.0 / FrameTime());
+			Time.Statistics.FrameTime(),
+			Time.Statistics.HighestFrameTime(),
+			Time.Statistics.AverageFrameTime(),
+			1.0 / Time.Statistics.FrameTime());
 
 		Texts.SetText(text, text->Text, count);
 
