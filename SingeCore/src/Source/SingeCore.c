@@ -148,7 +148,7 @@ int main()
 	GameObject reflectiveSphere = GameObjects.Load("assets/prefabs/reflectiveSphere.gameobject");
 	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
 	GameObject lightMarker = GameObjects.Duplicate(cube);
-
+	 
 	// assign the area textures so reflective materials will reflect the skybox
 	Materials.SetAreaTexture(cube->Material, skybox->Material->MainTexture);
 	Materials.SetReflectionTexture(cube->Material, cube->Material->SpecularTexture);
@@ -392,12 +392,12 @@ int main()
 	Fonts.Dispose(font);
 
 	GameObjects.Destroy(ball);
-	GameObjects.Destroy(otherBall);
+	//GameObjects.Destroy(otherBall);
 	GameObjects.Destroy(car);
 	GameObjects.Destroy(room);
 	GameObjects.Destroy(cube);
-	GameObjects.Destroy(otherCube);
-	GameObjects.Destroy(lightMarker);
+	//GameObjects.Destroy(otherCube);
+	//GameObjects.Destroy(lightMarker);
 	GameObjects.Destroy(reflectiveSphere);
 	GameObjects.Destroy(skybox);
 	GameObjects.Destroy(sphere);

@@ -1,29 +1,35 @@
 #include <malloc.h>
 #include <stdlib.h>
+#include <string.h>
 #include <stdio.h>
 #include "singine/memory.h"
 #include "csharp.h"
+#include "singine/hashing.h"
 
 static char GetByteGrouping(size_t value);
 static void PrintGroupedNumber(FILE* stream, size_t value);
 
-static void* SafeAlloc(size_t size);
-static void* SafeCalloc(size_t nitems, size_t size);
-static void* SafeAllocAligned(size_t alignment, size_t size);
-static void SafeFree(void* address);
+static void* SafeAlloc(size_t size, size_t typeID);
+static void* SafeCalloc(size_t nitems, size_t size, size_t typeID);
+static void* SafeAllocAligned(size_t alignment, size_t size, size_t typeID);
+static void SafeFree(void* address, size_t typeID);
 static bool TryRealloc(void* address, const size_t previousSize, const size_t newSize, void** out_address);
 static void ZeroArray(void* address, const size_t size);
-static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength);
-static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength);
+static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength, size_t typeID);
+static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength, size_t typeID);
+static void RegisterTypeName(const char* name, size_t* out_typeId);
 
 const struct _memoryMethods Memory = {
+	.GenericMemoryBlock = 0x0,
+	.String = 0x01,
 	.Alloc = &SafeAlloc,
 	.Free = &SafeFree,
 	.Calloc = &SafeCalloc,
 	.TryRealloc = &TryRealloc,
 	.ZeroArray = &ZeroArray,
 	.DuplicateAddress = &DuplicateAddress,
-	.ReallocOrCopy = &ReallocOrCopy
+	.ReallocOrCopy = &ReallocOrCopy,
+	.RegisterTypeName = &RegisterTypeName
 };
 
 // Total amount of memory (bytes) allocated
@@ -58,6 +64,38 @@ void ResetAlloc(void) { ALLOC_COUNT = ALLOC_SIZE = 0; }
 /// </summary>
 void ResetFree(void) { FREE_COUNT = 0; }
 
+#define MAX_TYPENAME_LENGTH 1024
+#define MAX_REGISTERED_TYPENAMES 128
+
+struct _typeName {
+	size_t Id;
+	const char Name[MAX_TYPENAME_LENGTH];
+	// the amount of active instances 
+	size_t Active;
+	// the amount of freed instances
+	size_t Freed;
+	// Whether or not this block of the hash table is used
+	bool Used;
+};
+
+struct _typeName RegisteredTypeNames[MAX_REGISTERED_TYPENAMES] = 
+{
+	{
+		.Id = 0,
+		.Name = "GenericMemoryBlock",
+		.Active = 0,
+		.Freed = 0,
+		.Used = true
+	},
+	{
+		.Id = 1,
+		.Name = "String",
+		.Active = 0,
+		.Freed = 0,
+		.Used = true
+	}
+};
+
 /// <summary>
 /// Prints the current allocation statistics to the provided stream
 /// </summary>
@@ -67,7 +105,18 @@ void PrintAlloc(FILE* stream)
 	// determine how to shorten the number of bytes
 	fprintf(stream, "Allocated ");
 	PrintGroupedNumber(stream, ALLOC_SIZE);
-	fprintf(stream, " (%lli) ", ALLOC_COUNT);
+	fprintf(stream, " (%lli)\n", ALLOC_COUNT);
+
+	// manually register typename for generic memory
+	for (size_t i = 0; i < MAX_REGISTERED_TYPENAMES; i++)
+	{
+		const struct _typeName* typeName = &RegisteredTypeNames[i];
+
+		if (typeName->Used)
+		{
+			fprintf(stream, "Type: %-32s	Active: %-16lli	Freed: %-16lli\n", typeName->Name, typeName->Active, typeName->Freed);
+		}
+	}
 }
 
 /// <summary>
@@ -85,7 +134,7 @@ void PrintFree(FILE* stream)
 /// <param name="nitems">This is the number of elements to be allocated.</param>
 /// <param name="size">This is the size of elements.</param>
 /// <returns>This function returns a pointer to the allocated memory, or NULL if the request fails.</returns>
-static void* SafeCalloc(size_t nitems, size_t size)
+static void* SafeCalloc(size_t nitems, size_t size, size_t typeID)
 {
 	void* ptr = calloc(nitems, size);
 
@@ -98,10 +147,65 @@ static void* SafeCalloc(size_t nitems, size_t size)
 
 	++ALLOC_COUNT;
 
+	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
+
+	++(RegisteredTypeNames[index].Active);
+
 	return ptr;
 }
 
-static void* SafeAlloc(size_t size)
+static void RegisterTypeName(const char* name, size_t* out_typeId)
+{
+	if (*out_typeId != 0)
+	{
+		return;
+	}
+
+	size_t hash = Hashing.Hash(name);
+
+	size_t index = hash % MAX_REGISTERED_TYPENAMES;
+
+	size_t previousFreed = 0;
+	size_t previousActive = 0;
+
+	// make sure we have an unused piece of the hash table
+	while (RegisteredTypeNames[index].Used)
+	{
+		if (RegisteredTypeNames[index].Id == hash)
+		{
+			previousFreed = RegisteredTypeNames[index].Freed;
+			previousActive = RegisteredTypeNames[index].Active;
+
+			break;
+		}
+
+		++hash;
+		index = hash % MAX_REGISTERED_TYPENAMES;
+	}
+
+	// check to see if we already set it
+	if (RegisteredTypeNames[index].Id == hash)
+	{
+		// set out var
+		*out_typeId = hash;
+	}
+
+	RegisteredTypeNames[index].Id = hash;
+	RegisteredTypeNames[index].Freed = previousFreed;
+	RegisteredTypeNames[index].Active = previousActive;
+	RegisteredTypeNames[index].Used = true;
+
+	size_t length = min(strlen(name), MAX_TYPENAME_LENGTH);
+
+	char* ptr = RegisteredTypeNames[index].Name;
+
+	memcpy(ptr, name, length);
+	
+	// set out var
+	*out_typeId = hash;
+}
+
+static void* SafeAlloc(size_t size, size_t typeID)
 {
 	if (size is 0)
 	{
@@ -119,10 +223,14 @@ static void* SafeAlloc(size_t size)
 
 	++ALLOC_COUNT;
 
+	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
+
+	++(RegisteredTypeNames[index].Active);
+
 	return ptr;
 }
 
-static void* SafeAllocAligned(size_t alignment, size_t size)
+static void* SafeAllocAligned(size_t alignment, size_t size, size_t typeID)
 {
 	void* ptr = _aligned_malloc(alignment, size);
 
@@ -135,10 +243,14 @@ static void* SafeAllocAligned(size_t alignment, size_t size)
 
 	++ALLOC_COUNT;
 
+	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
+
+	++(RegisteredTypeNames[index].Active);
+
 	return ptr;
 }
 
-static void SafeFree(void* address)
+static void SafeFree(void* address, size_t typeID)
 {
 	if (address is null)
 	{
@@ -148,6 +260,10 @@ static void SafeFree(void* address)
 	free(address);
 
 	++FREE_COUNT;
+
+	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
+
+	++(RegisteredTypeNames[index].Freed);
 }
 
 static bool TryRealloc(void* address, const size_t previousSize, const size_t newSize, void** out_address)
@@ -177,7 +293,7 @@ static void ZeroArray(void* address, const size_t size)
 	memset(address, 0, size);
 }
 
-static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength)
+static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength, size_t typeID)
 {
 	if (address is null)
 	{
@@ -190,18 +306,18 @@ static void* DuplicateAddress(const void* address, const  size_t length, const  
 		throw(InvalidLogicException);
 	}
 
-	void* newAddress = SafeAlloc(newLength);
+	void* newAddress = SafeAlloc(newLength, typeID);
 
 	memcpy(newAddress, address, min(length, newLength));
 
 	return newAddress;
 }
 
-static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength)
+static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength, const size_t typeID)
 {
 	if (*address is null)
 	{
-		*address = SafeAlloc(newLength);
+		*address = SafeAlloc(newLength, typeID);
 
 		return true;
 	}
@@ -212,10 +328,10 @@ static bool ReallocOrCopy(void** address, const size_t previousLength, const siz
 	}
 
 	// since we couldn't realloc to the right size alloc new space and copy the bytes
-	void* newAddress = DuplicateAddress(*address, previousLength, newLength);
+	void* newAddress = DuplicateAddress(*address, previousLength, newLength, typeID);
 
 	// free the old address
-	SafeFree(*address);
+	SafeFree(*address, typeID);
 
 	*address = newAddress;
 

@@ -56,3 +56,5 @@
 // MACRO: performs the provided body in it's own scope and then disposes the provided disposable object, this assumes
 // the disposable object is a Pointer to a struct that has a void(*Dispose)(Object) field defined.
 #define using(disposable,body) do{body;}while(false);disposable->Dispose(disposable);
+
+#define nameof(thing) #thing

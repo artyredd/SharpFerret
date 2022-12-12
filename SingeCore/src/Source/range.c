@@ -22,9 +22,13 @@ static float* ToArray(Range range)
 	return (float*)range;
 }
 
+TYPE_ID(Range);
+
 static Range Create(double min, double max)
 {
-	Range newRange = Memory.Alloc(sizeof(struct range));
+	Memory.RegisterTypeName( nameof(Range), &RangeTypeId );
+
+	Range newRange = Memory.Alloc(sizeof(struct range), RangeTypeId);
 
 	newRange->Minimum = min;
 	newRange->Maximum = max;
@@ -34,5 +38,5 @@ static Range Create(double min, double max)
 
 static void Dispose(Range range)
 {
-	Memory.Free(range);
+	Memory.Free(range, RangeTypeId);
 }

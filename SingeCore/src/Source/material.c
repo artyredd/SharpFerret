@@ -54,6 +54,9 @@ const struct _materialMethods Materials = {
 
 #define MATERIAL_LOADER_BUFFER_SIZE 1024
 
+TYPE_ID(MaterialShaders);
+TYPE_ID(Material);
+
 static void Dispose(Material material)
 {
 	if (material is null)
@@ -67,27 +70,30 @@ static void Dispose(Material material)
 		Shaders.Dispose(shader);
 	}
 
-	Memory.Free(material->Shaders);
+	Memory.Free(material->Shaders, MaterialShadersTypeId);
 
-	Memory.Free(material->Name);
+	Memory.Free(material->Name, Memory.String);
 
 	Textures.Dispose(material->MainTexture);
 	Textures.Dispose(material->SpecularTexture);
 	Textures.Dispose(material->ReflectionMap);
 	Textures.Dispose(material->AreaMap);
 
-	Memory.Free(material);
+	Memory.Free(material, MaterialTypeId);
 }
 
 static Material Create(Shader shader, Texture texture)
 {
-	Material material = Memory.Alloc(sizeof(struct _material));
+	Memory.RegisterTypeName(nameof(Material), &MaterialTypeId);
+	Memory.RegisterTypeName("MaterialShaders", &MaterialTypeId);
+
+	Material material = Memory.Alloc(sizeof(struct _material), MaterialTypeId);
 
 	material->MainTexture = Textures.Instance(texture);
 
 	if (shader isnt null)
 	{
-		material->Shaders = Memory.Alloc(sizeof(Shader));
+		material->Shaders = Memory.Alloc(sizeof(Shader), MaterialShadersTypeId);
 		material->Shaders[0] = Shaders.Instance(shader);
 		material->Count = 1;
 	}
@@ -125,11 +131,11 @@ static void ResizeShaders(Material material, size_t desiredCount)
 
 		if (Memory.TryRealloc(material->Shaders, previousSize, newSize, (void**)&material->Shaders) is false)
 		{
-			Shader* newArray = Memory.Alloc(newSize);
+			Shader* newArray = Memory.Alloc(newSize, MaterialShadersTypeId);
 
 			CopyShadersTo(material->Shaders, material->Count, newArray, desiredCount);
 
-			Memory.Free(material->Shaders);
+			Memory.Free(material->Shaders, MaterialShadersTypeId);
 			material->Shaders = newArray;
 		}
 
@@ -509,7 +515,7 @@ static void SetName(Material material, const char* name)
 	GuardNotNull(material);
 	if (material->Name isnt null)
 	{
-		Memory.Free(material->Name);
+		Memory.Free(material->Name, Memory.String);
 	}
 
 	material->Name = Strings.DuplicateTerminated(name);
@@ -686,7 +692,7 @@ static Material Load(const char* path)
 				}
 			}
 
-			material->Shaders = Memory.Alloc(sizeof(Shader) * shaderCount);
+			material->Shaders = Memory.Alloc(sizeof(Shader) * shaderCount, MaterialShadersTypeId);
 			material->Count = shaderCount;
 
 			// becuase we might not add each shader into the array we have to keep i and currentIndex
@@ -758,18 +764,18 @@ static Material Load(const char* path)
 		material->Name = Strings.DuplicateTerminated(path);
 	}
 
-	Memory.Free(state.MainTexturePath);
+	Memory.Free(state.MainTexturePath, Memory.String);
 
-	Memory.Free(state.SpecularTexturePath);
+	Memory.Free(state.SpecularTexturePath, Memory.String);
 
-	Memory.Free(state.ShaderPathLengths);
+	Memory.Free(state.ShaderPathLengths, Memory.String);
 
 	for (size_t i = 0; i < state.ShaderCount; i++)
 	{
-		Memory.Free(state.ShaderPaths[i]);
+		Memory.Free(state.ShaderPaths[i], Memory.String);
 	}
 
-	Memory.Free(state.ShaderPaths);
+	Memory.Free(state.ShaderPaths, Memory.String);
 
 	return material;
 }

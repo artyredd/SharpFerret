@@ -123,6 +123,9 @@ const struct _shaderMethods Shaders = {
 
 #define DEFAULT_SHADER_SETTINGS 0
 
+TYPE_ID(ShaderUniforms);
+TYPE_ID(Shader);
+
 const struct _shaderSettings ShaderSettings = {
 	.UseCameraPerspective = UseCameraPerspectiveFlag,
 	.BackfaceCulling = UseCullingFlag,
@@ -135,10 +138,13 @@ const struct _shaderSettings ShaderSettings = {
 
 static void OnDispose(Shader shader)
 {
-	Memory.Free(shader->Uniforms);
-	Memory.Free(shader->VertexPath);
-	Memory.Free(shader->FragmentPath);
-	Memory.Free(shader->Name);
+	Memory.RegisterTypeName("ShaderUniforms", &ShaderUniformsTypeId);
+	Memory.RegisterTypeName(nameof(Shader), &ShaderTypeId);
+
+	Memory.Free(shader->Uniforms, ShaderUniformsTypeId);
+	Memory.Free(shader->VertexPath, Memory.String);
+	Memory.Free(shader->FragmentPath, Memory.String);
+	Memory.Free(shader->Name, Memory.String);
 
 	if (shader->Handle->Handle > 0)
 	{
@@ -156,18 +162,20 @@ static void Dispose(Shader shader)
 	// see OnDispose
 	SharedHandles.Dispose(shader->Handle, shader, &OnDispose);
 
-	Memory.Free(shader);
+	Memory.Free(shader, ShaderTypeId);
 }
 
 static Shader CreateShaderWithUniforms(bool allocUniforms)
 {
-	Shader newShader = Memory.Alloc(sizeof(struct _shader));
+	Memory.RegisterTypeName(nameof(Shader), &ShaderTypeId);
+
+	Shader newShader = Memory.Alloc(sizeof(struct _shader), ShaderTypeId);
 
 	if (allocUniforms)
 	{
 		newShader->Handle = SharedHandles.Create();
 
-		newShader->Uniforms = Memory.Alloc(sizeof(struct _shaderUniforms));
+		newShader->Uniforms = Memory.Alloc(sizeof(struct _shaderUniforms), ShaderUniformsTypeId);
 
 		Memory.ZeroArray(newShader->Uniforms->Handles, MAX_UNIFORMS);
 	}

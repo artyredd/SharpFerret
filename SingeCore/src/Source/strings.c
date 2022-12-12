@@ -107,7 +107,7 @@ static size_t Trim(char* buffer, const size_t bufferLength)
 
 static char* Duplicate(const char* source, size_t length)
 {
-	return Memory.DuplicateAddress(source, length, length);
+	return Memory.DuplicateAddress(source, length, length, Memory.String);
 }
 
 static char* DuplicateTerminated(const char* source)
@@ -118,7 +118,7 @@ static char* DuplicateTerminated(const char* source)
 
 	size_t length = strlen(source) + 1;
 
-	char* result = Memory.DuplicateAddress(source, length, length);
+	char* result = Memory.DuplicateAddress(source, length, length, Memory.String);
 
 	// duplicate address uses zero initilization, this shouldn;'t be necessary since '\0' is 0
 	//// nul terminate
@@ -217,7 +217,7 @@ static bool TryParse(const char* buffer, const size_t bufferLength, char** out_s
 	// make sure not to exceed the maxStringLength
 	size = min(size, MAX_PARSABLE_STRING_LENGTH);
 
-	char* result = Memory.Alloc(size + 1);
+	char* result = Memory.Alloc(size + 1, Memory.String);
 
 	// copy the char over
 	memcpy(result, buffer + index, size);
@@ -232,7 +232,7 @@ static bool TryParse(const char* buffer, const size_t bufferLength, char** out_s
 
 static StringArray CreateStringArray(void)
 {
-	return Memory.Alloc(sizeof(struct _stringArray));
+	return Memory.Alloc(sizeof(struct _stringArray), Memory.String);
 }
 
 static void DisposeMembers(StringArray array)
@@ -244,18 +244,18 @@ static void DisposeMembers(StringArray array)
 
 	for (size_t i = 0; i < array->Count; i++)
 	{
-		Memory.Free(array->Strings[i]);
+		Memory.Free(array->Strings[i], Memory.String);
 	}
 
-	Memory.Free(array->StringLengths);
-	Memory.Free(array->Strings);
+	Memory.Free(array->StringLengths, Memory.String);
+	Memory.Free(array->Strings, Memory.String);
 }
 
 static void DisposeStringArray(StringArray array)
 {
 	DisposeMembers(array);
 
-	Memory.Free(array);
+	Memory.Free(array, Memory.String);
 }
 
 static bool TrySplit(const char* buffer, size_t bufferLength, int delimiter, StringArray result)
@@ -315,8 +315,8 @@ static bool TrySplit(const char* buffer, size_t bufferLength, int delimiter, Str
 	// (with a max of bufferSize/2 strings(512 magic number for laziness)
 
 	// alloc string array and size_t array to store the destination strings and lengths
-	size_t* lengths = Memory.Alloc(sizeof(size_t) * count);
-	char** strings = Memory.Alloc(sizeof(char*) * count);
+	size_t* lengths = Memory.Alloc(sizeof(size_t) * count, Memory.String);
+	char** strings = Memory.Alloc(sizeof(char*) * count, Memory.String);
 
 	for (size_t i = 0; i < count; i++)
 	{
@@ -326,7 +326,7 @@ static bool TrySplit(const char* buffer, size_t bufferLength, int delimiter, Str
 		size_t subLength = stringPositions[(i << 1) + 1];
 
 		// alloc one more byte for nul terminator
-		char* string = Memory.Alloc((sizeof(char) * subLength) + 1);
+		char* string = Memory.Alloc((sizeof(char) * subLength) + 1, Memory.String);
 
 		string[subLength] = '\0';
 

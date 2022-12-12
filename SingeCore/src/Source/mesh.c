@@ -10,19 +10,23 @@ const struct _meshMethods Meshes = {
 	.Dispose = &Dispose
 };
 
+TYPE_ID(Mesh);
+
 static void Dispose(Mesh mesh)
 {
-	Memory.Free(mesh->Vertices);
-	Memory.Free(mesh->Normals);
-	Memory.Free(mesh->TextureVertices);
-	Memory.Free(mesh->Name);
-	Memory.Free(mesh->MaterialName);
-	Memory.Free(mesh);
+	Memory.Free(mesh->Vertices, Memory.GenericMemoryBlock);
+	Memory.Free(mesh->Normals, Memory.GenericMemoryBlock);
+	Memory.Free(mesh->TextureVertices, Memory.GenericMemoryBlock);
+	Memory.Free(mesh->Name, Memory.String);
+	Memory.Free(mesh->MaterialName, Memory.String);
+	Memory.Free(mesh, MeshTypeId);
 }
 
 static Mesh CreateMesh(void)
 {
-	Mesh mesh = Memory.Alloc(sizeof(struct _mesh));
+	Memory.RegisterTypeName(nameof(Mesh), &MeshTypeId);
+
+	Mesh mesh = Memory.Alloc(sizeof(struct _mesh), MeshTypeId);
 
 	mesh->VertexCount = 0;
 	mesh->MaterialName = null;

@@ -13,6 +13,8 @@ const struct _sharedHandleMethods SharedHandles = {
 	.Instance = Instance
 };
 
+TYPE_ID(SharedHandle);
+
 static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* state))
 {
 	// if passed null for some reason ignore it?
@@ -29,7 +31,7 @@ static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* sta
 		}
 
 		// actually free the buffer since this is the last instance
-		Memory.Free(buffer);
+		Memory.Free(buffer, SharedHandleTypeId);
 		return;
 	}
 
@@ -39,7 +41,9 @@ static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* sta
 
 static SharedHandle CreateSharedHandle()
 {
-	SharedHandle buffer = Memory.Alloc(sizeof(struct _sharedHandle));
+	Memory.RegisterTypeName(nameof(SharedHandle), &SharedHandleTypeId);
+
+	SharedHandle buffer = Memory.Alloc(sizeof(struct _sharedHandle), SharedHandleTypeId);
 
 	buffer->Handle = 0;
 	buffer->ActiveInstances = 1;

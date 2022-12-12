@@ -13,9 +13,13 @@ const struct _instancedResourceMethods InstancedResources = {
 	.Instance = &Instance
 };
 
+TYPE_ID(InstancedResource);
+
 static InstancedResource Create(void)
 {
-	InstancedResource resource = Memory.Alloc(sizeof(struct _instancedResource));
+	Memory.RegisterTypeName("InstancedResource", &InstancedResourceTypeId);
+
+	InstancedResource resource = Memory.Alloc(sizeof(struct _instancedResource), InstancedResourceTypeId);
 
 	resource->Instances = 1;
 
@@ -28,7 +32,7 @@ static void Dispose(InstancedResource resource, void* state, void(*OnDispose)(In
 	if (resource is null) { return; }
 
 	// only actually free the buffer when there is a single instance left
-	if (resource->Instances <= 1)
+	if (resource->Instances is 1)
 	{
 		// if the caller provided a callback to perform before this object actually disposes invoke it
 		if (OnDispose isnt null)
@@ -39,7 +43,7 @@ static void Dispose(InstancedResource resource, void* state, void(*OnDispose)(In
 
 		// actually free the buffer since this is the last instance
 		resource->Resource = null;
-		Memory.Free(resource);
+		Memory.Free(resource, InstancedResourceTypeId);
 		return;
 	}
 

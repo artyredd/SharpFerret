@@ -9,6 +9,9 @@ const struct _modelMethods Models = {
 	.Dispose = &DisposeModel
 };
 
+TYPE_ID(ModelMeshes);
+TYPE_ID(Model);
+
 static void DisposeModel(Model model)
 {
 	if (model isnt null)
@@ -20,15 +23,18 @@ static void DisposeModel(Model model)
 			Meshes.Dispose(tmp);
 		}
 
-		Memory.Free(model->Meshes);
+		Memory.Free(model->Meshes, ModelMeshesTypeId);
 
-		Memory.Free(model->Name);
+		Memory.Free(model->Name, Memory.String);
 	}
 
-	Memory.Free(model);
+	Memory.Free(model, ModelTypeId);
 }
 
 static Model CreateModel()
 {
-	return Memory.Alloc(sizeof(struct _model));
+	Memory.RegisterTypeName(nameof(Model), &ModelTypeId);
+	Memory.RegisterTypeName("ModelMeshes", &ModelMeshesTypeId);
+
+	return Memory.Alloc(sizeof(struct _model), ModelTypeId);
 }

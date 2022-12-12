@@ -79,6 +79,8 @@ static bool TryGetImageInfo(const char* path, Image* out_info)
 	return result;
 }
 
+TYPE_ID(Image);
+
 static void Dispose(Image image)
 {
 	if (image is null)
@@ -86,13 +88,15 @@ static void Dispose(Image image)
 		return;
 	}
 
-	Memory.Free(image->Path);
+	Memory.Free(image->Path, Memory.String);
 	// these pixels are provided by stbi and are freed using free() instead to keep acccurate Memory.Alloc stats
 	free(image->Pixels);
-	Memory.Free(image);
+	Memory.Free(image, ImageTypeId);
 }
 
 static Image CreateImage()
 {
-	return Memory.Alloc(sizeof(struct _image));
+	Memory.RegisterTypeName(nameof(Image), &ImageTypeId);
+
+	return Memory.Alloc(sizeof(struct _image), ImageTypeId);
 }

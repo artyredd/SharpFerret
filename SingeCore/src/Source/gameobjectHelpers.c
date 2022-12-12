@@ -1,6 +1,8 @@
 #include "singine/gameobjectHelpers.h"
 #include "singine/memory.h"
 
+TYPE_ID(GameObjectMeshes);
+
 GameObject CreateGameObjectFromMesh(Mesh mesh)
 {
 	RenderMesh newMesh;
@@ -11,7 +13,7 @@ GameObject CreateGameObjectFromMesh(Mesh mesh)
 
 	GameObject parent = GameObjects.Create();
 
-	parent->Meshes = Memory.Alloc(sizeof(RenderMesh));
+	parent->Meshes = Memory.Alloc(sizeof(RenderMesh), GameObjectMeshesTypeId);
 	parent->Count = 1;
 	parent->Meshes[0] = newMesh;
 
@@ -24,7 +26,9 @@ GameObject CreateFromRenderMesh(RenderMesh mesh)
 {
 	GameObject parent = GameObjects.Create();
 
-	parent->Meshes = Memory.Alloc(sizeof(RenderMesh));
+	Memory.RegisterTypeName("GameObjectMeshes", &GameObjectMeshesTypeId);
+
+	parent->Meshes = Memory.Alloc(sizeof(RenderMesh), GameObjectMeshesTypeId);
 	parent->Count = 1;
 	parent->Meshes[0] = RenderMeshes.Instance(mesh);;
 

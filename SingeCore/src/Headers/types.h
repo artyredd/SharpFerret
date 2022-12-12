@@ -20,6 +20,8 @@ struct _pointerMethods
 	Pointer(*Create)(void);
 	// sets the value of the block of memory to the given value
 	void (*SetValue)(Pointer, void* value, size_t blockSize);
+	// Attempts to get the value of the pointer and copying the data from the underlying pointer over
+	// to the provided void pointer
 	bool (*GetValue)(Pointer, void* value);
 	void (*Dispose)(Pointer);
 };

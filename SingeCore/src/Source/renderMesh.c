@@ -32,9 +32,11 @@ static void OnNameDispose(InstancedResource resource, void* state)
 {
 	if (state is null)
 	{
-		Memory.Free(resource->Resource);
+		Memory.Free(resource->Resource, Memory.String);
 	}
 }
+
+TYPE_ID(RenderMesh);
 
 static void Dispose(RenderMesh mesh)
 {
@@ -55,7 +57,7 @@ static void Dispose(RenderMesh mesh)
 
 	Transforms.Dispose(mesh->Transform);
 
-	Memory.Free(mesh);
+	Memory.Free(mesh, RenderMeshTypeId);
 }
 
 static void LoadAttributeBuffer(unsigned int Position, unsigned int Handle, unsigned int dimensions)
@@ -112,7 +114,9 @@ static void Draw(RenderMesh model)
 
 static RenderMesh CreateRenderMesh()
 {
-	RenderMesh mesh = Memory.Alloc(sizeof(struct _renderMesh));
+	Memory.RegisterTypeName(nameof(RenderMesh), &RenderMeshTypeId);
+
+	RenderMesh mesh = Memory.Alloc(sizeof(struct _renderMesh), RenderMeshTypeId);
 
 	mesh->Transform = Transforms.Create();
 
@@ -241,7 +245,7 @@ static RenderMesh Duplicate(RenderMesh mesh)
 
 static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 {
-	RenderMesh* meshesArray = Memory.Alloc(sizeof(RenderMesh) * model->Count);
+	RenderMesh* meshesArray = Memory.Alloc(sizeof(RenderMesh) * model->Count, RenderMeshTypeId);
 
 	// all sub-meshes within a model share the same name
 	char* sharedName = Strings.DuplicateTerminated(model->Name);
@@ -256,7 +260,17 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 		RenderMesh newMesh;
 		if (RenderMeshes.TryBindMesh(mesh, &newMesh) is false)
 		{
-			Memory.Free(meshesArray);
+			// dispose of the extra instance we made for convenience
+			InstancedResources.Dispose(name, null, null);
+
+			// dispose of any children before this index where we failed
+			for (int childIndex = 0; childIndex < i; ++childIndex)
+			{
+				RenderMeshes.Dispose( meshesArray[childIndex] );
+			}
+
+			Memory.Free(meshesArray, RenderMeshTypeId);
+
 			return false;
 		}
 

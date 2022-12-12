@@ -30,10 +30,14 @@ const struct _fontCharacterMethods FontCharacters = {
 	.Dispose = &DisposeCharacter
 };
 
+TYPE_ID(FontCharacter);
+TYPE_ID(Font)
 
 static FontCharacter CreateWhiteSpaceCharacter(Font font, size_t width)
 {
-	FontCharacter newCharacter = Memory.Alloc(sizeof(struct _fontCharacter));
+	Memory.RegisterTypeName(nameof(FontCharacter), &FontCharacterTypeId);
+
+	FontCharacter newCharacter = Memory.Alloc(sizeof(struct _fontCharacter), FontCharacterTypeId);
 
 	RenderMesh emptyMesh = RenderMeshes.Create();
 
@@ -126,9 +130,13 @@ static void CreateCharactersFromModel(Font font, Model model)
 	font->Count = model->Count;
 }
 
+
+
 static Font Create(Model model)
 {
-	Font font = Memory.Alloc(sizeof(struct _font));
+	Memory.RegisterTypeName(nameof(Font), &FontTypeId);
+
+	Font font = Memory.Alloc(sizeof(struct _font), FontTypeId);
 
 	font->Material = null;
 	font->MinY = FLT_MAX;
@@ -176,7 +184,7 @@ static void Dispose(Font font)
 		FontCharacters.Dispose(font->Characters[i]);
 	}
 
-	Memory.Free(font);
+	Memory.Free(font, FontTypeId);
 }
 
 static Font Import(char* path, FileFormat format)
@@ -239,8 +247,9 @@ static FontCharacter CreateCharacter(Mesh mesh)
 		throw(FailedToBindMeshException);
 	}
 
+	Memory.RegisterTypeName(nameof(FontCharacter), &FontCharacterTypeId);
 	//  create the new character
-	FontCharacter character = Memory.Alloc(sizeof(struct _fontCharacter));
+	FontCharacter character = Memory.Alloc(sizeof(struct _fontCharacter), FontCharacterTypeId);
 
 	character->Mesh = null;
 
@@ -249,7 +258,7 @@ static FontCharacter CreateCharacter(Mesh mesh)
 		fprintf_s(stderr, "Failed to load the character size for the character: %s", mesh->Name);
 
 		RenderMeshes.Dispose(newMesh);
-		Memory.Free(character);
+		Memory.Free(character, FontCharacterTypeId);
 
 		return null;
 	}
@@ -270,7 +279,7 @@ static void DisposeCharacter(FontCharacter character)
 
 	RenderMeshes.Dispose(character->Mesh);
 
-	Memory.Free(character);
+	Memory.Free(character, FontCharacterTypeId);
 }
 
 static FontCharacter GetFontCharacter(Font font, unsigned int desiredCharacter)

@@ -12,15 +12,21 @@ const struct _sceneMethods Scenes = {
 	.AddLight = &AddLight
 };
 
+TYPE_ID(Scene);
+TYPE_ID(Lights);
+
 static Scene Create(void)
 {
-	return Memory.Alloc(sizeof(struct _scene));
+	Memory.RegisterTypeName(nameof(Scene), &SceneTypeId);
+	Memory.RegisterTypeName("Scene_Lights", &LightsTypeId);
+
+	return Memory.Alloc(sizeof(struct _scene), SceneTypeId);
 }
 
 static void Dispose(Scene scene)
 {
-	Memory.Free(scene->Lights);
-	Memory.Free(scene);
+	Memory.Free(scene->Lights,LightsTypeId);
+	Memory.Free(scene,SceneTypeId);
 }
 
 static void AddLight(Scene scene, Light light)
@@ -32,7 +38,7 @@ static void AddLight(Scene scene, Light light)
 	size_t previousSize = scene->LightCount * sizeof(Light);
 	size_t newSize = (scene->LightCount + 1) * sizeof(Light);
 	
-	Memory.ReallocOrCopy((void**)&scene->Lights, previousSize, newSize);
+	Memory.ReallocOrCopy((void**)&scene->Lights, previousSize, newSize, LightsTypeId);
 
 	scene->Lights[scene->LightCount] = light;
 

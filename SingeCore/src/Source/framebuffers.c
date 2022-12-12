@@ -40,6 +40,8 @@ const struct _frameBufferMethods FrameBuffers = {
 	.Clear = &Clear
 };
 
+TYPE_ID(FrameBuffer);
+
 #define FrameBufferType_None 0
 #define FrameBufferType_Default 4
 #define FrameBufferType_Read 1
@@ -73,12 +75,13 @@ static void Dispose(FrameBuffer buffer)
 		RenderBuffers.Dispose(buffer->RenderBuffer);
 	}
 
-	Memory.Free(buffer);
+	Memory.Free(buffer, FrameBufferTypeId);
 }
 
 static FrameBuffer Create(FrameBufferType type)
 {
-	FrameBuffer buffer = Memory.Alloc(sizeof(struct _frameBuffer));
+	Memory.RegisterTypeName("FrameBuffer", &FrameBufferTypeId);
+	FrameBuffer buffer = Memory.Alloc(sizeof(struct _frameBuffer), FrameBufferTypeId);
 
 	buffer->Handle = SharedHandles.Create();
 

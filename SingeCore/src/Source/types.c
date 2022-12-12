@@ -15,9 +15,13 @@ const struct _pointerMethods Pointers =
 	.Dispose = &Dispose
 };
 
+TYPE_ID(Pointer);
+
 static Pointer Create(void)
 {
-	Pointer result = Memory.Alloc(sizeof(Pointer));
+	Memory.RegisterTypeName(nameof(Pointer), &PointerTypeId);
+
+	Pointer result = Memory.Alloc(sizeof(Pointer), PointerTypeId);
 
 	result->BlockSize = 0;
 	result->Pointer = (size_t)null;
@@ -40,7 +44,7 @@ static void SetValue(Pointer pointer, void* value, size_t size)
 		}
 		else
 		{
-			pointer->Pointer = (size_t)Memory.Alloc(size);
+			pointer->Pointer = (size_t)Memory.Alloc(size, PointerTypeId);
 		}
 	}
 	else
@@ -60,5 +64,5 @@ static bool GetValue(Pointer pointer, void* out_value)
 
 static void Dispose(Pointer pointer)
 {
-	Memory.Free(pointer);
+	Memory.Free(pointer, PointerTypeId);
 }

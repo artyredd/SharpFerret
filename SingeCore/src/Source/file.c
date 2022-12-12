@@ -125,7 +125,7 @@ static char* ReadFile(const File file)
 {
 	size_t length = GetFileSize(file);
 
-	char* result = Memory.Alloc(length + 1);
+	char* result = Memory.Alloc(length + 1, Memory.String);
 
 	result[length] = '\0'; // add line terminator
 
@@ -145,7 +145,7 @@ static char* ReadFile(const File file)
 			// only attempt rewinding once
 			if (error != 0)
 			{
-				Memory.Free(result);
+				Memory.Free(result, Memory.String);
 				fprintf(stderr, "An error occurred while reading the file at ptr: %llix, Error Code %i", (size_t)file, ferror(file));
 				throw(FailedToReadFileException);
 			}
@@ -166,7 +166,7 @@ static bool TryReadFile(const File file, char** out_data)
 
 	size_t length = GetFileSize(file);
 
-	char* result = Memory.Alloc(length + 1);
+	char* result = Memory.Alloc(length + 1, Memory.String);
 
 	result[length] = '\0'; // add line terminator
 
@@ -186,7 +186,7 @@ static bool TryReadFile(const File file, char** out_data)
 			// only attempt rewinding once
 			if (error != 0)
 			{
-				Memory.Free(result);
+				Memory.Free(result, Memory.String);
 				return false;
 			}
 

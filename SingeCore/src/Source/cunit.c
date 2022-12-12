@@ -9,6 +9,8 @@ static bool RunSuite(TestSuite suite);
 static void Append(TestSuite suite, char* name, bool(*method)(FILE*));
 static void Dispose(TestSuite suite);
 
+TYPE_ID(TestSuite);
+
 TestSuite CreateSuite(char* name)
 {
 	if (name is null)
@@ -17,7 +19,9 @@ TestSuite CreateSuite(char* name)
 		throw(InvalidArgumentException);
 	}
 
-	TestSuite suite = Memory.Alloc(sizeof(struct testSuite));
+	Memory.RegisterTypeName(nameof(TestSuite), &TestSuiteTypeId);
+
+	TestSuite suite = Memory.Alloc(sizeof(struct testSuite), TestSuiteTypeId);
 
 	suite->Name = name;
 	suite->Count = 0;
@@ -107,10 +111,10 @@ static void Dispose(TestSuite suite)
 
 		head = head->Next;
 
-		Memory.Free(tmp);
+		Memory.Free(tmp, TestSuiteTypeId);
 	}
 
-	Memory.Free(suite);
+	Memory.Free(suite, TestSuiteTypeId);
 }
 
 static bool RunTest(Test test, FILE* stream)
@@ -131,7 +135,7 @@ static bool RunTest(Test test, FILE* stream)
 
 static Test CreateTest(char* name, bool(*Method)(FILE*))
 {
-	Test newTest = Memory.Alloc(sizeof(struct _test));
+	Test newTest = Memory.Alloc(sizeof(struct _test), TestSuiteTypeId);
 
 	newTest->Name = name;
 	newTest->Method = Method;

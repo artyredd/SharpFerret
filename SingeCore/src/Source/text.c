@@ -37,9 +37,13 @@ static void SetDefaultFont(Font font) { DefaultFont = font; }
 
 static Font GetDefaultFont(void) { return DefaultFont; }
 
+TYPE_ID(Text);
+
 static Text Create(void)
 {
-	Text text = Memory.Alloc(sizeof(struct _text));
+	Memory.RegisterTypeName(nameof(Text), &TextTypeId);
+
+	Text text = Memory.Alloc(sizeof(struct _text), TextTypeId);
 
 	text->Count = 0;
 	text->Length = 0;
@@ -55,7 +59,7 @@ static Text Create(void)
 
 static char* DuplicateString(char* string, size_t size)
 {
-	char* result = Memory.Alloc(size + 1);
+	char* result = Memory.Alloc(size + 1, Memory.String);
 
 	for (size_t i = 0; i < size + 1; i++)
 	{
@@ -73,7 +77,7 @@ static Text CreateEmpty(Font font, size_t size)
 
 	text->Font = Fonts.Instance(font);
 
-	text->Text = Memory.Alloc(size + 1);
+	text->Text = Memory.Alloc(size + 1, Memory.String);
 
 	text->Count = text->Length = size;
 
@@ -111,13 +115,13 @@ static void Dispose(Text text)
 		return;
 	}
 
-	Memory.Free(text->Text);
+	Memory.Free(text->Text, Memory.String);
 
 	GameObjects.Destroy(text->GameObject);
 
 	Fonts.Dispose(text->Font);
 
-	Memory.Free(text);
+	Memory.Free(text, TextTypeId);
 }
 
 static void CreateGameObject(Text text)
@@ -405,7 +409,7 @@ static void SetText(Text text, char* string, size_t size)
 	// check to see if we have to resize the array
 	if (text->Length < size)
 	{
-		Memory.Free(text->Text);
+		Memory.Free(text->Text, Memory.String);
 
 		text->Text = DuplicateString(string, size);
 

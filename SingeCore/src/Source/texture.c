@@ -33,6 +33,8 @@ const struct _textureMethods Textures = {
 	.TryCreateBufferTexture = TryCreateBufferTexture
 };
 
+TYPE_ID(Texture);
+
 // this is only ran when there is only one remaining instance of the texture being disposed
 static void OnTextureBufferDispose(Texture texture)
 {
@@ -40,7 +42,7 @@ static void OnTextureBufferDispose(Texture texture)
 	GraphicsDevice.DeleteTexture(texture->Handle->Handle);
 
 	// free the string
-	Memory.Free(texture->Path);
+	Memory.Free(texture->Path, Memory.String);
 }
 
 static void Dispose(Texture texture)
@@ -54,12 +56,14 @@ static void Dispose(Texture texture)
 	// the handle disposal is ONLY ran when a single instance remains of the provided texture
 	SharedHandles.Dispose(texture->Handle, texture, &OnTextureBufferDispose);
 
-	Memory.Free(texture);
+	Memory.Free(texture, TextureTypeId);
 }
 
 static Texture CreateTexture(bool allocBuffer)
 {
-	Texture texture = Memory.Alloc(sizeof(struct _texture));
+	Memory.RegisterTypeName(nameof(Texture), &TextureTypeId);
+
+	Texture texture = Memory.Alloc(sizeof(struct _texture), TextureTypeId);
 
 	if (allocBuffer)
 	{
@@ -559,13 +563,13 @@ static Texture Load(const char* path)
 		texture->Type = state.Type;
 	}
 
-	Memory.Free(state.path);
-	Memory.Free(state.left);
-	Memory.Free(state.right);
-	Memory.Free(state.forward);
-	Memory.Free(state.back);
-	Memory.Free(state.up);
-	Memory.Free(state.down);
+	Memory.Free(state.path, Memory.String);
+	Memory.Free(state.left, Memory.String);
+	Memory.Free(state.right, Memory.String);
+	Memory.Free(state.forward, Memory.String);
+	Memory.Free(state.back, Memory.String);
+	Memory.Free(state.up, Memory.String);
+	Memory.Free(state.down, Memory.String);
 
 	return texture;
 }

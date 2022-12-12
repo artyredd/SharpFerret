@@ -84,6 +84,8 @@ static void Dispose(Window window);
 /// </summary>
 static bool IsRuntimeStarted = false;
 
+TYPE_ID(Window);
+
 static Window CreateWindow(int width, int height, char* title)
 {
 	if (width < 0)
@@ -106,7 +108,9 @@ static Window CreateWindow(int width, int height, char* title)
 		StartRuntime();
 	}
 
-	Window window = Memory.Alloc(sizeof(struct _windowObject));
+	Memory.RegisterTypeName(nameof(Window), &WindowTypeId);
+
+	Window window = Memory.Alloc(sizeof(struct _windowObject), WindowTypeId);
 
 	window->Title = title;
 
@@ -172,7 +176,7 @@ static void Dispose(Window window)
 		glfwDestroyWindow(window->Handle);
 	}
 
-	Memory.Free(window);
+	Memory.Free(window, WindowTypeId);
 }
 
 static void SetHint(int attribute, int value)
@@ -281,7 +285,7 @@ static void SetIcon(Window window, Image image)
 	GuardNotNull(image);
 
 	// create copy for GLFW
-	GLFWimage* copy = Memory.Alloc(sizeof(GLFWimage));
+	GLFWimage* copy = Memory.Alloc(sizeof(GLFWimage), Memory.GenericMemoryBlock);
 
 	copy->pixels = image->Pixels;
 
@@ -290,7 +294,7 @@ static void SetIcon(Window window, Image image)
 
 	glfwSetWindowIcon(window->Handle, 1, copy);
 
-	Memory.Free(copy);
+	Memory.Free(copy, Memory.GenericMemoryBlock);
 }
 
 static int GetWindowAttribute(Window window, const int attribute)
