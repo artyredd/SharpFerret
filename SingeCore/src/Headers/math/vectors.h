@@ -6,6 +6,7 @@
 typedef _declspec(align(16)) float vec4[4];
 typedef float vec3[3];
 typedef float vec2[2];
+typedef vec3 mat3[3];
 #endif // !cglm_h
 
 #ifndef cglm_mat_h
@@ -128,6 +129,7 @@ struct _vector3Methods {
 	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec3);
 	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
 	bool (*TrySerializeStream)(File stream, const float* vector);
+	void (*Cross)(vec3 left, vec3 right, vec3 out_result);
 };
 
 extern const struct _vector3Methods Vector3s;
@@ -157,6 +159,7 @@ static struct _matrixConstants {
 
 struct _matrixMethods {
 	void(*LookAt)(mat4 matrix, vec3 position, vec3 target, vec3 upDirection);
+	float(*Determinant)(mat3 matrix);
 };
 
 extern const struct _matrixMethods Matrices;

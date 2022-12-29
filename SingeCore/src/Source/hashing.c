@@ -17,9 +17,9 @@ static size_t ChainHash(const char* bytes, const size_t previousHash)
     size_t hash = previousHash is 0 ? 5381 : previousHash;
 
     int c;
-
     while (c = *bytes++)
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
 
     return hash;
 }

@@ -40,6 +40,7 @@
 #include "graphics/graphicsDevice.h"
 #include "tests.h"
 #include "graphics/scene.h"
+#include "physics/physics.h"
 
 #include "graphics/renderbuffers.h"
 #include "graphics/framebuffers.h"
@@ -136,7 +137,7 @@ int main()
 	Materials.SetColors(otherCube->Material, 1, 1, 1, 1);
 
 	GameObject ball = GameObjects.Load("assets/prefabs/ball.gameobject");
-	GameObject otherBall = GameObjects.Duplicate(ball);
+	GameObject otherBall = GameObjects.Load("assets/prefabs/ball.gameobject");
 
 	GameObject car = GameObjects.Load("assets/prefabs/proto.gameobject");
 	Materials.SetColor(car->Material, Colors.Green);
@@ -147,7 +148,7 @@ int main()
 
 	GameObject reflectiveSphere = GameObjects.Load("assets/prefabs/reflectiveSphere.gameobject");
 	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
-	GameObject lightMarker = GameObjects.Duplicate(cube);
+	GameObject lightMarker = GameObjects.Load("assets/prefabs/cube.gameobject");
 	 
 	// assign the area textures so reflective materials will reflect the skybox
 	Materials.SetAreaTexture(cube->Material, skybox->Material->MainTexture);
@@ -256,8 +257,8 @@ int main()
 
 	vec3 position;
 
-	vec3 positionModifier;
-	vec3 lightOffset = { -1, 20, -20 };
+	vec3 positionModifier; 
+	vec3 lightOffset = { -3, 0, 0 };
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	Time.Update();
@@ -289,13 +290,13 @@ int main()
 		Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / 8.0f) * modifier, Vector3.Up);
 
 		// rotate sun
-		vec3 newLightPos;
+		//vec3 newLightPos;
 
-		Quaternion lightRotation;
-		glm_quatv(lightRotation, (rotateAmount / (float)GLM_PI)/16.0f, Vector3.Up);
-		glm_quat_rotatev(lightRotation, lightOffset, newLightPos);
+		//Quaternion lightRotation;
+		/*glm_quatv(lightRotation, (rotateAmount / (float)GLM_PI)/16.0f, Vector3.Up);
+		glm_quat_rotatev(lightRotation, lightOffset, newLightPos);*/
 
-		Transforms.SetPosition(light->Transform, newLightPos);
+		Transforms.SetPosition(light->Transform, lightOffset);
 		Transforms.LookAt(light->Transform, Vector3.Zero);
 		//Transforms.RotateOnAxis(lightPivot, , Vector3.Up);
 
@@ -364,6 +365,9 @@ int main()
 		Transforms.SetPosition(camera->Transform, position);
 		FPSCamera.Update(camera);
 
+		// before we draw anything we should update the physics system
+		Physics.Update( Time.DeltaTime() );
+
 		GameObjects.GenerateShadowMaps(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, shadowMapMaterial, shadowCamera);
 
 		// draw scene
@@ -392,12 +396,12 @@ int main()
 	Fonts.Dispose(font);
 
 	GameObjects.Destroy(ball);
-	//GameObjects.Destroy(otherBall);
+	GameObjects.Destroy(otherBall);
 	GameObjects.Destroy(car);
 	GameObjects.Destroy(room);
 	GameObjects.Destroy(cube);
-	//GameObjects.Destroy(otherCube);
-	//GameObjects.Destroy(lightMarker);
+	GameObjects.Destroy(otherCube);
+	GameObjects.Destroy(lightMarker);
 	GameObjects.Destroy(reflectiveSphere);
 	GameObjects.Destroy(skybox);
 	GameObjects.Destroy(sphere);

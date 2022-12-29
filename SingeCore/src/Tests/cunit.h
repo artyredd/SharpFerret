@@ -98,14 +98,17 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 	}\
 } while (false);
 
+#define TEST(testname) static bool Test_##testname(File stream)
+#define APPEND_TEST(testname) suite->Append(suite, #testname, &Test_##testname);
+
 #define Assert(expr,stream) BenchmarkAssertion(expr,stream);
 #define StandardAssert(expr) Assert(expr,stdout);
 
-#define IsNull(expr) StandardAssert(expr == NULL);
-#define NotNull(expr) StandardAssert(expr != NULL);
-#define IsZero(expr) StandardAssert(expr == 0);
-#define NotZero(expr) StandardAssert(expr != 0);
-#define IsFalse(expr) StandardAssert(expr != true);
-#define IsTrue(expr) StandardAssert(expr);
-#define Equals(left,right,format) BenchmarkComparison(left,right,==,format,stdout);
-#define NotEqual(left,right) StandardAssert(left != right);
+#define IsNull(expr) BenchmarkAssertion(expr == NULL,stream);
+#define NotNull(expr) BenchmarkAssertion(expr != NULL,stream);
+#define IsZero(expr) BenchmarkAssertion(expr == 0,stream);
+#define NotZero(expr) BenchmarkAssertion(expr != 0,stream);
+#define IsFalse(expr) BenchmarkAssertion(expr != true,stream);
+#define IsTrue(expr) BenchmarkAssertion(expr,stream);
+#define Equals(left,right,format) BenchmarkComparison(left,right,==,format,stream);
+#define NotEqual(left,right) BenchmarkAssertion(left != right,stream);

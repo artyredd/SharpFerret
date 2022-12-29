@@ -4,19 +4,23 @@
 #include "cunit.h"
 #include "string.h"
 #include "cglm/cam.h"
+#include "cglm/mat3.h"
 
 static bool TryParseVector3(const char* buffer, const size_t length, float* out_vector3);
 static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector);
 static bool TrySerializeVec3Stream(File stream, const float* vector);
 static void Vector3Set(vec3, float x, float y, float z);
 static void Vector3CopyTo(vec3 source, vec3 destination);
+static void Cross(vec3 left, vec3 right, vec3 out_result);
+
 
 const struct _vector3Methods Vector3s = {
 	.TryDeserialize = &TryParseVector3,
 	.TrySerialize = &TrySerializeVec3,
 	.TrySerializeStream = &TrySerializeVec3Stream,
 	.Set = Vector3Set,
-	.CopyTo = Vector3CopyTo
+	.CopyTo = Vector3CopyTo,
+	.Cross = &Cross
 };
 
 static bool TryParseVector2(const char* buffer, const size_t length, float* out_vector2);
@@ -38,9 +42,11 @@ const struct _vector4Methods Vector4s = {
 };
 
 static void LookAt(mat4 matrix, vec3 position, vec3 target, vec3 upDirection);
+static float Determinant(mat3 matrix);
 
 const struct _matrixMethods Matrices = {
-	.LookAt = LookAt
+	.LookAt = LookAt,
+	.Determinant = Determinant
 };
 
 #define Vector2SerializationFormat "%f %f"
@@ -85,6 +91,11 @@ static void Vector3Set(vec3 vector, float x, float y, float z)
 static void Vector3CopyTo(vec3 source, vec3 destination)
 {
 	Vectors3CopyTo(source, destination);
+}
+
+static void Cross(vec3 left, vec3 right, vec3 destination)
+{
+	glm_cross(left, right, destination);
 }
 
 static bool TrySerializeVec3Stream(File stream, const float* vector)
@@ -220,6 +231,11 @@ bool RunVectorUnitTests()
 	suite->Dispose(suite);
 
 	return pass;
+}
+
+static float Determinant(mat3 matrix)
+{
+	return glm_mat3_det(matrix);
 }
 
 static void LookAt(mat4 matrix, vec3 position, vec3 target, vec3 upDirection)
