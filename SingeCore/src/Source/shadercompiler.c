@@ -425,6 +425,11 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 	shader->VertexPath = Strings.DuplicateTerminated(vertexPaths->Strings[0]);
 	shader->FragmentPath = Strings.DuplicateTerminated(fragmentPaths->Strings[0]);
 
+	if (geometryPaths isnt null && geometryPaths->Count > 0)
+	{
+		shader->GeometryPath = Strings.DuplicateTerminated(geometryPaths->Strings[0]);
+	}
+
 	// since we didnt find the shader in the dictionary store it
 	if (TryStoreShader(vertexPaths, fragmentPaths, geometryPaths, shader) is false)
 	{
@@ -437,8 +442,9 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 }
 
 #define MaxPathLength 512
+#define ArrayDelimiter ','  // comma
 
-struct _shaderInfo {
+struct _shaderState {
 	struct _stringArray FragmentPieces;
 	struct _stringArray VertexPieces;
 	struct _stringArray GeometryPieces;
@@ -450,149 +456,240 @@ struct _shaderInfo {
 	unsigned int StencilMask;
 };
 
-#define ArrayDelimiter ','  // comma
-
-#define ExportTokenFormat "\n%s: %s\n"
-
-#define VertexShaderComment "# The paths to the vertex shader that should be used for this shader"
-#define VertexShaderToken "vertexShader"
-#define FragmentShaderComment "# The paths to the fragment shader that should be used for this shader"
-#define FragmentShaderToken "fragmentShader"
-#define GeometryShaderComment "# the paths to any geometry shaders that should be used for this shader"
-#define GeometryShaderToken "geometryShader"
-#define UseBackfaceCullingComment "# whether or not backface culling should be enabled for this shader"
-#define UseBackfaceCullingToken "culling"
-#define UseCameraPerspectiveComment "# whether or not this shader should use camera perspective, (GUI elements for example shouldnt)"
-#define UseCameraPerspectiveToken "useCameraPerspective"
-#define UseTransparencyComment "# whether or not blending (transparency) should be enabled"
-#define UseTransparencyToken "enableBlending"
-#define WriteToStencilBufferComment "# whether or not fragments that are drawn are written to the stencil buffer"
-#define WriteToStencilBufferToken "writeToStencilBuffer"
-#define UseDepthTestComment "# whether or not depth testing should be used when this shader is used to render an object"
-#define UseDepthTestToken "depthTest"
-#define UseCustomStencilAttributesComment "# whether or not this shader should set various stencil function attributes when it's enabled"
-#define UseCustomStencilAttributesToken "useCustomStencilAttributes"
-#define CustomStencilFuncionComment "# the custom function that should be used for this shader\n# does not do anythig when useComstomStencilAttributes is set to false\n# Valid Values: always, never, equal, notEqual, greaterThan, lessThan, greaterThanOrEqual, lessThanOrEqual"
-#define CustomStencilFuncionToken "customStencilFunction"
-#define CustomStencilValueComment "# the value that a fragment's stencil buffer value should be compared to using customStencilFunction"
-#define CustomStencilValueToken "customStencilValue"
-#define CustomStencilMaskComment "# the mask that should be bitwise AND'd with a fragemnt's stencil buffer value BEFORE it's compared to customStencilValue to determine if a fragment passes"
-#define CustomStencilMaskToken "customStencilMask"
-#define UseStencilBufferComment "# whether or not the stencil buffer should be used to determine if fragments are rendered, if this is false fragments are always rendered and never write to the stencil buffer"
-#define UseStencilBufferToken "useStencilBuffer"
-
-static const char* Tokens[] = {
-	VertexShaderToken,
-	FragmentShaderToken,
-	UseBackfaceCullingToken,
-	UseCameraPerspectiveToken,
-	UseTransparencyToken,
-	UseDepthTestToken,
-	UseStencilBufferToken,
-	WriteToStencilBufferToken,
-	UseCustomStencilAttributesToken,
-	CustomStencilFuncionToken,
-	CustomStencilValueToken,
-	CustomStencilMaskToken,
-	GeometryShaderToken,
-};
-
-static const size_t TokenLengths[] = {
-	sizeof(VertexShaderToken),
-	sizeof(FragmentShaderToken),
-	sizeof(UseBackfaceCullingToken),
-	sizeof(UseCameraPerspectiveToken),
-	sizeof(UseTransparencyToken),
-	sizeof(UseDepthTestToken),
-	sizeof(UseStencilBufferToken),
-	sizeof(WriteToStencilBufferToken),
-	sizeof(UseCustomStencilAttributesToken),
-	sizeof(CustomStencilFuncionToken),
-	sizeof(CustomStencilValueToken),
-	sizeof(CustomStencilMaskToken),
-	sizeof(GeometryShaderToken)
-};
-
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _shaderInfo* state)
+TOKEN_LOAD(vertexShader, struct _shaderState*)
 {
-	bool enabled;
-	int count;
-	switch (index)
-	{
-	case 0: // vertex path
-		return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->VertexPieces);
-	case 1: // fragment path
-		return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->FragmentPieces);
-	case 2: // backface culling
-		if (TryGetCullingType(buffer, length, &state->CullingType))
-		{
-			if(state->CullingType.Value.AsUInt isnt CullingTypes.None.Value.AsUInt)
-			{
-				SetFlag(state->Settings, ShaderSettings.BackfaceCulling);
-			}
+	return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->VertexPieces);
+}
 
-			return true;
-		}
-		return false;
-	case 3: // use camera perspective
-		if (TryParseBoolean(buffer, length, &enabled))
-		{
-			AssignFlag(state->Settings, ShaderSettings.UseCameraPerspective, enabled);
-			return true;
-		}
-		return false;
-	case 4: // use transparency
-		if (TryParseBoolean(buffer, length, &enabled))
-		{
-			AssignFlag(state->Settings, ShaderSettings.Transparency, enabled);
-			return true;
-		}
-		return false;
-	case 5: // enable depth testing
-		SetFlag(state->Settings, ShaderSettings.UseDepthTest);
-		return TryGetComparison(buffer, length, &state->DepthFunction);
-	case 6: // use stencil buffer
-		if (TryParseBoolean(buffer, length, &enabled))
-		{
-			AssignFlag(state->Settings, ShaderSettings.UseStencilBuffer, enabled);
-			return true;
-		}
-		return false;
-	case 7: // write to stencil buffer
-		if (TryParseBoolean(buffer, length, &enabled))
-		{
-			AssignFlag(state->Settings, ShaderSettings.WriteToStencilBuffer, enabled);
-			return true;
-		}
-		return false;
-	case 8: // use custom stencil values
-		if (TryParseBoolean(buffer, length, &enabled))
-		{
-			AssignFlag(state->Settings, ShaderSettings.CustomStencilAttributes, enabled);
-			return true;
-		}
-		return false;
-	case 9: // custom stencil function
-		return TryGetComparison(buffer, length, &state->StencilComparison);
-	case 10: // stencil value
-		count = sscanf_s(buffer, "%xui", &(state->StencilValue));
-		return count == 1;
-	case 11: // stencil mask
-		count = sscanf_s(buffer, "%xui", &(state->StencilMask));
-		return count == 1;
-	case 12: // fragment path
-		return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->GeometryPieces);
-	default:
-		return false;
+TOKEN_SAVE(vertexShader, Shader)
+{
+	if (state->VertexPath isnt null)
+	{
+		fprintf(stream, "%s", state->VertexPath);
 	}
 }
 
+TOKEN_LOAD(fragmentShader, struct _shaderState*)
+{
+	return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->FragmentPieces);
+}
+
+TOKEN_SAVE(fragmentShader, Shader)
+{
+	if (state->FragmentPath isnt null)
+	{
+		fprintf(stream, "%s", state->FragmentPath);
+	}
+}
+
+TOKEN_LOAD(geometryShader, struct _shaderState*)
+{
+	return Strings.TrySplit(buffer, length, ArrayDelimiter, &state->GeometryPieces);
+}
+
+TOKEN_SAVE(geometryShader, Shader)
+{
+	if (state->GeometryPath isnt null)
+	{
+		fprintf(stream, "%s", state->GeometryPath);
+	}
+}
+
+TOKEN_LOAD(culling, struct _shaderState*)
+{
+	if (TryGetCullingType(buffer, length, &state->CullingType))
+	{
+		if (state->CullingType.Value.AsUInt isnt CullingTypes.None.Value.AsUInt)
+		{
+			SetFlag(state->Settings, ShaderSettings.BackfaceCulling);
+		}
+
+		return true;
+	}
+	return false;
+}
+
+TOKEN_SAVE(culling, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.BackfaceCulling))
+	{
+		fprintf(stream, "%s", "true");
+	}
+}
+
+TOKEN_LOAD(useCameraPerspective, struct _shaderState*)
+{
+	bool enabled;
+	if (Parsing.TryGetBool(buffer, length, &enabled))
+	{
+		AssignFlag(state->Settings, ShaderSettings.UseCameraPerspective, enabled);
+		return true;
+	}
+	return false;
+}
+
+TOKEN_SAVE(useCameraPerspective, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.UseCameraPerspective))
+	{
+		fprintf(stream, "%s", "true");
+	}
+}
+
+TOKEN_LOAD(enableBlending, struct _shaderState*)
+{
+	bool enabled;
+	if (Parsing.TryGetBool(buffer, length, &enabled))
+	{
+		AssignFlag(state->Settings, ShaderSettings.Transparency, enabled);
+		return true;
+	}
+	return false;
+}
+
+TOKEN_SAVE(enableBlending, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.Transparency))
+	{
+		fprintf(stream, "%s", "true");
+	}
+}
+
+TOKEN_LOAD(writeToStencilBuffer, struct _shaderState*)
+{
+	bool enabled;
+	if (Parsing.TryGetBool(buffer, length, &enabled))
+	{
+		AssignFlag(state->Settings, ShaderSettings.WriteToStencilBuffer, enabled);
+		return true;
+	}
+	return false;
+}
+
+TOKEN_SAVE(writeToStencilBuffer, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.WriteToStencilBuffer))
+	{
+		fprintf(stream, "%s", "true");
+	}
+}
+
+TOKEN_LOAD(depthTest, struct _shaderState*)
+{
+	SetFlag(state->Settings, ShaderSettings.UseDepthTest);
+	return TryGetComparison(buffer, length, &state->DepthFunction);
+}
+
+TOKEN_SAVE(depthTest, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.UseDepthTest))
+	{
+		fprintf(stream, "%s", "true");
+	}
+}
+
+TOKEN_LOAD(useCustomStencilAttributes, struct _shaderState*)
+{
+	bool enabled;
+	if (Parsing.TryGetBool(buffer, length, &enabled))
+	{
+		AssignFlag(state->Settings, ShaderSettings.CustomStencilAttributes, enabled);
+		return true;
+	}
+	return false;
+}
+
+TOKEN_SAVE(useCustomStencilAttributes, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.CustomStencilAttributes))
+	{
+		fprintf(stream, "%s", "true");
+	}
+}
+
+TOKEN_LOAD(customStencilFunction, struct _shaderState*)
+{
+	return TryGetComparison(buffer, length, &state->StencilComparison);
+}
+
+TOKEN_SAVE(customStencilFunction, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.CustomStencilAttributes))
+	{
+		fprintf(stream, "%s", state->StencilFunction.Name);
+	}
+}
+
+TOKEN_LOAD(customStencilValue, struct _shaderState*)
+{
+	ignore_unused(length);
+	int count = sscanf_s(buffer, "%xui", &(state->StencilValue));
+	return count == 1;
+}
+
+TOKEN_SAVE(customStencilValue, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.CustomStencilAttributes))
+	{
+		fprintf(stream, "%xui", state->StencilValue);
+	}
+}
+
+TOKEN_LOAD(customStencilMask, struct _shaderState*)
+{
+	ignore_unused(length);
+	int count = sscanf_s(buffer, "%xui", &(state->StencilMask));
+	return count == 1;
+}
+
+TOKEN_SAVE(customStencilMask, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.CustomStencilAttributes))
+	{
+		fprintf(stream, "%xui", state->StencilMask);
+	}
+}
+
+TOKEN_LOAD(useStencilBuffer, struct _shaderState*)
+{
+	bool enabled;
+	if (Parsing.TryGetBool(buffer, length, &enabled))
+	{
+		AssignFlag(state->Settings, ShaderSettings.UseStencilBuffer, enabled);
+		return true;
+	}
+	return false;
+}
+
+TOKEN_SAVE(useStencilBuffer, Shader)
+{
+	if (HasFlag(state->Settings, ShaderSettings.UseStencilBuffer))
+	{
+		fprintf(stream, "%s", "true");
+	}
+}
+
+TOKENS(13)
+{
+	TOKEN(vertexShader, "# The paths to the vertex shader that should be used for this shader"),
+	TOKEN(fragmentShader, "# The paths to the fragment shader that should be used for this shader"),
+	TOKEN(geometryShader, "# the paths to any geometry shaders that should be used for this shader"),
+	TOKEN(culling, "# whether or not backface culling should be enabled for this shader"),
+	TOKEN(useCameraPerspective, "# whether or not this shader should use camera perspective, (GUI elements for example shouldnt)"),
+	TOKEN(enableBlending, "# whether or not blending (transparency) should be enabled"),
+	TOKEN(writeToStencilBuffer, "# whether or not fragments that are drawn are written to the stencil buffer"),
+	TOKEN(depthTest, "# whether or not depth testing should be used when this shader is used to render an object"),
+	TOKEN(useCustomStencilAttributes, "# whether or not this shader should set various stencil function attributes when it's enabled"),
+	TOKEN(customStencilFunction, "# the custom function that should be used for this shader\n# does not do anythig when useComstomStencilAttributes is set to false\n# Valid Values: always, never, equal, notEqual, greaterThan, lessThan, greaterThanOrEqual, lessThanOrEqual"),
+	TOKEN(customStencilValue, "# the value that a fragment's stencil buffer value should be compared to using customStencilFunction"),
+	TOKEN(customStencilMask, "# the mask that should be bitwise AND'd with a fragemnt's stencil buffer value BEFORE it's compared to customStencilValue to determine if a fragment passes"),
+	TOKEN(useStencilBuffer, "# whether or not the stencil buffer should be used to determine if fragments are rendered, if this is false fragments are always rendered and never write to the stencil buffer")
+};
+
 const struct _configDefinition ShaderConfigDefinition = {
-	.Tokens = (const char**)&Tokens,
-	.TokenLengths = (const size_t*)&TokenLengths,
+	.Tokens = Tokens,
 	.CommentCharacter = '#',
-	.Count = sizeof(Tokens) / sizeof(&Tokens), // tokens is an array of pointers to the total bytes/sizeof pointer is the count
-	.OnTokenFound = &OnTokenFound
+	.Count = sizeof(Tokens) / sizeof(struct _configToken)
 };
 
 static Shader Load(const char* path)
@@ -606,7 +703,7 @@ static Shader Load(const char* path)
 	Shader shader = null;
 
 	// create a place to store info needed to compile shader
-	struct _shaderInfo info = {
+	struct _shaderState state = {
 		.FragmentPieces = {
 			.Count = 0,
 			.StringLengths = null,
@@ -630,10 +727,10 @@ static Shader Load(const char* path)
 		.CullingType = CullingTypes.Back
 	};
 
-	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &info))
+	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &state))
 	{
 		// check to see if we already compiled a shader similar to this one
-		shader = CompileShader(&info.VertexPieces, &info.FragmentPieces, &info.GeometryPieces);
+		shader = CompileShader(&state.VertexPieces, &state.FragmentPieces, &state.GeometryPieces);
 
 		// if we didn't load the shader but compiled it instead, set the name to the path given
 		if (shader->Name is null)
@@ -642,19 +739,19 @@ static Shader Load(const char* path)
 			shader->Name = Strings.DuplicateTerminated(path);
 		}
 
-		shader->Settings = info.Settings;
+		shader->Settings = state.Settings;
 
-		shader->DepthFunction = info.DepthFunction;
+		shader->DepthFunction = state.DepthFunction;
 
-		shader->StencilFunction = info.StencilComparison;
-		shader->StencilMask = info.StencilMask;
-		shader->StencilValue = info.StencilValue;
+		shader->StencilFunction = state.StencilComparison;
+		shader->StencilMask = state.StencilMask;
+		shader->StencilValue = state.StencilValue;
 	}
 
 	// always free these strings, CompileShader will make copies if it needs to
-	StringArrays.DisposeMembers(&info.FragmentPieces);
-	StringArrays.DisposeMembers(&info.VertexPieces);
-	StringArrays.DisposeMembers(&info.GeometryPieces);
+	StringArrays.DisposeMembers(&state.FragmentPieces);
+	StringArrays.DisposeMembers(&state.VertexPieces);
+	StringArrays.DisposeMembers(&state.GeometryPieces);
 
 	if (shader is null)
 	{
@@ -672,62 +769,7 @@ static bool Save(Shader shader, const char* path)
 		return false;
 	}
 
-	fprintf(file, VertexShaderComment);
-	fprintf(file, ExportTokenFormat, VertexShaderToken, shader->VertexPath);
-
-	fprintf(file, FragmentShaderComment);
-	fprintf(file, ExportTokenFormat, FragmentShaderToken, shader->FragmentPath);
-
-	if (HasFlag(shader->Settings, ShaderSettings.BackfaceCulling))
-	{
-		fprintf(file, UseBackfaceCullingComment);
-		fprintf(file, ExportTokenFormat, UseBackfaceCullingToken, "true");
-	}
-
-	if (HasFlag(shader->Settings, ShaderSettings.UseCameraPerspective))
-	{
-		fprintf(file, UseCameraPerspectiveComment);
-		fprintf(file, ExportTokenFormat, UseCameraPerspectiveToken, "true");
-	}
-
-	if (HasFlag(shader->Settings, ShaderSettings.Transparency))
-	{
-		fprintf(file, UseTransparencyComment);
-		fprintf(file, ExportTokenFormat, UseTransparencyToken, "true");
-	}
-
-	if (HasFlag(shader->Settings, ShaderSettings.UseDepthTest))
-	{
-		fprintf(file, UseDepthTestComment);
-		fprintf(file, ExportTokenFormat, UseDepthTestToken, "true");
-	}
-
-	if (HasFlag(shader->Settings, ShaderSettings.UseStencilBuffer))
-	{
-		fprintf(file, UseStencilBufferComment);
-		fprintf(file, ExportTokenFormat, UseStencilBufferToken, "true");
-	}
-
-	if (HasFlag(shader->Settings, ShaderSettings.WriteToStencilBuffer))
-	{
-		fprintf(file, WriteToStencilBufferComment);
-		fprintf(file, ExportTokenFormat, WriteToStencilBufferToken, "true");
-	}
-
-	if (HasFlag(shader->Settings, ShaderSettings.CustomStencilAttributes))
-	{
-		fprintf(file, UseCustomStencilAttributesComment);
-		fprintf(file, ExportTokenFormat, UseCustomStencilAttributesToken, "true");
-
-		fprintf(file, CustomStencilFuncionComment);
-		fprintf(file, ExportTokenFormat, CustomStencilFuncionToken, shader->StencilFunction.Name);
-
-		fprintf(file, CustomStencilValueComment);
-		fprintf(file, "\n%s: %xui\n", CustomStencilValueToken, shader->StencilValue);
-
-		fprintf(file, CustomStencilMaskComment);
-		fprintf(file, "\n%s: %xui\n", CustomStencilMaskToken, shader->StencilMask);
-	}
+	Configs.SaveConfigStream(file, (const ConfigDefinition)&ShaderConfigDefinition, shader );
 
 	return Files.TryClose(file);
 }

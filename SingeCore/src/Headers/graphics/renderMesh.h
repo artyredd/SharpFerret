@@ -44,6 +44,7 @@ struct _renderMeshMethods {
 	RenderMesh(*Duplicate)(RenderMesh);
 	// Creates a render mesh object with no buffers or populated fields
 	RenderMesh(*Create)(void);
+	void (*Save)(File, RenderMesh mesh);
 };
 
 extern const struct _renderMeshMethods RenderMeshes;

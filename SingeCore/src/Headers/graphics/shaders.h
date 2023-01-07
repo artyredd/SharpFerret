@@ -125,6 +125,7 @@ struct _shader {
 	char* Name;
 	char* VertexPath;
 	char* FragmentPath;
+	char* GeometryPath;
 	SharedHandle Handle;
 	struct _shaderUniforms* Uniforms;
 	/// <summary>

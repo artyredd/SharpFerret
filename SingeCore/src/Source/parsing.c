@@ -8,7 +8,21 @@
 #include "singine/file.h"
 #include "csharp.h"
 
-char* ValidTrueBooleans[] = {
+static bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool* out_bool);
+static bool TryParseLine(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string);
+static bool TryParseString(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string);
+static bool TryParseStringArray(const char* buffer, const size_t bufferLength, char*** out_array, size_t** out_lengths, size_t* out_count);
+static bool RunParsingUnitTests();
+
+const struct _parsing Parsing = {
+	.TryGetBool = TryParseBoolean,
+	.TryGetLine = TryParseLine,
+	.TryGetString = TryParseString,
+	.TryGetStrings = TryParseStringArray,
+	.RunParsingUnitTests = &RunParsingUnitTests
+};
+
+static char* ValidTrueBooleans[] = {
 	"TRUE",
 	"1",
 	"YES",
@@ -18,7 +32,7 @@ char* ValidTrueBooleans[] = {
 	"ENABLED"
 };
 
-char* ValidFalseBooleans[] = {
+static char* ValidFalseBooleans[] = {
 	"FALSE",
 	"0",
 	"NO",
@@ -28,7 +42,7 @@ char* ValidFalseBooleans[] = {
 	"DISABLED"
 };
 
-bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool* out_bool)
+static bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool* out_bool)
 {
 	*out_bool = false;
 
@@ -73,7 +87,7 @@ bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool* out_bo
 	return parsed;
 }
 
-bool TryParseLine(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string)
+static bool TryParseLine(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string)
 {
 	*out_string = null;
 
@@ -118,7 +132,7 @@ bool TryParseLine(const char* buffer, const size_t bufferLength, const size_t ma
 	return true;
 }
 
-bool TryParseString(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string)
+static bool TryParseString(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string)
 {
 	*out_string = null;
 
@@ -163,7 +177,7 @@ bool TryParseString(const char* buffer, const size_t bufferLength, const size_t 
 	return true;
 }
 
-bool TryParseStringArray(const char* buffer, const size_t bufferLength, char*** out_array, size_t** out_lengths, size_t* out_count)
+static bool TryParseStringArray(const char* buffer, const size_t bufferLength, char*** out_array, size_t** out_lengths, size_t* out_count)
 {
 	*out_lengths = null;
 	*out_count = 0;
@@ -250,7 +264,6 @@ bool TryParseStringArray(const char* buffer, const size_t bufferLength, char*** 
 	return true;
 }
 
-
 static bool Test_Helper_TryParseBoolean(File stream, char* data, bool shouldParse, bool expected)
 {
 	bool actual;
@@ -289,7 +302,7 @@ static bool Test_TryParseBoolean(File stream)
 	return true;
 }
 
-bool Test_TryParseStringArray(File stream)
+static bool Test_TryParseStringArray(File stream)
 {
 	ResetAlloc();
 	ResetFree();
@@ -354,7 +367,7 @@ bool Test_TryParseStringArray(File stream)
 	return true;
 }
 
-bool RunParsingUnitTests()
+static bool RunParsingUnitTests()
 {
 	TestSuite suite = CreateSuite(__FILE__);
 

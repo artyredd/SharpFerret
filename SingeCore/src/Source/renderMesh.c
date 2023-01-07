@@ -12,6 +12,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model);
 static RenderMesh Duplicate(RenderMesh mesh);
 static RenderMesh CreateRenderMesh(void);
 static bool TryBindModel(Model model, RenderMesh** out_meshArray);
+static void Save(File, RenderMesh mesh);
 
 const struct _renderMeshMethods RenderMeshes = {
 	.Dispose = &Dispose,
@@ -20,7 +21,8 @@ const struct _renderMeshMethods RenderMeshes = {
 	.TryBindModel = &TryBindModel,
 	.Instance = &InstanceMesh,
 	.Duplicate = &Duplicate,
-	.Create = &CreateRenderMesh
+	.Create = &CreateRenderMesh,
+	.Save = &Save
 };
 
 static void OnBufferDispose(SharedHandle handle)
@@ -285,4 +287,12 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 	*out_meshArray = meshesArray;
 
 	return true;
+}
+
+static void Save(File stream, RenderMesh mesh)
+{
+	if (mesh isnt null)
+	{
+		fprintf(stream, "%s", (char*)mesh->Name->Resource);
+	}
 }

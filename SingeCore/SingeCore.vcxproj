@@ -173,13 +173,14 @@
       <AdditionalDependencies>glfw3.lib;opengl32.lib;glew32s.lib;kernel32.lib;user32.lib;gdi32.lib;shell32.lib;ole32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(SolutionDir)external\glew\lib\Release\x64;$(SolutionDir)external\ttf2mesh;$(SolutionDir)external\glfw\build\src\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreAllDefaultLibraries>false</IgnoreAllDefaultLibraries>
-      <ShowProgress>LinkVerbose</ShowProgress>
+      <ShowProgress>NotSet</ShowProgress>
       <IgnoreSpecificDefaultLibraries>/NODEFAULTLIB:msvcrt.lib /NODEFAULTLIB:libcmt.lib</IgnoreSpecificDefaultLibraries>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\camera.c" />
+    <ClCompile Include="src\Source\Collider.c" />
     <ClCompile Include="src\Source\colors.c" />
     <ClCompile Include="src\Source\config.c" />
     <ClCompile Include="src\Source\floats.c" />
@@ -187,6 +188,7 @@
     <ClCompile Include="src\Source\instancedResource.c" />
     <ClCompile Include="src\Source\ints.c" />
     <ClCompile Include="src\Source\light.c" />
+    <ClCompile Include="src\Source\physics.c" />
     <ClCompile Include="src\Source\range.c" />
     <ClCompile Include="src\Source\reflection.c" />
     <ClCompile Include="src\Source\renderbuffers.c" />
@@ -220,12 +222,14 @@
     <ClCompile Include="src\Source\textureDefinitions.c" />
     <ClCompile Include="src\Source\time.c" />
     <ClCompile Include="src\Source\transform.c" />
+    <ClCompile Include="src\Source\triangles.c" />
     <ClCompile Include="src\Source\types.c" />
     <ClCompile Include="src\Source\vectors.c" />
     <ClCompile Include="src\Source\window.c" />
     <ClCompile Include="src\Tests\tests.c" />
     <ClCompile Include="src\Tests\tests_material.c" />
     <ClCompile Include="src\Tests\tests_shader.c" />
+    <ClCompile Include="src\Tests\tests_triangles.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h" />
@@ -259,10 +263,13 @@
     <ClInclude Include="src\Headers\math\macros.h" />
     <ClInclude Include="src\Headers\math\quaternions.h" />
     <ClInclude Include="src\Headers\math\range.h" />
+    <ClInclude Include="src\Headers\Math\triangles.h" />
     <ClInclude Include="src\Headers\math\vectors.h" />
     <ClInclude Include="src\Headers\modeling\importer.h" />
     <ClInclude Include="src\Headers\modeling\mesh.h" />
     <ClInclude Include="src\Headers\modeling\model.h" />
+    <ClInclude Include="src\Headers\physics\Collider.h" />
+    <ClInclude Include="src\Headers\physics\physics.h" />
     <ClInclude Include="src\Headers\scripts\fpsCamera.h" />
     <ClInclude Include="src\Headers\singine\config.h" />
     <ClInclude Include="src\Headers\singine\defaults.h" />
@@ -304,8 +311,6 @@
     <None Include="assets\prefabs\car.gameobject" />
     <None Include="assets\prefabs\cube.gameobject" />
     <None Include="assets\prefabs\lamp.gameobject" />
-    <None Include="assets\prefabs\lightBulb.gameobject" />
-    <None Include="assets\prefabs\lightFilament.gameobject" />
     <None Include="assets\prefabs\mirrorStatue.gameobject" />
     <None Include="assets\prefabs\monkey.gameobject" />
     <None Include="assets\prefabs\reflectiveSphere.gameobject" />
@@ -351,9 +356,6 @@
     <None Include="assets\textures\marble_specular.texture" />
     <None Include="assets\textures\marble_uv.texture" />
     <None Include="assets\textures\skybox.texture" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="assets\prefabs\lightBase.gameobject" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

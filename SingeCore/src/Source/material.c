@@ -524,33 +524,6 @@ static void SetName(Material material, const char* name)
 #define ExportTokenFormat "%s: %s\n"
 #define ExportCommentFormat "%s\n"
 
-#define ShaderTokenComment "# path array delimited by ','; the array of shaders that should be loaded for this material"
-#define ShaderToken "shaders"
-#define ColorTokenComment "# vec4; the material base color"
-#define ColorToken "color"
-#define MainTextureComment "# path; the main UV texture that should be used for this material"
-#define MainTextureToken "mainTexture"
-#define SpecularTextureComment "# path; the texture that should be used to determine what parts of this material are shiny"
-#define SpecularTextureToken "specularMap"
-#define SpecularColorComment "# vec4; the color that specular highlights should be"
-#define SpecularColorToken "specular"
-#define AmbientColorComment "# vec4; the ambient color this object should be when exposed to no light"
-#define AmbientColorToken "ambient"
-#define ShininessComment "# float [0-255]; How shiny the material should be"
-#define ShininessToken "shininess"
-#define DiffuseColorComment "# vec4; the diffuse color of the material"
-#define DiffuseColorToken "diffuse"
-#define SpecularStrengthComment "# float [0-1]; how strong the specular highlights should be"
-#define SpecularStrengthToken "specularStrength"
-#define ReflectionMapComment "# the 2d texture path that should be used to determine which parts of this material should be reflective"
-#define ReflectionMapToken "reflectionMap"
-#define AreaMapComment "# the 3d cubemap texture path that should be used to determine what is shown in reflections off of this object"
-#define AreaMapToken "areaMap"
-#define ReflectivityComment "# float [0-1]; the reflectivity of this material"
-#define ReflectivityToken "reflectivity"
-#define ReflectionTextureComment "# path; the texture that should be used to determine what parts of this material are reflective"
-#define ReflectionTextureToken "reflectionMap"
-
 #define MAX_PATH_LENGTH 512
 
 struct _materialDefinition
@@ -567,69 +540,172 @@ struct _materialDefinition
 	float Shininess;
 	float Reflectivity;
 	char* ReflectionTexturePath;
+	char* ReflectionMap;
+	char* AreaMap;
 };
 
-static const char* Tokens[] = {
-	ShaderToken,
-	ColorToken,
-	MainTextureToken,
-	SpecularTextureToken,
-	SpecularColorToken,
-	AmbientColorToken,
-	ShininessToken,
-	DiffuseColorToken,
-	ReflectivityToken,
-	ReflectionMapToken
-};
-
-static const size_t TokenLengths[] = {
-	sizeof(ShaderToken),
-	sizeof(ColorToken),
-	sizeof(MainTextureToken),
-	sizeof(SpecularTextureToken),
-	sizeof(SpecularColorToken),
-	sizeof(AmbientColorToken),
-	sizeof(ShininessToken),
-	sizeof(DiffuseColorToken),
-	sizeof(ReflectivityToken),
-	sizeof(ReflectionMapToken)
-};
-
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _materialDefinition* state)
+TOKEN_LOAD(shaders, struct _materialDefinition*)
 {
-	switch (index)
+	return Parsing.TryGetStrings(buffer, length, &state->ShaderPaths, &state->ShaderPathLengths, &state->ShaderCount);
+}
+
+
+TOKEN_SAVE(shaders, Material)
+{
+	// print string array
+	for (size_t i = 0; i < state->Count; i++)
 	{
-	case 0: // shader token
-		return TryParseStringArray(buffer, length, &state->ShaderPaths, &state->ShaderPathLengths, &state->ShaderCount);
-	case 1: // color
-		return Vector4s.TryDeserialize(buffer, length, state->Color);
-	case 2: //  main texture
-		return TryParseString(buffer, length, MAX_PATH_LENGTH, &state->MainTexturePath);
-	case 3: // specular texture
-		return TryParseString(buffer, length, MAX_PATH_LENGTH, &state->SpecularTexturePath);
-	case 4: // specular color
-		return Vector4s.TryDeserialize(buffer, length, state->Specular);
-	case 5: // ambient color
-		return Vector4s.TryDeserialize(buffer, length, state->Ambient);
-	case 6: // shininess
-		return Floats.TryDeserialize(buffer, length, &state->Shininess);
-	case 7: // diffuse color
-		return Vector4s.TryDeserialize(buffer, length, state->Diffuse);
-	case 8: // shininess
-		return Floats.TryDeserialize(buffer, length, &state->Reflectivity);
-	case 9: // reflection map
-		return TryParseString(buffer, length, MAX_PATH_LENGTH, &state->ReflectionTexturePath);
-	default:
-		return false;
+		const Shader shader = state->Shaders[i];
+
+		if (shader isnt null)
+		{
+			fprintf(stream, "%s,", shader->Name);
+		}
 	}
 }
 
+TOKEN_LOAD(color, struct _materialDefinition*)
+{
+	return Vector4s.TryDeserialize(buffer, length, state->Color);
+}
+
+TOKEN_SAVE(color, Material)
+{
+	if (Vector4s.TrySerializeStream(stream, state->Color) is false)
+	{
+		throw(FailedToReadFileException);
+	}
+}
+
+TOKEN_LOAD(mainTexture, struct _materialDefinition*)
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_LENGTH, &state->MainTexturePath);
+}
+
+TOKEN_SAVE(mainTexture, Material)
+{
+	if (state->MainTexture isnt null)
+	{
+		fprintf(stream, "%s",state->MainTexture->Path);
+	}
+}
+
+TOKEN_LOAD(specularMap, struct _materialDefinition*)
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_LENGTH, &state->SpecularTexturePath);
+}
+
+TOKEN_SAVE(specularMap, Material)
+{
+	if (state->SpecularTexture isnt null)
+	{
+		fprintf(stream, "%s", state->SpecularTexture->Path);
+	}
+}
+
+TOKEN_LOAD(specular, struct _materialDefinition*)
+{
+	return Vector4s.TryDeserialize(buffer, length, state->Specular);
+}
+
+TOKEN_SAVE(specular, Material)
+{
+	if (Vector4s.TrySerializeStream(stream, state->SpecularColor) is false)
+	{
+		throw(FailedToSerializeException);
+	}
+}
+
+TOKEN_LOAD(ambient, struct _materialDefinition*)
+{
+	return Vector4s.TryDeserialize(buffer, length, state->Ambient);
+}
+
+TOKEN_SAVE(ambient, Material)
+{
+	if (Vector4s.TrySerializeStream(stream, state->AmbientColor) is false)
+	{
+		throw(FailedToSerializeException);
+	}
+}
+
+TOKEN_LOAD(shininess, struct _materialDefinition*)
+{
+	return Floats.TryDeserialize(buffer, length, &state->Shininess);
+}
+
+TOKEN_SAVE(shininess, Material)
+{
+	Floats.SerializeStream(stream, state->Shininess);
+}
+
+TOKEN_LOAD(diffuse, struct _materialDefinition*)
+{
+	return Vector4s.TryDeserialize(buffer, length, state->Diffuse);
+}
+
+TOKEN_SAVE(diffuse, Material)
+{
+	if (Vector4s.TrySerializeStream(stream, state->DiffuseColor) is false)
+	{
+		throw(FailedToSerializeException);
+	}
+}
+
+TOKEN_LOAD(reflectionMap, struct _materialDefinition*)
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_LENGTH, &state->ReflectionMap);
+}
+
+TOKEN_SAVE(reflectionMap, Material)
+{
+	if (state->ReflectionMap isnt null)
+	{
+		fprintf(stream, "%s", state->ReflectionMap->Path);
+	}
+}
+
+TOKEN_LOAD(areaMap, struct _materialDefinition*)
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_LENGTH, &state->AreaMap);
+}
+
+TOKEN_SAVE(areaMap, Material)
+{
+	if (state->AreaMap isnt null)
+	{
+		fprintf(stream, "%s", state->AreaMap->Path);
+	}
+}
+
+TOKEN_LOAD(reflectivity, struct _materialDefinition*)
+{
+	return Floats.TryDeserialize(buffer, length, &state->Reflectivity);
+}
+
+TOKEN_SAVE(reflectivity, Material)
+{
+	Floats.SerializeStream(stream, state->Reflectivity);
+}
+
+TOKENS(11) {
+	TOKEN(shaders, "# path array delimited by ','; the array of shaders that should be loaded for this material" ),
+	TOKEN(color, "# vec4; the material base color" ),
+	TOKEN(mainTexture, "# path; the main UV texture that should be used for this material" ),
+	TOKEN(specularMap, "# path; the texture that should be used to determine what parts of this material are shiny" ),
+	TOKEN(specular, "# vec4; the color that specular highlights should be" ),
+	TOKEN(ambient, "# vec4; the ambient color this object should be when exposed to no light" ),
+	TOKEN(shininess, "# float [0-255]; How shiny the material should be" ),
+	TOKEN(diffuse, "# vec4; the diffuse color of the material" ),
+	TOKEN(reflectionMap, "# the 2d texture path that should be used to determine which parts of this material should be reflective" ),
+	TOKEN(areaMap, "# the 3d cubemap texture path that should be used to determine what is shown in reflections off of this object" ),
+	TOKEN(reflectivity, "# float [0-1]; the reflectivity of this material" ),
+};
+
 const struct _configDefinition MaterialConfigDefinition = {
-	.Tokens = (const char**)&Tokens,
-	.TokenLengths = (const size_t*)&TokenLengths,
+	.Tokens = Tokens,
 	.CommentCharacter = '#',
-	.Count = sizeof(Tokens) / sizeof(&Tokens), // tokens is an array of pointers to the total bytes/sizeof pointer is the count
-	.OnTokenFound = &OnTokenFound
+	.Count = sizeof(Tokens) / sizeof(struct _configToken)
 };
 
 static Material Load(const char* path)
@@ -657,7 +733,7 @@ static Material Load(const char* path)
 		.ReflectionTexturePath = null
 	};
 
-	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&MaterialConfigDefinition, &state))
+	if (Configs.TryLoadConfig(path, &MaterialConfigDefinition, &state))
 	{
 		// no point of having a material with no shader
 		if (state.ShaderCount isnt 0)
@@ -791,93 +867,7 @@ static bool Save(const Material material, const char* path)
 		return false;
 	}
 
-	fprintf(file, ExportCommentFormat, ShaderTokenComment);
-	fprintf(file, "%s: ", ShaderToken);
-
-	// print string array
-	for (size_t i = 0; i < material->Count; i++)
-	{
-		Shader shader = material->Shaders[i];
-
-		if (shader isnt null)
-		{
-			fprintf(file, "%s,", shader->Name);
-		}
-	}
-
-	fprintf(file, NEWLINE);
-
-	fprintf(file, ExportCommentFormat, ColorTokenComment);
-	fprintf(file, "%s: ", ColorToken);
-
-	if (Vector4s.TrySerializeStream(file, material->Color) is false)
-	{
-		return false;
-	}
-
-	fprintf(file, NEWLINE);
-
-	fprintf(file, ExportCommentFormat, SpecularColorComment);
-	fprintf(file, "%s: ", SpecularColorToken);
-
-	if (Vector4s.TrySerializeStream(file, material->SpecularColor) is false)
-	{
-		return false;
-	}
-
-	fprintf(file, NEWLINE);
-
-	fprintf(file, ExportCommentFormat, AmbientColorComment);
-	fprintf(file, "%s: ", AmbientColorToken);
-
-	if (Vector4s.TrySerializeStream(file, material->AmbientColor) is false)
-	{
-		return false;
-	}
-
-	fprintf(file, NEWLINE);
-
-	fprintf(file, ExportCommentFormat, DiffuseColorComment);
-	fprintf(file, "%s: ", DiffuseColorToken);
-
-	if (Vector4s.TrySerializeStream(file, material->DiffuseColor) is false)
-	{
-		return false;
-	}
-
-	fprintf(file, NEWLINE);
-
-	fprintf(file, ExportCommentFormat, ShininessComment);
-	fprintf(file, "%s: %f"NEWLINE, ShininessToken, material->Shininess);
-
-	if (material->MainTexture isnt null)
-	{
-		fprintf(file, ExportCommentFormat, MainTextureComment);
-		fprintf(file, ExportTokenFormat, MainTextureToken, material->MainTexture->Path);
-	}
-
-	if (material->SpecularTexture isnt null)
-	{
-		fprintf(file, ExportCommentFormat, SpecularTextureComment);
-		fprintf(file, ExportTokenFormat, SpecularTextureToken, material->SpecularTexture->Path);
-	}
-
-	if (material->ReflectionMap isnt null)
-	{
-		fprintf(file, ExportCommentFormat, ReflectionMapComment);
-		fprintf(file, ExportTokenFormat, ReflectionMapToken, material->ReflectionMap->Path);
-	}
-
-	if (material->AreaMap isnt null)
-	{
-		fprintf(file, ExportCommentFormat, AreaMapComment);
-		fprintf(file, ExportTokenFormat, AreaMapToken, material->AreaMap->Path);
-	}
-
-	fprintf(file, NEWLINE);
-
-	fprintf(file, ExportCommentFormat, ReflectivityComment);
-	fprintf(file, "%s: %f"NEWLINE, ReflectivityToken, material->Reflectivity);
+	Configs.SaveConfigStream(file, &MaterialConfigDefinition, material);
 
 	return Files.TryClose(file);
 }

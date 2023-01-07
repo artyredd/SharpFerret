@@ -48,6 +48,8 @@ static Exception FailedToOpenFileException = 0x70000004;
 static Exception FailedToWriteToStreamException = 0x70000005;
 static Exception FailedToImportModelException = 0x70000006;
 static Exception MissingCharacterException = 0x70000007;
+static Exception FailedToSerializeException = 0x70000008; 
+
 // The logic path or branching that lead to this error needs to be evaluated or tested more thoroughly.
 // This error denotes and exception that may or may not be dangerous but is unexpected and clearly unintended.
 static Exception InvalidLogicException = 0x70000008;

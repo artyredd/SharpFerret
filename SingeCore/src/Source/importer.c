@@ -386,7 +386,7 @@ static bool TryParseObjects(File stream,
 			size = min(lineLength - Sequences.ObjectSize, lineLength);
 
 			char* name;
-			if (TryParseLine(offset, size, MAX_OBJECT_NAME_LENGTH, &name) is false)
+			if (Parsing.TryGetLine(offset, size, MAX_OBJECT_NAME_LENGTH, &name) is false)
 			{
 				Meshes.Dispose(currentMesh);
 
@@ -572,7 +572,7 @@ static bool TryParseObjects(File stream,
 			size = min(lineLength - Sequences.SmoothingSize, lineLength);
 
 			bool smoothing;
-			if (TryParseBoolean(offset, size, &smoothing) is false)
+			if (Parsing.TryGetBool(offset, size, &smoothing) is false)
 			{
 				Meshes.Dispose(currentMesh);
 				return false;

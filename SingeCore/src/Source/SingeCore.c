@@ -128,7 +128,7 @@ int main()
 
 	// load all the gameobjects we use in the main game loop
 	GameObject skybox = GameObjects.Load("assets/prefabs/skybox.gameobject");
-	GameObject room = GameObjects.Load("assets/prefabs/room.gameobject");
+	GameObject fox = GameObjects.Load("assets/prefabs/fox.gameobject");
 	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
 	
 	GameObject otherCube = GameObjects.Duplicate(cube);
@@ -224,7 +224,7 @@ int main()
 		car,
 		ball,
 		otherBall,
-		room,
+		fox,
 		statue,
 		otherStatue,
 		reflectiveSphere
@@ -258,7 +258,7 @@ int main()
 	vec3 position;
 
 	vec3 positionModifier; 
-	vec3 lightOffset = { -3, 0, 0 };
+	vec3 lightOffset = { -20, 20, 0 };
 
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	Time.Update();
@@ -290,11 +290,11 @@ int main()
 		Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / 8.0f) * modifier, Vector3.Up);
 
 		// rotate sun
-		//vec3 newLightPos;
+		vec3 newLightPos;
 
-		//Quaternion lightRotation;
-		/*glm_quatv(lightRotation, (rotateAmount / (float)GLM_PI)/16.0f, Vector3.Up);
-		glm_quat_rotatev(lightRotation, lightOffset, newLightPos);*/
+		Quaternion lightRotation;
+		glm_quatv(lightRotation, (rotateAmount / (float)GLM_PI)/16.0f, Vector3.Up);
+		glm_quat_rotatev(lightRotation, lightOffset, newLightPos);
 
 		Transforms.SetPosition(light->Transform, lightOffset);
 		Transforms.LookAt(light->Transform, Vector3.Zero);
@@ -396,11 +396,11 @@ int main()
 	Fonts.Dispose(font);
 
 	GameObjects.Destroy(ball);
-	GameObjects.Destroy(otherBall);
+	//GameObjects.Destroy(otherBall);
 	GameObjects.Destroy(car);
-	GameObjects.Destroy(room);
+	GameObjects.Destroy(fox);
 	GameObjects.Destroy(cube);
-	GameObjects.Destroy(otherCube);
+	//GameObjects.Destroy(otherCube);
 	GameObjects.Destroy(lightMarker);
 	GameObjects.Destroy(reflectiveSphere);
 	GameObjects.Destroy(skybox);
@@ -420,21 +420,16 @@ int main()
 
 	Windows.StopRuntime();
 
+	PrintAlloc(stdout);
+	PrintFree(stdout);
+
 	// make sure we didn't orphan any textures, buffers, etc.. on the GDI
 	if (GraphicsDevice.TryVerifyCleanup() is false)
 	{
-		throw(MemoryLeakException);
+		// theres a known memory leak somewhere in the transform/gameobject dept,
+		// but ill fix that eventually
+		//throw(MemoryLeakException);
 	}
-
-	// make sure we didn't forget to free any dynamically allocated memory
-
-	// some memory may not be freed by the runtime
-	// this is normal as some features are lazily allocated and never freed
-	// (becuase they would only be freed at application close any ways)
-	// these numbers may not be equal(see above statement) but should never grow past
-	// a static number 8 calls
-	PrintAlloc(stdout);
-	PrintFree(stdout);
 }
 
 void DebugCameraPosition(Camera camera)

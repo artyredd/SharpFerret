@@ -308,77 +308,7 @@ static Texture Blank(void)
 
 #define MAX_PATH_SIZE 512
 
-#define CommentFormat "%s\n"
-#define TokenFormat "%s: "
-
-#define PathTokenComment "# the path to the texture"
-#define PathToken "path"
-
-#define MinTokenComment "# the minification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"
-#define MinToken "minificationFilter"
-
-#define MagTokenComment "# the maginification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"
-#define MagToken "magnificationFilter"
-
-#define WrapXTokenComment "# How to wrap the texture along the x (S) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"
-#define WrapXToken "wrapX"
-
-#define WrapYTokenComment "# How to wrap the texture along the y (T) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"
-#define WrapYToken "wrapY"
-
-#define WrapZTokenComment "# How to wrap the texture along the z (R) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"
-#define WrapZToken "wrapZ"
-
-#define TypeTokenComment "# the type of texture this represents"NEWLINE"# 2d, cubemap"
-#define TypeToken "type"
-
-#define LeftTokenComment "# the path for the left face of the cube map"
-#define RightTokenComment "# the path for the right face of the cube map"
-#define UpTokenComment "# the path for the up face of the cube map"
-#define DownTokenComment "# the path for the down face of the cube map"
-#define ForwardTokenComment "# the path for the forward face of the cube map"
-#define BackTokenComment "# the path for the back face of the cube map"
-
-#define LeftToken "left"
-#define RightToken "right"
-#define UpToken "up"
-#define DownToken "down"
-#define ForwardToken "forward"
-#define BackToken "back"
-
-static const char* Tokens[] = {
-	PathToken,
-	MinToken,
-	MagToken,
-	WrapXToken,
-	WrapYToken,
-	WrapZToken,
-	TypeToken,
-	LeftToken,
-	RightToken,
-	UpToken,
-	DownToken,
-	ForwardToken,
-	BackToken
-};
-
-static const size_t TokenLengths[] = {
-	sizeof(PathToken),
-	sizeof(MinToken),
-	sizeof(MagToken),
-	sizeof(WrapXToken),
-	sizeof(WrapYToken),
-	sizeof(WrapZToken),
-	sizeof(TypeToken),
-	sizeof(LeftToken),
-	sizeof(RightToken),
-	sizeof(UpToken),
-	sizeof(DownToken),
-	sizeof(ForwardToken),
-	sizeof(BackToken)
-};
-
-struct _textureInfo {
+struct _textureState {
 	char* path;
 	TextureType Type;
 	FilterType MinificationFilter;
@@ -395,17 +325,166 @@ struct _textureInfo {
 	char* back;
 };
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state);
+TOKEN_LOAD(path, struct _textureState*) 
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->path);
+}
 
-struct _configDefinition TextureConfigDefinition = {
-	.Tokens = (const char**)&Tokens,
-	.TokenLengths = (const size_t*)&TokenLengths,
-	.CommentCharacter = '#',
-	.Count = sizeof(Tokens) / sizeof(char*),
-	.OnTokenFound = &OnTokenFound
+TOKEN_SAVE(path, Texture) 
+{
+	fprintf(stream, "%s", state->Path);
+}
+
+TOKEN_LOAD(minificationFilter, struct _textureState*) 
+{
+	return TryGetFilterType(buffer, length, &state->MinificationFilter);
+}
+
+TOKEN_SAVE(minificationFilter, Texture) 
+{
+	fprintf(stream, "%s", state->MinificationFilter.Name);
+}
+
+TOKEN_LOAD(magnificationFilter, struct _textureState*) 
+{
+	return TryGetFilterType(buffer, length, &state->MagnificationFilter);
+}
+
+TOKEN_SAVE(magnificationFilter, Texture) 
+{
+	fprintf(stream, "%s", state->MagnificationFilter.Name);
+}
+
+TOKEN_LOAD(wrapX, struct _textureState*) 
+{
+	return TryGetWrapModeType(buffer, length, &state->WrapX);
+}
+
+TOKEN_SAVE(wrapX, Texture) 
+{
+	fprintf(stream, "%s", state->WrapX.Name);
+}
+
+TOKEN_LOAD(wrapY, struct _textureState*) 
+{
+	return TryGetWrapModeType(buffer, length, &state->WrapY);
+}
+
+TOKEN_SAVE(wrapY, Texture) 
+{
+	fprintf(stream, "%s", state->WrapY.Name);
+}
+
+TOKEN_LOAD(wrapZ, struct _textureState*) 
+{
+	return TryGetWrapModeType(buffer, length, &state->WrapZ);
+}
+
+TOKEN_SAVE(wrapZ, Texture) 
+{
+	fprintf(stream, "%s", state->WrapZ.Name);
+}
+
+TOKEN_LOAD(type, struct _textureState*) 
+{
+	return TryGetTextureType(buffer, length, &state->Type);
+}
+
+TOKEN_SAVE(type, Texture) 
+{
+	fprintf(stream, "%s", state->Type.Name);
+}
+
+TOKEN_LOAD(left, struct _textureState*) 
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->left);
+}
+
+TOKEN_SAVE(left, Texture) 
+{
+	ignore_unused(stream);
+	ignore_unused(state);
+}
+
+TOKEN_LOAD(right, struct _textureState*) 
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->right);
+}
+
+TOKEN_SAVE(right, Texture) 
+{
+	ignore_unused(stream);
+	ignore_unused(state);
+}
+
+TOKEN_LOAD(up, struct _textureState*) 
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->up);
+}
+
+TOKEN_SAVE(up, Texture) 
+{
+	ignore_unused(stream);
+	ignore_unused(state);
+}
+
+TOKEN_LOAD(down, struct _textureState*) 
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->down);
+}
+
+TOKEN_SAVE(down, Texture) 
+{
+	ignore_unused(stream);
+	ignore_unused(state);
+}
+
+TOKEN_LOAD(forward, struct _textureState*) 
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->forward);
+}
+
+TOKEN_SAVE(forward, Texture) 
+{
+	ignore_unused(stream);
+	ignore_unused(state);
+}
+
+TOKEN_LOAD(back, struct _textureState*) 
+{
+	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->back);
+}
+
+TOKEN_SAVE(back, Texture) 
+{
+	ignore_unused(stream);
+	ignore_unused(state);
+}
+
+
+TOKENS(13) {
+	TOKEN(path, "# the path to the texture"),
+	TOKEN(minificationFilter, "# the minification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"),
+	TOKEN(magnificationFilter, "# the maginification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"),
+	TOKEN(wrapX, "# How to wrap the texture along the x (S) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"),
+	TOKEN(wrapY, "# How to wrap the texture along the y (T) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"),
+	TOKEN(wrapZ, "# How to wrap the texture along the z (R) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"),
+	TOKEN(type, "# the type of texture this represents"NEWLINE"# 2d, cubemap"),
+	TOKEN(left, "# the path for the left face of the cube map"),
+	TOKEN(right, "# the path for the right face of the cube map"),
+	TOKEN(up, "# the path for the up face of the cube map"),
+	TOKEN(down, "# the path for the down face of the cube map"),
+	TOKEN(forward, "# the path for the forward face of the cube map"),
+	TOKEN(back, "# the path for the back face of the cube map")
 };
 
-static bool ModifyLoadedTexture(struct _textureInfo* state)
+struct _configDefinition TextureConfigDefinition = {
+	.Tokens = Tokens,
+	.CommentCharacter = '#',
+	.Count = sizeof(Tokens) / sizeof(struct _configToken)
+};
+
+static bool ModifyLoadedTexture(struct _textureState* state)
 {
 	if (state is null)
 	{
@@ -421,42 +500,7 @@ static bool ModifyLoadedTexture(struct _textureInfo* state)
 	return true;
 }
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state)
-{
-	switch (index)
-	{
-	case 0: // path
-		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->path);
-	case 1: // min filter
-		return TryGetFilterType(buffer, length, &state->MinificationFilter);
-	case 2: // mag filter
-		return TryGetFilterType(buffer, length, &state->MagnificationFilter);
-	case 3: // wrap x
-		return TryGetWrapModeType(buffer, length, &state->WrapX);
-	case 4: // wrap y
-		return TryGetWrapModeType(buffer, length, &state->WrapY);
-	case 5: // wrap z
-		return TryGetWrapModeType(buffer, length, &state->WrapZ);
-	case 6: // type
-		return TryGetTextureType(buffer, length, &state->Type);
-	case 7: // left path of cubemap
-		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->left);
-	case 8: // right path of cubemap
-		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->right);
-	case 9: // up path of cubemap
-		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->up);
-	case 10: // down path of cubemap
-		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->down);
-	case 11: // forward path of cubemap
-		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->forward);
-	case 12: // back path of cubemap
-		return TryParseString(buffer, length, MAX_PATH_SIZE, &state->back);
-	default:
-		return false;
-	}
-}
-
-static void Load2dTexture(struct _textureInfo state, Texture* out_texture)
+static void Load2dTexture(struct _textureState state, Texture* out_texture)
 {
 	Image image = Images.LoadImage(state.path);
 
@@ -489,7 +533,7 @@ static void VerifyCubeMapImages(CubeMapImages images)
 	}
 }
 
-static void LoadCubemap(struct _textureInfo state, Texture* out_texture)
+static void LoadCubemap(struct _textureState state, Texture* out_texture)
 {
 	CubeMapImages images = {
 		Images.LoadImage(state.left),
@@ -523,7 +567,7 @@ static Texture Load(const char* path)
 
 	// ignore const violation for type default
 #pragma warning(disable:4090)
-	struct _textureInfo state = {
+	struct _textureState state = {
 		.path = null,
 		.Type = DEFAULT_TEXTURE_TYPE,
 		.MinificationFilter = DEFAULT_MINIFYING_FILTER,
@@ -579,38 +623,5 @@ static void Save(Texture texture, const char* path)
 	GuardNotNull(texture);
 	GuardNotNull(path);
 
-	File stream;
-	if (Files.TryOpen(path, FileModes.Create, &stream) is false)
-	{
-		throw(FailedToOpenFileException);
-	}
-
-	fprintf(stream, CommentFormat, PathTokenComment);
-	fprintf(stream, TokenFormat, PathToken);
-	fprintf(stream, "%s\n", texture->Path);
-
-	fprintf(stream, CommentFormat, MinTokenComment);
-	fprintf(stream, TokenFormat, MinToken);
-	fprintf(stream, "%s\n", texture->MinificationFilter.Name);
-
-	fprintf(stream, CommentFormat, MagTokenComment);
-	fprintf(stream, TokenFormat, MagToken);
-	fprintf(stream, "%s\n", texture->MagnificationFilter.Name);
-
-	fprintf(stream, CommentFormat, WrapXTokenComment);
-	fprintf(stream, TokenFormat, WrapXToken);
-	fprintf(stream, "%s\n", texture->WrapX.Name);
-
-	fprintf(stream, CommentFormat, WrapYTokenComment);
-	fprintf(stream, TokenFormat, WrapYToken);
-	fprintf(stream, "%s\n", texture->WrapY.Name);
-
-	fprintf(stream, CommentFormat, WrapZTokenComment);
-	fprintf(stream, TokenFormat, WrapZToken);
-	fprintf(stream, "%s\n", texture->WrapZ.Name);
-
-	if (Files.TryClose(stream) is false)
-	{
-		throw(FailedToCloseFileException);
-	}
+	Configs.SaveConfig(path, &TextureConfigDefinition, texture);
 }

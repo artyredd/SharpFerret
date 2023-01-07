@@ -53,8 +53,8 @@
 
 #define warn(errorCode) fprintf(stdout,"[WARNING] %s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE);
 
-// MACRO: performs the provided body in it's own scope and then disposes the provided disposable object, this assumes
-// the disposable object is a Pointer to a struct that has a void(*Dispose)(Object) field defined.
-#define using(disposable,body) do{body;}while(false);disposable->Dispose(disposable);
-
+// provides the string literal of the provided object
 #define nameof(thing) #thing
+
+// Ignores the provided parameter explicitly, avoiding any warnings generated from the compiler
+#define ignore_unused( parameter ) (void)parameter;

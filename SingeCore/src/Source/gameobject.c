@@ -376,68 +376,69 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 
 #define MaxPathLength 512
 
-#define CommentFormat "%s\n"
-#define TokenFormat "%s: "
-
-#define IdTokenComment "# the id of the gameobject at runtime"
-#define IdToken "id"
-#define MaterialTokenComment "# the material definition path of this gameobject"
-#define MaterialToken "material"
-#define ModelTokenComment "# the model path that should be loaded for this gameobject"
-#define ModelToken "model"
-
 #define StreamAbortToken "transform"
 
-static const char* Tokens[] = {
-	IdToken,
-	ModelToken,
-	MaterialToken
-};
-
-static const size_t TokenLengths[] = {
-	sizeof(IdToken),
-	sizeof(ModelToken),
-	sizeof(MaterialToken),
-};
-
-struct _textureInfo {
+struct _gameObjectState 
+{
 	size_t Id;
 	char* MaterialPath;
 	char* ModelPath;
 };
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state);
-
-struct _configDefinition GameObjectConfigDefinition = {
-	.Tokens = (const char**)&Tokens,
-	.TokenLengths = (const size_t*)&TokenLengths,
-	.CommentCharacter = '#',
-	.Count = sizeof(Tokens) / sizeof(char*),
-	.OnTokenFound = &OnTokenFound,
-	.AbortToken = StreamAbortToken,
-	.AbortTokenLength = sizeof(StreamAbortToken)
-};
-
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _textureInfo* state)
+TOKEN_LOAD(id, struct _gameObjectState*)
 {
-	switch (index)
+	return Ints.TryDeserialize(buffer, length, &state->Id);
+}
+
+TOKEN_LOAD(material, struct _gameObjectState*)
+{
+	return Parsing.TryGetString(buffer, length, MaxPathLength, &state->MaterialPath);
+}
+
+TOKEN_LOAD(model, struct _gameObjectState*)
+{
+	return Parsing.TryGetString(buffer, length, MaxPathLength, &state->ModelPath);
+}
+
+TOKEN_SAVE(id, GameObject)
+{
+	Ints.Serialize(stream, state->Id);
+}
+
+TOKEN_SAVE(model, GameObject)
+{
+	if (state->Meshes isnt null)
 	{
-	case 0: // id
-		return Ints.TryDeserialize(buffer, length, &state->Id);
-	case 1: // model path
-		return TryParseString(buffer, length, MaxPathLength, &state->ModelPath);
-	case 2: // material path
-		return TryParseString(buffer, length, MaxPathLength, &state->MaterialPath);
-	default:
-		return false;
+		RenderMeshes.Save(stream, state->Meshes[0]);
 	}
 }
+      
+TOKEN_SAVE(material, GameObject)
+{
+	if (state->Material)
+	{
+		fprintf(stream, "%s", state->Material->Name);
+	}
+}
+
+TOKENS(3) {
+	TOKEN(id, "# the id of the gameobject at runtime"),
+	TOKEN(model, "# the model path that should be loaded for this gameobject"),
+	TOKEN(material, "# the material definition path of this gameobject")
+};
+
+struct _configDefinition GameObjectConfigDefinition = {
+	.Tokens = Tokens,
+	.CommentCharacter = '#',
+	.Count = sizeof(Tokens) / sizeof(struct _configToken),
+	.AbortToken = ABORT_TOKEN(transform)
+};
 
 static GameObject Load(const char* path)
 {
 	GameObject gameObject = null;
 
-	struct _textureInfo state = {
+	struct _gameObjectState state = {
 		.Id = 0,
 		.MaterialPath = null,
 		.ModelPath = null,
@@ -537,6 +538,15 @@ static GameObject Load(const char* path)
 	return gameObject;
 }
 
+static void SaveStream(File stream, GameObject gameobject, const char* path)
+{
+	ignore_unused(path);
+
+	// make sure to put the abort token before the transform so we dont have to rewind the stream to deserialize the transform
+	fprintf(stream, "%s:\n", StreamAbortToken);
+	Transforms.Save(gameobject->Transform, stream);
+}
+
 static bool Save(GameObject gameobject, const char* path)
 {
 	// manually open the file and use the stream overload since we have to serialize the transform mid-stream
@@ -546,25 +556,9 @@ static bool Save(GameObject gameobject, const char* path)
 		return false;
 	}
 
-	fprintf(stream, CommentFormat, IdTokenComment);
-	fprintf(stream, TokenFormat, IdToken);
-	fprintf(stream, "%lli\n", gameobject->Id);
+	Configs.SaveConfigStream(stream, &GameObjectConfigDefinition, gameobject);
 
-	if (gameobject->Meshes isnt null)
-	{
-		fprintf(stream, CommentFormat, ModelTokenComment);
-		fprintf(stream, TokenFormat, ModelToken);
-		fprintf(stream, "%s\n", (char*)gameobject->Meshes[0]->Name->Resource);
-	}
-
-	fprintf(stream, CommentFormat, MaterialTokenComment);
-	fprintf(stream, TokenFormat, MaterialToken);
-	fprintf(stream, "%s\n", gameobject->Material->Name);
-
-
-	// make sure to put the abort token before the transform so we dont have to rewind the stream to deserialize the transform
-	fprintf(stream, "%s:\n", StreamAbortToken);
-	Transforms.Save(gameobject->Transform, stream);
+	SaveStream(stream, gameobject, path);
 
 	return Files.TryClose(stream);
 }

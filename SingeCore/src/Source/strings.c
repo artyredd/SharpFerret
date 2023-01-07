@@ -27,6 +27,7 @@ static bool Contains(const char* source, size_t length, const char* target, cons
 static bool Equals(const char* left, size_t leftLength, const char* right, size_t rightLength);
 static bool TrySplit(const char* source, size_t length, int delimiter, StringArray resultStringArray);
 static bool TryParse(const char* buffer, const size_t bufferLength, char** out_string);
+static int IndexOf(const char* buffer, const size_t bufferLength, int character);
 
 const struct _stringMethods Strings = {
 	.ToUpper = &ToUpper,
@@ -37,7 +38,8 @@ const struct _stringMethods Strings = {
 	.Contains = &Contains,
 	.Equals = &Equals,
 	.TrySplit = &TrySplit,
-	.TryParse = &TryParse
+	.TryParse = &TryParse,
+	.IndexOf = IndexOf
 };
 
 static void ToLower(char* buffer, size_t bufferLength, size_t offset)
@@ -156,6 +158,23 @@ static bool Contains(const char* source, size_t length, const char* target, cons
 	}
 
 	return false;
+}
+
+static int IndexOf(const char* buffer, const size_t bufferLength, int character)
+{
+	int position = 0;
+
+	while (position < bufferLength)
+	{
+		if (buffer[position] is character)
+		{
+			return position;
+		}
+
+		++position;
+	}
+
+	return -1;
 }
 
 static bool Equals(const char* left, size_t leftLength, const char* right, size_t rightLength)

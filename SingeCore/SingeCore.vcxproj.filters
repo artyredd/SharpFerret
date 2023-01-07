@@ -61,6 +61,9 @@
     <Filter Include="Resource Files\Textures">
       <UniqueIdentifier>{f56c251f-0560-43a2-9683-d218973c70ba}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\Physics">
+      <UniqueIdentifier>{86f6d35f-ca36-4c3c-be77-6620fdad92f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\imaging.c">
@@ -203,6 +206,18 @@
     </ClCompile>
     <ClCompile Include="src\Source\types.c">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\Collider.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\physics.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\triangles.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Tests\tests_triangles.c">
+      <Filter>Source Files\Tests</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -365,6 +380,15 @@
     <ClInclude Include="src\Headers\types.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Headers\physics\Collider.h">
+      <Filter>Source Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\physics\physics.h">
+      <Filter>Header Files\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\Math\triangles.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="assets\shaders\shaderFormat.shader">
@@ -416,12 +440,6 @@
       <Filter>Resource Files\Prefabs</Filter>
     </None>
     <None Include="assets\prefabs\reflectiveSphere.gameobject">
-      <Filter>Resource Files\Prefabs</Filter>
-    </None>
-    <None Include="assets\prefabs\lightBulb.gameobject">
-      <Filter>Resource Files\Prefabs</Filter>
-    </None>
-    <None Include="assets\prefabs\lightFilament.gameobject">
       <Filter>Resource Files\Prefabs</Filter>
     </None>
     <None Include="assets\materials\cube.material">
@@ -571,10 +589,5 @@
     <None Include="assets\prefabs\mirrorStatue.gameobject">
       <Filter>Resource Files\Prefabs</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="assets\prefabs\lightBase.gameobject">
-      <Filter>Resource Files\Prefabs</Filter>
-    </Text>
   </ItemGroup>
 </Project>

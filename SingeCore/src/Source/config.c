@@ -1,6 +1,7 @@
 #include "singine/config.h"
 #include "singine/file.h"
 #include "string.h"
+#include "singine/strings.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -8,10 +9,14 @@
 
 static bool TryLoadConfig(const char* path, const ConfigDefinition, void* state);
 static bool TryLoadConfigStream(File stream, const ConfigDefinition, void* state);
+static void SaveConfigStream(File stream, const ConfigDefinition config, void* state);
+static void SaveConfig(const char* path, const ConfigDefinition config, void* state);
 
 const struct _configMethods Configs = {
 	.TryLoadConfig = &TryLoadConfig,
-	.TryLoadConfigStream = &TryLoadConfigStream
+	.TryLoadConfigStream = &TryLoadConfigStream,
+	.SaveConfig = SaveConfig,
+	.SaveConfigStream = SaveConfigStream
 };
 
 static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void* state)
@@ -29,10 +34,10 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 			continue;
 		}
 
-		if (config->AbortToken isnt null)
+		if (config->AbortToken.Token isnt null)
 		{
-			const char* token = config->AbortToken;
-			const size_t tokenLength = max(config->AbortTokenLength - 1, 0);
+			const char* token = config->AbortToken.Token;
+			const size_t tokenLength = max(config->AbortToken.Length - 1, 0);
 
 			if (buffer[0] is token[0])
 			{
@@ -47,13 +52,29 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 		for (size_t i = 0; i < config->Count; i++)
 		{
 			// check the first character to avoid comparing whole string
-			const char* token = config->Tokens[i];
-			const size_t tokenLength = max(config->TokenLengths[i] - 1, 0);
+			const struct _configToken* token = &config->Tokens[i];
 
-			if (buffer[0] is token[0])
+			const size_t tokenLength = min(token->Length, max(token->Length - 1, 0));
+
+			if (buffer[0] is token->Token[0])
 			{
 				// compare the whole token, if it's valid invoke the callback
-				if (memcmp(buffer, token, min(tokenLength, lineLength)) is 0)
+				const int indexOfColon = Strings.IndexOf(buffer, lineLength, ':');
+
+				// a colon is required
+				if (indexOfColon < 0)
+				{
+					// colon not found
+					return false;
+				}
+
+				// specularMap: should not be considered specular:
+				if (indexOfColon > (tokenLength + 1))
+				{
+					continue;
+				}
+
+				if (memcmp(buffer, token->Token, min(tokenLength, lineLength)) is 0)
 				{
 					size_t offset = min(tokenLength + 1, lineLength);
 
@@ -68,7 +89,7 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 						--(subBufferLength);
 					}
 
-					if (config->OnTokenFound(i, subBuffer, subBufferLength, state) is false)
+					if (token->TokenLoad(subBuffer, subBufferLength, state) is false)
 					{
 						return false;
 					}
@@ -97,4 +118,34 @@ static bool TryLoadConfig(const char* path, const ConfigDefinition config, void*
 	}
 
 	return Files.TryClose(file);
+}
+
+static void SaveConfigStream(File stream, const ConfigDefinition config, void* state)
+{
+	for (size_t i = 0; i < config->Count; i++)
+	{
+		const struct _configToken token = config->Tokens[i];
+
+		fprintf(stream, "%s"NEWLINE, token.Description);
+
+		token.TokenSave(stream, state);
+
+		fprintf(stream, NEWLINE);
+	}
+}
+
+static void SaveConfig(const char* path, const ConfigDefinition config, void* state)
+{
+	File file;
+	if (Files.TryOpen(path, FileModes.Create, &file) is false)
+	{
+		throw(FailedToOpenFileException);
+	}
+
+	SaveConfigStream(file, config, state);
+
+	if (Files.TryClose(file) is false)
+	{
+		throw(FailedToCloseFileException);
+	}
 }

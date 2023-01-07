@@ -4,7 +4,7 @@ model: assets/models/lamp.obj
 material: assets/materials/lamp.material
 transform:
 # the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective
-position: 7 3 7
+position: 0 1 0
 # the rotation of the object
 rotation: 0.000000 0.000000 0.000000 1.000000
 # the scale of the object

@@ -727,37 +727,7 @@ static void GetDirection(Transform transform, Direction direction, vec3 out_dire
 	SetFlag(transform->State.Directions.Accessed, FlagN(direction));
 }
 
-#define CommentFormat "%s\n"
-#define TokenFormat "%s: "
-
-#define PositionTokenComment "# the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective"
-#define PositionToken "position"
-#define RotationTokenComment "# the rotation of the object"
-#define RotationToken "rotation"
-#define ScaleTokenComment "# the scale of the object"
-#define ScaleToken "scale"
-#define InvertTransformTokenComment "# whether or not the values listed are inverted before the object is rendered"
-#define InvertTransformToken "invertTransform"
-#define RotateAroundCenterTokenComment "# whether or not the object is rotated around world center or it's position in world/screen space"
-#define RotateAroundCenterToken "rotateAroundCenter"
-
-static const char* Tokens[] = {
-	PositionToken,
-	RotationToken,
-	ScaleToken,
-	InvertTransformToken,
-	RotateAroundCenterToken
-};
-
-static const size_t TokenLengths[] = {
-	sizeof(PositionToken),
-	sizeof(RotationToken),
-	sizeof(ScaleToken),
-	sizeof(InvertTransformToken),
-	sizeof(RotateAroundCenterToken)
-};
-
-struct _gameObjectInfo {
+struct _transformInfo {
 	vec3 Position;
 	vec4 Rotation;
 	vec3 Scale;
@@ -765,50 +735,76 @@ struct _gameObjectInfo {
 	bool InvertTransform;
 };
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _gameObjectInfo* state);
+TOKEN_LOAD(position, struct _transformInfo*)
+{
+	return Vector3s.TryDeserialize(buffer, length, state->Position);
+}
 
-struct _configDefinition TransformConfigDefinition = {
-	.Tokens = (const char**)&Tokens,
-	.TokenLengths = (const size_t*)&TokenLengths,
-	.CommentCharacter = '#',
-	.Count = sizeof(Tokens) / sizeof(char*),
-	.OnTokenFound = &OnTokenFound
+TOKEN_SAVE(position, Transform)
+{
+	Vector3s.TrySerializeStream(stream, state->Position);
+}
+
+TOKEN_LOAD(rotation, struct _transformInfo*)
+{
+	return Vector4s.TryDeserialize(buffer, length, state->Rotation);
+}
+
+TOKEN_SAVE(rotation, Transform)
+{
+	Vector4s.TrySerializeStream(stream, state->Rotation);
+}
+
+TOKEN_LOAD(scale, struct _transformInfo*)
+{
+	return Vector3s.TryDeserialize(buffer, length, state->Scale);
+}
+
+TOKEN_SAVE(scale, Transform)
+{
+	Vector3s.TrySerializeStream(stream, state->Scale);
+}
+
+TOKEN_LOAD(invertTransform, struct _transformInfo*)
+{
+	return Parsing.TryGetBool(buffer, length, &state->InvertTransform);
+}
+
+TOKEN_SAVE(invertTransform, Transform)
+{
+	fprintf(stream, "%s", state->InvertTransform ? "true" : "false");
+}
+
+TOKEN_LOAD(rotateAroundCenter, struct _transformInfo*)
+{
+	return Parsing.TryGetBool(buffer, length, &state->RotateAroundCenter);
+}
+
+TOKEN_SAVE(rotateAroundCenter, Transform)
+{
+	fprintf(stream, "%s", state->RotateAroundCenter ? "true" : "false");
+}
+
+TOKENS(5)
+{
+	TOKEN(position, "# the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective"),
+	TOKEN(rotation, "# the rotation of the object"),
+	TOKEN(scale, "# the scale of the object"),
+	TOKEN(invertTransform, "# whether or not the values listed are inverted before the object is rendered"),
+	TOKEN(rotateAroundCenter, "# whether or not the object is rotated around world center or it's position in world/screen space")
 };
 
-static bool OnTokenFound(size_t index, const char* buffer, const size_t length, struct _gameObjectInfo* state)
-{
-	switch (index)
-	{
-	case 0: // position
-		return Vector3s.TryDeserialize(buffer, length, state->Position);
-	case 1: // rotation
-		return Vector4s.TryDeserialize(buffer, length, state->Rotation);
-	case 2: // scale
-		return Vector3s.TryDeserialize(buffer, length, state->Scale);
-	case 3: // InvertTransform
-		bool shouldInvert = false;
-		if (TryParseBoolean(buffer, length, &shouldInvert))
-		{
-			state->InvertTransform = shouldInvert;
-		}
-		return true;
-	case 4: // RotateAroundCenter
-		bool shouldRotateAroundCenter = false;
-		if (TryParseBoolean(buffer, length, &shouldRotateAroundCenter))
-		{
-			state->RotateAroundCenter = shouldRotateAroundCenter;
-		}
-		return true;
-	default:
-		return false;
-	}
-}
+struct _configDefinition TransformConfigDefinition = {
+	.Tokens = Tokens,
+	.CommentCharacter = '#',
+	.Count = sizeof(Tokens) / sizeof(struct _configToken),
+};
 
 static Transform Load(File stream)
 {
 	Transform transform = null;
 
-	struct _gameObjectInfo state = {
+	struct _transformInfo state = {
 		.InvertTransform = false,
 		.RotateAroundCenter = false,
 		.Position = { 0, 0, 0},
@@ -836,28 +832,5 @@ static void Save(Transform transform, File stream)
 	GuardNotNull(transform);
 	GuardNotNull(stream);
 
-	fprintf(stream, CommentFormat, PositionTokenComment);
-	fprintf(stream, TokenFormat, PositionToken);
-	Vector3s.TrySerializeStream(stream, transform->Position);
-	fprintf(stream, "%c", '\n');
-
-	fprintf(stream, CommentFormat, RotationTokenComment);
-	fprintf(stream, TokenFormat, RotationToken);
-	Vector4s.TrySerializeStream(stream, transform->Rotation);
-	fprintf(stream, "%c", '\n');
-
-	fprintf(stream, CommentFormat, ScaleTokenComment);
-	fprintf(stream, TokenFormat, ScaleToken);
-	Vector3s.TrySerializeStream(stream, transform->Scale);
-	fprintf(stream, "%c", '\n');
-
-	fprintf(stream, CommentFormat, InvertTransformTokenComment);
-	fprintf(stream, TokenFormat, InvertTransformToken);
-	fprintf(stream, "%s", transform->InvertTransform ? "true" : "false");
-	fprintf(stream, "%c", '\n');
-
-	fprintf(stream, CommentFormat, RotateAroundCenterTokenComment);
-	fprintf(stream, TokenFormat, RotateAroundCenterToken);
-	fprintf(stream, "%s", transform->RotateAroundCenter ? "true" : "false");
-	fprintf(stream, "%c", '\n');
+	Configs.SaveConfigStream(stream, &TransformConfigDefinition, transform);
 }

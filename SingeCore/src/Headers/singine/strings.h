@@ -74,6 +74,9 @@ struct _stringMethods {
 	/// </summary>
 	bool (*TrySplit)(const char* source, size_t length, int delimiter, StringArray resultStringArray);
 	bool (*TryParse)(const char* buffer, const size_t bufferLength, char** out_string);
+	// returns the index of the found character,
+	// otherwise returns -1
+	int(*IndexOf)(const char* buffer, const size_t bufferLength, int character);
 };
 
 extern const struct _stringMethods Strings;

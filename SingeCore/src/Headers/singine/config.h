@@ -2,17 +2,39 @@
 #include "csharp.h"
 #include "singine/file.h"
 
+struct _configToken
+{
+	const char* Token;
+	const size_t Length;
+	bool (*TokenLoad)(const char* buffer, size_t length, void* state);
+	void (*TokenSave)(File stream, void* state);
+	const char* Description;
+};
+
+static bool __AbortTokenReturnTrue(const char* buffer, const size_t length, void* state)
+{
+	ignore_unused(buffer);
+	ignore_unused(length);
+	ignore_unused(state);
+
+	return true;
+}
+
+#define TOKEN( token, description ) { .Token = #token, .Length = sizeof(#token), .TokenLoad = &Token##token##Load, .TokenSave = &Token##token##Save, .Description = description }
+
+#define ABORT_TOKEN( token ) { .Token = #token, .Length = sizeof(#token), .TokenLoad = &__AbortTokenReturnTrue, .Description = "" }
+
+#define TOKENS( count ) static const struct _configToken Tokens[count] = 
+
+#define TOKEN_LOAD( token, stateType ) static bool Token##token##Load(const char* buffer, const size_t length, stateType state)
+
+#define TOKEN_SAVE( token, stateType ) static void Token##token##Save(File stream, stateType state)
+
 typedef struct _configDefinition* ConfigDefinition;
 
 struct _configDefinition {
-	/// <summary>
-	/// The array of tokens that should be searched for within the config
-	/// </summary>
-	const char** Tokens;
-	/// <summary>
-	/// The length of each token in the tokens array
-	/// </summary>
-	const size_t* TokenLengths;
+	// list of tokens
+	const struct _configToken* Tokens;
 	/// <summary>
 	/// The number of tokens within the token array
 	/// </summary>
@@ -22,14 +44,9 @@ struct _configDefinition {
 	/// </summary>
 	const int CommentCharacter;
 	/// <summary>
-	/// A token, when encountered causes parsing to abort, useful for stopping mid-stream to to do business logic
+	/// The token that when encountered should signify continued config reading should be aborted
 	/// </summary>
-	const char* AbortToken;
-	const size_t AbortTokenLength;
-	/// <summary>
-	/// The method that should be invoked when a token is found, the buffer received does NOT include the token and only the data for the token
-	/// </summary>
-	bool (*OnTokenFound)(size_t tokenIndex, const char* buffer, size_t length, void* state);
+	struct _configToken AbortToken;
 };
 
 struct _configMethods {
@@ -46,6 +63,9 @@ struct _configMethods {
 	/// this method returns true when all calls to OnTokenFound return true and no file error occurs, otherwise false
 	/// </summary>
 	bool (*TryLoadConfigStream)(File stream, const ConfigDefinition, void* state);
+
+	void (*SaveConfig)(const char* path, const ConfigDefinition, void* state);
+	void (*SaveConfigStream)(File stream, const ConfigDefinition, void* state);
 };
 
 extern const struct _configMethods Configs;

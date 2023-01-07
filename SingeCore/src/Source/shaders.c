@@ -138,12 +138,13 @@ const struct _shaderSettings ShaderSettings = {
 
 static void OnDispose(Shader shader)
 {
-	Memory.RegisterTypeName("ShaderUniforms", &ShaderUniformsTypeId);
-	Memory.RegisterTypeName(nameof(Shader), &ShaderTypeId);
+	REGISTER_TYPE(Shader);
+	REGISTER_TYPE(ShaderUniforms);
 
 	Memory.Free(shader->Uniforms, ShaderUniformsTypeId);
 	Memory.Free(shader->VertexPath, Memory.String);
 	Memory.Free(shader->FragmentPath, Memory.String);
+	Memory.Free(shader->GeometryPath, Memory.String);
 	Memory.Free(shader->Name, Memory.String);
 
 	if (shader->Handle->Handle > 0)

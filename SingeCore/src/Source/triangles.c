@@ -141,20 +141,6 @@ static float SignedArea(vec3 point, vec3 lineStart, vec3 lineEnd)
 #undef vz
 }
 
-// whether or not two triangles that are coplanar intersect in 2d space
-static bool IntersectsCoplanar(triangle left, triangle right)
-{
-	// determine the orientation, make sure both are counter clockwise
-	if (OrientCounterClockwise(left) ==  false || OrientCounterClockwise(right) == false)
-	{
-		// one of the triangles comprise of a line instead of a triangle
-		// just pretend 
-		return false;
-	}
-
-
-}
-
 static bool CheckPlaneIntersectionIntervals(triangle left, triangle right)
 {
 	triangle tmp;
@@ -197,6 +183,4 @@ static bool Intersects(triangle left, triangle right)
 		// possible intersection occurs, check the other triangle as well to confirm
 		return GetDeterminants(right,left, &determinants) && CheckPlaneIntersectionIntervals(left, right);
 	}
-
-	return false;
 }

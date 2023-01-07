@@ -38,31 +38,11 @@ static Collider Create()
 	return result;
 }
 
-#define GENERATE_INTERSECTS_PLANE(dimension,index)\
-static bool Intersects##dimension##Plane(const Collider left, const Collider right)\
-{\
-	const float upperLeft = max(left->FirstMarker[index], left->SecondMarker[index]);\
-	const float lowerLeft = min(left->FirstMarker[index], left->SecondMarker[index]);\
-	const float upperRight = max(right->FirstMarker[index], right->SecondMarker[index]);\
-	const float lowerRight = min(right->FirstMarker[index], right->SecondMarker[index]);\
-	const bool lowerIntersects = lowerRight < upperLeft;\
-	const bool upperIntersects = lowerIntersects || upperRight > lowerLeft;\
-	return lowerIntersects || upperIntersects;\
-}
-
-GENERATE_INTERSECTS_PLANE(X, 0);
-GENERATE_INTERSECTS_PLANE(Y, 1);
-GENERATE_INTERSECTS_PLANE(Z, 2);
-
-#undef GENERATE_INTERSECTS_PLANE
-
 static bool Intersects(const Collider left, const Collider right)
 {
-	const bool intersextsX = IntersectsXPlane(left, right);
-	const bool intersectsY = intersextsX && IntersectsYPlane(left, right);
-	const bool intersects = intersectsY && IntersectsZPlane(left, right );
-
-	return intersects;
+	(void)left;
+	(void)right;
+	return true;
 }
 
 static void Dispose(Collider collider)
