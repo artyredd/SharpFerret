@@ -2,14 +2,15 @@
 
 #include <stdint.h>
 
-/* forgive me */
-#define QUICKMASK_TYPE (uint16_t)
+typedef uint16_t intMask;
 
-#define SetFlag(mask,flag) mask |= flag
-#define ClearFlag(mask,flag) mask ^= flag
+#define QUICKMASK_TYPE (intMask)
+
+#define SetFlag(mask,flag) ((mask) |= (flag))
+#define ClearFlag(mask,flag) ((mask) ^= (flag))
 #define AssignFlag(mask,flag,value) if(value){ SetFlag(mask,flag); }else{ ClearFlag(mask,flag); }
 #define HasFlag(mask,flag) (((mask) & (flag)) == (flag))
-#define ResetFlags(mask) mask = 0
+#define ResetFlags(mask) (mask = 0)
 
 // 1 (0b_0000_0000_0000_0001)
 #define FLAG_0 QUICKMASK_TYPE(1<<0)
@@ -59,6 +60,6 @@
 // 32768 (0b_1000_0000_0000_0000)
 #define FLAG_15 QUICKMASK_TYPE(1<<15)
 
-#define FLAG_ALL QUICKMASK_TYPE0xFFFF
+#define FLAG_ALL (intMask)0xFFFF
 
 #define FlagN(n) QUICKMASK_TYPE(1<<n)

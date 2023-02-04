@@ -9,8 +9,15 @@ struct _triangles
 	// calculates the determinant between the point and the triangle
 	double (*Determinant)(triangle triangle, vec3 point);
 
+	// calculates the normal for the given triangle
+	// returns false when the triangle is degenerate
+	void (*CalculateNormal)(const triangle triangle, vec3 out_normal);
+
 	// determins whether or not the triangles intersect one another in 3d space
-	bool (*Intersects)(triangle left, triangle right);
+	bool (*Intersects)(const triangle left, const triangle right);
+
+	// winds the triangle
+	void (*WindTriangle)(triangle triangle);
 };
 
 extern const struct _triangles Triangles;

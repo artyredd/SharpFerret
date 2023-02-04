@@ -183,11 +183,13 @@
     <ClCompile Include="src\Source\Collider.c" />
     <ClCompile Include="src\Source\colors.c" />
     <ClCompile Include="src\Source\config.c" />
+    <ClCompile Include="src\Source\drawing.c" />
     <ClCompile Include="src\Source\floats.c" />
     <ClCompile Include="src\Source\framebuffers.c" />
     <ClCompile Include="src\Source\instancedResource.c" />
     <ClCompile Include="src\Source\ints.c" />
     <ClCompile Include="src\Source\light.c" />
+    <ClCompile Include="src\Source\objectPool.c" />
     <ClCompile Include="src\Source\physics.c" />
     <ClCompile Include="src\Source\range.c" />
     <ClCompile Include="src\Source\reflection.c" />
@@ -234,8 +236,10 @@
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h" />
     <ClInclude Include="src\Headers\cunit.h" />
+    <ClInclude Include="src\Headers\data\objectPool.h" />
     <ClInclude Include="src\Headers\graphics\camera.h" />
     <ClInclude Include="src\Headers\graphics\colors.h" />
+    <ClInclude Include="src\Headers\graphics\drawing.h" />
     <ClInclude Include="src\Headers\graphics\font.h" />
     <ClInclude Include="src\Headers\graphics\framebuffers.h" />
     <ClInclude Include="src\Headers\graphics\graphicsDevice.h" />
@@ -290,6 +294,7 @@
     <ClInclude Include="src\Headers\types.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="assets\colliders\cube.collider" />
     <None Include="assets\materials\cube.material" />
     <None Include="assets\materials\debugOrientation.material" />
     <None Include="assets\materials\debugOrientationGUI.material" />
@@ -306,6 +311,7 @@
     <None Include="assets\materials\skybox.material" />
     <None Include="assets\materials\textMaterial.material" />
     <None Include="assets\materials\textureMaterial.material" />
+    <None Include="assets\materials\unlit.material" />
     <None Include="assets\materials\uvMaterial.material" />
     <None Include="assets\prefabs\ball.gameobject" />
     <None Include="assets\prefabs\car.gameobject" />
@@ -351,6 +357,9 @@
     <None Include="assets\shaders\text.fragmentshader" />
     <None Include="assets\shaders\text.shader" />
     <None Include="assets\shaders\text.vertexshader" />
+    <None Include="assets\shaders\unlit.fragmentshader" />
+    <None Include="assets\shaders\unlit.shader" />
+    <None Include="assets\shaders\unlit_wireframe.shader" />
     <None Include="assets\textures\cube_uv.texture" />
     <None Include="assets\textures\cube_specular.texture" />
     <None Include="assets\textures\marble_specular.texture" />

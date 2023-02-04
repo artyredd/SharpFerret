@@ -1,0 +1,3 @@
+# the model path that should be loaded for this collider
+model: assets/models/cube.obj
+trigger: false

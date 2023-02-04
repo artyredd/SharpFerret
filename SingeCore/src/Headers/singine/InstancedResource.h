@@ -13,7 +13,7 @@ struct _instancedResourceMethods {
 	/// Creates an instance of the provided resource
 	/// </summary>
 	InstancedResource(*Instance)(InstancedResource);
-	InstancedResource(*Create)(void);
+	InstancedResource(*Create)(void* resourceToInstance);
 	void (*Dispose)(InstancedResource, void* state, void(*OnDispose)(InstancedResource, void* state));
 };
 

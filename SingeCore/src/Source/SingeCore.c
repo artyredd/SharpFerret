@@ -45,9 +45,11 @@
 #include "graphics/renderbuffers.h"
 #include "graphics/framebuffers.h"
 #include "singine/defaults.h"
+#include "graphics/drawing.h"
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
+#include <physics/Collider.h>
 
 Window window;
 
@@ -205,6 +207,7 @@ int main()
 	// create a scene to render
 	Camera camera = Cameras.Create();
 	Cameras.SetFarClippingDistance(camera, 500.0f);
+	camera->Orthographic = false;
 
 	// don't spawn camera at origin, it's disorienting
 	Transforms.SetPositions(camera->Transform, -3, 3, 3);
@@ -215,6 +218,19 @@ int main()
 
 	// add the light to the scene
 	Scenes.AddLight(scene, light);
+
+	// collider testing
+	GameObject colliderObject1 = GameObjects.Load("assets/prefabs/cube.gameobject");
+	GameObject colliderObject2 = GameObjects.Load("assets/prefabs/cube.gameobject");
+
+	Collider collider1 = Colliders.Load("assets/colliders/cube.collider");
+	Collider collider2 = Colliders.Load("assets/colliders/cube.collider");
+
+	collider1->Transform = colliderObject1->Transform;
+	collider2->Transform = colliderObject2->Transform;
+
+	Transforms.SetPositions(colliderObject1->Transform, 10, 10, 10);
+	Transforms.SetPositions(colliderObject2->Transform, 10, 10, 10);
 
 	// group up the gameobjects so we can call GameObjects.DrawMany instead of .Draw for each object
 	GameObject gameobjects[] = {
@@ -227,7 +243,9 @@ int main()
 		fox,
 		statue,
 		otherStatue,
-		reflectiveSphere
+		reflectiveSphere,
+		colliderObject1,
+		colliderObject2
 	};
 
 	const size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
@@ -251,6 +269,7 @@ int main()
 	Transforms.SetPositions(ball->Transform, 5, 1, 5);
 	Transforms.SetRotationOnAxis(statue->Transform, (float)GLM_PI/2, Vector3.Up);
 
+
 	float speed = 10.0f;
 
 	float rotateAmount = 0.0f;
@@ -260,11 +279,22 @@ int main()
 	vec3 positionModifier; 
 	vec3 lightOffset = { -20, 20, 0 };
 
+	double colliderPosition = 10.0;
+
+	bool intersects = false;
+
+	Drawing.SetScene(scene);
+
+	Material unlit = Materials.Load("assets/materials/unlit.material");
+
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
 	Time.Update();
 	do {
 		// ensure deltaTime is updated
 		Time.Update();
+
+		// clear all the render meshes created from manual drawing
+		Drawing.ClearLastFrame();
 
 		float modifier = speed * (float)Time.DeltaTime();
 
@@ -339,6 +369,22 @@ int main()
 			ScaleVector3(positionModifier, modifier);
 			AddVectors3(position, positionModifier);
 		}
+		if (GetKey(KeyCodes.Left))
+		{
+			colliderPosition -= Time.DeltaTime();
+		}
+		if (GetKey(KeyCodes.Right))
+		{
+			colliderPosition += Time.DeltaTime();
+		}
+
+		vec3 newColliderPos;
+
+		Vectors3CopyTo(collider2->Transform->Position, newColliderPos);
+		
+		newColliderPos[1] = (float)colliderPosition;
+
+		Transforms.SetPosition(collider2->Transform, newColliderPos);
 
 		// toggle debug normals
 		if (GetKey(KeyCodes.N))
@@ -353,11 +399,11 @@ int main()
 		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time.Time())), Vector3.Up);
 
 		int count = sprintf_s(text->Text, text->Length, 
-			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS", 
+			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\nIntersecting:%s",
 			Time.Statistics.FrameTime(),
 			Time.Statistics.HighestFrameTime(),
 			Time.Statistics.AverageFrameTime(),
-			1.0 / Time.Statistics.FrameTime());
+			1.0 / Time.Statistics.FrameTime(), intersects ? "true" : "false");
 
 		Texts.SetText(text, text->Text, count);
 
@@ -376,6 +422,17 @@ int main()
 		scene->MainCamera = camera;
 
 		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, null);
+
+		// draw test triangle for drawing
+		float triangle[9] = {
+			0,0,0,
+			0,0,-100,
+			100,0,0
+		}; 
+
+		Drawing.DrawTriangle(triangle, unlit);
+
+		intersects = Colliders.Intersects(collider1, collider2);
 
 		GameObjects.Draw(skybox, scene);
 

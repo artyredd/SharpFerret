@@ -454,6 +454,7 @@ struct _shaderState {
 	CullingType CullingType;
 	unsigned int StencilValue;
 	unsigned int StencilMask;
+	FillMode FillMode;
 };
 
 TOKEN_LOAD(vertexShader, struct _shaderState*)
@@ -669,7 +670,17 @@ TOKEN_SAVE(useStencilBuffer, Shader)
 	}
 }
 
-TOKENS(13)
+TOKEN_LOAD(fillMode, struct _shaderState*)
+{
+	return TryGetFillMode(buffer, length, &state->FillMode);
+}
+
+TOKEN_SAVE(fillMode, Shader)
+{
+	fprintf(stream, "%s", state->FillMode.Name);
+}
+
+TOKENS(14)
 {
 	TOKEN(vertexShader, "# The paths to the vertex shader that should be used for this shader"),
 	TOKEN(fragmentShader, "# The paths to the fragment shader that should be used for this shader"),
@@ -683,7 +694,8 @@ TOKENS(13)
 	TOKEN(customStencilFunction, "# the custom function that should be used for this shader\n# does not do anythig when useComstomStencilAttributes is set to false\n# Valid Values: always, never, equal, notEqual, greaterThan, lessThan, greaterThanOrEqual, lessThanOrEqual"),
 	TOKEN(customStencilValue, "# the value that a fragment's stencil buffer value should be compared to using customStencilFunction"),
 	TOKEN(customStencilMask, "# the mask that should be bitwise AND'd with a fragemnt's stencil buffer value BEFORE it's compared to customStencilValue to determine if a fragment passes"),
-	TOKEN(useStencilBuffer, "# whether or not the stencil buffer should be used to determine if fragments are rendered, if this is false fragments are always rendered and never write to the stencil buffer")
+	TOKEN(useStencilBuffer, "# whether or not the stencil buffer should be used to determine if fragments are rendered, if this is false fragments are always rendered and never write to the stencil buffer"),
+	TOKEN(fillMode, "# how polygons should be drawn, fill would be normal, while line would be wireframe")
 };
 
 const struct _configDefinition ShaderConfigDefinition = {
@@ -724,7 +736,8 @@ static Shader Load(const char* path)
 		.StencilComparison = Comparisons.Always,
 		.StencilMask = 0xFF,
 		.StencilValue = 1,
-		.CullingType = CullingTypes.Back
+		.CullingType = CullingTypes.Back,
+		.FillMode = FillModes.Fill
 	};
 
 	if (Configs.TryLoadConfig(path, (const ConfigDefinition)&ShaderConfigDefinition, &state))
@@ -746,6 +759,8 @@ static Shader Load(const char* path)
 		shader->StencilFunction = state.StencilComparison;
 		shader->StencilMask = state.StencilMask;
 		shader->StencilValue = state.StencilValue;
+
+		shader->FillMode = state.FillMode;
 	}
 
 	// always free these strings, CompileShader will make copies if it needs to

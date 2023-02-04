@@ -513,17 +513,17 @@ static bool TryParseObjects(File stream,
 			size_t faceCount = counts->FaceCounts[objectCount - 1] * 3;
 
 			// make sure we have arrays to write values to
-			if (currentMesh->Vertices is null && vertexCount > 0)
+			if (currentMesh->VertexData is null && vertexCount > 0)
 			{
-				currentMesh->Vertices = Memory.Alloc(sizeof(float) * 3 * faceCount, Memory.GenericMemoryBlock);
+				currentMesh->VertexData = Memory.Alloc(sizeof(float) * 3 * faceCount, Memory.GenericMemoryBlock);
 			}
-			if (currentMesh->TextureVertices is null && textureCount > 0)
+			if (currentMesh->TextureVertexData is null && textureCount > 0)
 			{
-				currentMesh->TextureVertices = Memory.Alloc(sizeof(float) * 2 * faceCount, Memory.GenericMemoryBlock);
+				currentMesh->TextureVertexData = Memory.Alloc(sizeof(float) * 2 * faceCount, Memory.GenericMemoryBlock);
 			}
-			if (currentMesh->Normals is null && normalCount > 0)
+			if (currentMesh->NormalVertexData is null && normalCount > 0)
 			{
-				currentMesh->Normals = Memory.Alloc(sizeof(float) * 3 * faceCount, Memory.GenericMemoryBlock);
+				currentMesh->NormalVertexData = Memory.Alloc(sizeof(float) * 3 * faceCount, Memory.GenericMemoryBlock);
 			}
 
 			// since there are 3 triplets loop
@@ -546,20 +546,20 @@ static bool TryParseObjects(File stream,
 				const float* subNormals = buffers->Normals + (normalIndex * 3);
 
 				// copy the floats over to their final arrays
-				Vectors3CopyTo(subVertices, currentMesh->Vertices + currentMesh->VertexCount);
+				Vectors3CopyTo(subVertices, currentMesh->VertexData + currentMesh->VertexCount);
 				currentMesh->VertexCount += 3;
 
 				// if we didnt count any textures we shouldn't try to write them to an array
 				if (textureCount > 0)
 				{
-					Vectors2CopyTo(subUVs, currentMesh->TextureVertices + currentMesh->TextureCount);
+					Vectors2CopyTo(subUVs, currentMesh->TextureVertexData + currentMesh->TextureCount);
 					currentMesh->TextureCount += 2;
 				}
 
 				// if we didnt count any normals we shouldn't try to write them to an array
 				if (normalCount > 0)
 				{
-					Vectors3CopyTo(subNormals, currentMesh->Normals + currentMesh->NormalCount);
+					Vectors3CopyTo(subNormals, currentMesh->NormalVertexData + currentMesh->NormalCount);
 					currentMesh->NormalCount += 3;
 				}
 			}

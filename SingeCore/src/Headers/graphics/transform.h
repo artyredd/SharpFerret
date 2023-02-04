@@ -145,6 +145,11 @@ struct _transformMethods {
 
 	void (*GetDirection)(Transform transform, Direction directions, vec3 out_direction);
 	void (*ClearChildren)(Transform transform);
+
+	// Converts the given point from model space to world space using the given
+	// transform
+	void (*TransformPoint)(Transform, vec3 point, vec3 destination);
+
 	void (*Dispose)(Transform);
 
 	/// <summary>

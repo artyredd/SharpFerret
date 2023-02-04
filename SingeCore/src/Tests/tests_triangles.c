@@ -108,7 +108,7 @@ TEST(IntersectingCoplanar)
 	};
 	triangle right = {
 		{ 0,4,0 },
-		{ 0.5,0.4,0 },
+		{ 0.5f,0.4f,0 },
 		{ 1,4,0 }
 	};
 

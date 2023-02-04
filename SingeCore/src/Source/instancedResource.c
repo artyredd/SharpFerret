@@ -3,7 +3,7 @@
 #include "singine/memory.h"
 #include <stdlib.h>
 
-static InstancedResource Create(void);
+static InstancedResource Create(void* resourceToInstance);
 static void Dispose(InstancedResource, void* state, void(*OnDispose)(InstancedResource, void* state));
 static InstancedResource Instance(InstancedResource resource);
 
@@ -15,13 +15,14 @@ const struct _instancedResourceMethods InstancedResources = {
 
 TYPE_ID(InstancedResource);
 
-static InstancedResource Create(void)
+static InstancedResource Create(void* resourceToInstance)
 {
 	Memory.RegisterTypeName("InstancedResource", &InstancedResourceTypeId);
 
 	InstancedResource resource = Memory.Alloc(sizeof(struct _instancedResource), InstancedResourceTypeId);
 
 	resource->Instances = 1;
+	resource->Resource = resourceToInstance;
 
 	return resource;
 }

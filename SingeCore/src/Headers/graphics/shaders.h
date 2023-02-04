@@ -151,6 +151,10 @@ struct _shader {
 	/// be rendered
 	/// </summary>
 	unsigned int StencilMask;
+	/// <summary>
+	/// The fillmode that should be used to determine how polygons are filled during rendering
+	/// </summary>
+	FillMode FillMode;
 };
 
 struct _shaderMethods {

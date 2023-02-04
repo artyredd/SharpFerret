@@ -47,6 +47,7 @@ static void Save(Transform, File);
 static void SetChildCapacity(Transform, size_t count);
 static void LookAt(Transform, vec3 target);
 static void LookAtPositions(Transform, float x, float y, float z);
+static void TransformPoint(Transform, vec3 point, vec3 destination);
 
 const struct _transformMethods Transforms = {
 	.Dispose = &Dispose,
@@ -76,7 +77,8 @@ const struct _transformMethods Transforms = {
 	.Load = &Load,
 	.SetChildCapacity = &SetChildCapacity,
 	.LookAt = LookAt,
-	.LookAtPositions = LookAtPositions
+	.LookAtPositions = LookAtPositions,
+	.TransformPoint = TransformPoint
 };
 
 TYPE_ID(Transform);
@@ -725,6 +727,13 @@ static void GetDirection(Transform transform, Direction direction, vec3 out_dire
 	Vectors3CopyTo(transform->State.Directions.Directions[direction], out_direction);
 
 	SetFlag(transform->State.Directions.Accessed, FlagN(direction));
+}
+
+static void TransformPoint(Transform transform, vec3 point, vec3 destination)
+{
+	RefreshTransform(transform);
+
+	glm_mat4_mulv3(transform->State.State, point, 1.0, destination);
 }
 
 struct _transformInfo {

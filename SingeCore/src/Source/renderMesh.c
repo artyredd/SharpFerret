@@ -78,24 +78,34 @@ static void LoadAttributeBuffer(unsigned int Position, unsigned int Handle, unsi
 	);
 }
 
-static void Draw(RenderMesh model)
+static void Draw(RenderMesh mesh)
 {
-	if (model->VertexBuffer isnt null)
+	if (mesh->VertexBuffer isnt null)
 	{
-		LoadAttributeBuffer(VertexShaderPosition, model->VertexBuffer->Handle, 3);
+
+		LoadAttributeBuffer(VertexShaderPosition, mesh->VertexBuffer->Handle, 3);
+
+		if (mesh->CopyBuffersOnDraw)
+		{
+			glBufferSubData(GL_ARRAY_BUFFER,
+				0,
+				mesh->NumberOfTriangles * 3 * sizeof(float),
+				((Mesh)mesh->Mesh->Resource)->VertexData
+			);
+		}
 	}
 
-	if (model->UVBuffer isnt null)
+	if (mesh->UVBuffer isnt null)
 	{
-		LoadAttributeBuffer(UVShaderPosition, model->UVBuffer->Handle, 2);
+		LoadAttributeBuffer(UVShaderPosition, mesh->UVBuffer->Handle, 2);
 	}
 
-	if (model->NormalBuffer isnt null)
+	if (mesh->NormalBuffer isnt null)
 	{
-		LoadAttributeBuffer(NormalShaderPosition, model->NormalBuffer->Handle, 3);
+		LoadAttributeBuffer(NormalShaderPosition, mesh->NormalBuffer->Handle, 3);
 	}
 
-	if (model->ShadeSmooth)
+	if (mesh->ShadeSmooth)
 	{
 		glShadeModel(GL_SMOOTH);
 	}
@@ -104,10 +114,11 @@ static void Draw(RenderMesh model)
 		glShadeModel(GL_FLAT);
 	}
 
+
 	// the entire mesh pipling ive written handles up to size_t
 	// its casted down to int here for DrawArrays
 	// this may cause issues at this line for models with > 32767 triangles
-	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)model->NumberOfTriangles);
+	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)mesh->NumberOfTriangles);
 
 	glDisableVertexAttribArray(VertexShaderPosition);
 	glDisableVertexAttribArray(UVShaderPosition);
@@ -122,6 +133,8 @@ static RenderMesh CreateRenderMesh()
 
 	mesh->Transform = Transforms.Create();
 
+	mesh->CopyBuffersOnDraw = false;
+
 	return mesh;
 }
 
@@ -130,11 +143,11 @@ static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedHandle destin
 	destinationBuffer->Handle = 0;
 
 	GLuint indexBuffer = GraphicsDevice.GenerateBuffer();
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, indexBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeInBytes, buffer, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, indexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeInBytes, buffer, GL_STREAM_DRAW);
 
 	GLint size = 0;
-	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+	glGetBufferParameteriv(GL_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 	if (sizeInBytes != size)
 	{
 		GraphicsDevice.DeleteBuffer(indexBuffer);
@@ -149,9 +162,9 @@ static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedHandle destin
 	return true;
 }
 
-static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
+static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 {
-	*out_model = null;
+	*out_renderMesh = null;
 
 	RenderMesh model = CreateRenderMesh();
 
@@ -159,7 +172,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 
 	model->VertexBuffer = SharedHandles.Create();
 
-	if (TryBindBuffer(mesh->Vertices, mesh->VertexCount * sizeof(float), model->VertexBuffer) is false)
+	if (TryBindBuffer(mesh->VertexData, mesh->VertexCount * sizeof(float), model->VertexBuffer) is false)
 	{
 		RenderMeshes.Dispose(model);
 		return false;
@@ -169,7 +182,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 	{
 		model->UVBuffer = SharedHandles.Create();
 
-		if (TryBindBuffer(mesh->TextureVertices, mesh->TextureCount * sizeof(float), model->UVBuffer) is false)
+		if (TryBindBuffer(mesh->TextureVertexData, mesh->TextureCount * sizeof(float), model->UVBuffer) is false)
 		{
 			RenderMeshes.Dispose(model);
 			return false;
@@ -181,7 +194,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 	{
 		model->NormalBuffer = SharedHandles.Create();
 
-		if (TryBindBuffer(mesh->Normals, mesh->NormalCount * sizeof(float), model->NormalBuffer) is false)
+		if (TryBindBuffer(mesh->NormalVertexData, mesh->NormalCount * sizeof(float), model->NormalBuffer) is false)
 		{
 			RenderMeshes.Dispose(model);
 			return false;
@@ -192,7 +205,9 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model)
 
 	model->ShadeSmooth = mesh->SmoothingEnabled;
 
-	*out_model = model;
+	model->Mesh = InstancedResources.Create(mesh);
+
+	*out_renderMesh = model;
 
 	return true;
 }
@@ -222,7 +237,15 @@ static void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 
 	CopyMember(source, destination, NumberOfTriangles);
 
-	CopyMember(source, destination, Name);
+	if (source->Name isnt null)
+	{
+		destination->Name = InstancedResources.Instance(source->Name);
+	}
+
+	if (source->Mesh isnt null)
+	{
+		destination->Mesh = InstancedResources.Instance(source->Mesh);
+	}
 }
 
 static RenderMesh InstanceMesh(RenderMesh mesh)
@@ -252,8 +275,7 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 	// all sub-meshes within a model share the same name
 	char* sharedName = Strings.DuplicateTerminated(model->Name);
 
-	InstancedResource name = InstancedResources.Create();
-	name->Resource = sharedName;
+	InstancedResource name = InstancedResources.Create(sharedName);
 
 	for (size_t i = 0; i < model->Count; i++)
 	{
@@ -277,6 +299,8 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 		}
 
 		newMesh->Name = InstancedResources.Instance(name);
+
+		newMesh->Mesh = InstancedResources.Create(mesh);
 
 		meshesArray[i] = newMesh;
 	}

@@ -179,6 +179,7 @@ static Camera CreateCamera()
 
 	Camera camera = Memory.Alloc(sizeof(struct _camera), CameraTypeId);
 
+	camera->Orthographic = false;
 	camera->FieldOfView = DefaultFieldOfView;
 	camera->AspectRatio = DefaultAspectRatio;
 	camera->NearClippingDistance = DefaultNearClippingPlane;

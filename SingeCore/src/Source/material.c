@@ -271,6 +271,9 @@ static void PrepareSettings(Shader shader)
 	{
 		GraphicsDevice.DisableDepthTesting();
 	}
+
+	// set whether or not we should be drawing with wireframes
+	GraphicsDevice.SetFillMode(shader->FillMode);
 }
 
 static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, unsigned int slot)
@@ -392,9 +395,8 @@ static void SetLightUniforms(Shader shader, Scene scene)
 	}
 }
 
-static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
+static void Draw(Material material, RenderMesh mesh, Scene scene)
 {
-
 	vec4* modelMatrix = Transforms.Refresh(mesh->Transform);
 
 	Cameras.Refresh(scene->MainCamera);
@@ -450,11 +452,6 @@ static void PerformDraw(Material material, Scene scene, RenderMesh mesh)
 			Shaders.Disable(shader);
 		}
 	}
-}
-
-static void Draw(Material material, RenderMesh mesh, Scene scene)
-{
-	PerformDraw(material, scene, mesh);
 }
 
 static void SetMainTexture(Material material, Texture texture)
@@ -702,11 +699,7 @@ TOKENS(11) {
 	TOKEN(reflectivity, "# float [0-1]; the reflectivity of this material" ),
 };
 
-const struct _configDefinition MaterialConfigDefinition = {
-	.Tokens = Tokens,
-	.CommentCharacter = '#',
-	.Count = sizeof(Tokens) / sizeof(struct _configToken)
-};
+CONFIG(Material);
 
 static Material Load(const char* path)
 {

@@ -61,8 +61,21 @@ struct _cullingTypes {
 
 extern struct _cullingTypes CullingTypes;
 
+
 #define MAX_CULLING_TYPES sizeof(CullingTypes)/sizeof(CullingType)
 #define TryGetCullingType(buffer, length, out_value) ParsableValues.TryGetMemberByName(&CullingTypes, MAX_CULLING_TYPES, buffer, length, out_value)
+
+typedef parsableValue FillMode;
+
+struct _fillModes {
+	FillMode Fill;
+	FillMode Line;
+};
+
+extern struct _fillModes FillModes;
+
+#define MAX_FILL_MODES sizeof(FillModes)/sizeof(FillMode)
+#define TryGetFillMode(buffer, length, out_value) ParsableValues.TryGetMemberByName(&FillModes, MAX_CULLING_TYPES, buffer, length, out_value)
 
 typedef parsableValue Comparison;
 
@@ -160,6 +173,8 @@ struct _graphicsDeviceMethods
 	void (*SetResolution)(signed long long int x, signed long long int y, size_t width, size_t height);
 	void (*SetReadBuffer)(ColorBufferType);
 	void (*SetDrawBuffer)(ColorBufferType);
+	// sets the fill mode for polygons, typically used for enabling/disabling wireframe rendering mode
+	void (*SetFillMode)(const FillMode);
 	/// <summary>
 	/// Verifies that cleanup was properly performed before program exit
 	/// </summary>

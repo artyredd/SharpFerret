@@ -1,20 +1,40 @@
 
 #include "math/triangles.h"
+#include "cglm/vec3.h"
 
-static double Determinant(triangle, vec3);
-static bool Intersects(triangle,triangle);
+static double Determinant(const triangle, const vec3);
+static bool Intersects(const triangle,const triangle);
+static void CalculateNormal(const triangle triangle, vec3 out_normal);
+static void WindTriangle(triangle triangle);
 
 const struct _triangles Triangles = {
 	.Determinant = &Determinant,
-	.Intersects = &Intersects
+	.Intersects = &Intersects,
+	.CalculateNormal = CalculateNormal,
+	.WindTriangle = WindTriangle
 };
+
+static void CalculateNormal(const triangle triangle, vec3 out_normal)
+{
+	// normal of a triangle is the cross product of the two rays
+	// formed from two sides of the triangle
+	vec3 left;
+	Vectors3CopyTo(triangle[1], left);
+	SubtractVectors3(left, triangle[0]);
+
+	vec3 right;
+	Vectors3CopyTo(triangle[2], right);
+	SubtractVectors3(right, triangle[0]);
+
+	glm_vec3_crossn(left, right, out_normal);
+}
 
 // calculates the determinant of a point and a triangle
 // This can be used to determine if a point is within a triangle or not
 // if the value returned is positive the point exists within the triangle
 // if the value returned is negative the point is outside the triangle
 // if the value is retruned the point lies on an edge or matches a vertice of the triangle
-static inline double Determinant(triangle triangle, vec3 point)
+static inline double Determinant(const triangle triangle, const vec3 point)
 {
 #define a ( triangle[0][0] - point[0] )
 #define b ( triangle[0][1] - point[1] )
@@ -37,12 +57,12 @@ static inline double Determinant(triangle triangle, vec3 point)
 #undef i
 }
 
-static inline bool InsideTriangle(triangle triangle, vec3 point)
+static inline bool InsideTriangle(const triangle triangle,const vec3 point)
 {
 	return Determinant(triangle, point) >= 0;
 }
 
-static inline bool AnyPointExistsWithinTriangle(triangle left, triangle right)
+static inline bool AnyPointExistsWithinTriangle(const triangle left, const triangle right)
 {
 	return 
 		InsideTriangle(left, right[0]) ||
@@ -77,7 +97,7 @@ struct determinant
 // returns true: when the determinants are valid and an intersection MAY
 // be possible and requires further calculations
 // returns false: when no intersection is possible between both triangles
-static inline bool GetDeterminants(triangle left, triangle right, struct determinant* out_determinants)
+static inline bool GetDeterminants(const triangle left, const triangle right, struct determinant* out_determinants)
 {
 	const double firstDeterminant = Determinant(left, right[0]);
 	const double secondDeterminent = Determinant(left, right[1]);
@@ -120,6 +140,11 @@ static bool OrientCounterClockwise(triangle triangle)
 	return false;
 }
 
+static void WindTriangle(triangle triangle)
+{
+	OrientCounterClockwise(triangle);
+}
+
 static float SignedArea(vec3 point, vec3 lineStart, vec3 lineEnd)
 {
 	vec3 ray;
@@ -141,7 +166,7 @@ static float SignedArea(vec3 point, vec3 lineStart, vec3 lineEnd)
 #undef vz
 }
 
-static bool CheckPlaneIntersectionIntervals(triangle left, triangle right)
+static bool CheckPlaneIntersectionIntervals(const triangle left, const triangle right)
 {
 	triangle tmp;
 	Vectors3CopyTo(left[0], tmp[0]);
@@ -159,7 +184,7 @@ static bool CheckPlaneIntersectionIntervals(triangle left, triangle right)
 	return firstDeterminant == secondDeterminant;
 }
 
-static bool Intersects(triangle left, triangle right)
+static bool Intersects(const triangle left, const triangle right)
 {
 	// Olivier Devillers, Philippe Guigue.Faster Triangle - Triangle Intersection Tests.RR - 4488, INRIA.
 	//	2002. inria - 00072100

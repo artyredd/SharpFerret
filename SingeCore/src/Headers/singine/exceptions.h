@@ -49,6 +49,8 @@ static Exception FailedToWriteToStreamException = 0x70000005;
 static Exception FailedToImportModelException = 0x70000006;
 static Exception MissingCharacterException = 0x70000007;
 static Exception FailedToSerializeException = 0x70000008; 
+static Exception NoAvailableObjectInPoolException = 0x70000009;
+static Exception ItemNotFoundInCollectionException = 0x7000000A;
 
 // The logic path or branching that lead to this error needs to be evaluated or tested more thoroughly.
 // This error denotes and exception that may or may not be dangerous but is unexpected and clearly unintended.
@@ -73,6 +75,12 @@ static Exception NoActiveWindowException = 0x60000006;
 static Exception FailedToCompileShaderException = 0x50000001;
 static Exception FailedToLocationMVPUniformException = 0x50000002;
 static Exception FailedToBindMeshException = 0x50000003;
+
+// Runtime Exceptions
+
+// Programmer failed to set the scene before attempting to draw primitives using Drawing.Draw
+static Exception FailedToSetSceneException = 0x40000001;
+
 // thrown when the resolution of one object should match another object's but they do not
 static Exception ResolutionMismatchException = 0x50000004;
 //

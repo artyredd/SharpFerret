@@ -22,6 +22,11 @@ struct _cullingTypes CullingTypes = {
 	.Back = { "back", GL_BACK }
 };
 
+struct _fillModes FillModes = {
+	.Fill = { "fill", GL_FILL },
+	.Line = { "line", GL_LINE }
+};
+
 const struct _frameBufferComponents FrameBufferComponents = {
 	.Texture = 0,
 	.RenderBuffer = 1,
@@ -107,6 +112,8 @@ static void ClearTexture(const TextureType);
 static void EnableStencil(void);
 static void DisableStencil(void);
 
+void SetFillMode(const FillMode);
+
 const struct _graphicsDeviceMethods GraphicsDevice = {
 	.EnableBlending = &EnableBlending,
 	.EnableCulling = &EnableCulling,
@@ -146,7 +153,8 @@ const struct _graphicsDeviceMethods GraphicsDevice = {
 	.ModifyTextureProperty = ModifyTextureProperty,
 	.ClearTexture = ClearTexture,
 	.EnableStencil = EnableStencil,
-	.DisableStencil = DisableStencil
+	.DisableStencil = DisableStencil,
+	.SetFillMode = SetFillMode
 };
 
 bool blendingEnabled = false;
@@ -431,6 +439,11 @@ static void SetDrawBuffer(ColorBufferType mode)
 static void ClearCurrentFrameBuffer(unsigned int clearMask)
 {
 	glClear(clearMask);
+}
+
+void SetFillMode(const FillMode fillmode)
+{
+	glPolygonMode(GL_FRONT_AND_BACK, fillmode.Value.AsUInt);
 }
 
 size_t viewportWidth;

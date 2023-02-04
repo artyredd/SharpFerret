@@ -27,6 +27,12 @@ struct _renderMesh {
 
 	size_t NumberOfTriangles;
 	Transform Transform;
+
+	bool CopyBuffersOnDraw;
+
+	// The CPU Side mesh to copy over data to the GPU when
+	// CopyBuffersOnDraw is enabled 
+	InstancedResource Mesh;
 };
 
 struct _renderMeshMethods {

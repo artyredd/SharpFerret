@@ -30,7 +30,7 @@ static bool __AbortTokenReturnTrue(const char* buffer, const size_t length, void
 
 #define TOKEN_SAVE( token, stateType ) static void Token##token##Save(File stream, stateType state)
 
-typedef struct _configDefinition* ConfigDefinition;
+typedef const struct _configDefinition* ConfigDefinition;
 
 struct _configDefinition {
 	// list of tokens
@@ -48,6 +48,15 @@ struct _configDefinition {
 	/// </summary>
 	struct _configToken AbortToken;
 };
+
+#define DEFINE_CONFIG(name,optionalBody) static const struct _configDefinition name##ConfigDefinition = {\
+	.Tokens = Tokens,\
+	.CommentCharacter = '#',\
+	.Count = sizeof(Tokens) / sizeof(struct _configToken),\
+	optionalBody\
+}
+
+#define CONFIG(name) DEFINE_CONFIG(name, )
 
 struct _configMethods {
 	/// <summary>
