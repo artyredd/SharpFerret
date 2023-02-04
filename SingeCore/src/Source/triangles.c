@@ -171,13 +171,13 @@ static bool CheckPlaneIntersectionIntervals(const triangle left, const triangle 
 	triangle tmp;
 	Vectors3CopyTo(left[0], tmp[0]);
 	Vectors3CopyTo(left[1], tmp[1]);
-	Vectors3CopyTo(right[0], tmp[0]);
+	Vectors3CopyTo(right[0], tmp[2]);
 
 	const bool firstDeterminant = Determinant(tmp, right[1]) <= 0;
 
 	Vectors3CopyTo(left[0], tmp[0]);
 	Vectors3CopyTo(left[2], tmp[1]);
-	Vectors3CopyTo(right[2], tmp[0]);
+	Vectors3CopyTo(right[2], tmp[2]);
 
 	const bool secondDeterminant = Determinant(tmp, right[0]) <= 0;
 

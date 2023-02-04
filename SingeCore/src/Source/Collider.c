@@ -105,8 +105,8 @@ static bool TryGetIntersects(const Collider leftCollider, const Collider rightCo
 				out_hit->RightHitIndex = rightIndex;
 				out_hit->LeftHitIndex = leftIndex;
 
-				//Drawing.DrawTriangle((float*)leftTriangle, leftTriangleMaterial);
-				//Drawing.DrawTriangle((float*)rightTriangle, rightTriangleMaterial);
+				Drawing.DrawTriangle((float*)leftTriangle, leftTriangleMaterial);
+				Drawing.DrawTriangle((float*)rightTriangle, rightTriangleMaterial);
 
 				return true;
 			}

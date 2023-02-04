@@ -1,6 +1,7 @@
 #include "cunit.h"
 #include "math/triangles.h"
 #include "csharp.h"
+#include "cglm/ray.h"
 
 TEST(Determinant)
 {
@@ -120,6 +121,29 @@ TEST(IntersectingCoplanar)
 	return true;
 }
 
+TEST(cglm_coplanar_works)
+{
+	triangle left = {
+		{ 0,0,0 },
+		{ 0.5,0.5,0 },
+		{ 1,0,0 }
+	};
+
+	vec3 origin = { 0, 0, 0};
+
+	vec3 ray = { 0.25, 0.25, 0 };
+
+	float distance = 0;
+
+	const bool actual = glm_ray_triangle(origin, ray, left[0], left[1], left[2], &distance);
+
+	const bool expected = true;
+
+	IsTrue(expected == actual);
+
+	return true;
+}
+
 static void TriangleTests(void)
 {
 	TestSuite suite = CreateSuite("TriangleTests");
@@ -129,6 +153,7 @@ static void TriangleTests(void)
 	APPEND_TEST(IntersectingNonCoplanar);
 	APPEND_TEST(NonIntersectingCoplanar);
 	APPEND_TEST(IntersectingCoplanar);
+	APPEND_TEST(cglm_coplanar_works);
 
 	suite->Run(suite);
 
