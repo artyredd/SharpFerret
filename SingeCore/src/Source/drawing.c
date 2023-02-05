@@ -7,13 +7,11 @@
 
 static void DrawTriangle(const float* triangle, Material material);
 static void SetScene(Scene scene);
-static void ClearLastFrame();
 
 const struct _drawing Drawing = 
 {
 	.SetScene = SetScene,
-	.DrawTriangle = &DrawTriangle,
-	.ClearLastFrame = ClearLastFrame
+	.DrawTriangle = &DrawTriangle
 };
 
 Scene Global_CurrentDrawingScene;
@@ -95,10 +93,4 @@ static void DrawTriangle(const float* triangle, Material material)
 static void SetScene(Scene scene)
 {
 	Global_CurrentDrawingScene = scene;
-}
-
-static void ClearLastFrame()
-{
-	// dispose all the rendermeshes from last frame
-	//ObjectPools.ReleaseAll(&RenderMeshPool);
 }

@@ -56,20 +56,8 @@ bool GuardCollider(const Collider collider)
 	return true;
 }
 
-Material leftTriangleMaterial;
-Material rightTriangleMaterial;
-
 static bool TryGetIntersects(const Collider leftCollider, const Collider rightCollider, collision* out_hit)
 {
-	if (leftTriangleMaterial is null)
-	{
-		leftTriangleMaterial = Materials.Load("assets/materials/unlit.material");
-		rightTriangleMaterial = Materials.Load("assets/materials/unlit.material");
-
-		Materials.SetColors(leftTriangleMaterial, 1.0, 0.0, 0.0, 1.0);
-		Materials.SetColors(rightTriangleMaterial, 0.0, 0.0, 1.0, 1.0);
-	}
-
 	out_hit->LeftHitIndex = 0;
 	out_hit->RightHitIndex = 0;
 
@@ -107,9 +95,6 @@ static bool TryGetIntersects(const Collider leftCollider, const Collider rightCo
 			{
 				out_hit->RightHitIndex = rightIndex;
 				out_hit->LeftHitIndex = leftIndex;
-
-				Drawing.DrawTriangle((float*)leftTriangle, leftTriangleMaterial);
-				Drawing.DrawTriangle((float*)rightTriangle, rightTriangleMaterial);
 
 				return true;
 			}
