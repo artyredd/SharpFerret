@@ -188,13 +188,24 @@ static bool CheckPlaneIntersectionIntervals(const triangle left, const triangle 
 	return firstDeterminant == secondDeterminant;
 }
 
-static bool IntersectsSegmentOnTriangle(const triangle left, const vec3 start, const vec3 end)
-{
-	/*vec3 direction;
+static bool IntersectsSegmentOnTriangle(const triangle triangle, const vec3 start, const vec3 end)
+{/*
+	vec3 direction;
 	Vector3s.Subtract(end, start, direction);
 
+	glm_normalize(direction);
+
 	float distance;
-	return glm_ray_triangle(start, direction, left[0],left[1], left[2], &distance);*/
+	const bool intersects = glm_ray_triangle(
+		start, 
+		direction, 
+		triangle[0],
+		triangle[1], 
+		triangle[2], 
+		&distance
+	);
+
+	return intersects && distance <= glm_vec3_distance(start, end);*/
 
 	vec3 startVertex;
 	vec3 endVertex;
@@ -202,18 +213,18 @@ static bool IntersectsSegmentOnTriangle(const triangle left, const vec3 start, c
 	Vectors3CopyTo(start, startVertex);
 	Vectors3CopyTo(end, endVertex);
 
-	SubtractVectors3(startVertex, left[0]);
-	SubtractVectors3(endVertex, left[0]);
+	SubtractVectors3(startVertex, triangle[0]);
+	SubtractVectors3(endVertex, triangle[0]);
 
 
 	vec3 firstToSecondRay;
 	vec3 firstToThirdRay;
 
-	Vectors3CopyTo(left[1], firstToSecondRay);
-	SubtractVectors3(firstToSecondRay, left[0]);
+	Vectors3CopyTo(triangle[1], firstToSecondRay);
+	SubtractVectors3(firstToSecondRay, triangle[0]);
 
-	Vectors3CopyTo(left[2], firstToThirdRay);
-	SubtractVectors3(firstToThirdRay, left[0]);
+	Vectors3CopyTo(triangle[2], firstToThirdRay);
+	SubtractVectors3(firstToThirdRay, triangle[0]);
 
 	vec3 normal;
 	glm_vec3_cross(firstToSecondRay, firstToThirdRay, normal);

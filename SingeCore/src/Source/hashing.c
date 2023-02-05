@@ -18,9 +18,10 @@ static size_t ChainHash(const char* bytes, const size_t previousHash)
 
     int c;
 
+#pragma warning (disable : 4706)
     while (c = *bytes++)
         hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-
+#pragma warning (default : 4706)
 
     return hash;
 }

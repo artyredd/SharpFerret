@@ -227,6 +227,7 @@
     <ClCompile Include="src\Source\triangles.c" />
     <ClCompile Include="src\Source\types.c" />
     <ClCompile Include="src\Source\vectors.c" />
+    <ClCompile Include="src\Source\voxel.c" />
     <ClCompile Include="src\Source\window.c" />
     <ClCompile Include="src\Tests\tests.c" />
     <ClCompile Include="src\Tests\tests_material.c" />
@@ -269,6 +270,7 @@
     <ClInclude Include="src\Headers\math\range.h" />
     <ClInclude Include="src\Headers\Math\triangles.h" />
     <ClInclude Include="src\Headers\math\vectors.h" />
+    <ClInclude Include="src\Headers\math\voxel.h" />
     <ClInclude Include="src\Headers\modeling\importer.h" />
     <ClInclude Include="src\Headers\modeling\mesh.h" />
     <ClInclude Include="src\Headers\modeling\model.h" />

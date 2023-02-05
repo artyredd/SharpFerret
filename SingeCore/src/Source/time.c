@@ -29,7 +29,7 @@ static double DeltaTime();
 static double FrameTime();
 
 struct _Time Time = {
-	.MaxDeltaTime = 1.0 / 15.0,
+	.MaxDeltaTime = 1.0 / 0.05,
 	.MinDeltaTime = 0,
 	.FrameCount = 0,
 	.Time = &TotalTime,

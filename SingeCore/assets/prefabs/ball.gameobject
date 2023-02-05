@@ -4,7 +4,7 @@ id: 0
 model: assets/models/ball.obj
 # the material definition path of this gameobject
 material: assets/materials/default.material
-transform:
+transform: 
 # the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective
 position: 5.000000 1.000000 5.000000
 # the rotation of the object

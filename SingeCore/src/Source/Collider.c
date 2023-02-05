@@ -113,7 +113,7 @@ static bool Intersects(const Collider left, const Collider right)
 	}
 
 	collision collision;
-	
+
 	return TryGetIntersects(left, right, &collision);
 }
 

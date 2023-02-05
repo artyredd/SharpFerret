@@ -295,14 +295,12 @@ int main()
 
 	Material unlit = Materials.Load("assets/materials/unlit.material");
 
-	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call                                                                                                                                                                  
+	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call                                                                                                                                                       
+	double timer = 0;
 	Time.Update();
 	do {
 		// ensure deltaTime is updated
 		Time.Update();
-
-		// clear all the render meshes created from manual drawing
-		Drawing.ClearLastFrame();
 
 		float modifier = speed * (float)Time.DeltaTime();
 
@@ -433,47 +431,27 @@ int main()
 		scene->MainCamera = camera;
 
 		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, null);
-
-		//float distance = 1000.0f;
-		//
-		//vec3 direction;
-		//Transforms.GetDirection(camera->Transform, Directions.Back, direction);
-
-		//Vector3s.Scale(direction, distance, direction);
-
-		//vec3 end;
-		//Vector3s.Add(camera->Transform->Position, direction, end);
-
-		//triangle tmp;
-		//memcpy(tmp, collider2->Model->Meshes[0]->VertexData, sizeof(triangle));
-		//
-		//Transforms.TransformPoint(collider2->Transform, tmp[0], tmp[0]);
-		//Transforms.TransformPoint(collider2->Transform, tmp[1], tmp[1]);
-		//Transforms.TransformPoint(collider2->Transform, tmp[2], tmp[2]);
-
-		//if (Triangles.SegmentIntersects(tmp, camera->Transform->Position, end))
-		//{
-		//	Materials.SetColors(colliderObject1->Material, 0.0, 1.0, 1.0, 0.0);
-		//	Materials.SetColors(colliderObject2->Material, 1.0, 1.0, 0.0, 0.0);
-		//}
-		//else
-		//{
-		//	Materials.SetColors(colliderObject1->Material, 1.0, 0.0, 0.0, 0.0);
-		//	Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
-		//}
-
-		intersects = Colliders.Intersects(collider1, collider2);
-
-		if (intersects)
+		
+		// 0.01
+		timer += Time.DeltaTime();
+		if (timer >= 0.01)
 		{
-			Materials.SetColors(colliderObject1->Material, 0.0, 1.0, 1.0, 0.0);
-			Materials.SetColors(colliderObject2->Material, 1.0, 1.0, 0.0, 0.0);
+			timer = 0;
+
+			intersects = Colliders.Intersects(collider1, collider2);
+
+			if (intersects)
+			{
+				Materials.SetColors(colliderObject1->Material, 0.0, 1.0, 1.0, 0.0);
+				Materials.SetColors(colliderObject2->Material, 1.0, 1.0, 0.0, 0.0);
+			}
+			else
+			{
+				Materials.SetColors(colliderObject1->Material, 1.0, 0.0, 0.0, 0.0);
+				Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
+			}
 		}
-		else
-		{
-			Materials.SetColors(colliderObject1->Material, 1.0, 0.0, 0.0, 0.0);
-			Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
-		}
+		
 
 		GameObjects.Draw(skybox, scene);
 
