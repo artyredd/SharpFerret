@@ -46,19 +46,6 @@ static void RenderMeshRemover(RenderMesh mesh)
 {
 	RenderMeshes.Dispose(mesh);
 }
-//
-//static struct _objectPool RenderMeshPool = {
-//	.AutoResize = true,
-//	.Count = 0,
-//	.ObjectProvider = RenderMeshProvider,
-//	.ObjectRemover = RenderMeshRemover,
-//	.ProviderState = &TriangleMesh,
-//	.State = {
-//		.Capacity = 0,
-//		.Objects = null,
-//		.FirstAvailableIndex  = 0
-//	}
-//};
 
 RenderMesh Global_DrawTriangleRenderMesh = null;
 
@@ -85,8 +72,6 @@ static void DrawTriangle(const float* triangle, Material material)
 	// calculate the normal for the triangle
 	Triangles.CalculateNormal((vec3*)triangle, Global_TriangleMesh.NormalVertexData);
 	
-	//RenderMesh renderMesh = ObjectPools.Get(&RenderMeshPool);
-
 	Materials.Draw(material, Global_DrawTriangleRenderMesh, Global_CurrentDrawingScene);
 }
 
