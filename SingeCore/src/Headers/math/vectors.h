@@ -126,10 +126,14 @@ static struct _vectorDirections {
 struct _vector3Methods {
 	void (*Set)(vec3, float x, float y, float z);
 	void (*CopyTo)(vec3 source, vec3 destination);
-	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec3);
+	bool (*TryDeserialize)(const char* buffer, const size_t length, float* out_vec3);
 	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
 	bool (*TrySerializeStream)(File stream, const float* vector);
 	void (*Cross)(vec3 left, vec3 right, vec3 out_result);
+	void (*Multiply)(const vec3 left, const vec3 right, vec3 destination);
+	void (*Scale)(const vec3 vector, const float value, vec3 destination);
+	void (*Add)(const vec3 left, const vec3 right, vec3 destination);
+	void (*Subtract)(const vec3 left, const vec3 right, vec3 destination);
 };
 
 extern const struct _vector3Methods Vector3s;

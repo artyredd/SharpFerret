@@ -51,6 +51,11 @@
 #include "scripts/fpsCamera.h"
 #include <physics/Collider.h>
 
+#include "cglm/mat4.h"
+#include "cglm/vec3.h"
+
+#include "math/triangles.h"
+
 Window window;
 
 void DebugCameraPosition(Camera camera);
@@ -223,6 +228,9 @@ int main()
 	GameObject colliderObject1 = GameObjects.Load("assets/prefabs/cube.gameobject");
 	GameObject colliderObject2 = GameObjects.Load("assets/prefabs/cube.gameobject");
 
+	Materials.SetColors(colliderObject1->Material, 1.0, 0.0, 0.0, 0.0);
+	Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
+
 	Collider collider1 = Colliders.Load("assets/colliders/cube.collider");
 	Collider collider2 = Colliders.Load("assets/colliders/cube.collider");
 
@@ -287,7 +295,7 @@ int main()
 
 	Material unlit = Materials.Load("assets/materials/unlit.material");
 
-	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call
+	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call                                                                                                                                                                  
 	Time.Update();
 	do {
 		// ensure deltaTime is updated
@@ -308,6 +316,9 @@ int main()
 		Transforms.SetRotationOnAxis(ball->Transform, rotateAmount / (float)GLM_PI, Vector3.Up);
 
 		Transforms.SetRotationOnAxis(otherBall->Transform, -rotateAmount / (float)GLM_PI, Vector3.Up);
+
+		Transforms.RotateOnAxis(collider1->Transform, Time.DeltaTime(), Vector3.Right);
+		Transforms.RotateOnAxis(collider1->Transform, Time.DeltaTime(), Vector3.Up);
 
 		// drive car
 		vec3 carDirection;
@@ -423,16 +434,46 @@ int main()
 
 		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, null);
 
-		// draw test triangle for drawing
-		float triangle[9] = {
-			0,0,0,
-			0,0,-100,
-			100,0,0
-		}; 
+		//float distance = 1000.0f;
+		//
+		//vec3 direction;
+		//Transforms.GetDirection(camera->Transform, Directions.Back, direction);
 
-		Drawing.DrawTriangle(triangle, unlit);
+		//Vector3s.Scale(direction, distance, direction);
+
+		//vec3 end;
+		//Vector3s.Add(camera->Transform->Position, direction, end);
+
+		//triangle tmp;
+		//memcpy(tmp, collider2->Model->Meshes[0]->VertexData, sizeof(triangle));
+		//
+		//Transforms.TransformPoint(collider2->Transform, tmp[0], tmp[0]);
+		//Transforms.TransformPoint(collider2->Transform, tmp[1], tmp[1]);
+		//Transforms.TransformPoint(collider2->Transform, tmp[2], tmp[2]);
+
+		//if (Triangles.SegmentIntersects(tmp, camera->Transform->Position, end))
+		//{
+		//	Materials.SetColors(colliderObject1->Material, 0.0, 1.0, 1.0, 0.0);
+		//	Materials.SetColors(colliderObject2->Material, 1.0, 1.0, 0.0, 0.0);
+		//}
+		//else
+		//{
+		//	Materials.SetColors(colliderObject1->Material, 1.0, 0.0, 0.0, 0.0);
+		//	Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
+		//}
 
 		intersects = Colliders.Intersects(collider1, collider2);
+
+		if (intersects)
+		{
+			Materials.SetColors(colliderObject1->Material, 0.0, 1.0, 1.0, 0.0);
+			Materials.SetColors(colliderObject2->Material, 1.0, 1.0, 0.0, 0.0);
+		}
+		else
+		{
+			Materials.SetColors(colliderObject1->Material, 1.0, 0.0, 0.0, 0.0);
+			Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
+		}
 
 		GameObjects.Draw(skybox, scene);
 

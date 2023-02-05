@@ -84,7 +84,7 @@ static bool TryGetIntersects(const Collider leftCollider, const Collider rightCo
 	const Mesh left = leftCollider->Model->Meshes[0];
 	const Mesh right = rightCollider->Model->Meshes[0];
 
-	for (size_t leftIndex = 0; leftIndex < (left->VertexCount / 3 ); leftIndex += 9)
+	for (size_t leftIndex = 0; leftIndex < left->VertexCount; leftIndex += 9)
 	{
 		triangle leftTriangle;
 
@@ -92,13 +92,16 @@ static bool TryGetIntersects(const Collider leftCollider, const Collider rightCo
 		Transforms.TransformPoint(leftCollider->Transform, &left->VertexData[leftIndex + 3], leftTriangle[1]);
 		Transforms.TransformPoint(leftCollider->Transform, &left->VertexData[leftIndex + 6], leftTriangle[2]);
 
-		for (size_t rightIndex = 0; rightIndex < ( right->VertexCount / 3 ); rightIndex += 9)
+		for (size_t rightIndex = 0; rightIndex < right->VertexCount; rightIndex += 9)
 		{
 			triangle rightTriangle;
 
 			Transforms.TransformPoint(rightCollider->Transform, &right->VertexData[rightIndex], rightTriangle[0]);
 			Transforms.TransformPoint(rightCollider->Transform, &right->VertexData[rightIndex + 3], rightTriangle[1]);
 			Transforms.TransformPoint(rightCollider->Transform, &right->VertexData[rightIndex + 6], rightTriangle[2]);
+
+			Triangles.WindTriangle(leftTriangle);
+			Triangles.WindTriangle(rightTriangle);
 
 			if (Triangles.Intersects(leftTriangle, rightTriangle))
 			{

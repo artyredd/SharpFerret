@@ -16,6 +16,9 @@ struct _triangles
 	// determins whether or not the triangles intersect one another in 3d space
 	bool (*Intersects)(const triangle left, const triangle right);
 
+	// determines whether or not a line segment intersects with the given triangle
+	bool (*SegmentIntersects)(const triangle left, const vec3 start, const vec3 end);
+
 	// winds the triangle
 	void (*WindTriangle)(triangle triangle);
 };

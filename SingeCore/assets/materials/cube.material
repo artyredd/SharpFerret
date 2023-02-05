@@ -1,4 +1,4 @@
-shaders: assets/shaders/unlit_wireframe.shader
+shaders: assets/shaders/unlit.shader
 mainTexture: assets/textures/cube_uv.texture
 specularMap: assets/textures/cube_specular.texture
 ambient: 0.19225 0.19225 0.19225 1.0

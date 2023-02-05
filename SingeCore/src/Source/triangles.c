@@ -1,17 +1,21 @@
 
 #include "math/triangles.h"
 #include "cglm/vec3.h"
+#include "cglm/mat3.h"
+#include "cglm/ray.h"
 
 static double Determinant(const triangle, const vec3);
 static bool Intersects(const triangle,const triangle);
 static void CalculateNormal(const triangle triangle, vec3 out_normal);
 static void WindTriangle(triangle triangle);
+static bool IntersectsSegmentOnTriangle(const triangle left, const vec3 start, const vec3 end);
 
 const struct _triangles Triangles = {
 	.Determinant = &Determinant,
 	.Intersects = &Intersects,
 	.CalculateNormal = CalculateNormal,
-	.WindTriangle = WindTriangle
+	.WindTriangle = WindTriangle,
+	.SegmentIntersects = IntersectsSegmentOnTriangle
 };
 
 static void CalculateNormal(const triangle triangle, vec3 out_normal)
@@ -121,12 +125,12 @@ static bool OrientCounterClockwise(triangle triangle)
 	const float orientation = VerticeOrientation(triangle);
 
 	// the vertices are already counter clock wise in orientation
-	if ( positive(orientation) )
+	if ( negative(orientation) )
 	{
 		return true;
 	}
 
-	if ( negative(orientation) )
+	if ( positive(orientation) )
 	{
 		vec3 tmp;
 
@@ -184,28 +188,87 @@ static bool CheckPlaneIntersectionIntervals(const triangle left, const triangle 
 	return firstDeterminant == secondDeterminant;
 }
 
-static bool Intersects(const triangle left, const triangle right)
+static bool IntersectsSegmentOnTriangle(const triangle left, const vec3 start, const vec3 end)
 {
-	// Olivier Devillers, Philippe Guigue.Faster Triangle - Triangle Intersection Tests.RR - 4488, INRIA.
-	//	2002. inria - 00072100
-	struct determinant determinants;
-	if (GetDeterminants( left,right, &determinants) == false)
+	/*vec3 direction;
+	Vector3s.Subtract(end, start, direction);
+
+	float distance;
+	return glm_ray_triangle(start, direction, left[0],left[1], left[2], &distance);*/
+
+	vec3 startVertex;
+	vec3 endVertex;
+
+	Vectors3CopyTo(start, startVertex);
+	Vectors3CopyTo(end, endVertex);
+
+	SubtractVectors3(startVertex, left[0]);
+	SubtractVectors3(endVertex, left[0]);
+
+
+	vec3 firstToSecondRay;
+	vec3 firstToThirdRay;
+
+	Vectors3CopyTo(left[1], firstToSecondRay);
+	SubtractVectors3(firstToSecondRay, left[0]);
+
+	Vectors3CopyTo(left[2], firstToThirdRay);
+	SubtractVectors3(firstToThirdRay, left[0]);
+
+	vec3 normal;
+	glm_vec3_cross(firstToSecondRay, firstToThirdRay, normal);
+
+	// x1 x2 nx
+	// y1 y2 ny
+	// z1 z2 nz
+	mat3 matrix;
+
+	// GLM IS COLUMN MAJOR
+	// because math i guess
+	Vectors3CopyTo(firstToSecondRay, matrix[0]);
+	Vectors3CopyTo(firstToThirdRay, matrix[1]);
+	Vectors3CopyTo(normal, matrix[2]);
+
+	glm_mat3_inv(matrix, matrix);
+
+	vec3 startInTriangleSpace;
+	glm_mat3_mulv(matrix, startVertex, startInTriangleSpace);
+
+	vec3 endInTriangleSpace;
+	glm_mat3_mulv(matrix, endVertex, endInTriangleSpace);
+
+	const float zSign = startInTriangleSpace[2] * endInTriangleSpace[2];
+
+	if (zSign >= 0)
 	{
 		return false;
 	}
 
-	const bool allZero = zero(determinants.xDeterminant) && zero(determinants.yDeterminant) && zero(determinants.zDeterminant);
+	const float aX = startInTriangleSpace[0];
+	const float aY = startInTriangleSpace[1];
+	const float aZ = startInTriangleSpace[2];
 
-	// when the dertminant is all zero then the triangles are coplanar and 
-	// we must then determine if they are intersecting in a 2d space
-	if (allZero)
-	{
-		// 2d calc
-		return AnyPointExistsWithinTriangle(left, right);
-	}
-	else
-	{
-		// possible intersection occurs, check the other triangle as well to confirm
-		return GetDeterminants(right,left, &determinants) && CheckPlaneIntersectionIntervals(left, right);
-	}
+	const float bX = endInTriangleSpace[0];
+	const float bY = endInTriangleSpace[1];
+	const float bZ = endInTriangleSpace[2];
+
+	const float t = bZ / (bZ - aZ);
+
+	const float negT = (1 - t);
+
+	const float x = (aX * t) + (negT * bX);
+	const float y = (aY * t) + (negT * bY);
+
+	return x >= 0.0 && y >= 0 && (x + y) <= 1.0;
+}
+
+static bool Intersects(const triangle left, const triangle right)
+{
+	return 
+		IntersectsSegmentOnTriangle(left, right[0], right[1]) || 
+		IntersectsSegmentOnTriangle(left, right[1], right[2]) || 
+		IntersectsSegmentOnTriangle(left, right[2], right[0]) || 
+		IntersectsSegmentOnTriangle(right, left[0], left[1]) ||
+		IntersectsSegmentOnTriangle(right, left[1], left[2]) ||
+		IntersectsSegmentOnTriangle(right, left[2], left[0]);
 }

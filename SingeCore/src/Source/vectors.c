@@ -10,9 +10,12 @@ static bool TryParseVector3(const char* buffer, const size_t length, float* out_
 static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector);
 static bool TrySerializeVec3Stream(File stream, const float* vector);
 static void Vector3Set(vec3, float x, float y, float z);
-static void Vector3CopyTo(vec3 source, vec3 destination);
-static void Cross(vec3 left, vec3 right, vec3 out_result);
-
+static void Vector3CopyTo(const vec3 source, vec3 destination);
+static void Cross(const vec3 left, const vec3 right, vec3 out_result);
+static void Multiply(const vec3 left, const vec3 right, vec3 destination);
+static void Scale(const vec3 vector, const float value, vec3 destination);
+static void Add(const vec3 left, const vec3 right, vec3 destination);
+static void Subtract(const vec3 left, const vec3 right, vec3 destination);
 
 const struct _vector3Methods Vector3s = {
 	.TryDeserialize = &TryParseVector3,
@@ -20,7 +23,11 @@ const struct _vector3Methods Vector3s = {
 	.TrySerializeStream = &TrySerializeVec3Stream,
 	.Set = Vector3Set,
 	.CopyTo = Vector3CopyTo,
-	.Cross = &Cross
+	.Cross = &Cross,
+	.Multiply = Multiply,
+	.Scale  = Scale,
+	.Add = Add,
+	.Subtract = Subtract
 };
 
 static bool TryParseVector2(const char* buffer, const size_t length, float* out_vector2);
@@ -88,14 +95,44 @@ static void Vector3Set(vec3 vector, float x, float y, float z)
 	vector[2] = z;
 }
 
-static void Vector3CopyTo(vec3 source, vec3 destination)
+static void Vector3CopyTo(const vec3 source, vec3 destination)
 {
 	Vectors3CopyTo(source, destination);
 }
 
-static void Cross(vec3 left, vec3 right, vec3 destination)
+static void Cross(const vec3 left, const vec3 right, vec3 destination)
 {
+#pragma warning (disable : 4090)
 	glm_cross(left, right, destination);
+#pragma warning (default : 4090)
+}
+
+static void Multiply(const vec3 left, const vec3 right, vec3 destination)
+{
+#pragma warning (disable : 4090)
+	glm_vec3_mul(left, right, destination);
+#pragma warning (default : 4090)
+}
+
+static void Add(const vec3 left, const vec3 right, vec3 destination)
+{
+	destination[0] = left[0] + right[0];
+	destination[1] = left[1] + right[1];
+	destination[2] = left[2] + right[2];
+}
+
+static void Subtract(const vec3 left, const vec3 right, vec3 destination)
+{
+	destination[0] = left[0] - right[0];
+	destination[1] = left[1] - right[1];
+	destination[2] = left[2] - right[2];
+}
+
+static void Scale(const vec3 vector, float value, vec3 destination)
+{
+	destination[0] = vector[0] * value;
+	destination[1] = vector[1] * value;
+	destination[2] = vector[2] * value;
 }
 
 static bool TrySerializeVec3Stream(File stream, const float* vector)
