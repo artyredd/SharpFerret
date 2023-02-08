@@ -289,8 +289,6 @@ int main()
 
 	Drawing.SetScene(scene);
 
-	Material unlit = Materials.Load("assets/materials/unlit.material");
-
 	// we update time once before the start of the program becuase if startup takes a long time delta time may be large for the first call                                                                                                                                                       
 	double timer = 0;
 	Time.Update();
@@ -311,8 +309,8 @@ int main()
 
 		Transforms.SetRotationOnAxis(otherBall->Transform, -rotateAmount / (float)GLM_PI, Vector3.Up);
 
-		Transforms.RotateOnAxis(collider1->Transform, Time.DeltaTime(), Vector3.Right);
-		Transforms.RotateOnAxis(collider1->Transform, Time.DeltaTime(), Vector3.Up);
+		Transforms.RotateOnAxis(collider1->Transform, (float)Time.DeltaTime(), Vector3.Right);
+		Transforms.RotateOnAxis(collider1->Transform, (float)Time.DeltaTime(), Vector3.Up);
 
 		// drive car
 		vector3 carDirection = Transforms.GetDirection(car->Transform, Directions.Back);
@@ -322,13 +320,6 @@ int main()
 		Transforms.AddPosition(car->Transform, carDirection);
 
 		Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / 8.0f) * modifier, Vector3.Up);
-
-		
-
-		quaternion lightRotation = Quaternions.Create((rotateAmount / (float)GLM_PI) / 16.0f, Vector3.Up);
-
-		// rotate sun
-		vector3 newLightPos = Quaternions.RotateVector(lightRotation, lightOffset);
 
 		Transforms.SetPosition(light->Transform, lightOffset);
 		Transforms.LookAt(light->Transform, Vector3.Zero);
@@ -384,7 +375,7 @@ int main()
 
 		vector3 newColliderPos = collider2->Transform->Position;
 
-		newColliderPos.y = colliderPosition;
+		newColliderPos.y = (float)colliderPosition;
 
 		Transforms.SetPosition(collider2->Transform, newColliderPos);
 
