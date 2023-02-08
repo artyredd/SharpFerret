@@ -23,31 +23,31 @@ static void Dispose(Transform transform);
 static Transform CreateTransform(void);
 static void TransformCopyTo(Transform source, Transform destination);
 static void SetParent(Transform transform, Transform parent);
-static void SetPosition(Transform transform, vec3 position);
+static void SetPosition(Transform transform, vector3 position);
 static void SetPositions(Transform transform, float x, float y, float z);
-static void SetRotation(Transform transform, Quaternion rotation);
-static void SetScale(Transform transform, vec3 scale);
+static void SetRotation(Transform transform, quaternion rotation);
+static void SetScale(Transform transform, vector3 scale);
 static void SetScales(Transform transform, float x, float y, float z);
-static void AddPosition(Transform transform, vec3 amount);
+static void AddPosition(Transform transform, vector3 amount);
 static void Translate(Transform, float x, float y, float z);
 static void TranslateX(Transform, float x);
 static void TranslateY(Transform, float y);
 static void TranslateZ(Transform, float z);
-static void Rotate(Transform transform, Quaternion amount);
-static void RotateOnAxis(Transform, float amountInRads, vec3 axis);
-static void SetRotationOnAxis(Transform, float amountInRads, vec3 axis);
-static void AddScale(Transform transform, vec3 amount);
-static void GetDirection(Transform transform, Direction direction, vec3 out_direction);
-static vec4* RefreshTransform(Transform transform);
-static vec4* ForceRefreshTransform(Transform transform);
+static void Rotate(Transform transform, quaternion amount);
+static void RotateOnAxis(Transform, float amountInRads, vector3 axis);
+static void SetRotationOnAxis(Transform, float amountInRads, vector3 axis);
+static void AddScale(Transform transform, vector3 amount);
+static vector3 GetDirection(Transform transform, Direction direction);
+static matrix4 RefreshTransform(Transform transform);
+static matrix4 ForceRefreshTransform(Transform transform);
 static void ScaleAll(Transform, float scaler);
 static void ClearChildren(Transform);
 static Transform Load(File);
 static void Save(Transform, File);
 static void SetChildCapacity(Transform, size_t count);
-static void LookAt(Transform, vec3 target);
+static void LookAt(Transform, vector3 target);
 static void LookAtPositions(Transform, float x, float y, float z);
-static void TransformPoint(Transform, vec3 point, vec3 destination);
+static vector3 TransformPoint(Transform, vector3 point);
 
 const struct _transformMethods Transforms = {
 	.Dispose = &Dispose,
@@ -117,11 +117,11 @@ static Transform CreateTransform()
 	transform->RotateAroundCenter = false;
 	transform->InvertTransform = false;
 
-	InitializeVector3(transform->Position);
-	SetVector3Macro(transform->Scale, 1, 1, 1);
-	SetVector4Macro(transform->Rotation, 0, 0, 0, 1);
+	transform->Position = Vector3.Zero;
+	transform->Scale = (vector3){ 1, 1, 1 };
+	transform->Rotation = (quaternion){ 0, 0, 0, 1 };
 
-	InitializeMat4(transform->State.State);
+	transform->State.State = Matrix4.Zero;
 
 	// set the all modified flag so we do a full refresh of the transform on first draw
 	transform->State.Modified = AllModifiedFlag;
@@ -136,22 +136,20 @@ static void DirectionStatesCopyTo(struct _directionStates* source, struct _direc
 {
 	CopyMember(source, destination, Accessed);
 
-	Vectors3CopyTo(source->Directions[0], destination->Directions[0]);
-	Vectors3CopyTo(source->Directions[1], destination->Directions[1]);
-	Vectors3CopyTo(source->Directions[2], destination->Directions[2]);
-	Vectors3CopyTo(source->Directions[3], destination->Directions[3]);
-	Vectors3CopyTo(source->Directions[4], destination->Directions[4]);
-	Vectors3CopyTo(source->Directions[5], destination->Directions[5]);
+	for (size_t i = 0; i < 6; i++)
+	{
+		destination->Directions[i] = source->Directions[i];
+	}
 }
 
 static void StateCopyTo(struct transformState* source, struct transformState* destination)
 {
 	CopyMember(source, destination, Modified);
 
-	Matrix4CopyTo(source->ScaleMatrix, destination->ScaleMatrix);
-	Matrix4CopyTo(source->RotationMatrix, destination->RotationMatrix);
-	Matrix4CopyTo(source->LocalState, destination->LocalState);
-	Matrix4CopyTo(source->State, destination->State);
+	destination->ScaleMatrix = source->ScaleMatrix;
+	destination->RotationMatrix = source->RotationMatrix;
+	destination->LocalState = source->LocalState;
+	destination->State = source->State;
 
 	DirectionStatesCopyTo(&source->Directions, &destination->Directions);
 }
@@ -161,9 +159,9 @@ static void TransformCopyTo(Transform source, Transform destination)
 	CopyMember(source, destination, RotateAroundCenter);
 	CopyMember(source, destination, InvertTransform);
 
-	Vectors3CopyTo(source->Scale, destination->Scale);
-	Vectors3CopyTo(source->Position, destination->Position);
-	Vectors4CopyTo(source->Rotation, destination->Rotation);
+	destination->Scale = source->Scale;
+	destination->Position = source->Position;
+	destination->Rotation = source->Rotation;
 
 	StateCopyTo(&source->State, &destination->State);
 }
@@ -194,27 +192,32 @@ static void NotifyChildren(Transform transform)
 	}
 }
 
-static void GetPosition(Transform transform, vec3 out_vec)
+static vector3 GetPosition(Transform transform)
 {
 	if (transform->InvertTransform)
 	{
-		glm_vec3_negate_to(transform->Position, out_vec);
+		return (vector3) 
+		{ 
+			-transform->Position.x, 
+			-transform->Position.y,
+			-transform->Position.z
+		};
 	}
 
-	Vectors3CopyTo(transform->Position, out_vec);
+	return transform->Position;
 }
 
-static void GetRotation(Transform transform, Quaternion out_quaternion)
+static quaternion GetRotation(Transform transform)
 {
 	if (transform->InvertTransform)
 	{
-		glm_quat_inv(transform->Rotation, out_quaternion);
+		return Quaternions.Invert(transform->Rotation);
 	}
 
-	Vectors4CopyTo(transform->Rotation, out_quaternion);
+	return transform->Rotation;
 }
 
-static vec4* RefreshTransform(Transform transform)
+static matrix4 RefreshTransform(Transform transform)
 {
 	unsigned int mask = transform->State.Modified;
 
@@ -230,7 +233,7 @@ static vec4* RefreshTransform(Transform transform)
 	// check to see if only my parent has changed
 	if (mask is ParentModifiedFlag && transform->Parent != null)
 	{
-		glm_mat4_mul(transform->Parent->State.State, transform->State.LocalState, transform->State.State);
+		transform->State.State = Matrix4s.Multiply(transform->Parent->State.State, transform->State.LocalState);
 
 		ResetFlags(transform->State.Modified);
 
@@ -247,26 +250,25 @@ static vec4* RefreshTransform(Transform transform)
 	}
 
 	// becuase the transform may be inverted grab either the regular or inverted transforms
-	Quaternion rotation;
-	GetRotation(transform, rotation);
+	quaternion rotation = GetRotation(transform);
 
 	// since we dont need to do a full refresh, do only the calcs needed to save cpu time
 	// this engine was orignally designed to be single threaded
 	if (HasFlag(mask, RotationModifiedFlag))
 	{
-		glm_quat_rotate(transform->State.TranslationMatrix, rotation, transform->State.RotationMatrix);
+		transform->State.RotationMatrix = Quaternions.RotateMatrix(rotation, transform->State.TranslationMatrix);
 	}
 
 	// scale the matrix
-	glm_scale_to(transform->State.RotationMatrix, transform->Scale, transform->State.LocalState);
+	transform->State.LocalState = Matrix4s.Scale(transform->State.RotationMatrix, transform->Scale);
 
 	if (transform->Parent != null)
 	{
-		glm_mat4_mul(transform->Parent->State.State, transform->State.LocalState, transform->State.State);
+		transform->State.State = Matrix4s.Multiply(transform->Parent->State.State, transform->State.LocalState);
 	}
 	else
 	{
-		SetMatrices4(transform->State.State, transform->State.LocalState);
+		transform->State.State = transform->State.LocalState;
 	}
 
 	ResetFlags(transform->State.Modified);
@@ -276,43 +278,41 @@ static vec4* RefreshTransform(Transform transform)
 	return transform->State.State;
 }
 
-static vec4* ForceRefreshTransform(Transform transform)
+static matrix4 ForceRefreshTransform(Transform transform)
 {
 	// becuase this engine is single threaded we perform some extra calculations here to save them in non-forced refresh
 
 	// calc and store scale, rotation, and translation in their own matrices so we can selectively update them later
 
 	// becuase the transform may be inverted grab either the regular or inverted transforms
-	Quaternion rotation;
-	GetRotation(transform, rotation);
+	quaternion rotation = GetRotation(transform);
 
-	vec3 position;
-	GetPosition(transform, position);
+	vector3 position = GetPosition(transform);
 
 	// create and store a translation matrix
-	glm_translate_to(Matrix4.Identity, position, transform->State.TranslationMatrix);
+	transform->State.TranslationMatrix = Matrix4s.Translate( Matrix4.Identity, position);
 
 	// create and store a rotation matrix
-	glm_quat_rotate(transform->State.TranslationMatrix, rotation, transform->State.RotationMatrix);
+	transform->State.RotationMatrix = Quaternions.RotateMatrix(rotation, transform->State.TranslationMatrix);
 
 	// calc and store scale matrix
-	glm_scale_to(transform->State.RotationMatrix, transform->Scale, transform->State.LocalState);
+	transform->State.LocalState = Matrix4s.Scale(transform->State.RotationMatrix, transform->Scale);
 
 	// multiply them in reverse order
 	// order should be scale -> rotate -> translate
-	/*glm_mat4_mulN((mat4 * []) {
+	/*glm_matrix4_mulN((matrix4 * []) {
 		&transform->State.TranslationMatrix, & transform->State.RotationMatrix, & transform->State.ScaleMatrix
 	}, 3, transform->State.LocalState);*/
 
 	// if we have a parent we should grab their matrices and multiply it with our local one
 	if (transform->Parent != null)
 	{
-		glm_mat4_mul(transform->Parent->State.State, transform->State.LocalState, transform->State.State);
+		transform->State.State = Matrix4s.Multiply(transform->Parent->State.State, transform->State.LocalState);
 	}
 	else
 	{
 		// since we don't have a parent copy the local transform to the state
-		SetMatrices4(transform->State.State, transform->State.LocalState);
+		transform->State.State = transform->State.LocalState;
 	}
 
 	// make sure to reset the dirty flag
@@ -514,188 +514,185 @@ static void ClearChildren(Transform transform)
 	transform->Count = 0;
 }
 
-static void SetPosition(Transform transform, vec3 position)
+static void SetPosition(Transform transform, vector3 position)
 {
-	if (Vector3Equals(position, transform->Position))
+	if (Vector3s.Equals(position, transform->Position))
 	{
 		return;
 	}
 
-	SetVectors3(transform->Position, position);
+	transform->Position = position;
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
 static void SetPositions(Transform transform, float x, float y, float z)
 {
-	float newPos[3] = { x, y, z };
+	vector3 newPos = { x, y, z };
 
-	if (Vector3Equals(transform->Position, newPos))
+	if (Vector3s.Equals(transform->Position, newPos))
 	{
 		return;
 	}
 
-	SetVectors3(transform->Position, newPos);
+	transform->Position = newPos;
 
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-static void SetRotation(Transform transform, Quaternion rotation)
+static void SetRotation(Transform transform, quaternion rotation)
 {
-	if (Vector4Equals(rotation, transform->Rotation))
+	if (Quaternions.Equals(rotation, transform->Rotation))
 	{
 		return;
 	}
 
-	SetVectors4(transform->Rotation, rotation);
+	transform->Rotation = rotation;
+
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
-static void LookAt(Transform transform, vec3 target)
+static void LookAt(Transform transform, vector3 target)
 {
-	glm_quat_forp(transform->Position, target, Vector3.Up, transform->Rotation);
+	transform->Rotation = Quaternions.LookAt(transform->Position, target, Vector3.Up);
 
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
 static void LookAtPositions(Transform transform, float x, float y, float z)
 {
-	vec3 target = {x, y, z};
+	vector3 target = { x, y, z};
 
-	glm_quat_forp(transform->Position, target, Vector3.Up, transform->Rotation);
+	transform->Rotation = Quaternions.LookAt(transform->Position, target, Vector3.Up);
 
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
-static void ScaleAll(Transform transform, float scaler)
+static void ScaleAll(Transform transform, float scalar)
 {
-	float* scale = transform->Scale;
-
-	scale[0] *= scaler;
-	scale[1] *= scaler;
-	scale[2] *= scaler;
+	transform->Scale = Vector3s.Scale(transform->Scale, scalar);
 
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-static void SetScale(Transform transform, vec3 scale)
+static void SetScale(Transform transform, vector3 scale)
 {
-	if (Vector3Equals(scale, transform->Scale))
+	if (Vector3s.Equals(scale, transform->Scale))
 	{
 		return;
 	}
 
-	SetVectors3(transform->Scale, scale);
+	transform->Scale = scale;
+
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
 static void SetScales(Transform transform, float x, float y, float z)
 {
-	float newPos[3] = { x, y, z };
+	vector3 newPos = { x, y, z };
 
-	if (Vector3Equals(transform->Scale, newPos))
+	if (Vector3s.Equals(transform->Scale, newPos))
 	{
 		return;
 	}
 
-	SetVectors3(transform->Scale, newPos);
+	transform->Scale = newPos;
 
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-static void AddPosition(Transform transform, vec3 amount)
+static void AddPosition(Transform transform, vector3 amount)
 {
-	if (Vector3Equals(amount, Vector3.Zero))
+	if (Vector3s.Equals(amount, Vector3.Zero))
 	{
 		return;
 	}
 
-	AddVectors3(transform->Position, amount);
+	transform->Position = Vector3s.Add(transform->Position, amount);
+
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
 static void Translate(Transform transform, float x, float y, float z)
 {
-	vec3 amount = { x, y, z };
+	vector3 amount = { x, y, z };
 
 	AddPosition(transform, amount);
 }
 
 static void TranslateX(Transform transform, float x)
 {
-	if (x is transform->Position[0])
+	if (x is transform->Position.x)
 	{
 		return;
 	}
 
-	transform->Position[0] += x;
+	transform->Position.x += x;
 
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
 static void TranslateY(Transform transform, float y)
 {
-	if (y is transform->Position[1])
+	if (y is transform->Position.y)
 	{
 		return;
 	}
 
-	transform->Position[1] += y;
+	transform->Position.y += y;
 
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
 static void TranslateZ(Transform transform, float z)
 {
-	if (z is transform->Position[2])
+	if (z is transform->Position.z)
 	{
 		return;
 	}
 
-	transform->Position[2] += z;
+	transform->Position.z += z;
 
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-static void Rotate(Transform transform, Quaternion amount)
+static void Rotate(Transform transform, quaternion amount)
 {
 	// to add a rotation to a quaterion we multiply, gotta love imaginary number magic
-	glm_quat_mul(transform->Rotation, amount, transform->Rotation);
+	transform->Rotation = Quaternions.Add(transform->Rotation, amount);
 
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
-static void RotateOnAxis(Transform transform, float angleInRads, vec3 axis)
+static void RotateOnAxis(Transform transform, float angleInRads, vector3 axis)
 {
-	Quaternion rotation;
-	glm_quat(rotation, angleInRads, axis[0], axis[1], axis[2]);
+	quaternion rotation = Quaternions.Create(angleInRads, axis);
 
 	Rotate(transform, rotation);
 	// no need to set flag here since we call the other method that does
 }
 
-static void SetRotationOnAxis(Transform transform, float angleInRads, vec3 axis)
+static void SetRotationOnAxis(Transform transform, float angleInRads, vector3 axis)
 {
-	Quaternion rotation;
-	glm_quat(rotation, angleInRads, axis[0], axis[1], axis[2]);
+	quaternion rotation = Quaternions.Create(angleInRads, axis);
 
 	SetRotation(transform, rotation);
 	// no need to set flag here since we call the other method that does
 }
 
-static void AddScale(Transform transform, vec3 amount)
+static void AddScale(Transform transform, vector3 amount)
 {
-	AddVectors3(transform->Scale, amount);
+	transform->Scale = Vector3s.Add(transform->Scale, amount);
+
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-static void GetDirection(Transform transform, Direction direction, vec3 out_direction)
+static vector3 GetDirection(Transform transform, Direction direction)
 {
 	GuardNotNull(transform);
 
 	if (direction is Directions.Zero)
 	{
-		Vectors3CopyTo(Vector3.Zero, out_direction);
-		return;
+		return Vector3.Zero;
 	}
 
 	// since we handled Zero as an edge case shift index down by one
@@ -704,7 +701,7 @@ static void GetDirection(Transform transform, Direction direction, vec3 out_dire
 	// this is  a magic number but I doubt there will be more than 6 cardinal directions in the future..
 	GuardLessThanEqual(direction, 5);
 
-	static float* directions[6] = {
+	vector3 directions[6] = {
 		Vector3.Left,
 		Vector3.Right,
 		Vector3.Up,
@@ -717,36 +714,34 @@ static void GetDirection(Transform transform, Direction direction, vec3 out_dire
 	// if we have we should just return the pre-calculated one and not re-multiply the rotation
 	if (HasFlag(transform->State.Directions.Accessed, FlagN(direction)))
 	{
-		Vectors3CopyTo(transform->State.Directions.Directions[direction], out_direction);
-
-		return;
+		return transform->State.Directions.Directions[direction];
 	}
 
-	glm_quat_rotatev(transform->Rotation, directions[direction], transform->State.Directions.Directions[direction]);
-
-	Vectors3CopyTo(transform->State.Directions.Directions[direction], out_direction);
+	transform->State.Directions.Directions[direction] = Quaternions.RotateVector( transform->Rotation, directions[direction]);
 
 	SetFlag(transform->State.Directions.Accessed, FlagN(direction));
+
+	return transform->State.Directions.Directions[direction];
 }
 
-static void TransformPoint(Transform transform, vec3 point, vec3 destination)
+static vector3 TransformPoint(Transform transform, vector3 point)
 {
 	RefreshTransform(transform);
 
-	glm_mat4_mulv3(transform->State.State, point, 1.0, destination);
+	return Matrix4s.MultiplyVector3(transform->State.State, point, 1.0);
 }
 
 struct _transformInfo {
-	vec3 Position;
-	vec4 Rotation;
-	vec3 Scale;
+	vector3 Position;
+	quaternion Rotation;
+	vector3 Scale;
 	bool RotateAroundCenter;
 	bool InvertTransform;
 };
 
 TOKEN_LOAD(position, struct _transformInfo*)
 {
-	return Vector3s.TryDeserialize(buffer, length, state->Position);
+	return Vector3s.TryDeserialize(buffer, length, &state->Position);
 }
 
 TOKEN_SAVE(position, Transform)
@@ -756,17 +751,17 @@ TOKEN_SAVE(position, Transform)
 
 TOKEN_LOAD(rotation, struct _transformInfo*)
 {
-	return Vector4s.TryDeserialize(buffer, length, state->Rotation);
+	return Quaternions.TryDeserialize(buffer, length, &state->Rotation);
 }
 
 TOKEN_SAVE(rotation, Transform)
 {
-	Vector4s.TrySerializeStream(stream, state->Rotation);
+	Quaternions.TrySerializeStream(stream, state->Rotation);
 }
 
 TOKEN_LOAD(scale, struct _transformInfo*)
 {
-	return Vector3s.TryDeserialize(buffer, length, state->Scale);
+	return Vector3s.TryDeserialize(buffer, length, &state->Scale);
 }
 
 TOKEN_SAVE(scale, Transform)
@@ -828,9 +823,9 @@ static Transform Load(File stream)
 		transform->InvertTransform = state.InvertTransform;
 		transform->RotateAroundCenter = state.InvertTransform;
 
-		Vectors3CopyTo(state.Scale, transform->Scale);
-		Vectors3CopyTo(state.Position, transform->Position);
-		Vectors4CopyTo(state.Rotation, transform->Rotation);
+		transform->Scale = state.Scale;
+		transform->Position = state.Position;
+		transform->Rotation = state.Rotation;
 	}
 
 	return transform;

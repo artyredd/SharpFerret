@@ -10,7 +10,6 @@
 #include "math/vectors.h"
 #include "singine/parsing.h"
 #include "singine/strings.h"
-#include "cglm/vec3.h"
 
 typedef int Token;
 typedef const char* Sequence;
@@ -161,7 +160,7 @@ struct _bufferCollection {
 	/// <summary>
 	/// The vertex buffer that is shared for the entire model
 	/// </summary>
-	float* Vertices;
+	vector3* Vertices;
 	/// <summary>
 	/// The current index that  is empty within the vertices buffer
 	/// </summary>
@@ -169,7 +168,7 @@ struct _bufferCollection {
 	/// <summary>
 	/// The texture buffer that is shared for the entire model
 	/// </summary>
-	float* Textures;
+	vector2* Textures;
 	/// <summary>
 	/// The current index that  is empty within the texture buffer
 	/// </summary>
@@ -177,7 +176,7 @@ struct _bufferCollection {
 	/// <summary>
 	/// The normals buffer that is shared for the entire model
 	/// </summary>
-	float* Normals;
+	vector3* Normals;
 	/// <summary>
 	/// The current index that  is empty within the normals buffer
 	/// </summary>
@@ -335,7 +334,8 @@ static bool TryParseFace(const char* buffer, size_t* out_attributes)
 // does not mutate the provided vector
 // ignore unreferenced param
 #pragma warning(disable: 4100)
-static void VoidMutate(float* vector) { /* no action */ }
+static void VoidMutateVector2(vector2* vector) { /* no action */ }
+static void VoidMutateVector3(vector3* vector) { /* no action */ }
 #pragma warning(default: 4100)
 
 // this is a monolith, i apologize, but the alternative with additional stack frames was significantly slower and was a bottle neck
@@ -344,9 +344,9 @@ static bool TryParseObjects(File stream,
 	const size_t bufferLength,
 	struct _elementCounts* counts,
 	struct _bufferCollection* buffers,
-	void (*MutateVertex)(float* vertex),
-	void (*MutateTexture)(float* texture),
-	void (*MutateNormal)(float* normal)
+	void (*MutateVertex)(vector3* vertex),
+	void (*MutateTexture)(vector2* texture),
+	void (*MutateNormal)(vector3* normal)
 )
 {
 	Mesh currentMesh = null;
@@ -428,7 +428,7 @@ static bool TryParseObjects(File stream,
 			{
 				// get a pointer to the current position of the texture buffer we are at
 				// texture vertice are vector 2s
-				float* vector = buffers->Textures + buffers->TextureIndex;
+				vector2* vector = buffers->Textures + buffers->TextureIndex;
 				offset = buffer + Sequences.TextureSize;
 				size = min(lineLength - Sequences.TextureSize, lineLength);
 
@@ -441,15 +441,15 @@ static bool TryParseObjects(File stream,
 				MutateTexture(vector);
 
 				// move the index over by the number of floats we wrote
-				buffers->TextureIndex += 2;
-				textureCount += 2;
+				buffers->TextureIndex += 1;
+				textureCount += 1;
 			}
 			// normals
 			else if (token is 'n')
 			{
 				// get a pointer to the current position of the normal buffer we are at
 				// normal vertices are vector 3s
-				float* vector = buffers->Normals + buffers->NormalIndex;
+				vector3* vector = buffers->Normals + buffers->NormalIndex;
 				offset = buffer + Sequences.NormalSize;
 				size = min(lineLength - Sequences.NormalSize, lineLength);
 
@@ -462,15 +462,15 @@ static bool TryParseObjects(File stream,
 				MutateNormal(vector);
 
 				// move the index over by the number of floats we wrote
-				buffers->NormalIndex += 3;
-				normalCount += 3;
+				buffers->NormalIndex += 1;
+				normalCount += 1;
 			}
 			// regular vertex
 			else
 			{
 				// get a pointer to the current position of the vertex buffer we are at
 				// vertices are vector 3s
-				float* vector = buffers->Vertices + buffers->VertexIndex;
+				vector3* vector = buffers->Vertices + buffers->VertexIndex;
 				offset = buffer + Sequences.VertexSize;
 				size = min(lineLength - Sequences.VertexSize, lineLength);
 
@@ -483,8 +483,8 @@ static bool TryParseObjects(File stream,
 				MutateVertex(vector);
 
 				// move the index over by the number of floats we wrote
-				buffers->VertexIndex += 3;
-				vertexCount += 3;
+				buffers->VertexIndex += 1;
+				vertexCount += 1;
 			}
 
 			continue;
@@ -515,15 +515,15 @@ static bool TryParseObjects(File stream,
 			// make sure we have arrays to write values to
 			if (currentMesh->VertexData is null && vertexCount > 0)
 			{
-				currentMesh->VertexData = Memory.Alloc(sizeof(float) * 3 * faceCount, Memory.GenericMemoryBlock);
+				currentMesh->VertexData = Memory.Alloc(sizeof(vector3) * faceCount, Memory.GenericMemoryBlock);
 			}
 			if (currentMesh->TextureVertexData is null && textureCount > 0)
 			{
-				currentMesh->TextureVertexData = Memory.Alloc(sizeof(float) * 2 * faceCount, Memory.GenericMemoryBlock);
+				currentMesh->TextureVertexData = Memory.Alloc(sizeof(vector2) * faceCount, Memory.GenericMemoryBlock);
 			}
 			if (currentMesh->NormalVertexData is null && normalCount > 0)
 			{
-				currentMesh->NormalVertexData = Memory.Alloc(sizeof(float) * 3 * faceCount, Memory.GenericMemoryBlock);
+				currentMesh->NormalVertexData = Memory.Alloc(sizeof(vector3) * faceCount, Memory.GenericMemoryBlock);
 			}
 
 			// since there are 3 triplets loop
@@ -536,30 +536,30 @@ static bool TryParseObjects(File stream,
 				size_t uvIndex = face[1] - 1;
 				size_t normalIndex = face[2] - 1;
 
-				// there are 3 floats per vertex so the address of the nth vec3 is index * 3
-				const float* subVertices = buffers->Vertices + (vertexIndex * 3);
+				// there are 3 floats per vertex so the address of the nth vector3 is index * 3
+				const vector3 subVertices = *(buffers->Vertices + vertexIndex);
 
 				// there are 2 floats per uv
-				const float* subUVs = buffers->Textures + (uvIndex * 2);
+				const vector2 subUVs = *(buffers->Textures + uvIndex);
 
 				// there are 3 floats per normal
-				const float* subNormals = buffers->Normals + (normalIndex * 3);
+				const vector3 subNormals = *(buffers->Normals + normalIndex);
 
 				// copy the floats over to their final arrays
-				Vectors3CopyTo(subVertices, currentMesh->VertexData + currentMesh->VertexCount);
+				*(currentMesh->VertexData + currentMesh->VertexCount) = subVertices;
 				currentMesh->VertexCount += 3;
 
 				// if we didnt count any textures we shouldn't try to write them to an array
 				if (textureCount > 0)
 				{
-					Vectors2CopyTo(subUVs, currentMesh->TextureVertexData + currentMesh->TextureCount);
+					*(currentMesh->TextureVertexData + currentMesh->TextureCount) = subUVs;
 					currentMesh->TextureCount += 2;
 				}
 
 				// if we didnt count any normals we shouldn't try to write them to an array
 				if (normalCount > 0)
 				{
-					Vectors3CopyTo(subNormals, currentMesh->NormalVertexData + currentMesh->NormalCount);
+					*(currentMesh->NormalVertexData + currentMesh->NormalCount) = subNormals;
 					currentMesh->NormalCount += 3;
 				}
 			}
@@ -614,9 +614,9 @@ TYPE_ID(Mesh);
 
 static bool TryImportModelStream(File stream,
 	Model* out_model,
-	void (*MutateVertex)(float* vertex),
-	void (*MutateTexture)(float* texture),
-	void (*MutateNormal)(float* normal)
+	void (*MutateVertex)(vector3* vertex),
+	void (*MutateTexture)(vector2* texture),
+	void (*MutateNormal)(vector3* normal)
 )
 {
 
@@ -654,18 +654,18 @@ static bool TryImportModelStream(File stream,
 	struct _bufferCollection buffers = {
 		.Meshes = meshes,
 		.MeshIndex = 0,
-		.Vertices = Memory.Alloc(sizeof(float) * elementCounts.VertexCount * 3, Memory.GenericMemoryBlock),
+		.Vertices = Memory.Alloc(sizeof(vector3) * elementCounts.VertexCount, Memory.GenericMemoryBlock),
 		.VertexIndex = 0,
-		.Normals = Memory.Alloc(sizeof(float) * elementCounts.NormalCount * 3, Memory.GenericMemoryBlock),
+		.Normals = Memory.Alloc(sizeof(vector3) * elementCounts.NormalCount, Memory.GenericMemoryBlock),
 		.NormalIndex = 0,
-		.Textures = Memory.Alloc(sizeof(float) * elementCounts.TextureCount * 2, Memory.GenericMemoryBlock),
+		.Textures = Memory.Alloc(sizeof(vector2) * elementCounts.TextureCount, Memory.GenericMemoryBlock),
 		.TextureIndex = 0
 	};
 
 	if (TryParseObjects(stream, streamBuffer, BUFFER_SIZE, &elementCounts, &buffers,
-		MutateVertex is null ? &VoidMutate : MutateVertex,
-		MutateTexture is null ? &VoidMutate : MutateTexture,
-		MutateNormal is null ? &VoidMutate : MutateNormal
+		MutateVertex is null ? &VoidMutateVector3 : MutateVertex,
+		MutateTexture is null ? &VoidMutateVector2 : MutateTexture,
+		MutateNormal is null ? &VoidMutateVector3 : MutateNormal
 	) is false)
 	{
 		Memory.Free(meshes, MeshTypeId);

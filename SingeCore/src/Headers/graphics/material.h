@@ -20,19 +20,19 @@ struct _material {
 	/// <summary>
 	/// The ambient color of this material
 	/// </summary>
-	Color AmbientColor;
+	color AmbientColor;
 	/// <summary>
 	/// The base color for this material, default is Colors.White
 	/// </summary>
-	Color Color;
+	color Color;
 	/// <summary>
 	/// The diffuse color of the object
 	/// </summary>
-	Color DiffuseColor;
+	color DiffuseColor;
 	/// <summary>
 	/// The specular color of this material
 	/// </summary>
-	Color SpecularColor;
+	color SpecularColor;
 	/// <summary>
 	/// How much specular lighting should affect the material
 	/// </summary>
@@ -100,7 +100,7 @@ struct _materialMethods {
 	/// Creates a new instance of the provided shade, disposes the old one and reassigns the main texture of the provided shader
 	/// </summary>
 	void (*SetShader)(Material, const Shader, size_t index);
-	void (*SetColor)(Material, const Color);
+	void (*SetColor)(Material, const color);
 	void (*SetColors)(Material, const float r, const float g, const float b, const float a);
 	/// <summary>
 	/// Sets the name of this material, freeing the previous one if it exists

@@ -56,15 +56,15 @@ struct _light {
 	/// <summary>
 	/// The ambient color and intensity of the light
 	/// </summary>
-	Color Ambient;
+	color Ambient;
 	/// <summary>
 	/// The diffuse color and intensity of the light
 	/// </summary>
-	Color Diffuse;
+	color Diffuse;
 	/// <summary>
 	/// The specular color and intensity of the light
 	/// </summary>
-	Color Specular;
+	color Specular;
 	/// <summary>
 	/// How far the light should reach, objects further than the provided distace are not lit
 	/// by this light
@@ -98,7 +98,7 @@ struct _light {
 	/// <summary>
 	/// The matrix that should be set for this light to calculate fragment position during runtime
 	/// </summary>
-	mat4 ViewMatrix;
+	matrix4 ViewMatrix;
 };
 
 struct _lightMethods {

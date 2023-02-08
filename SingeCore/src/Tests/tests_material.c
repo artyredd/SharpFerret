@@ -13,7 +13,7 @@ static bool Test_LeakBasic_Create(File stream)
 
 	Materials.Dispose(material);
 
-	Equals(FreeCount(), AllocCount(), "%lli");
+	IsEqual(FreeCount(), AllocCount(), "%lli");
 
 	return true;
 }
@@ -35,7 +35,7 @@ static bool Test_Leak_Instance(File stream)
 
 	Materials.Dispose(material);
 
-	Equals(FreeCount(), AllocCount(), "%lli");
+	IsEqual(FreeCount(), AllocCount(), "%lli");
 
 	return true;
 }

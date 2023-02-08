@@ -5,7 +5,7 @@
 #include "singine/time.h"
 #include "data/objectPool.h"
 
-static void DrawTriangle(const float* triangle, Material material);
+static void DrawTriangle(triangle triangle, Material material);
 static void SetScene(Scene scene);
 
 const struct _drawing Drawing = 
@@ -16,9 +16,9 @@ const struct _drawing Drawing =
 
 Scene Global_CurrentDrawingScene;
 
-static float triangleNormal[3];
+static vector3 triangleNormal;
 
-static float triangleVertices[9];
+static triangle triangleVertices;
 
 struct _mesh Global_TriangleMesh = {
 	.Name = "Triangle",
@@ -26,9 +26,9 @@ struct _mesh Global_TriangleMesh = {
 	.TextureVertexData = null,
 	.TextureCount = 0,
 	.NormalCount = 3,
-	.NormalVertexData = triangleNormal,
+	.NormalVertexData = &triangleNormal,
 	.VertexCount = 9,
-	.VertexData = triangleVertices,
+	.VertexData = (vector3*) & triangleVertices,
 };
 
 static RenderMesh RenderMeshProvider(Mesh mesh)
@@ -49,7 +49,7 @@ static void RenderMeshRemover(RenderMesh mesh)
 
 RenderMesh Global_DrawTriangleRenderMesh = null;
 
-static void DrawTriangle(const float* triangle, Material material)
+static void DrawTriangle(triangle triangle, Material material)
 {
 	if (Global_CurrentDrawingScene is null)
 	{
@@ -67,10 +67,10 @@ static void DrawTriangle(const float* triangle, Material material)
 	}
 
 	// copy over the vertices
-	memcpy(Global_TriangleMesh.VertexData, triangle, 9 * sizeof(float));
+	memcpy(Global_TriangleMesh.VertexData, &triangle, 9 * sizeof(float));
 
 	// calculate the normal for the triangle
-	Triangles.CalculateNormal((vec3*)triangle, Global_TriangleMesh.NormalVertexData);
+	*(struct vector3*)Global_TriangleMesh.NormalVertexData = Triangles.CalculateNormal(triangle);
 	
 	Materials.Draw(material, Global_DrawTriangleRenderMesh, Global_CurrentDrawingScene);
 }

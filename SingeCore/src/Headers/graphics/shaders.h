@@ -4,6 +4,7 @@
 #include "sharedBuffer.h"
 #include "graphics/graphicsDevice.h"
 #include "graphics/texture.h"
+#include "colors.h"
 
 #define DEFAULT_CULLING_TYPE CullingTypes.Back
 
@@ -183,18 +184,20 @@ struct _shaderMethods {
 	/// Disables the shader on the graphics device
 	/// </summary>
 	void (*Disable)(Shader);
-	bool(*SetVector2)(Shader, Uniform, vec2 value);
-	bool(*SetVector3)(Shader, Uniform, vec3 value);
-	bool(*SetVector4)(Shader, Uniform, vec4 value);
-	bool(*SetMatrix)(Shader, Uniform, mat4 value);
-	bool(*SetFloat)(Shader, Uniform, float value);
-	bool(*SetInt)(Shader, Uniform, int value);
+	bool (*SetVector2)(Shader, Uniform, vector2 value);
+	bool (*SetVector3)(Shader, Uniform, vector3 value);
+	bool (*SetVector4)(Shader, Uniform, vector4 value);
+	bool (*SetColor)(Shader, Uniform, color value);
+	bool (*SetMatrix)(Shader, Uniform, matrix4 value);
+	bool (*SetFloat)(Shader, Uniform, float value);
+	bool (*SetInt)(Shader, Uniform, int value);
 	bool (*SetArrayFieldInt)(Shader shader, Uniform uniform, size_t index, Uniform field, int value);
-	bool (*SetArrayFieldVector2)(Shader shader, Uniform uniform, size_t index, Uniform field, vec2 value);
 	bool (*SetArrayFieldFloat)(Shader shader, Uniform uniform, size_t index, Uniform field, float value);
-	bool (*SetArrayFieldVector3)(Shader shader, Uniform uniform, size_t index, Uniform field, vec3 value);
-	bool (*SetArrayFieldVector4)(Shader shader, Uniform uniform, size_t index, Uniform field, vec4 value);
-	bool (*SetArrayFieldMatrix)(Shader shader, Uniform uniform, size_t index, Uniform field, mat4 value);
+	bool (*SetArrayFieldVector2)(Shader shader, Uniform uniform, size_t index, Uniform field, vector2 value);
+	bool (*SetArrayFieldVector3)(Shader shader, Uniform uniform, size_t index, Uniform field, vector3 value);
+	bool (*SetArrayFieldVector4)(Shader shader, Uniform uniform, size_t index, Uniform field, vector4 value);
+	bool (*SetArrayFieldColor)(Shader shader, Uniform uniform, size_t index, Uniform field, color value);
+	bool (*SetArrayFieldMatrix)(Shader shader, Uniform uniform, size_t index, Uniform field, matrix4 value);
 	bool(*SetTexture)(Shader shader, Uniform uniform, Texture texture, unsigned int slot);
 };
 

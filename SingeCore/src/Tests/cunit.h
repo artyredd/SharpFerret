@@ -107,8 +107,8 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 #define IsNull(expr) BenchmarkAssertion(expr == NULL,stream);
 #define NotNull(expr) BenchmarkAssertion(expr != NULL,stream);
 #define IsZero(expr) BenchmarkAssertion(expr == 0,stream);
-#define NotZero(expr) BenchmarkAssertion(expr != 0,stream);
+#define IsNotZero(expr) BenchmarkAssertion(expr != 0,stream);
 #define IsFalse(expr) BenchmarkAssertion(expr != true,stream);
 #define IsTrue(expr) BenchmarkAssertion(expr,stream);
-#define Equals(left,right,format) BenchmarkComparison(left,right,==,format,stream);
-#define NotEqual(left,right) BenchmarkAssertion(left != right,stream);
+#define IsEqual(left,right,format) BenchmarkComparison(left,right,==,format,stream);
+#define IsNotEqual(left,right) BenchmarkAssertion(left != right,stream);

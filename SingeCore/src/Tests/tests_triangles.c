@@ -5,7 +5,7 @@
 
 TEST(Determinant)
 {
-	vec3 point = {
+	vector3 point = {
 		0,0,0
 	};
 
@@ -19,7 +19,7 @@ TEST(Determinant)
 
 	const double actual = Triangles.Determinant(triangle, point);
 
-	Equals(expected,actual,"%lf");
+	IsEqual(expected,actual,"%lf");
 
 	return true;
 }
@@ -67,9 +67,9 @@ TEST(IntersectingNonCoplanar)
 
 	IsTrue(expected == actual);
 
-	SetVector3Macro(left[0], 0, 3, 0);
-	SetVector3Macro(left[1], 0, 4, 0);
-	SetVector3Macro(left[2], 4, 3, 0);
+	left.Point1 = (vector3){ 0, 3, 0 };
+	left.Point2 = (vector3){ 0, 4, 0 };
+	left.Point3 = (vector3){ 4, 3, 0 };
 
 	expected = false;
 	actual = Triangles.Intersects(left, right);
@@ -121,29 +121,6 @@ TEST(IntersectingCoplanar)
 	return true;
 }
 
-TEST(cglm_coplanar_works)
-{
-	triangle left = {
-		{ 0,0,0 },
-		{ 0.5,0.5,0 },
-		{ 1,0,0 }
-	};
-
-	vec3 origin = { 0, 0, 0};
-
-	vec3 ray = { 0.25, 0.25, 0 };
-
-	float distance = 0;
-
-	const bool actual = glm_ray_triangle(origin, ray, left[0], left[1], left[2], &distance);
-
-	const bool expected = true;
-
-	IsTrue(expected == actual);
-
-	return true;
-}
-
 static void TriangleTests(void)
 {
 	TestSuite suite = CreateSuite("TriangleTests");
@@ -153,7 +130,6 @@ static void TriangleTests(void)
 	APPEND_TEST(IntersectingNonCoplanar);
 	APPEND_TEST(NonIntersectingCoplanar);
 	APPEND_TEST(IntersectingCoplanar);
-	APPEND_TEST(cglm_coplanar_works);
 
 	suite->Run(suite);
 

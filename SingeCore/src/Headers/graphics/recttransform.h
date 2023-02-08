@@ -2,10 +2,10 @@
 
 #include "graphics/transform.h"
 
-typedef struct _vec2 Anchor;
-typedef struct _vec2 Pivot;
+typedef struct _vector2 Anchor;
+typedef struct _vector2 Pivot;
 
-struct _vec2 {
+struct _vector2 {
 	float x;
 	float y;
 };

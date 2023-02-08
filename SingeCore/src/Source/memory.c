@@ -197,7 +197,9 @@ static void RegisterTypeName(const char* name, size_t* out_typeId)
 
 	size_t length = min(strlen(name), MAX_TYPENAME_LENGTH);
 
+#pragma warning (disable : 4090)
 	char* ptr = RegisteredTypeNames[index].Name;
+#pragma warning (default : 4090)
 
 	memcpy(ptr, name, length);
 	

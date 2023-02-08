@@ -51,15 +51,15 @@ void Update(Camera camera)
 	}
 
 	// create a quaternion that represents spinning around the Y axis(horizontally spinning)
-	glm_quat(FPSCamera.State.HorizontalRotation, (float)FPSCamera.State.HorizontalAngle, 0, 1, 0);
+	FPSCamera.State.HorizontalRotation = Quaternions.Create((float)FPSCamera.State.HorizontalAngle, Vector3.Up);
 
 	// create a quaternion that represents spinning around Z axis (looking up and down)
-	glm_quat(FPSCamera.State.VerticalRotation, (float)FPSCamera.State.VerticalAngle, 1, 0, 0);
+	FPSCamera.State.VerticalRotation = Quaternions.Create((float)FPSCamera.State.VerticalAngle, Vector3.Right);
 
 	// combine the two
 	// order here matters since multiplying two quaternions is one rotation THEN a second rotation after
 	// they are not combined, we should rotate horizontally THEN up and down otherwise weird things happen
-	glm_quat_mul(FPSCamera.State.HorizontalRotation, FPSCamera.State.VerticalRotation, FPSCamera.State.State);
+	FPSCamera.State.State = Quaternions.Add(FPSCamera.State.HorizontalRotation, FPSCamera.State.VerticalRotation);
 
 	// set the camera's rotation to the new rotation
 	Transforms.SetRotation(camera->Transform, FPSCamera.State.State);

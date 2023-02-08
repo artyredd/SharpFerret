@@ -23,15 +23,15 @@ struct cameraState {
 	/// The previous projection matrix that was calculated, this needs to be  refreshed any time the FOV, Aspect Ratio, or near and far clipping distances
 	/// are changed
 	/// </summary>
-	mat4 Projection;
+	matrix4 Projection;
 	/// <summary>
 	/// The previous view matrix that was calculated, this needs to be refreshed any time the Position, TargetPosition, or up direction are modified
 	/// </summary>
-	mat4 View;
+	matrix4 View;
 	/// <summary>
 	/// The previous combined state of this camera, this is the combined matrices of the view and projection
 	/// </summary>
-	mat4 State;
+	matrix4 State;
 };
 
 typedef struct _camera* Camera;
@@ -83,7 +83,7 @@ struct _cameraMethods {
 	/// <summary>
 	/// Refreshes the camera's transform
 	/// </summary>
-	vec4* (*Refresh)(Camera camera);
+	matrix4 (*Refresh)(Camera camera);
 	/// <summary>
 	/// Forces the camera to recalculate it's fields and members on the next draw call, use the provided methods to modify fields instead of manually
 	/// </summary>

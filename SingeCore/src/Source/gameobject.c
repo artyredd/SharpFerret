@@ -368,7 +368,7 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 		}
 
 		// now that the camera's transform should have been updated set it's property
-		Matrix4CopyTo(shadowCamera->State.State, light->ViewMatrix);
+		light->ViewMatrix = shadowCamera->State.State;
 	}
 
 	scene->MainCamera = previousCam;

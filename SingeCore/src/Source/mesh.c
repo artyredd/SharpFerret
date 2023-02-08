@@ -1,6 +1,5 @@
 #include "modeling/mesh.h"
 #include "singine/memory.h"
-#include "cglm/mat4.h"
 
 static Mesh CreateMesh(void);
 static void Dispose(Mesh);

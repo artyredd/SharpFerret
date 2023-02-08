@@ -16,7 +16,6 @@
 
 #include "graphics/shadercompiler.h"
 #include "cglm/cam.h"
-#include "cglm/mat4.h"
 
 #include "input.h"
 #include "modeling/importer.h"
@@ -50,9 +49,6 @@
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
 #include <physics/Collider.h>
-
-#include "cglm/mat4.h"
-#include "cglm/vec3.h"
 
 #include "math/triangles.h"
 
@@ -282,10 +278,10 @@ int main()
 
 	float rotateAmount = 0.0f;
 
-	vec3 position;
+	vector3 position;
 
-	vec3 positionModifier; 
-	vec3 lightOffset = { -20, 20, 0 };
+	vector3 positionModifier; 
+	vector3 lightOffset = { -20, 20, 0 };
 
 	double colliderPosition = 10.0;
 
@@ -307,7 +303,7 @@ int main()
 		rotateAmount += modifier;
 
 		// move the soccer balls to test transform inheritance
-		vec3 ballPosition = { 5, (2 + (float)sin(rotateAmount)), 5 };
+		vector3 ballPosition = { 5, (2 + (float)sin(rotateAmount)), 5 };
 
 		Transforms.SetPosition(ball->Transform, ballPosition);
 
@@ -319,64 +315,63 @@ int main()
 		Transforms.RotateOnAxis(collider1->Transform, Time.DeltaTime(), Vector3.Up);
 
 		// drive car
-		vec3 carDirection;
-		Transforms.GetDirection(car->Transform, Directions.Back, carDirection);
+		vector3 carDirection = Transforms.GetDirection(car->Transform, Directions.Back);
 
-		ScaleVector3(carDirection, modifier);
+		carDirection = Vector3s.Scale(carDirection, modifier);
 
 		Transforms.AddPosition(car->Transform, carDirection);
 
 		Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / 8.0f) * modifier, Vector3.Up);
 
-		// rotate sun
-		vec3 newLightPos;
+		
 
-		Quaternion lightRotation;
-		glm_quatv(lightRotation, (rotateAmount / (float)GLM_PI)/16.0f, Vector3.Up);
-		glm_quat_rotatev(lightRotation, lightOffset, newLightPos);
+		quaternion lightRotation = Quaternions.Create((rotateAmount / (float)GLM_PI) / 16.0f, Vector3.Up);
+
+		// rotate sun
+		vector3 newLightPos = Quaternions.RotateVector(lightRotation, lightOffset);
 
 		Transforms.SetPosition(light->Transform, lightOffset);
 		Transforms.LookAt(light->Transform, Vector3.Zero);
 		//Transforms.RotateOnAxis(lightPivot, , Vector3.Up);
 
 		// make a copy of camera's position
-		Vectors3CopyTo(camera->Transform->Position, position);
+		position = camera->Transform->Position;
 
 		if (GetKey(KeyCodes.A))
 		{
-			Transforms.GetDirection(camera->Transform, Directions.Left, positionModifier);
-			ScaleVector3(positionModifier, modifier);
-			AddVectors3(position, positionModifier);
+			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Left);
+			positionModifier = Vector3s.Scale(positionModifier, modifier);
+			position = Vector3s.Add(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.D))
 		{
-			Transforms.GetDirection(camera->Transform, Directions.Right, positionModifier);
-			ScaleVector3(positionModifier, modifier);
-			AddVectors3(position, positionModifier);
+			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Right);
+			positionModifier = Vector3s.Scale(positionModifier, modifier);
+			position = Vector3s.Add(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.W))
 		{
-			Transforms.GetDirection(camera->Transform, Directions.Forward, positionModifier);
-			ScaleVector3(positionModifier, modifier);
-			SubtractVectors3(position, positionModifier);
+			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Forward);
+			positionModifier = Vector3s.Scale(positionModifier, modifier);
+			position = Vector3s.Add(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.S))
 		{
-			Transforms.GetDirection(camera->Transform, Directions.Back, positionModifier);
-			ScaleVector3(positionModifier, modifier);
-			SubtractVectors3(position, positionModifier);
+			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Back);
+			positionModifier = Vector3s.Scale(positionModifier, modifier);
+			position = Vector3s.Add(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.Space))
 		{
-			Transforms.GetDirection(camera->Transform, Directions.Up, positionModifier);
-			ScaleVector3(positionModifier, modifier);
-			AddVectors3(position, positionModifier);
+			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Up);
+			positionModifier = Vector3s.Scale(positionModifier, modifier);
+			position = Vector3s.Add(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.LeftShift))
 		{
-			Transforms.GetDirection(camera->Transform, Directions.Down, positionModifier);
-			ScaleVector3(positionModifier, modifier);
-			AddVectors3(position, positionModifier);
+			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Down);
+			positionModifier = Vector3s.Scale(positionModifier, modifier);
+			position = Vector3s.Add(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.Left))
 		{
@@ -387,11 +382,9 @@ int main()
 			colliderPosition += Time.DeltaTime();
 		}
 
-		vec3 newColliderPos;
+		vector3 newColliderPos = collider2->Transform->Position;
 
-		Vectors3CopyTo(collider2->Transform->Position, newColliderPos);
-		
-		newColliderPos[1] = (float)colliderPosition;
+		newColliderPos.y = colliderPosition;
 
 		Transforms.SetPosition(collider2->Transform, newColliderPos);
 
@@ -511,11 +504,10 @@ int main()
 void DebugCameraPosition(Camera camera)
 {
 	fprintf(stdout, "Position: ");
-	PrintVector3(camera->Transform->Position, stdout);
+	Vector3s.TrySerializeStream( stdout, camera->Transform->Position);
 	fprintf(stdout, " Rotation: [ x: %0.2fpi, y: %0.2fpi ] Forward: ", FPSCamera.State.HorizontalAngle / GLM_PI, FPSCamera.State.VerticalAngle / GLM_PI);
-	vec3 forwardVector;
-	Transforms.GetDirection(camera->Transform, Directions.Forward, forwardVector);
-	PrintVector3(forwardVector, stdout);
+	vector3 forwardVector = Transforms.GetDirection(camera->Transform, Directions.Forward);
+	Vector3s.TrySerializeStream( stdout, forwardVector);
 	fprintf(stdout, NEWLINE);
 }
 

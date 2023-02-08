@@ -2,80 +2,57 @@
 #include "csharp.h"
 #include "singine/file.h"
 
-#ifndef cglm_types_h
-typedef _declspec(align(16)) float vec4[4];
-typedef float vec3[3];
-typedef float vec2[2];
-typedef vec3 mat3[3];
-#endif // !cglm_h
+typedef struct vector2 vector2;
 
-#ifndef cglm_mat_h
-#define GLM_MAT4_IDENTITY_INIT  {{1.0f, 0.0f, 0.0f, 0.0f},                    \
-                                 {0.0f, 1.0f, 0.0f, 0.0f},                    \
-                                 {0.0f, 0.0f, 1.0f, 0.0f},                    \
-                                 {0.0f, 0.0f, 0.0f, 1.0f}}
+struct vector2
+{
+	float x;
+	float y;
+};
 
-#define GLM_MAT4_ZERO_INIT      {{0.0f, 0.0f, 0.0f, 0.0f},                    \
-                                 {0.0f, 0.0f, 0.0f, 0.0f},                    \
-                                 {0.0f, 0.0f, 0.0f, 0.0f},                    \
-                                 {0.0f, 0.0f, 0.0f, 0.0f}}
-typedef _declspec(align(16)) vec4 mat4[4];
-#endif // !cglm_mat_h
+typedef vector2 vector2;
 
-#define Vector2Equals(left,right) (left[0] ==  right[0] && left[1] == right[1])
+typedef struct vector3 vector3;
 
-#define Vector3Equals(left,right) (left[0] ==  right[0] && left[1] == right[1] && left[2] == right[2])
+struct vector3
+{
+	vector2;
+	float z;
+};
 
-#define Vector4Equals(left,right) (left[0] ==  right[0] && left[1] == right[1] && left[2] == right[2] && left[3] == right[3])
+typedef vector3 vector3;
 
-#define Vector3MembersEqual(vector,x,y,z) (vector[0] ==  x && vector[1] == y && vector[2] == z)
+typedef struct vector4 vector4;
 
-#define SetX(vector, x) vector[0] = x
-#define SetY(vector, y) vector[1] = y
-#define SetZ(vector, z) vector[2] = z
-#define SetW(vector, w) vector[3] = w
+_declspec(align(16))
+struct vector4
+{
+	vector3;
+	float w;
+};
 
-#define AddX(vector, x) vector[0] += x
-#define AddY(vector, y) vector[1] += y
-#define AddZ(vector, z) vector[2] += z
-#define AddW(vector, w) vector[3] += w
+typedef struct vector4 vector4;
 
-#define SetVector2Macro(vec2, x, y) vec2[0] = x; vec2[1] = y
-#define SetVector3Macro(vec3, x, y, z) vec3[0] = x; vec3[1] = y; vec3[2] = z
-#define SetVector4Macro(vec4, x, y, z, w) vec4[0] = x; vec4[1] = y; vec4[2] = z; vec4[3] = w
 
-#define AddVector3(vec3, x, y, z) vec3[0] += x; vec3[1] += y; vec3[2] += z
-#define AddVector4(vec4, x, y, z, w) vec4[0] += x; vec4[1] += y; vec4[2] += z; vec4[3] += w
+typedef struct matrix3 matrix3;
 
-#define SetVectors2(left,right) left[0] = right[0]; left[1] = right[1]
-#define SetVectors3(left,right) left[0] = right[0]; left[1] = right[1]; left[2] = right[2]
-#define SetVectors4(left,right) left[0] = right[0]; left[1] = right[1]; left[2] = right[2]; left[3] = right[3]
+_declspec(align(16))
+struct matrix3 {
+	vector3 Column1;
+	vector3 Column2;
+	vector3 Column3;
+};
 
-#define Vectors2CopyTo(left,right) SetVectors2((right), (left));
-#define Vectors3CopyTo(source,destination) SetVectors3((destination),(source))
-#define Vectors4CopyTo(source,destination) SetVectors4((destination),(source))
+typedef struct matrix4 matrix4;
 
-#define SubtractVectors3(left,right) left[0] -= right[0]; left[1] -= right[1]; left[2] -= right[2]
-
-// mutates the left vector with the right's values
-#define AddVectors3(left,right) left[0] += right[0]; left[1] += right[1]; left[2] += right[2]
-#define AddVectors4(left,right) left[0] += right[0]; left[1] += right[1]; left[2] += right[2]; left[3] += right[3]
-
-#define ScaleVector3(vector,scale) vector[0] *= scale;vector[1] *= scale;vector[2] *= scale
-
-#define MultiplyVectors3(left, right) left[0] *= right[0]; left[1] *= right[1]; left[2] *= right[2]
-
-#define InitializeVector3(vec3) SetVector3Macro(vec3,0,0,0);
-#define InitializeVector4(vec3) SetVector4Macro(vec3,0,0,0,0);
-#define InitializeMat4(mat4) glm_mat4_identity(mat4)
-
-#define SetMatrices4(left,right) SetVectors4(left[0],right[0]);SetVectors4(left[1],right[1]);SetVectors4(left[2],right[2]);SetVectors4(left[3],right[3])
-
-#define Matrix4CopyTo(source, destination) SetMatrices4(destination,source)
-
-#define FLOAT_FORMAT "%0.2f"
-
-#define PrintVector3(vector,stream) fprintf(stream, "["FLOAT_FORMAT","FLOAT_FORMAT","FLOAT_FORMAT"]", vector[0], vector[1], vector[2]);
+_declspec(align(16))
+struct matrix4
+{
+	vector4 Column1;
+	vector4 Column2;
+	vector4 Column3;
+	vector4 Column4;
+};
 
 // Enum of names used to denote a direction
 typedef unsigned int Direction;
@@ -98,21 +75,21 @@ static struct _directionIndex {
 	.Back = 6
 };
 
-static struct _vectorDirections {
+static const struct _vectorDirections {
 	// { 0, 0, 0 }
-	vec3 Zero;
+	const vector3 Zero;
 	// { -1, 0, 0 }
-	vec3 Left;
+	const vector3 Left;
 	// { 1, 0, 0 }
-	vec3 Right;
+	const vector3 Right;
 	// { 0, 1, 0 }
-	vec3 Up;
+	const vector3 Up;
 	// { 0, -1, 0 }
-	vec3 Down;
+	const vector3 Down;
 	// { 0, 0, 1 }
-	vec3 Forward;
+	const vector3 Forward;
 	// { 0, 0, -1 }
-	vec3 Back;
+	const vector3 Back;
 } Vector3 = {
 	.Zero = { 0, 0, 0 },
 	.Left = { -1, 0, 0 },
@@ -123,49 +100,75 @@ static struct _vectorDirections {
 	.Back = { 0, 0, -1 }
 };
 
-struct _vector3Methods {
-	void (*Set)(vec3, float x, float y, float z);
-	void (*CopyTo)(vec3 source, vec3 destination);
-	bool (*TryDeserialize)(const char* buffer, const size_t length, float* out_vec3);
-	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
-	bool (*TrySerializeStream)(File stream, const float* vector);
-	void (*Cross)(vec3 left, vec3 right, vec3 out_result);
-	void (*Multiply)(const vec3 left, const vec3 right, vec3 destination);
-	void (*Scale)(const vec3 vector, const float value, vec3 destination);
-	void (*Add)(const vec3 left, const vec3 right, vec3 destination);
-	void (*Subtract)(const vec3 left, const vec3 right, vec3 destination);
-};
-
-extern const struct _vector3Methods Vector3s;
-
 struct _vector2Methods {
-	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec2);
-	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
+	bool (*TryDeserialize)(const char* buffer, const size_t length, vector2* out_vector2);
+	bool (*TrySerialize)(char* buffer, const size_t length, const vector2 vector);
+	bool (*Equals)(const vector2 left, const vector2 right);
+	bool (*Close)(const vector2 left, const vector2 right, float epsilon);
 };
 
 extern const struct _vector2Methods Vector2s;
 
+struct _vector3Methods {
+	bool (*TryDeserialize)(const char* buffer, const size_t length, vector3* out_vector3);
+	bool (*TrySerialize)(char* buffer, const size_t length, const vector3 vector);
+	bool (*TrySerializeStream)(File stream, const vector3 vector);
+	vector3 (*Cross)(vector3 left, vector3 right);
+	vector3 (*Multiply)(const vector3 left, const vector3 right);
+	vector3 (*Scale)(const vector3 vector, const float value);
+	vector3 (*Add)(const vector3 left, const vector3 right);
+	vector3 (*Subtract)(const vector3 left, const vector3 right);
+	float (*Distance)(const vector3 left, const vector3 right);
+	bool (*Equals)(const vector3 left, const vector3 right);
+	bool (*Close)(const vector3 left, const vector3 right, float epsilon);
+};
+
+extern const struct _vector3Methods Vector3s;
+
 struct _vector4Methods {
-	bool(*TryDeserialize)(const char* buffer, const size_t length, float* out_vec4);
-	bool (*TrySerialize)(char* buffer, const size_t length, const float* vector);
-	bool (*TrySerializeStream)(File stream, const float* vector);
+	bool (*TryDeserialize)(const char* buffer, const size_t length, vector4* out_vector4);
+	bool (*TrySerialize)(char* buffer, const size_t length, const vector4 vector);
+	bool (*TrySerializeStream)(File stream, const vector4 vector);
+	bool (*Equals)(const vector4 left, const vector4 right);
+	bool (*Close)(const vector4 left, const vector4 right, float epsilon);
 };
 
 extern const struct _vector4Methods Vector4s;
-
+    
 static struct _matrixConstants {
-	mat4 Identity;
-	mat4 Zero;
+	matrix4 Identity;
+	matrix4 Zero;
 } Matrix4 = {
-	.Identity = GLM_MAT4_IDENTITY_INIT,
-	.Zero = GLM_MAT4_ZERO_INIT
+	.Identity = {
+		{ 1.0f, 0.0f, 0.0f, 0.0f},                    
+		{ 0.0f, 1.0f, 0.0f, 0.0f},                    
+		{ 0.0f, 0.0f, 1.0f, 0.0f},                    
+		{ 0.0f, 0.0f, 0.0f, 1.0f}
+	},
+	.Zero = {
+		{ 0.0f, 0.0f, 0.0f, 0.0f},                    
+		{ 0.0f, 0.0f, 0.0f, 0.0f},                    
+		{ 0.0f, 0.0f, 0.0f, 0.0f},                    
+		{ 0.0f, 0.0f, 0.0f, 0.0f}
+	}
 };
 
-struct _matrixMethods {
-	void(*LookAt)(mat4 matrix, vec3 position, vec3 target, vec3 upDirection);
-	float(*Determinant)(mat3 matrix);
+struct _mat3Methods
+{
+	float(*Determinant)(matrix3 matrix);
 };
 
-extern const struct _matrixMethods Matrices;
+extern const struct _mat3Methods Matrix3s;
+
+struct _mat4Methods {
+	matrix4 (*LookAt)(vector3 position, vector3 target, vector3 upDirection);
+	matrix4 (*Inverse)(matrix4);
+	matrix4 (*Scale)(matrix4, vector3 scale);
+	matrix4 (*Translate)(matrix4, vector3 position);
+	matrix4 (*Multiply)(matrix4, matrix4);
+	vector3 (*MultiplyVector3)(matrix4, vector3, float w);
+};
+
+extern const struct _mat4Methods Matrix4s;
 
 bool RunVectorUnitTests();

@@ -24,18 +24,19 @@ static Shader CreateShader(void);
 static Shader CreateEmpty(void);
 static void Enable(Shader);
 static void Disable(Shader);
-static bool UniformSetVector2(Shader shader, Uniform uniform, vec2 value);
-static bool UniformSetVector3(Shader shader, Uniform uniform, vec3 value);
-static bool UniformSetVector4(Shader shader, Uniform uniform, vec4 value);
-static bool UniformSetMatrix(Shader shader, Uniform uniform, mat4 value);
+static bool UniformSetVector2(Shader shader, Uniform uniform, vector2 value);
+static bool UniformSetVector3(Shader shader, Uniform uniform, vector3 value);
+static bool UniformSetVector4(Shader shader, Uniform uniform, vector4 value);
+static bool UniformSetMatrix(Shader shader, Uniform uniform, matrix4 value);
 static bool UniformSetFloat(Shader shader, Uniform uniform, float value);
 static bool UniformSetInt(Shader shader, Uniform uniform, int value);
 static bool UniformFieldSetInt(Shader shader, Uniform uniform, size_t index, Uniform field, int value);
-static bool UniformFieldSetVector2(Shader shader, Uniform uniform, size_t index, Uniform field, vec2 value);
+static bool UniformFieldSetVector2(Shader shader, Uniform uniform, size_t index, Uniform field, vector2 value);
 static bool UniformFieldSetFloat(Shader shader, Uniform uniform, size_t index, Uniform field, float value);
-static bool UniformFieldSetVector3(Shader shader, Uniform uniform, size_t index, Uniform field, vec3 value);
-static bool UniformFieldSetVector4(Shader shader, Uniform uniform, size_t index, Uniform field, vec4 value);
-static bool UniformFieldSetMatrix(Shader shader, Uniform uniform, size_t index, Uniform field, mat4 value);
+static bool UniformFieldSetVector3(Shader shader, Uniform uniform, size_t index, Uniform field, vector3 value);
+static bool UniformFieldSetVector4(Shader shader, Uniform uniform, size_t index, Uniform field, vector4 value);
+static bool UniformFieldSetColor(Shader shader, Uniform uniform, size_t index, Uniform field, color value);
+static bool UniformFieldSetMatrix(Shader shader, Uniform uniform, size_t index, Uniform field, matrix4 value);
 static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, unsigned int slot);
 
 const struct _uniforms Uniforms = {
@@ -107,6 +108,7 @@ const struct _shaderMethods Shaders = {
 	.SetArrayFieldVector2 = &UniformFieldSetVector2,
 	.SetArrayFieldVector3 = &UniformFieldSetVector3,
 	.SetArrayFieldVector4 = &UniformFieldSetVector4,
+	.SetArrayFieldColor = &UniformFieldSetColor,
 	.SetArrayFieldMatrix = &UniformFieldSetMatrix,
 	.SetArrayFieldFloat = &UniformFieldSetFloat,
 	.SetArrayFieldInt = &UniformFieldSetInt,
@@ -373,24 +375,24 @@ return false;
 #define SetUniformMacro(method) SetUniformBase(Shaders.TryGetUniform(shader, uniform, &handle), method)
 #define SetUniformFieldMacro(method) SetUniformBase(Shaders.TryGetUniformArrayField(shader, uniform, index, field, &handle), method)
 
-static bool UniformSetVector2(Shader shader, Uniform uniform, vec2 value)
+static bool UniformSetVector2(Shader shader, Uniform uniform, vector2 value)
 {
-	SetUniformMacro(glUniform2fv(handle, 1, value));
+	SetUniformMacro(glUniform2fv(handle, 1, (float*)&value));
 }
 
-static bool UniformSetVector3(Shader shader, Uniform uniform, vec3 value)
+static bool UniformSetVector3(Shader shader, Uniform uniform, vector3 value)
 {
-	SetUniformMacro(glUniform3fv(handle, 1, value));
+	SetUniformMacro(glUniform3fv(handle, 1, (float*)&value));
 }
 
-static bool UniformSetVector4(Shader shader, Uniform uniform, vec4 value)
+static bool UniformSetVector4(Shader shader, Uniform uniform, vector4 value)
 {
-	SetUniformMacro(glUniform4fv(handle, 1, value));
+	SetUniformMacro(glUniform4fv(handle, 1, (float*)&value));
 }
 
-static bool UniformSetMatrix(Shader shader, Uniform uniform, mat4 value)
+static bool UniformSetMatrix(Shader shader, Uniform uniform, matrix4 value)
 {
-	SetUniformMacro(glUniformMatrix4fv(handle, 1, false, &value[0][0]));
+	SetUniformMacro(glUniformMatrix4fv(handle, 1, false, (float*)&value));
 }
 
 static bool UniformSetFloat(Shader shader, Uniform uniform, float value)
@@ -413,22 +415,27 @@ static bool UniformFieldSetFloat(Shader shader, Uniform uniform, size_t index, U
 	SetUniformFieldMacro(glUniform1f(handle, value));
 }
 
-static bool UniformFieldSetVector2(Shader shader, Uniform uniform, size_t index, Uniform field, vec2 value)
+static bool UniformFieldSetVector2(Shader shader, Uniform uniform, size_t index, Uniform field, vector2 value)
 {
-	SetUniformFieldMacro(glUniform2fv(handle, 1, value));
+	SetUniformFieldMacro(glUniform2fv(handle, 1, (float*)&value));
 }
 
-static bool UniformFieldSetVector3(Shader shader, Uniform uniform, size_t index, Uniform field, vec3 value)
+static bool UniformFieldSetVector3(Shader shader, Uniform uniform, size_t index, Uniform field, vector3 value)
 {
-	SetUniformFieldMacro(glUniform3fv(handle, 1, value));
+	SetUniformFieldMacro(glUniform3fv(handle, 1, (float*)&value));
 }
 
-static bool UniformFieldSetVector4(Shader shader, Uniform uniform, size_t index, Uniform field, vec4 value)
+static bool UniformFieldSetVector4(Shader shader, Uniform uniform, size_t index, Uniform field, vector4 value)
 {
-	SetUniformFieldMacro(glUniform4fv(handle, 1, value));
+	SetUniformFieldMacro(glUniform4fv(handle, 1, (float*)&value));
 }
 
-static bool UniformFieldSetMatrix(Shader shader, Uniform uniform, size_t index, Uniform field, mat4 value)
+static bool UniformFieldSetColor(Shader shader, Uniform uniform, size_t index, Uniform field, color value)
 {
-	SetUniformFieldMacro(glUniformMatrix4fv(handle, 1, false, &value[0][0]));
+	SetUniformFieldMacro(glUniform4fv(handle, 1, (float*)&value));
+}
+
+static bool UniformFieldSetMatrix(Shader shader, Uniform uniform, size_t index, Uniform field, matrix4 value)
+{
+	SetUniformFieldMacro(glUniformMatrix4fv(handle, 1, false, (float*) &value));
 }

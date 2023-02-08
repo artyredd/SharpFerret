@@ -21,9 +21,9 @@ struct _fpsCameraState {
 	double HorizontalAngle;
 	// the angle in radians that the camera is facing vertically, 1pi rads is right side up
 	double VerticalAngle;
-	Quaternion HorizontalRotation;
-	Quaternion VerticalRotation;
-	Quaternion State;
+	quaternion HorizontalRotation;
+	quaternion VerticalRotation;
+	quaternion State;
 };
 
 typedef struct _fpsCameraScript* FpsCameraScript;

@@ -9,6 +9,8 @@
 #include "cglm/quat.h"
 #include "cglm/affine.h"
 
+#include "math/vectors.h"
+
 #define ProjectionModifiedFlag FLAG_0
 #define ViewModifiedFlag FLAG_1
 
@@ -16,7 +18,7 @@
 
 #define PreventUneccesaryAssignment(left,right,comparison) if((left) comparison (right)) {return;}
 
-static vec4* RefreshCamera(Camera camera);
+static matrix4 RefreshCamera(Camera camera);
 static void Dispose(Camera camera);
 static void ForceRefresh(Camera camera);
 
@@ -65,7 +67,7 @@ static void RecalculateProjection(Camera camera)
 			camera->TopDistance,
 			camera->NearClippingDistance,
 			camera->FarClippingDistance,
-			camera->State.Projection);
+			(vec4*)&camera->State.Projection);
 	}
 	else
 	{
@@ -73,7 +75,7 @@ static void RecalculateProjection(Camera camera)
 			camera->AspectRatio,
 			camera->NearClippingDistance,
 			camera->FarClippingDistance,
-			camera->State.Projection);
+			(vec4*)&camera->State.Projection);
 	}
 }
 
@@ -89,16 +91,15 @@ static void RecalculateView(Camera camera)
 
 static void RecalculateViewProjection(Camera camera)
 {
-	glm_mat4_inv(camera->Transform->State.State, camera->State.View);
+	camera->State.View = Matrix4s.Inverse(camera->Transform->State.State);
 
-	glm_mat4_mul(camera->State.Projection,
-		camera->State.View,
-		camera->State.State);
+	camera->State.State = Matrix4s.Multiply(camera->State.Projection,
+		camera->State.View);
 
 	ResetFlags(camera->State.Modified);
 }
 
-static vec4* Recalculate(Camera camera)
+static matrix4 Recalculate(Camera camera)
 {
 	RecalculateProjection(camera);
 	RecalculateView(camera);
@@ -109,7 +110,7 @@ static vec4* Recalculate(Camera camera)
 	return camera->State.State;
 }
 
-static vec4* RefreshCamera(Camera camera)
+static matrix4 RefreshCamera(Camera camera)
 {
 	unsigned int mask = camera->State.Modified;
 

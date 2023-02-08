@@ -1,11 +1,6 @@
 #pragma once
 
-struct vector3
-{
-	float x;
-	float y;
-	float z;
-};
+#include "math/vectors.h"
 
 typedef unsigned char quadrant;
 
@@ -61,9 +56,9 @@ typedef struct _voxel voxel;
 
 struct  _voxel
 {
-	vec3 Centriod;
-	vec3 StartVertex;
-	vec3 EndVertex;
+	vector3 Centriod;
+	vector3 StartVertex;
+	vector3 EndVertex;
 
 	// pointer collection for all the voxels
 	// located above the y axis of this voxel
@@ -76,8 +71,8 @@ struct  _voxel
 
 struct _voxelMethods
 {
-	voxel (*Create)(vec3 point);
-	quadrant (*GetQuandrant)(vec3 centroid, vec3 point);
+	voxel (*Create)(vector3 point);
+	quadrant (*GetQuandrant)(vector3 centroid, vector3 point);
 	bool (*Intersects)(voxel, voxel);
 };
 

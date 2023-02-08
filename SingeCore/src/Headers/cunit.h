@@ -107,10 +107,10 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 #define StandardAssert(expr) Assert(expr);
 
 #define IsNull(expr) StandardAssert(expr == NULL);
-#define NotNull(expr) StandardAssert(expr != NULL);
+#define IsNotNull(expr) StandardAssert(expr != NULL);
 #define IsZero(expr) StandardAssert(expr == 0);
-#define NotZero(expr) StandardAssert(expr != 0);
+#define IsNotZero(expr) StandardAssert(expr != 0);
 #define IsFalse(expr) StandardAssert(expr != true);
 #define IsTrue(expr) StandardAssert(expr);
-#define Equals(left,right,format) BenchmarkComparison(left,right,==,format,stream);
-#define NotEqual(left,right) StandardAssert(left != right);
+#define IsEqual(left,right,format) BenchmarkComparison(left,right,==,format,stream);
+#define IsNotEqual(left,right) StandardAssert(left != right);

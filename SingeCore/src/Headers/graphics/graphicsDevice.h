@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include "graphics/imaging.h"
 #include "graphics/textureDefinitions.h"
+#include "graphics/colors.h"
 
 typedef unsigned int ClearMask;
 
@@ -143,7 +144,7 @@ struct _graphicsDeviceMethods
 	/// Modifies the currenly bound texture with the provided setting and value
 	/// </summary>
 	void (*ModifyTexture)(const TextureType, TextureSetting, const TextureValue);
-	void (*ModifyTextureProperty)(TextureType type, TextureSetting setting, const float* value);
+	void (*ModifyTextureProperty)(TextureType type, TextureSetting setting, const color value);
 	/// <summary>
 	/// Binds the provided texture to an open texture slot on the graphics device
 	/// </summary>

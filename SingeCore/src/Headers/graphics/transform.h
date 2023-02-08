@@ -10,7 +10,7 @@ struct _directionStates {
 	// for this frame
 	unsigned int Accessed;
 	// array of vector3's that represent already calculated directions for a transform, order: left, right, up, down, forward, back
-	vec3 Directions[6];
+	vector3 Directions[6];
 };
 
 struct transformState {
@@ -25,26 +25,26 @@ struct transformState {
 	/// The previously calculated scale matrix for this transform, this is NOT initialized with a value
 	/// until the first time this transform is refreshed
 	/// </summary>
-	mat4 ScaleMatrix;
+	matrix4 ScaleMatrix;
 	/// <summary>
 	/// The previously calculated rotation matrix for this transform, this is NOT initialized with a value
 	/// until the first time this transform is refreshed
 	/// </summary>
-	mat4 RotationMatrix;
+	matrix4 RotationMatrix;
 	/// <summary>
 	/// The previously calculated translation matrix for this transform
 	/// </summary>
-	mat4 TranslationMatrix;
+	matrix4 TranslationMatrix;
 	/// <summary>
 	/// The previously calculated trasform matrix for this transform NOT including the parent matrix, this is NOT initialized with a value
 	/// until the first time this transform is refreshed
 	/// </summary>
-	mat4 LocalState;
+	matrix4 LocalState;
 	/// <summary>
 	/// The previously calculated trasform matrix for this transform, INCLUDING the parent's matrix, this is NOT initialized with a value
 	/// until the first time this transform is refreshed
 	/// </summary>
-	mat4 State;
+	matrix4 State;
 	/// <summary>
 	/// Stores the pre-calculated directions for this object during runtime
 	/// </summary>
@@ -76,15 +76,15 @@ struct _transform {
 	/// <summary>
 	/// The position of this transform in world space
 	/// </summary>
-	vec3 Position;
+	vector3 Position;
 	/// <summary>
 	/// The rotation of this transform
 	/// </summary>
-	Quaternion Rotation;
+	quaternion Rotation;
 	/// <summary>
 	/// The scale of this transform
 	/// </summary>
-	vec3 Scale;
+	vector3 Scale;
 	/// <summary>
 	/// Whether rotations should be calculated from the world origin or the transforms position, think planet rotation around sun(origin) vs planet rotating by itself (around position)
 	/// </summary>
@@ -104,37 +104,37 @@ struct _transformMethods {
 
 	void (*CopyTo)(Transform source, Transform destination);
 
-	Transform(*DuplicateTransform)(Transform);
+	Transform (*DuplicateTransform)(Transform);
 
 	/// <summary>
 	/// Recalulates the underlying state of the transform
 	/// </summary>
 	/// <param name=""></param>
-	vec4* (*Refresh)(Transform);
+	matrix4 (*Refresh)(Transform);
 
 	/// <summary>
 	/// Recalulates the underlying state of the transform ignoring any previously saved state
 	/// </summary>
 	/// <param name=""></param>
-	vec4* (*ForceRefresh)(Transform);
+	matrix4 (*ForceRefresh)(Transform);
 
-	void (*SetPosition)(Transform, vec3 position);
+	void (*SetPosition)(Transform, vector3 position);
 	void (*SetPositions)(Transform transform, float x, float y, float z);
-	void (*SetRotation)(Transform, Quaternion rotation);
+	void (*SetRotation)(Transform, quaternion rotation);
 	void (*ScaleAll)(Transform, float scaler);
-	void (*SetScale)(Transform, vec3 scale);
+	void (*SetScale)(Transform, vector3 scale);
 	void (*SetScales)(Transform transform, float x, float y, float z);
 
-	void (*AddPosition)(Transform, vec3 amount);
+	void (*AddPosition)(Transform, vector3 amount);
 	void (*Translate)(Transform, float x, float y, float z);
 	void (*TranslateX)(Transform, float x);
 	void (*TranslateY)(Transform, float y);
 	void (*TranslateZ)(Transform, float z);
-	void (*Rotate)(Transform, Quaternion amount);
-	void (*RotateOnAxis)(Transform, float amountInRads, vec3 axis);
-	void (*SetRotationOnAxis)(Transform, float amountInRads, vec3 axis);
-	void (*AddScale)(Transform, vec3 amount);
-	void (*LookAt)(Transform, vec3 target);
+	void (*Rotate)(Transform, quaternion amount);
+	void (*RotateOnAxis)(Transform, float amountInRads, vector3 axis);
+	void (*SetRotationOnAxis)(Transform, float amountInRads, vector3 axis);
+	void (*AddScale)(Transform, vector3 amount);
+	void (*LookAt)(Transform, vector3 target);
 	void (*LookAtPositions)(Transform, float x, float y, float z);
 
 	// Sets the provided transform's parent as the provided parent
@@ -143,12 +143,12 @@ struct _transformMethods {
 	// Resizes the child array to fit count elements
 	void (*SetChildCapacity)(Transform, size_t count);
 
-	void (*GetDirection)(Transform transform, Direction directions, vec3 out_direction);
+	vector3 (*GetDirection)(Transform transform, Direction directions);
 	void (*ClearChildren)(Transform transform);
 
 	// Converts the given point from model space to world space using the given
 	// transform
-	void (*TransformPoint)(Transform, vec3 point, vec3 destination);
+	vector3 (*TransformPoint)(Transform, vector3 point);
 
 	void (*Dispose)(Transform);
 

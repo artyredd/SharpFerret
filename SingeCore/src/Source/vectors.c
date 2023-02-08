@@ -5,42 +5,52 @@
 #include "string.h"
 #include "cglm/cam.h"
 #include "cglm/mat3.h"
+#include "cglm/vec3.h"
+#include "cglm/cam.h"
+#include "cglm/affine.h"
+#include <math.h>
 
-static bool TryParseVector3(const char* buffer, const size_t length, float* out_vector3);
-static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector);
-static bool TrySerializeVec3Stream(File stream, const float* vector);
-static void Vector3Set(vec3, float x, float y, float z);
-static void Vector3CopyTo(const vec3 source, vec3 destination);
-static void Cross(const vec3 left, const vec3 right, vec3 out_result);
-static void Multiply(const vec3 left, const vec3 right, vec3 destination);
-static void Scale(const vec3 vector, const float value, vec3 destination);
-static void Add(const vec3 left, const vec3 right, vec3 destination);
-static void Subtract(const vec3 left, const vec3 right, vec3 destination);
+static bool TryParseVector3(const char* buffer, const size_t length, vector3* out_vector3);
+static bool TrySerializeVec3(char* buffer, const size_t length, const vector3 vector);
+static bool TrySerializeVec3Stream(File stream, const vector3 vector);
+static vector3 Cross(const vector3 left, const vector3 right);
+static vector3 Multiply(const vector3 left, const vector3 right);
+static vector3 Scale(const vector3 vector, const float value);
+static vector3 Add(const vector3 left, const vector3 right);
+static vector3 Subtract(const vector3 left, const vector3 right);
+static bool Equals(const vector3 left, const vector3 right);
+static bool Close(const vector3 left, const vector3 right, float epsilon);
+static float Distance(const vector3 left, const vector3 right);
 
 const struct _vector3Methods Vector3s = {
 	.TryDeserialize = &TryParseVector3,
 	.TrySerialize = &TrySerializeVec3,
 	.TrySerializeStream = &TrySerializeVec3Stream,
-	.Set = Vector3Set,
-	.CopyTo = Vector3CopyTo,
 	.Cross = &Cross,
 	.Multiply = Multiply,
 	.Scale  = Scale,
 	.Add = Add,
-	.Subtract = Subtract
+	.Subtract = Subtract,
+	.Equals = Equals,
+	.Close = Close,
+	.Distance = Distance
 };
 
-static bool TryParseVector2(const char* buffer, const size_t length, float* out_vector2);
-static bool TrySerializeVec2(char* buffer, const size_t length, const float* vector);
+static bool TryParseVector2(const char* buffer, const size_t length, vector2* out_vector2);
+static bool TrySerializeVec2(char* buffer, const size_t length, const vector2 vector);
+static bool EqualsVec2(const vector2 left, const vector2 right);
+static bool CloseVec2(const vector2 left, const vector2 right, float epsilon);
 
 const struct _vector2Methods Vector2s = {
 	.TryDeserialize = &TryParseVector2,
-	.TrySerialize = &TrySerializeVec2
+	.TrySerialize = &TrySerializeVec2,
+	.Equals = EqualsVec2,
+	.Close = CloseVec2
 };
 
-static bool TryDeserializeVec4(const char* buffer, const size_t length, float* out_vector2);
-static bool TrySerializeVec4(char* buffer, const size_t length, const float* vector);
-static bool TrySerializeVec4Stream(File stream, const float* vector);
+static bool TryDeserializeVec4(const char* buffer, const size_t length, vector4* out_vector2);
+static bool TrySerializeVec4(char* buffer, const size_t length, const vector4 vector);
+static bool TrySerializeVec4Stream(File stream, const vector4 vector);
 
 const struct _vector4Methods Vector4s = {
 	.TryDeserialize = &TryDeserializeVec4,
@@ -48,11 +58,23 @@ const struct _vector4Methods Vector4s = {
 	.TrySerializeStream = &TrySerializeVec4Stream
 };
 
-static void LookAt(mat4 matrix, vec3 position, vec3 target, vec3 upDirection);
-static float Determinant(mat3 matrix);
+static matrix4 LookAt(vector3 position, vector3 target, vector3 upDirection);
+static matrix4 MultiplyMat4(matrix4, matrix4);
+static matrix4 ScaleMat4(matrix4, vector3);
+static vector3 MultiplyVector3(matrix4, vector3, float w);
+static matrix4 Translate(matrix4, vector3 position);
 
-const struct _matrixMethods Matrices = {
+const struct _mat4Methods Matrix4s = {
 	.LookAt = LookAt,
+	.Multiply = MultiplyMat4,
+	.MultiplyVector3 = MultiplyVector3,
+	.Scale = ScaleMat4,
+	.Translate = Translate
+};
+
+static float Determinant(matrix3 matrix);
+
+const struct _mat3Methods Matrix3s = {
 	.Determinant = Determinant
 };
 
@@ -60,21 +82,33 @@ const struct _matrixMethods Matrices = {
 #define Vector3SerializationFormat "%f %f %f"
 #define Vector4SerializationFormat "%f %f %f %f"
 
-static bool TryParseVector3(const char* buffer, size_t length, float* out_vector3)
+static bool EqualsVec2(const vector2 left, const vector2 right)
+{
+	return left.x == right.x && left.y == right.y;
+}
+
+static bool CloseVec2(const vector2 left, const vector2 right, float epsilon)
+{
+	return (fabs(left.x - right.x) < epsilon) &&
+		(fabs(left.y - right.y) < epsilon);
+}
+
+static bool TryParseVector3(const char* buffer, size_t length, vector3* out_vector3)
 {
 	if (length is 0)
 	{
 		return false;
 	}
 
-	int count = sscanf_s(buffer, "%f %f %f", &out_vector3[0],
-		&out_vector3[1],
-		&out_vector3[2]);
+	int count = sscanf_s(buffer, "%f %f %f", 
+		&out_vector3->x,
+		&out_vector3->y,
+		&out_vector3->z);
 
 	return count == 3;
 }
 
-static bool TryParseVector2(const char* buffer, size_t length, float* out_vector2)
+static bool TryParseVector2(const char* buffer, size_t length, vector2* out_vector2)
 {
 	if (length is 0)
 	{
@@ -82,60 +116,60 @@ static bool TryParseVector2(const char* buffer, size_t length, float* out_vector
 	}
 
 	int count = sscanf_s(buffer, "%f %f",
-		&out_vector2[0],
-		&out_vector2[1]);
+		&out_vector2->x,
+		&out_vector2->y);
 
 	return count == 2;
 }
 
-static void Vector3Set(vec3 vector, float x, float y, float z)
+static bool Equals(const vector3 left, const vector3 right) 
 {
-	vector[0] = x;
-	vector[1] = y;
-	vector[2] = z;
+	return left.x == right.x && left.y == right.y && left.z == right.z;
 }
 
-static void Vector3CopyTo(const vec3 source, vec3 destination)
+static bool Close(const vector3 left, const vector3 right, float epsilon)
 {
-	Vectors3CopyTo(source, destination);
+	return (fabs(left.x - right.x) < epsilon) &&
+		(fabs(left.y - right.y) < epsilon) &&
+		(fabs(left.z - right.z) < epsilon);
 }
 
-static void Cross(const vec3 left, const vec3 right, vec3 destination)
+static vector3 Cross(const vector3 left, const vector3 right)
 {
-#pragma warning (disable : 4090)
-	glm_cross(left, right, destination);
-#pragma warning (default : 4090)
+	return (vector3) 
+	{
+		left.y * right.z - left.z * right.y,
+		left.z * right.x - left.x * right.z,
+		left.x * right.y - left.y * right.x,
+	};
 }
 
-static void Multiply(const vec3 left, const vec3 right, vec3 destination)
+static float Distance(const vector3 left, const vector3 right)
 {
-#pragma warning (disable : 4090)
-	glm_vec3_mul(left, right, destination);
-#pragma warning (default : 4090)
+	return glm_vec3_distance((float*)&left, (float*)&right);
 }
 
-static void Add(const vec3 left, const vec3 right, vec3 destination)
+static vector3 Multiply(const vector3 left, const vector3 right)
 {
-	destination[0] = left[0] + right[0];
-	destination[1] = left[1] + right[1];
-	destination[2] = left[2] + right[2];
+	return (vector3) { left.x * right.x, left.y * right.y, left.z * right.z };
 }
 
-static void Subtract(const vec3 left, const vec3 right, vec3 destination)
+static vector3 Add(const vector3 left, const vector3 right)
 {
-	destination[0] = left[0] - right[0];
-	destination[1] = left[1] - right[1];
-	destination[2] = left[2] - right[2];
+	return (vector3) { left.x + right.x, left.y + right.y, left.z + right.z };
 }
 
-static void Scale(const vec3 vector, float value, vec3 destination)
+static vector3 Subtract(const vector3 left, const vector3 right)
 {
-	destination[0] = vector[0] * value;
-	destination[1] = vector[1] * value;
-	destination[2] = vector[2] * value;
+	return (vector3) { left.x - right.x, left.y - right.y, left.z - right.z };
 }
 
-static bool TrySerializeVec3Stream(File stream, const float* vector)
+static vector3 Scale(const vector3 vector, float value)
+{
+	return (vector3) { vector.x * value, vector.y* value, vector.z * value };
+}
+
+static bool TrySerializeVec3Stream(File stream, const vector3 vector)
 {
 	if (stream is null)
 	{
@@ -143,56 +177,56 @@ static bool TrySerializeVec3Stream(File stream, const float* vector)
 	}
 
 	int result = fprintf_s(stream, Vector3SerializationFormat,
-		vector[0],
-		vector[1],
-		vector[2]);
+		vector.x,
+		vector.y,
+		vector.z);
 
 	// 0 is runtime error, negative is encoding error
 	return result > 0;
 }
 
-static bool TrySerializeVec3(char* buffer, const size_t length, const float* vector)
+static bool TrySerializeVec3(char* buffer, const size_t length, const vector3 vector)
 {
 	if (length is 0)
 	{
 		return false;
 	}
 
-	int result = sprintf_s(buffer, length, Vector3SerializationFormat, vector[0], vector[1], vector[2]);
+	int result = sprintf_s(buffer, length, Vector3SerializationFormat, vector.x, vector.y, vector.z);
 
 	// 0 is runtime error, negative is encoding error
 	return result > 0;
 }
 
-static bool TrySerializeVec2(char* buffer, const size_t length, const float* vector)
+static bool TrySerializeVec2(char* buffer, const size_t length, const vector2 vector)
 {
 	if (length is 0)
 	{
 		return false;
 	}
 
-	int result = sprintf_s(buffer, length, Vector2SerializationFormat, vector[0], vector[1]);
+	int result = sprintf_s(buffer, length, Vector2SerializationFormat, vector.x, vector.y);
 
 	// 0 is runtime error, negative is encoding error
 	return result > 0;
 }
 
-static bool TryDeserializeVec4(const char* buffer, const size_t length, float* out_vector4)
+static bool TryDeserializeVec4(const char* buffer, const size_t length, vector4* out_vector4)
 {
 	if (length is 0)
 	{
 		return false;
 	}
 
-	int count = sscanf_s(buffer, Vector4SerializationFormat, &out_vector4[0],
-		&out_vector4[1],
-		&out_vector4[2],
-		&out_vector4[3]);
+	int count = sscanf_s(buffer, Vector4SerializationFormat, &out_vector4->x,
+		&out_vector4->y,
+		&out_vector4->z,
+		&out_vector4->w);
 
 	return count == 4;
 }
 
-static bool TrySerializeVec4Stream(File stream, const float* vector)
+static bool TrySerializeVec4Stream(File stream, const vector4 vector)
 {
 	if (stream is null)
 	{
@@ -200,16 +234,16 @@ static bool TrySerializeVec4Stream(File stream, const float* vector)
 	}
 
 	int result = fprintf_s(stream, Vector4SerializationFormat,
-		vector[0],
-		vector[1],
-		vector[2],
-		vector[3]);
+		vector.x,
+		vector.y,
+		vector.z,
+		vector.w);
 
 	// 0 is runtime error, negative is encoding error
 	return result > 0;
 }
 
-static bool TrySerializeVec4(char* buffer, const size_t length, const float* vector)
+static bool TrySerializeVec4(char* buffer, const size_t length, const vector4 vector)
 {
 	if (length is 0)
 	{
@@ -217,10 +251,10 @@ static bool TrySerializeVec4(char* buffer, const size_t length, const float* vec
 	}
 
 	int result = sprintf_s(buffer, length, Vector4SerializationFormat,
-		vector[0],
-		vector[1],
-		vector[2],
-		vector[3]);
+		vector.x,
+		vector.y,
+		vector.z,
+		vector.w);
 
 	// 0 is runtime error, negative is encoding error
 	return result > 0;
@@ -230,28 +264,52 @@ static bool Test_TryGetVector3(File stream)
 {
 	char* buffer = "-1.0 2.4 4.90";
 
-	vec3 expected = { -1.0f, 2.4f, 4.90f };
+	vector3 expected = { -1.0f, 2.4f, 4.90f };
 
-	vec3 actual;
+	vector3 actual;
 
-	Assert(TryParseVector3(buffer, strlen(buffer), actual));
+	Assert(Vector3s.TryDeserialize(buffer, strlen(buffer), &actual));
 
-	Assert(Vector3Equals(expected, actual));
+	Assert(Vector3s.Equals(expected, actual));
 
 	return true;
+}
+
+static matrix4 MultiplyMat4(matrix4 left, matrix4 right)
+{
+	matrix4 result;
+	glm_mat4_mul((float*)&left, (float*)&right, (float*)&result);
+
+	return result;
+}
+
+static matrix4 ScaleMat4(matrix4 matrix, vector3 scale)
+{
+	matrix4 result;
+	glm_scale_to((float*)&matrix, (float*)&scale, (float*) & result);
+
+	return result;
+}
+
+static vector3 MultiplyVector3(matrix4 matrix, vector3 vector, float w)
+{
+	vector3 result;
+	glm_mat4_mulv3( (float*)&matrix, (float*)&vector, w, (float*)&result);
+
+	return result;
 }
 
 static bool Test_TryGetVector2(File stream)
 {
 	char* buffer = "-1.0 2.4 4.90";
 
-	vec2 expected = { -1.0f, 2.4f };
+	vector2 expected = { -1.0f, 2.4f };
 
-	vec2 actual;
+	vector2 actual;
 
-	Assert(TryParseVector2(buffer, strlen(buffer), actual));
+	Assert(Vector2s.TryDeserialize(buffer, strlen(buffer), &actual));
 
-	Assert(Vector2Equals(expected, actual));
+	Assert(Vector2s.Equals(expected, actual));
 
 	return true;
 }
@@ -270,12 +328,23 @@ bool RunVectorUnitTests()
 	return pass;
 }
 
-static float Determinant(mat3 matrix)
+static float Determinant(matrix3 matrix)
 {
-	return glm_mat3_det(matrix);
+	return glm_mat3_det((vec3*) & matrix);
 }
 
-static void LookAt(mat4 matrix, vec3 position, vec3 target, vec3 upDirection)
+static matrix4 LookAt(vector3 position, vector3 target, vector3 upDirection)
 {
-	glm_look(position, target, upDirection, matrix);
+	matrix4 result;
+	glm_look((float*) & position, (float*)&target, (float*)&upDirection, (vec4*)&result);
+
+	return result;
+}
+
+static matrix4 Translate(matrix4 matrix, vector3 position)
+{
+	matrix4 result;
+	glm_translate_to((float*) & matrix, (float*)&position, (float*) & result);
+
+	return result;
 }

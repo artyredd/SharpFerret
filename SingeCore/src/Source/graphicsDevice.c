@@ -2,6 +2,7 @@
 #include "GL/glew.h"
 #include <stdlib.h>
 #include "graphics/textureDefinitions.h"
+#include "graphics/colors.h"
 
 const struct _clearMasks ClearMasks =
 {  
@@ -80,7 +81,7 @@ static unsigned int CreateTexture(const TextureType);
 static void LoadTexture(const TextureType, TextureFormat, BufferFormat, Image, unsigned int offset);
 static void LoadBufferTexture(const TextureType, const TextureFormat, const BufferFormat, size_t width, size_t height, unsigned int offset);
 static void ModifyTexture(const TextureType, TextureSetting, const TextureValue);
-static void ModifyTextureProperty(TextureType type, TextureSetting setting, const float* value);
+static void ModifyTextureProperty(TextureType type, TextureSetting setting, const color value);
 static void DeleteTexture(unsigned int handle);
 static bool TryVerifyCleanup(void);
 
@@ -380,9 +381,9 @@ static void LoadBufferTexture(const TextureType type, const TextureFormat colorF
 	glTexImage2D(type.Value.AsUInt + offset, 0, colorFormat, (int)width, (int)height, 0, colorFormat, pixelFormat, null);
 }
 
-static void ModifyTextureProperty(TextureType type, TextureSetting setting, const float* value)
+static void ModifyTextureProperty(TextureType type, TextureSetting setting, const color value)
 {
-	glTexParameterfv(type.Value.AsUInt, setting, value);
+	glTexParameterfv(type.Value.AsUInt, setting, (float*) & value);
 }
 
 static void ModifyTexture(TextureType type, TextureSetting setting, const TextureValue value)

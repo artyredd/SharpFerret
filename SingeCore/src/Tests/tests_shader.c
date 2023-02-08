@@ -15,13 +15,13 @@ static bool Test_Shader_Leak_Create(File stream)
 
 	Shaders.Dispose(shader);
 
-	Equals(FreeCount(), AllocCount(), "%lli");
+	IsEqual(FreeCount(), AllocCount(), "%lli");
 
 	shader = Shaders.Create();
 
 	Shaders.Dispose(shader);
 
-	Equals(FreeCount(), AllocCount(), "%lli");
+	IsEqual(FreeCount(), AllocCount(), "%lli");
 
 	return true;
 }
@@ -42,7 +42,7 @@ static bool Test_Shader_Leak_Instance(File stream)
 
 	Shaders.Dispose(shader);
 
-	Equals(FreeCount(), AllocCount(), "%lli");
+	IsEqual(FreeCount(), AllocCount(), "%lli");
 
 	shader = Shaders.Create();
 
@@ -55,7 +55,7 @@ static bool Test_Shader_Leak_Instance(File stream)
 
 	Shaders.Dispose(shader);
 
-	Equals(FreeCount(), AllocCount(), "%lli");
+	IsEqual(FreeCount(), AllocCount(), "%lli");
 
 	return true;
 }

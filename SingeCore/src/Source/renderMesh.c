@@ -1,7 +1,6 @@
 #include "graphics/renderMesh.h"
 #include "singine/memory.h"
 #include "GL/glew.h"
-#include "cglm/mat4.h"
 #include "helpers/macros.h"
 #include "singine/strings.h"
 
@@ -172,7 +171,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 
 	model->VertexBuffer = SharedHandles.Create();
 
-	if (TryBindBuffer(mesh->VertexData, mesh->VertexCount * sizeof(float), model->VertexBuffer) is false)
+	if (TryBindBuffer((float*)mesh->VertexData, mesh->VertexCount * sizeof(vector3), model->VertexBuffer) is false)
 	{
 		RenderMeshes.Dispose(model);
 		return false;
@@ -182,7 +181,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 	{
 		model->UVBuffer = SharedHandles.Create();
 
-		if (TryBindBuffer(mesh->TextureVertexData, mesh->TextureCount * sizeof(float), model->UVBuffer) is false)
+		if (TryBindBuffer((float*)mesh->TextureVertexData, mesh->TextureCount * sizeof(vector2), model->UVBuffer) is false)
 		{
 			RenderMeshes.Dispose(model);
 			return false;
@@ -194,7 +193,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 	{
 		model->NormalBuffer = SharedHandles.Create();
 
-		if (TryBindBuffer(mesh->NormalVertexData, mesh->NormalCount * sizeof(float), model->NormalBuffer) is false)
+		if (TryBindBuffer((float*)mesh->NormalVertexData, mesh->NormalCount * sizeof(vector3), model->NormalBuffer) is false)
 		{
 			RenderMeshes.Dispose(model);
 			return false;
