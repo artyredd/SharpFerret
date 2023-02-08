@@ -63,13 +63,15 @@ static matrix4 MultiplyMat4(matrix4, matrix4);
 static matrix4 ScaleMat4(matrix4, vector3);
 static vector3 MultiplyVector3(matrix4, vector3, float w);
 static matrix4 Translate(matrix4, vector3 position);
+static matrix4 Inverse(matrix4);
 
 const struct _mat4Methods Matrix4s = {
 	.LookAt = LookAt,
 	.Multiply = MultiplyMat4,
 	.MultiplyVector3 = MultiplyVector3,
 	.Scale = ScaleMat4,
-	.Translate = Translate
+	.Translate = Translate,
+	.Inverse = Inverse
 };
 
 static float Determinant(matrix3 matrix);
@@ -278,7 +280,7 @@ static bool Test_TryGetVector3(File stream)
 static matrix4 MultiplyMat4(matrix4 left, matrix4 right)
 {
 	matrix4 result;
-	glm_mat4_mul((float*)&left, (float*)&right, (float*)&result);
+	glm_mat4_mul((vec4*)&left, (vec4*)&right, (vec4*)&result);
 
 	return result;
 }
@@ -286,7 +288,7 @@ static matrix4 MultiplyMat4(matrix4 left, matrix4 right)
 static matrix4 ScaleMat4(matrix4 matrix, vector3 scale)
 {
 	matrix4 result;
-	glm_scale_to((float*)&matrix, (float*)&scale, (float*) & result);
+	glm_scale_to((vec4*)&matrix, (float*)&scale, (vec4*) & result);
 
 	return result;
 }
@@ -294,7 +296,7 @@ static matrix4 ScaleMat4(matrix4 matrix, vector3 scale)
 static vector3 MultiplyVector3(matrix4 matrix, vector3 vector, float w)
 {
 	vector3 result;
-	glm_mat4_mulv3( (float*)&matrix, (float*)&vector, w, (float*)&result);
+	glm_mat4_mulv3( (vec4*)&matrix, (float*)&vector, w, (float*)&result);
 
 	return result;
 }
@@ -341,10 +343,18 @@ static matrix4 LookAt(vector3 position, vector3 target, vector3 upDirection)
 	return result;
 }
 
+static matrix4 Inverse(matrix4 matrix)
+{
+	matrix4 result;
+	glm_mat4_inv((vec4*) & matrix, (vec4*)&result);
+
+	return result;
+}
+
 static matrix4 Translate(matrix4 matrix, vector3 position)
 {
 	matrix4 result;
-	glm_translate_to((float*) & matrix, (float*)&position, (float*) & result);
+	glm_translate_to((vec4*) & matrix, (float*)&position, (vec4*) & result);
 
 	return result;
 }

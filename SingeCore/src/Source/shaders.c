@@ -27,6 +27,7 @@ static void Disable(Shader);
 static bool UniformSetVector2(Shader shader, Uniform uniform, vector2 value);
 static bool UniformSetVector3(Shader shader, Uniform uniform, vector3 value);
 static bool UniformSetVector4(Shader shader, Uniform uniform, vector4 value);
+static bool UniformSetColor(Shader shader, Uniform uniform, color value);
 static bool UniformSetMatrix(Shader shader, Uniform uniform, matrix4 value);
 static bool UniformSetFloat(Shader shader, Uniform uniform, float value);
 static bool UniformSetInt(Shader shader, Uniform uniform, int value);
@@ -102,6 +103,7 @@ const struct _shaderMethods Shaders = {
 	.SetVector2 = &UniformSetVector2,
 	.SetVector3 = &UniformSetVector3,
 	.SetVector4 = &UniformSetVector4,
+	.SetColor = &UniformSetColor,
 	.SetMatrix = &UniformSetMatrix,
 	.SetFloat = &UniformSetFloat,
 	.SetInt = &UniformSetInt,
@@ -386,6 +388,11 @@ static bool UniformSetVector3(Shader shader, Uniform uniform, vector3 value)
 }
 
 static bool UniformSetVector4(Shader shader, Uniform uniform, vector4 value)
+{
+	SetUniformMacro(glUniform4fv(handle, 1, (float*)&value));
+}
+
+static bool UniformSetColor(Shader shader, Uniform uniform, color value)
 {
 	SetUniformMacro(glUniform4fv(handle, 1, (float*)&value));
 }

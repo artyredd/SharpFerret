@@ -27,9 +27,5 @@ static Mesh CreateMesh(void)
 
 	Mesh mesh = Memory.Alloc(sizeof(struct _mesh), MeshTypeId);
 
-	mesh->VertexCount = 0;
-	mesh->MaterialName = null;
-	mesh->NormalCount = 0;
-
 	return mesh;
 }

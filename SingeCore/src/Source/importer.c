@@ -531,36 +531,43 @@ static bool TryParseObjects(File stream,
 			{
 				const size_t* face = indices + (i * 3);
 
-				// .obj files are 1 indexed subtract one to get 0 indexed
-				size_t vertexIndex = face[0] - 1;
-				size_t uvIndex = face[1] - 1;
-				size_t normalIndex = face[2] - 1;
+				if (vertexCount > 0)
+				{
+					// .obj files are 1 indexed subtract one to get 0 indexed
+					size_t vertexIndex = safe_subtract(face[0], 1);
 
-				// there are 3 floats per vertex so the address of the nth vector3 is index * 3
-				const vector3 subVertices = *(buffers->Vertices + vertexIndex);
+					// there are 3 floats per vertex so the address of the nth vector3 is index * 3
+					const vector3 subVertices = buffers->Vertices[vertexIndex];
 
-				// there are 2 floats per uv
-				const vector2 subUVs = *(buffers->Textures + uvIndex);
-
-				// there are 3 floats per normal
-				const vector3 subNormals = *(buffers->Normals + normalIndex);
-
-				// copy the floats over to their final arrays
-				*(currentMesh->VertexData + currentMesh->VertexCount) = subVertices;
-				currentMesh->VertexCount += 3;
+					// copy the floats over to their final arrays
+					currentMesh->VertexData[currentMesh->VertexCount] = subVertices;
+					currentMesh->VertexCount++;
+				}
 
 				// if we didnt count any textures we shouldn't try to write them to an array
 				if (textureCount > 0)
 				{
-					*(currentMesh->TextureVertexData + currentMesh->TextureCount) = subUVs;
-					currentMesh->TextureCount += 2;
+					// .obj files are 1 indexed subtract one to get 0 indexed
+					size_t uvIndex = safe_subtract(face[1], 1);
+
+					// there are 2 floats per uv
+					const vector2 subUVs = buffers->Textures[uvIndex];
+
+					currentMesh->TextureVertexData[currentMesh->TextureCount] = subUVs;
+					currentMesh->TextureCount++;
 				}
 
 				// if we didnt count any normals we shouldn't try to write them to an array
 				if (normalCount > 0)
 				{
-					*(currentMesh->NormalVertexData + currentMesh->NormalCount) = subNormals;
-					currentMesh->NormalCount += 3;
+					// .obj files are 1 indexed subtract one to get 0 indexed
+					size_t normalIndex = safe_subtract(face[2], 1);
+
+					// there are 3 floats per normal
+					const vector3 subNormals = buffers->Normals[normalIndex];
+
+					currentMesh->NormalVertexData[currentMesh->NormalCount] = subNormals;
+					currentMesh->NormalCount++;
 				}
 			}
 			continue;
