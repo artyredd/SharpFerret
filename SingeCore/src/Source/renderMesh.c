@@ -200,7 +200,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 		}
 	}
 
-	model->NumberOfTriangles = mesh->VertexCount / 3;
+	model->NumberOfTriangles = mesh->VertexCount;
 
 	model->ShadeSmooth = mesh->SmoothingEnabled;
 

@@ -351,13 +351,13 @@ int main()
 		}
 		if (GetKey(KeyCodes.W))
 		{
-			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Forward);
+			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Back);
 			positionModifier = Vector3s.Scale(positionModifier, modifier);
 			position = Vector3s.Add(position, positionModifier);
 		}
 		if (GetKey(KeyCodes.S))
 		{
-			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Back);
+			positionModifier = Transforms.GetDirection(camera->Transform, Directions.Forward);
 			positionModifier = Vector3s.Scale(positionModifier, modifier);
 			position = Vector3s.Add(position, positionModifier);
 		}
