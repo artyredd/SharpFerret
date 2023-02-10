@@ -46,8 +46,8 @@ static bool IntersectsSegmentOnTriangle(const triangle triangle, const vector3 s
 
 	return intersects && distance <= Vector3s.Distance(start, end);
 
-	//vector3 startVertex;
-	//vector3 endVertex;
+	vector3 startVertex = Vector3s.Subtract(startVertex, triangle.Point1);
+	vector3 endVertex = Vector3s.Subtract(endVertex, triangle.Point1);
 
 	//Vectors3CopyTo(start, startVertex);
 	//Vectors3CopyTo(end, endVertex);
