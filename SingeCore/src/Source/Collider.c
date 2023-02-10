@@ -72,21 +72,21 @@ static bool TryGetIntersects(const Collider leftCollider, const Collider rightCo
 	const Mesh left = leftCollider->Model->Meshes[0];
 	const Mesh right = rightCollider->Model->Meshes[0];
 
-	for (size_t leftIndex = 0; leftIndex < left->VertexCount; leftIndex += 9)
+	for (size_t leftIndex = 0; leftIndex < left->VertexCount; leftIndex += 3)
 	{
 		triangle leftTriangle;
 
 		leftTriangle.Point1 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->VertexData[leftIndex]);
-		leftTriangle.Point2 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->VertexData[leftIndex + 3]);
-		leftTriangle.Point3 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->VertexData[leftIndex + 6]);
+		leftTriangle.Point2 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->VertexData[leftIndex + 1]);
+		leftTriangle.Point3 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->VertexData[leftIndex + 2]);
 
 		for (size_t rightIndex = 0; rightIndex < right->VertexCount; rightIndex += 9)
 		{
 			triangle rightTriangle;
 
 			rightTriangle.Point1 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->VertexData[rightIndex]);
-			rightTriangle.Point2 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->VertexData[rightIndex + 3]);
-			rightTriangle.Point3 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->VertexData[rightIndex + 6]);
+			rightTriangle.Point2 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->VertexData[rightIndex + 1]);
+			rightTriangle.Point3 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->VertexData[rightIndex + 2]);
 
 			if (Triangles.Intersects(leftTriangle, rightTriangle))
 			{

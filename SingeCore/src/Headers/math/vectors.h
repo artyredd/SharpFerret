@@ -155,7 +155,9 @@ static struct _matrixConstants {
 
 struct _mat3Methods
 {
-	float(*Determinant)(matrix3 matrix);
+	float (*Determinant)(matrix3 matrix);
+	matrix3 (*Inverse)(matrix3);
+	vector3 (*MultiplyVector3)(matrix3, vector3);
 };
 
 extern const struct _mat3Methods Matrix3s;

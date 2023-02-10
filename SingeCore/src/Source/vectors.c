@@ -75,9 +75,13 @@ const struct _mat4Methods Matrix4s = {
 };
 
 static float Determinant(matrix3 matrix);
+static matrix3 InverseMat3(matrix3);
+static vector3 MultiplyMat3Vector3(matrix3 matrix, vector3 vector);
 
 const struct _mat3Methods Matrix3s = {
-	.Determinant = Determinant
+	.Determinant = Determinant,
+	.Inverse = InverseMat3,
+	.MultiplyVector3 = MultiplyMat3Vector3
 };
 
 #define Vector2SerializationFormat "%f %f"
@@ -333,6 +337,22 @@ bool RunVectorUnitTests()
 static float Determinant(matrix3 matrix)
 {
 	return glm_mat3_det((vec3*) & matrix);
+}
+
+static vector3 MultiplyMat3Vector3(matrix3 matrix, vector3 vector)
+{
+	vector3 result;
+	glm_mat3_mulv((vec3*)&matrix, (float*)&vector, (float*)&result);
+
+	return result;
+}
+
+static matrix3 InverseMat3(matrix3 matrix)
+{
+	matrix3 result;
+	glm_mat3_inv((vec4*)&matrix, (vec4*)&result);
+
+	return result;
 }
 
 static matrix4 LookAt(vector3 position, vector3 target, vector3 upDirection)

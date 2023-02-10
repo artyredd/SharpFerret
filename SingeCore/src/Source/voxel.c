@@ -12,7 +12,7 @@ const struct _voxelMethods Voxels = {
 
 static voxel Create(vector3 point) 
 {
-
+	 
 }
 
 static quadrant GetQuandrant(vector3 centroid, vector3 point) 
