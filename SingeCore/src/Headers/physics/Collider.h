@@ -5,6 +5,7 @@
 #include "graphics/transform.h"
 #include "modeling/model.h"
 #include "helpers/quickmask.h"
+#include "math/voxel.h"
 
 typedef struct _collision collision;
 
@@ -37,6 +38,10 @@ struct _collider
 	// two objects interact when the layer of a collider
 	// contains any of the bits in interaction mask
 	intMask Layer;
+
+	// the voxel tree that was generated for this model for fast
+	// physics collision checks
+	voxelTree VoxelTree;
 };
 
 struct _colliderMethods
@@ -46,7 +51,7 @@ struct _colliderMethods
 	// the default collision layer of this object, two objects interact when 
 	// the layer of a collider contains any of the bits in interaction mask
 	intMask DefaultLayer;
-	Collider(*Create)();
+	Collider(*Create)(Model);
 	// determins whether the provided two colliders intersect withh
 	// one another
 	bool (*Intersects)(Collider left,Collider right);

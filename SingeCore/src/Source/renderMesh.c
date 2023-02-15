@@ -89,7 +89,7 @@ static void Draw(RenderMesh mesh)
 			glBufferSubData(GL_ARRAY_BUFFER,
 				0,
 				mesh->NumberOfTriangles * 3 * sizeof(float),
-				((Mesh)mesh->Mesh->Resource)->VertexData
+				((Mesh)mesh->Mesh->Resource)->Vertices
 			);
 		}
 	}
@@ -171,7 +171,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 
 	model->VertexBuffer = SharedHandles.Create();
 
-	if (TryBindBuffer((float*)mesh->VertexData, mesh->VertexCount * sizeof(vector3), model->VertexBuffer) is false)
+	if (TryBindBuffer((float*)mesh->Vertices, mesh->VertexCount * sizeof(vector3), model->VertexBuffer) is false)
 	{
 		RenderMeshes.Dispose(model);
 		return false;
@@ -181,7 +181,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 	{
 		model->UVBuffer = SharedHandles.Create();
 
-		if (TryBindBuffer((float*)mesh->TextureVertexData, mesh->TextureCount * sizeof(vector2), model->UVBuffer) is false)
+		if (TryBindBuffer((float*)mesh->TextureVertices, mesh->TextureCount * sizeof(vector2), model->UVBuffer) is false)
 		{
 			RenderMeshes.Dispose(model);
 			return false;
@@ -193,7 +193,7 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 	{
 		model->NormalBuffer = SharedHandles.Create();
 
-		if (TryBindBuffer((float*)mesh->NormalVertexData, mesh->NormalCount * sizeof(vector3), model->NormalBuffer) is false)
+		if (TryBindBuffer((float*)mesh->NormalVertices, mesh->NormalCount * sizeof(vector3), model->NormalBuffer) is false)
 		{
 			RenderMeshes.Dispose(model);
 			return false;

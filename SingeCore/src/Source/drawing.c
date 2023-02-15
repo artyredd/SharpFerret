@@ -23,12 +23,12 @@ static triangle triangleVertices;
 struct _mesh Global_TriangleMesh = {
 	.Name = "Triangle",
 	.SmoothingEnabled = false,
-	.TextureVertexData = null,
+	.TextureVertices = null,
 	.TextureCount = 0,
 	.NormalCount = 3,
-	.NormalVertexData = &triangleNormal,
+	.NormalVertices = &triangleNormal,
 	.VertexCount = 9,
-	.VertexData = (vector3*) & triangleVertices,
+	.Vertices = (vector3*) & triangleVertices,
 };
 
 static RenderMesh RenderMeshProvider(Mesh mesh)
@@ -67,10 +67,10 @@ static void DrawTriangle(triangle triangle, Material material)
 	}
 
 	// copy over the vertices
-	memcpy(Global_TriangleMesh.VertexData, &triangle, 9 * sizeof(float));
+	memcpy(Global_TriangleMesh.Vertices, &triangle, 9 * sizeof(float));
 
 	// calculate the normal for the triangle
-	*(struct vector3*)Global_TriangleMesh.NormalVertexData = Triangles.CalculateNormal(triangle);
+	*(struct vector3*)Global_TriangleMesh.NormalVertices = Triangles.CalculateNormal(triangle);
 	
 	Materials.Draw(material, Global_DrawTriangleRenderMesh, Global_CurrentDrawingScene);
 }

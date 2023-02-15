@@ -118,6 +118,8 @@ struct _vector3Methods {
 	vector3 (*Scale)(const vector3 vector, const float value);
 	vector3 (*Add)(const vector3 left, const vector3 right);
 	vector3 (*Subtract)(const vector3 left, const vector3 right);
+	vector3 (*Mean)(const vector3 left, const vector3 right);
+	vector3 (*MeanArray)(const vector3* array, const size_t count);
 	float (*Distance)(const vector3 left, const vector3 right);
 	bool (*Equals)(const vector3 left, const vector3 right);
 	bool (*Close)(const vector3 left, const vector3 right, float epsilon);

@@ -11,13 +11,13 @@ struct _mesh {
 	bool SmoothingEnabled;
 	// The number of vector3s in the VertexData array
 	size_t VertexCount;
-	vector3* VertexData;
+	vector3* Vertices;
 	// The number of vector2 in the TextureVertexData array
 	size_t TextureCount;
-	vector2* TextureVertexData;
+	vector2* TextureVertices;
 	// The number of vector3 in the NormalVertexData array
 	size_t NormalCount;
-	vector3* NormalVertexData;
+	vector3* NormalVertices;
 	char* MaterialName;
 };
 

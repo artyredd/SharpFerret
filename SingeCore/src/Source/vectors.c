@@ -21,6 +21,8 @@ static vector3 Subtract(const vector3 left, const vector3 right);
 static bool Equals(const vector3 left, const vector3 right);
 static bool Close(const vector3 left, const vector3 right, float epsilon);
 static float Distance(const vector3 left, const vector3 right);
+private vector3 Mean(const vector3 left, const vector3 right);
+private vector3 MeanArray(const vector3* array, const size_t count);
 
 const struct _vector3Methods Vector3s = {
 	.TryDeserialize = &TryParseVector3,
@@ -33,7 +35,9 @@ const struct _vector3Methods Vector3s = {
 	.Subtract = Subtract,
 	.Equals = Equals,
 	.Close = Close,
-	.Distance = Distance
+	.Distance = Distance,
+	.Mean = Mean,
+	.MeanArray = MeanArray
 };
 
 static bool TryParseVector2(const char* buffer, const size_t length, vector2* out_vector2);
@@ -147,6 +151,37 @@ static vector3 Cross(const vector3 left, const vector3 right)
 		left.y * right.z - left.z * right.y,
 		left.z * right.x - left.x * right.z,
 		left.x * right.y - left.y * right.x,
+	};
+}
+
+private vector3 Mean(const vector3 left, const vector3 right)
+{
+	return (vector3) {
+		(left.x + right.x) / 2,
+		(left.y + right.y) / 2,
+		(left.z + right.z) / 2
+	};
+}
+
+private vector3 MeanArray(const vector3* array, const size_t count)
+{
+	float x = 0;
+	float y = 0;
+	float z = 0;
+
+	for (size_t i = 0; i < count; i++)
+	{
+		const vector3 vector = array[i];
+
+		x += vector.x;
+		y += vector.y;
+		z += vector.z;
+	}
+
+	return (vector3) { 
+		x / count, 
+		y / count, 
+		z / count
 	};
 }
 
@@ -350,7 +385,7 @@ static vector3 MultiplyMat3Vector3(matrix3 matrix, vector3 vector)
 static matrix3 InverseMat3(matrix3 matrix)
 {
 	matrix3 result;
-	glm_mat3_inv((vec4*)&matrix, (vec4*)&result);
+	glm_mat3_inv((vec3*)&matrix, (vec3*)&result);
 
 	return result;
 }

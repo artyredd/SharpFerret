@@ -183,6 +183,7 @@
     <ClCompile Include="src\Source\Collider.c" />
     <ClCompile Include="src\Source\colors.c" />
     <ClCompile Include="src\Source\config.c" />
+    <ClCompile Include="src\Source\cuboid.c" />
     <ClCompile Include="src\Source\drawing.c" />
     <ClCompile Include="src\Source\floats.c" />
     <ClCompile Include="src\Source\framebuffers.c" />
@@ -263,6 +264,7 @@
     <ClInclude Include="src\Headers\helpers\macros.h" />
     <ClInclude Include="src\Headers\helpers\quickmask.h" />
     <ClInclude Include="src\Headers\input.h" />
+    <ClInclude Include="src\Headers\math\cuboid.h" />
     <ClInclude Include="src\Headers\math\floats.h" />
     <ClInclude Include="src\Headers\math\ints.h" />
     <ClInclude Include="src\Headers\math\macros.h" />

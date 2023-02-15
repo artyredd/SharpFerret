@@ -24,6 +24,9 @@ struct _triangles
 
 	// determines whether or not a line segment intersects with the given triangle
 	bool (*SegmentIntersects)(const triangle left, const vector3 start, const vector3 end);
+
+	// calculates the centroid of the given triangle
+	vector3(*Centroid)(triangle);
 };
 
 extern const struct _triangles Triangles;

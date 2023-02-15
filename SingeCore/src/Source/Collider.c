@@ -13,7 +13,7 @@
 
 #include "cglm/mat4.h"
 
-static Collider Create();
+static Collider Create(Model);
 static void Dispose(Collider);
 static bool Intersects(Collider, Collider);
 static Collider Load(const char* path);
@@ -29,7 +29,7 @@ struct _colliderMethods Colliders = {
 
 TYPE_ID(Collider);
 
-static Collider Create()
+static Collider Create(Model model)
 {
 	REGISTER_TYPE(Collider);
 
@@ -37,6 +37,15 @@ static Collider Create()
 
 	collider->Layer = Colliders.DefaultLayer;
 	collider->Mask = Colliders.DefaultMask;
+	collider->Model = model;
+
+	if (model is null)
+	{
+		throw(InvalidArgumentException);
+	}
+
+	// generate the tree
+	collider->VoxelTree = Voxels.Create(model->Meshes[0]);
 
 	return collider;
 }
@@ -76,17 +85,17 @@ static bool TryGetIntersects(const Collider leftCollider, const Collider rightCo
 	{
 		triangle leftTriangle;
 
-		leftTriangle.Point1 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->VertexData[leftIndex]);
-		leftTriangle.Point2 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->VertexData[leftIndex + 1]);
-		leftTriangle.Point3 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->VertexData[leftIndex + 2]);
+		leftTriangle.Point1 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->Vertices[leftIndex]);
+		leftTriangle.Point2 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->Vertices[leftIndex + 1]);
+		leftTriangle.Point3 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->Vertices[leftIndex + 2]);
 
-		for (size_t rightIndex = 0; rightIndex < right->VertexCount; rightIndex += 9)
+		for (size_t rightIndex = 0; rightIndex < right->VertexCount; rightIndex += 3)
 		{
 			triangle rightTriangle;
 
-			rightTriangle.Point1 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->VertexData[rightIndex]);
-			rightTriangle.Point2 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->VertexData[rightIndex + 1]);
-			rightTriangle.Point3 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->VertexData[rightIndex + 2]);
+			rightTriangle.Point1 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->Vertices[rightIndex]);
+			rightTriangle.Point2 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->Vertices[rightIndex + 1]);
+			rightTriangle.Point3 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->Vertices[rightIndex + 2]);
 
 			if (Triangles.Intersects(leftTriangle, rightTriangle))
 			{
@@ -170,19 +179,16 @@ static Collider Load(const char* path)
 
 	if (Configs.TryLoadConfig(path, &ColliderConfigDefinition, &state))
 	{
-		result = Colliders.Create();
-
-		result->ModelPath = state.ModelPath;
-		result->IsTrigger = state.IsTrigger;
-
 		Model model;
 		if (Importers.TryImport(state.ModelPath, FileFormats.Obj, &model) == false)
 		{
-			Colliders.Dispose(result);
-			result = null;
-
 			return result;
 		}
+
+		result = Colliders.Create(model);
+
+		result->ModelPath = state.ModelPath;
+		result->IsTrigger = state.IsTrigger;
 
 		result->Model = model;
 	}

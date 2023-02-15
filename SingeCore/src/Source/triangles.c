@@ -2,15 +2,26 @@
 #include "math/triangles.h"
 #include "cglm/ray.h"
 
-static bool Intersects(const triangle,const triangle);
-static vector3 CalculateNormal(const triangle triangle);
-static bool IntersectsSegmentOnTriangle(const triangle left, const vector3 start, const vector3 end);
+private bool Intersects(const triangle,const triangle);
+private vector3 CalculateNormal(const triangle triangle);
+private bool IntersectsSegmentOnTriangle(const triangle left, const vector3 start, const vector3 end);
+private vector3 Centroid(triangle triangle);
 
 const struct _triangles Triangles = {
 	.Intersects = &Intersects,
 	.CalculateNormal = CalculateNormal,
-	.SegmentIntersects = IntersectsSegmentOnTriangle
+	.SegmentIntersects = IntersectsSegmentOnTriangle,
+	.Centroid = Centroid
 };
+
+private vector3 Centroid(triangle triangle)
+{
+	return (vector3) {
+		(triangle.Point1.x + triangle.Point2.x + triangle.Point3.x) / 3,
+		(triangle.Point1.y + triangle.Point2.y + triangle.Point3.y) / 3,
+		(triangle.Point1.z + triangle.Point2.z + triangle.Point3.z) / 3,
+	};
+}
 
 static vector3 CalculateNormal(const triangle triangle)
 {

@@ -513,17 +513,17 @@ static bool TryParseObjects(File stream,
 			size_t faceCount = counts->FaceCounts[objectCount - 1] * 3;
 
 			// make sure we have arrays to write values to
-			if (currentMesh->VertexData is null && vertexCount > 0)
+			if (currentMesh->Vertices is null && vertexCount > 0)
 			{
-				currentMesh->VertexData = Memory.Alloc(sizeof(vector3) * faceCount, Memory.GenericMemoryBlock);
+				currentMesh->Vertices = Memory.Alloc(sizeof(vector3) * faceCount, Memory.GenericMemoryBlock);
 			}
-			if (currentMesh->TextureVertexData is null && textureCount > 0)
+			if (currentMesh->TextureVertices is null && textureCount > 0)
 			{
-				currentMesh->TextureVertexData = Memory.Alloc(sizeof(vector2) * faceCount, Memory.GenericMemoryBlock);
+				currentMesh->TextureVertices = Memory.Alloc(sizeof(vector2) * faceCount, Memory.GenericMemoryBlock);
 			}
-			if (currentMesh->NormalVertexData is null && normalCount > 0)
+			if (currentMesh->NormalVertices is null && normalCount > 0)
 			{
-				currentMesh->NormalVertexData = Memory.Alloc(sizeof(vector3) * faceCount, Memory.GenericMemoryBlock);
+				currentMesh->NormalVertices = Memory.Alloc(sizeof(vector3) * faceCount, Memory.GenericMemoryBlock);
 			}
 
 			// since there are 3 triplets loop
@@ -540,7 +540,7 @@ static bool TryParseObjects(File stream,
 					const vector3 subVertices = buffers->Vertices[vertexIndex];
 
 					// copy the floats over to their final arrays
-					currentMesh->VertexData[currentMesh->VertexCount] = subVertices;
+					currentMesh->Vertices[currentMesh->VertexCount] = subVertices;
 					currentMesh->VertexCount++;
 				}
 
@@ -553,7 +553,7 @@ static bool TryParseObjects(File stream,
 					// there are 2 floats per uv
 					const vector2 subUVs = buffers->Textures[uvIndex];
 
-					currentMesh->TextureVertexData[currentMesh->TextureCount] = subUVs;
+					currentMesh->TextureVertices[currentMesh->TextureCount] = subUVs;
 					currentMesh->TextureCount++;
 				}
 
@@ -566,7 +566,7 @@ static bool TryParseObjects(File stream,
 					// there are 3 floats per normal
 					const vector3 subNormals = buffers->Normals[normalIndex];
 
-					currentMesh->NormalVertexData[currentMesh->NormalCount] = subNormals;
+					currentMesh->NormalVertices[currentMesh->NormalCount] = subNormals;
 					currentMesh->NormalCount++;
 				}
 			}

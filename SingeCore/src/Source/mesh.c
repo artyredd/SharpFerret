@@ -13,9 +13,9 @@ TYPE_ID(Mesh);
 
 static void Dispose(Mesh mesh)
 {
-	Memory.Free(mesh->VertexData, Memory.GenericMemoryBlock);
-	Memory.Free(mesh->NormalVertexData, Memory.GenericMemoryBlock);
-	Memory.Free(mesh->TextureVertexData, Memory.GenericMemoryBlock);
+	Memory.Free(mesh->Vertices, Memory.GenericMemoryBlock);
+	Memory.Free(mesh->NormalVertices, Memory.GenericMemoryBlock);
+	Memory.Free(mesh->TextureVertices, Memory.GenericMemoryBlock);
 	Memory.Free(mesh->Name, Memory.String);
 	Memory.Free(mesh->MaterialName, Memory.String);
 	Memory.Free(mesh, MeshTypeId);

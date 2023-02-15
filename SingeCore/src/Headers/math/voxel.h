@@ -1,38 +1,43 @@
 #pragma once
 
 #include "math/vectors.h"
+#include "math/triangles.h"
+#include "modeling/mesh.h"
+#include "cuboid.h"
 
 typedef unsigned char quadrant;
 
-typedef struct _quadrantLayer quadrantLayer;
+struct _quadrantHemiLayer
+{
+	quadrant East;
+	quadrant West;
+};
 
 struct _quadrantLayer
 {
-	quadrant NorthWest;
-	quadrant NorthEast;
-	quadrant SouthWest;
-	quadrant SouthEast;
+	struct _quadrantHemiLayer North;
+	struct _quadrantHemiLayer South;
 };
 
-struct _octants {
-	quadrantLayer Upper;
-	quadrantLayer Lower;
+static struct _octants {
+	struct _quadrantLayer Upper;
+	struct _quadrantLayer Lower;
 } Octants = {
 	.Upper = {
-		1,
-		2,
-		3,
-		4
+		0b000,
+		0b001,
+		0b010,
+		0b011
 	},
 	.Lower = {
-		5,
-		6,
-		7,
-		8
+		0b100,
+		0b101,
+		0b110,
+		0b111
 	}
 };
 
-typedef struct voxel* Voxel;
+typedef struct _voxel* Voxel;
 
 struct _voxelHemiLayer
 {
@@ -52,13 +57,18 @@ struct _voxelLayer
 	struct _voxelHemiLayer South;
 };
 
+
 typedef struct _voxel voxel;
 
-struct  _voxel
+struct _voxel
 {
-	vector3 Centriod;
-	vector3 StartVertex;
-	vector3 EndVertex;
+	// pointer to the voxel that owns this object
+	Voxel Parent;
+
+	cuboid BoundingBox;
+
+	// the triangle this voxel is representing;
+	triangle Triangle;
 
 	// pointer collection for all the voxels
 	// located above the y axis of this voxel
@@ -69,11 +79,23 @@ struct  _voxel
 	struct _voxelLayer Lower;
 };
 
+typedef struct voxelTree voxelTree;
+
+struct voxelTree
+{
+	// Array of voxels in this tree
+	Voxel Voxels;
+	
+	// The number of voxels in this tree
+	size_t Count;
+};
+
 struct _voxelMethods
 {
-	voxel (*Create)(vector3 point);
-	quadrant (*GetQuandrant)(vector3 centroid, vector3 point);
+	voxelTree(*Create)(Mesh mesh);
 	bool (*Intersects)(voxel, voxel);
+	void (*Dispose)(VoxelTree);
+	bool (*IntersectsTree)(voxelTree, voxelTree);
 };
 
 extern const struct _voxelMethods Voxels;

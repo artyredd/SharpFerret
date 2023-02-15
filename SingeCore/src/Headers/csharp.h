@@ -67,3 +67,5 @@
 #define safe_subtract( uint, value ) ( min(uint, (uint - value) ) )
 
 #define private static inline
+
+#define struct_cast(destinationType) *(destinationType*)& 
