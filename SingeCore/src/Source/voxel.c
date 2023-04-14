@@ -1,15 +1,19 @@
 #include "math/voxel.h"
 #include "singine/memory.h"
 #include "helpers/quickmask.h"
+#include "graphics/drawing.h"
+#include "tests/cunit.h"
 
 private voxelTree Create(Mesh mesh);
-private bool Intersects(Voxel, Voxel);
-private bool IntersectsTree(voxelTree, voxelTree);
-private void Dispose(VoxelTree);
+private bool Intersects(
+	const Voxel left, const Transform leftTransform, 
+	const Voxel right, const Transform rightTransform,
+	Voxel* out_voxel);
+private bool IntersectsTree(const voxelTree, const voxelTree);
+private void Dispose(voxelTree);
 
 const struct _voxelMethods Voxels = {
 	.Create = Create,
-	.Intersects = Intersects,
 	.Dispose = Dispose,
 	.IntersectsTree = IntersectsTree
 };
@@ -17,14 +21,14 @@ const struct _voxelMethods Voxels = {
 static quadrant GetQuadrant(vector3 center, vector3 point)
 {
 	const bool upper = point.y >= center.y;
-	const bool north = point.z <= center.z;
+	const bool north = point.z >= center.z;
 	const bool east = point.x >= center.x;
 
 	quadrant result = 0;
 
 	result |= upper ? 0 : FLAG_2;
 	result |= north ? 0 : FLAG_1;
-	result |= east ? FLAG_0 : 0;
+	result |= east  ? 0 : FLAG_0;
 
 	return result;
 }
@@ -133,7 +137,7 @@ static voxelTree Create(Mesh mesh)
 	// create the root
 	// the root's center is the center of the mesh
 	// calculated from the centroids of all the triangles
-	voxel root = voxels[0];
+	Voxel root = &voxels[0];
 
 	// get the center of all the points in the model
 	// this will be the center of the root voxel tree
@@ -141,15 +145,15 @@ static voxelTree Create(Mesh mesh)
 	
 	// ensure that when the cuboid is joined
 	// the root always resizes to be the first cuboid
-	root.BoundingBox = Cuboids.Minimum;
+	root->BoundingBox = Cuboids.Minimum;
 
 	// centers dont get changed when we join two cuboids
-	root.BoundingBox.Center = globalCentroid;
+	root->BoundingBox.Center = globalCentroid;
 
-	for (size_t i = 1; i < voxelCount; i++)
+	for (size_t i = 0; i < voxelCount; i++)
 	{
 		// assign the triangles
-		Voxel destinationVoxel = &voxels[i];
+		Voxel destinationVoxel = &voxels[i + 1];
 
 		const triangle triangle = struct_cast(struct triangle)mesh->Vertices[i * 3];
 
@@ -160,7 +164,7 @@ static voxelTree Create(Mesh mesh)
 
 		destinationVoxel->BoundingBox = boundingBox;
 
-		SortNewVoxel(&root, destinationVoxel);
+		SortNewVoxel(root, destinationVoxel);
 	}
 
 	voxelTree result = {
@@ -176,13 +180,42 @@ private void Dispose(voxelTree tree)
 	Memory.Free(tree.Voxels, voxelTypeId);
 }
 
-static bool Intersects(const Voxel left, const Voxel right, Voxel* out_voxel)
+private bool RecurseIntersects(const Voxel left, const Transform leftTransform, const Voxel right, const Transform rightTransform, Voxel* out_voxel)
+{
+#define RECURSE(octant)\
+	if (left->##octant isnt null)\
+	{\
+		if (Intersects(right, rightTransform, left->##octant, leftTransform, out_voxel))\
+		{\
+			return true;\
+		}\
+	}
+
+#pragma warning (disable:5103)
+	RECURSE(Upper.North.East);
+	RECURSE(Upper.North.West);
+	RECURSE(Upper.South.East);
+	RECURSE(Upper.South.West);
+	RECURSE(Lower.North.East);
+	RECURSE(Lower.North.West);
+	RECURSE(Lower.South.East);
+	RECURSE(Lower.South.West);
+#pragma warning (default:5103)
+
+#undef RECURSE
+	return false;
+}
+
+private bool Intersects(const Voxel left, const Transform leftTransform, const Voxel right, const Transform rightTransform, Voxel* out_voxel)
 {
 	// set out variable first
 	*out_voxel = null;
 
 	// check to see if the two cuboids intersect first
-	const bool cuboidsIntersect = Cuboids.Intersects(left->BoundingBox, right->BoundingBox);
+	const cuboid leftBounding = Cuboids.AddOffset(left->BoundingBox, leftTransform->Position);
+	const cuboid rightBounding = Cuboids.AddOffset(right->BoundingBox, rightTransform->Position);
+
+	const bool cuboidsIntersect = Cuboids.Intersects(leftBounding, rightBounding);
 
 	if (cuboidsIntersect is false)
 	{
@@ -191,12 +224,9 @@ static bool Intersects(const Voxel left, const Voxel right, Voxel* out_voxel)
 
 	// just because the cuboids intersect doesn't necessarily mean the voxels intersect
 	// check to see which child its intersecting
-	if (left->Upper.North.East isnt null)
+	if (RecurseIntersects(left, leftTransform, right, rightTransform, out_voxel))
 	{
-		if (Intersects(right, left->Upper.North.East, out_voxel))
-		{
-			return true;
-		}
+		return true;
 	}
 
 	// since we have no children we're a leaf voxel and contain a triangle
@@ -210,5 +240,108 @@ static bool Intersects(const Voxel left, const Voxel right, Voxel* out_voxel)
 
 private bool IntersectsTree(const voxelTree left, const voxelTree right)
 {
+	Voxel intersection;
+	return Intersects(left.Voxels, left.Transform, right.Voxels, right.Transform, &intersection);
+}
 
+TEST(GetQuadrantWorks)
+{
+	const vector3 origin = {0,0,0};
+	vector3 vertex = {0,0,0};
+
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex),"%i");
+
+	vertex = (vector3){0,-1,0};
+	IsEqual(Octants.Lower.North.East, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ 0,1,0 };
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ 1,0,0 };
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ -1,0,0 };
+	IsEqual(Octants.Upper.North.West, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ 1,1,0 };
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ -1,1,0 };
+	IsEqual(Octants.Upper.North.West, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ 0,0,0 };
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ 0,1,-1 };
+	IsEqual(Octants.Upper.South.East, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ 0,-1,1 };
+	IsEqual(Octants.Lower.North.East, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ 1, 1,-1 };
+	IsEqual(Octants.Upper.South.East, GetQuadrant(origin, vertex), "%i");
+
+	vertex = (vector3){ -1, -1,-1 };
+	IsEqual(Octants.Lower.South.West, GetQuadrant(origin, vertex), "%i");
+
+	return true;
+}
+
+TEST(VoxelGeneratesCorrectly)
+{
+	vector3 vertices[24] = {
+		{-1,-1,-1},
+		{-1,-1,-1},
+		{-1,-1,-1},
+		{-1,1,-1},
+		{-1,1,-1},
+		{-1,1,-1},
+		{1,-1,-1},
+		{1,-1,-1},
+		{1,-1,-1},
+		{1,1,-1},
+		{1,1,-1},
+		{1,1,-1},
+		{1,-1,1},
+		{1,-1,1},
+		{1,-1,1},
+		{1,1,1},
+		{1,1,1},
+		{1,1,1},
+		{-1,-1,1},
+		{-1,-1,1},
+		{-1,-1,1},
+		{-1,1,1},
+		{-1,1,1},
+		{-1,1,1}
+	};
+
+	struct _mesh mesh = {
+		.Name = "Voxel",
+		.Vertices = vertices,
+		.VertexCount = sizeof(vertices)/sizeof(vector3)
+	};
+
+	struct _transform transform1 = {
+		.Position = {0,0,0}
+	};
+
+	voxelTree left = Create(&mesh);
+	left.Transform = &transform1;
+	
+	// make sure all the points where generated correctly in the tree
+	IsTrue(true);
+
+	return true;
+}
+
+TEST_SUITE(
+	VoxelTests,
+	APPEND_TEST(VoxelGeneratesCorrectly)
+	APPEND_TEST(GetQuadrantWorks)
+);
+
+void RunVoxelUnitTests(void)
+{
+	VoxelTests();
 }

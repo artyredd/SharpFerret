@@ -99,7 +99,7 @@ static bool Equals(quaternion left, quaternion right)
 static quaternion LookAt(vector3 origin, vector3 target, vector3 upAxis)
 {
 	quaternion result;
-	glm_quat_forp((float*)&origin, (float*)&target, (float*)&Vector3.Up, (float*) & result);
+	glm_quat_forp((float*)&origin, (float*)&target, (float*)&upAxis, (float*) & result);
 
 	return result;
 }

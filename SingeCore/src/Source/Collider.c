@@ -62,52 +62,24 @@ bool GuardCollider(const Collider collider)
 		return false;
 	}
 
+	// assign the transform if we need to
+	collider->VoxelTree.Transform = collider->Transform;
+
 	return true;
 }
 
-static bool TryGetIntersects(const Collider leftCollider, const Collider rightCollider, collision* out_hit)
+static bool TryGetIntersects(const Collider left, const Collider right, collision* out_hit)
 {
 	out_hit->LeftHitIndex = 0;
 	out_hit->RightHitIndex = 0;
 
-	if (GuardCollider(leftCollider) is false || GuardCollider(rightCollider) is false)
+	if (GuardCollider(left) is false || GuardCollider(right) is false)
 	{
 		return false;
 	}
 
-	// traverse the triangles and see if any intersect
-	// for performance reasons we're assuming the first collider in each model is 
-	// the mesh for the collider
-	const Mesh left = leftCollider->Model->Meshes[0];
-	const Mesh right = rightCollider->Model->Meshes[0];
-
-	for (size_t leftIndex = 0; leftIndex < left->VertexCount; leftIndex += 3)
-	{
-		triangle leftTriangle;
-
-		leftTriangle.Point1 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->Vertices[leftIndex]);
-		leftTriangle.Point2 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->Vertices[leftIndex + 1]);
-		leftTriangle.Point3 = Transforms.TransformPoint(leftCollider->Transform, *(vector3*)&left->Vertices[leftIndex + 2]);
-
-		for (size_t rightIndex = 0; rightIndex < right->VertexCount; rightIndex += 3)
-		{
-			triangle rightTriangle;
-
-			rightTriangle.Point1 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->Vertices[rightIndex]);
-			rightTriangle.Point2 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->Vertices[rightIndex + 1]);
-			rightTriangle.Point3 = Transforms.TransformPoint(rightCollider->Transform, *(vector3*)&right->Vertices[rightIndex + 2]);
-
-			if (Triangles.Intersects(leftTriangle, rightTriangle))
-			{
-				out_hit->RightHitIndex = rightIndex;
-				out_hit->LeftHitIndex = leftIndex;
-
-				return true;
-			}
-		}
-	}
-
-	return false;
+	// generate voxel trees if we need to
+	return Voxels.IntersectsTree(left->VoxelTree, right->VoxelTree);
 }
 
 static bool Intersects(const Collider left, const Collider right)

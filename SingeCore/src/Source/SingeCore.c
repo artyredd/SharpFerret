@@ -60,7 +60,7 @@ void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled);
 int main()
 {
 	// UNIT TESTING
-	//Tests.RunAll();
+	Tests.RunAll();
 
 	// create a window to bind to GDI
 	Windows.StartRuntime();
@@ -127,6 +127,7 @@ int main()
 	// load the default material so we can render gameobjects that have no set material
 	Material defaultMaterial = Materials.Load("assets/materials/default.material");
 	GameObjects.SetDefaultMaterial(defaultMaterial);
+	Drawing.SetDefaultMaterial(defaultMaterial);
 
 
 	// load all the gameobjects we use in the main game loop
@@ -225,6 +226,9 @@ int main()
 	GameObject colliderObject2 = GameObjects.Load("assets/prefabs/cube.gameobject");
 
 	Materials.SetColors(colliderObject1->Material, 1.0, 0.0, 0.0, 0.0);
+
+	Drawing.SetDefaultMaterial(colliderObject1->Material);
+
 	Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
 
 	Collider collider1 = Colliders.Load("assets/colliders/cube.collider");
@@ -436,7 +440,6 @@ int main()
 			}
 		}
 		
-
 		GameObjects.Draw(skybox, scene);
 
 		Texts.Draw(text, scene);

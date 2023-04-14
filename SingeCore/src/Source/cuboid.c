@@ -2,9 +2,10 @@
 #include <float.h>
 
 private cuboid Create(triangle);
-private bool Intersects(cuboid, cuboid);
+private bool Intersects(cuboid left, cuboid right);
 private bool Contains(cuboid, vector3 point);
 private cuboid Join(cuboid, cuboid);
+private cuboid AddOffset(cuboid left, vector3 offset);
 
 const struct _cuboidMethods Cuboids = 
 {
@@ -16,7 +17,8 @@ const struct _cuboidMethods Cuboids =
 	.Contains = Contains,
 	.Create = Create,
 	.Intersects = Intersects,
-	.Join = Join
+	.Join = Join,
+	.AddOffset = AddOffset
 };
 
 // generates a new cuboid is the sum of both cuboids
@@ -38,8 +40,6 @@ static cuboid Join(cuboid left, cuboid right)
 
 private float LongestFloat(const triangle triangle, const vector3 centroid)
 {
-	float result = 0.0;
-
 	float distance1 = Vector3s.Distance(triangle.Point1, centroid);
 	float distance2 = Vector3s.Distance(triangle.Point2, centroid);
 	float distance3 = Vector3s.Distance(triangle.Point3, centroid);
@@ -79,10 +79,24 @@ static bool Intersects(cuboid left, cuboid right)
 	const bool yIntersects = xIntersects && (left.StartVertex.y <= right.EndVertex.y && left.EndVertex.y >= right.StartVertex.y);
 	const bool zIntersects = yIntersects && (left.StartVertex.z <= right.EndVertex.z && left.EndVertex.z >= right.StartVertex.z);
 
-	return xIntersects;
+	return zIntersects;
+}
+
+private cuboid AddOffset(cuboid cube, vector3 offset)
+{
+	cuboid result = {
+		.Center = Vector3s.Add(cube.Center, offset),
+		.StartVertex = Vector3s.Add(cube.StartVertex, offset),
+		.EndVertex = Vector3s.Add(cube.EndVertex, offset)
+	};
+
+	return result;
 }
 
 static bool Contains(cuboid cube, vector3 point)
 {
-
+	ignore_unused(cube);
+	ignore_unused(point);
+	throw(NotImplementedException);
+	return false;
 }

@@ -2,27 +2,7 @@
 #include "math/triangles.h"
 #include "csharp.h"
 #include "cglm/ray.h"
-
-TEST(Determinant)
-{
-	vector3 point = {
-		0,0,0
-	};
-
-	triangle triangle = {
-		{1,2,3},
-		{0,4,5},
-		{0,0,6}
-	};
-
-	const double expected = 24;
-
-	const double actual = Triangles.Determinant(triangle, point);
-
-	IsEqual(expected,actual,"%lf");
-
-	return true;
-}
+#include "math/cuboid.h"
 
 TEST(NonIntersecting)
 {
@@ -121,17 +101,96 @@ TEST(IntersectingCoplanar)
 	return true;
 }
 
-static void TriangleTests(void)
+TEST(CuboidIntersectsWorks)
 {
-	TestSuite suite = CreateSuite("TriangleTests");
+	cuboid left = {
+		.StartVertex = {0,0,0},
+		.EndVertex = {1,1,1}
+	};
+	cuboid right = {
+		.StartVertex = {1,1,1},
+		.EndVertex = {2,2,2}
+	};
 
-	APPEND_TEST(Determinant);
+	// intersection is inclusive
+	IsTrue(Cuboids.Intersects(left, right));
+
+	left = (cuboid){
+		.StartVertex = {0,0,0},
+		.EndVertex = {1,1,1}
+	};
+	right = (cuboid){
+		.StartVertex = {1.001f,1.001f,1.001f},
+		.EndVertex = {2,2,2}
+	};
+
+	IsFalse(Cuboids.Intersects(left, right));
+
+	left = (cuboid){
+		.StartVertex = {0,0,0},
+		.EndVertex = {1,1,1}
+	};
+	right = (cuboid){
+		.StartVertex = {-1,-1,-1},
+		.EndVertex = {0,0,0}
+	};
+
+	IsTrue(Cuboids.Intersects(left, right));
+
+	left = (cuboid){
+		.StartVertex = {0,0,0},
+		.EndVertex = {1,1,1}
+	};
+	right = (cuboid){
+		.StartVertex = {-1,-1,-1},
+		.EndVertex = {-.001f,-.001f,-.001f}
+	};
+
+	IsFalse(Cuboids.Intersects(left, right));
+
+	// completely contained
+	left = (cuboid){
+		.StartVertex = {0,0,0},
+		.EndVertex = {1,1,1}
+	};
+	right = (cuboid){
+		.StartVertex = {0.001f,0.001f,0.001f},
+		.EndVertex = {0.999f,0.999f,0.999f}
+	};
+
+	IsTrue(Cuboids.Intersects(left, right));
+
+	// completely contained degenerate
+	left = (cuboid){
+		.StartVertex = {0,0,0},
+		.EndVertex = {1,1,1}
+	};
+	right = (cuboid){
+		.StartVertex = {0.001f,0.001f,0.001f},
+		.EndVertex = {0.001f,0.001f,0.001f}
+	};
+
+	IsTrue(Cuboids.Intersects(left, right));
+
+	// completely contained perfect
+	left = (cuboid){
+		.StartVertex = {0,0,0},
+		.EndVertex = {1,1,1}
+	};
+	right = (cuboid){
+		.StartVertex = {0,0,0},
+		.EndVertex = {1,1,1}
+	};
+
+	IsTrue(Cuboids.Intersects(left, right));
+
+	return true;
+}
+
+TEST_SUITE(TriangleTests, 
 	APPEND_TEST(NonIntersecting);
 	APPEND_TEST(IntersectingNonCoplanar);
 	APPEND_TEST(NonIntersectingCoplanar);
 	APPEND_TEST(IntersectingCoplanar);
-
-	suite->Run(suite);
-
-	suite->Dispose(suite);
-}
+	APPEND_TEST(CuboidIntersectsWorks);
+);

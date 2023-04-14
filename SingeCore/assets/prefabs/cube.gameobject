@@ -1,7 +1,7 @@
 # the id of the gameobject at runtime
 id: 42
 # the model path that should be loaded for this gameobject
-model: assets/models/weird.obj
+model: assets/models/voxel_debug.obj
 # the material definition path of this gameobject
 material: assets/materials/cube.material
 transform:

@@ -5,16 +5,23 @@
 #include "singine/time.h"
 #include "data/objectPool.h"
 
-static void DrawTriangle(triangle triangle, Material material);
-static void SetScene(Scene scene);
+private void DrawTriangle(triangle triangle, Material material);
+private void SetScene(Scene scene);
+private void SetDefaultMaterial(Material);
+private void DrawDefaultTriangle(triangle);
+private void DrawCubeFromPoints(vector3, vector3);
 
 const struct _drawing Drawing = 
 {
 	.SetScene = SetScene,
-	.DrawTriangle = &DrawTriangle
+	.SetDefaultMaterial = SetDefaultMaterial,
+	.DrawDefaultTriangle = DrawDefaultTriangle,
+	.DrawTriangle = &DrawTriangle,
+	.DrawCubeFromPoints = DrawCubeFromPoints
 };
 
 Scene Global_CurrentDrawingScene;
+Material Global_DefaultDrawingMaterial;
 
 static vector3 triangleNormal;
 
@@ -31,21 +38,16 @@ struct _mesh Global_TriangleMesh = {
 	.Vertices = (vector3*) & triangleVertices,
 };
 
-static RenderMesh RenderMeshProvider(Mesh mesh)
+private void SetDefaultMaterial(Material material)
 {
-	RenderMesh result;
-	if (RenderMeshes.TryBindMesh(mesh, &result) is false)
-	{
-		throw(FailedToBindMeshException);
-	}
-
-	return result;
+	Global_DefaultDrawingMaterial = Materials.Instance(material);
 }
 
-static void RenderMeshRemover(RenderMesh mesh)
+private void DrawDefaultTriangle(triangle triangle)
 {
-	RenderMeshes.Dispose(mesh);
+	DrawTriangle(triangle, Global_DefaultDrawingMaterial);
 }
+
 
 RenderMesh Global_DrawTriangleRenderMesh = null;
 
@@ -78,4 +80,32 @@ static void DrawTriangle(triangle triangle, Material material)
 static void SetScene(Scene scene)
 {
 	Global_CurrentDrawingScene = scene;
+}
+
+private void DrawRectangle(vector3 point1, vector3 point2, vector3 point3, vector3 point4, Material material)
+{
+	DrawTriangle((triangle) { point1, point2, point3}, material);
+	DrawTriangle((triangle) { point1, point4, point3 }, material);
+}
+
+private void DrawBottomPlane(vector3 lowerCorner, vector3 upperCorner, Material material)
+{
+	upperCorner.y = lowerCorner.y;
+
+	vector3 point1 = lowerCorner;
+	vector3 point2 = lowerCorner;
+	point2.x += upperCorner.x;
+	point2.z += upperCorner.z;
+
+	vector3 point3 = upperCorner;
+	vector3 point4 = lowerCorner;
+	point4.x -= upperCorner.x;
+	point4.z -= upperCorner.z;
+
+	DrawRectangle(point1, point2, point3, point4,material);
+}
+
+private void DrawCubeFromPoints(vector3 lowerCorner, vector3 upperCorner)
+{
+	DrawBottomPlane(lowerCorner,upperCorner, Global_DefaultDrawingMaterial);
 }

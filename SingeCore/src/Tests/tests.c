@@ -11,6 +11,8 @@ static void ShaderTests(void);
 #include "Tests/tests_triangles.c"
 static void TriangleTests(void);
 
+#include "math/voxel.h"
+
 static void RunAll(void);
 
 const struct _testMethods Tests = {
@@ -25,6 +27,7 @@ static void RunAll(void)
 	MaterialTests();
 	ShaderTests();
 	TriangleTests();
+	RunVoxelUnitTests();
 	// reset alloc and free so we get accurate runtime numbers
 	ResetAlloc();
 	ResetFree();

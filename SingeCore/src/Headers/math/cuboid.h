@@ -18,8 +18,10 @@ struct _cuboidMethods {
 	// An inverted maximum sized cuboid;
 	cuboid Minimum;
 	cuboid (*Create)(triangle);
+	// checks to see if the cuboids intersect inclusive
 	bool (*Intersects)(cuboid, cuboid);
 	bool (*Contains)(cuboid, vector3 point);
+	cuboid(*AddOffset)(cuboid left, vector3 offset);
 	cuboid(*Join)(cuboid, cuboid);
 };
 

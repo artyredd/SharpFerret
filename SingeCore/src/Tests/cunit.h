@@ -100,6 +100,13 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 
 #define TEST(testname) static bool Test_##testname(File stream)
 #define APPEND_TEST(testname) suite->Append(suite, #testname, &Test_##testname);
+#define TEST_SUITE(suiteName,tests)static void suiteName(void)\
+{\
+	TestSuite suite = CreateSuite(#suiteName);\
+	tests\
+	suite->Run(suite);\
+	suite->Dispose(suite);\
+}
 
 #define Assert(expr,stream) BenchmarkAssertion(expr,stream);
 #define StandardAssert(expr) Assert(expr,stdout);

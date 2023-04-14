@@ -3,6 +3,7 @@
 #include "math/vectors.h"
 #include "math/triangles.h"
 #include "modeling/mesh.h"
+#include "graphics/transform.h"
 #include "cuboid.h"
 
 typedef unsigned char quadrant;
@@ -88,14 +89,18 @@ struct voxelTree
 	
 	// The number of voxels in this tree
 	size_t Count;
+
+	// The transform referenced by this tree
+	Transform Transform;
 };
 
 struct _voxelMethods
 {
 	voxelTree(*Create)(Mesh mesh);
-	bool (*Intersects)(voxel, voxel);
-	void (*Dispose)(VoxelTree);
-	bool (*IntersectsTree)(voxelTree, voxelTree);
+	void (*Dispose)(voxelTree);
+	bool (*IntersectsTree)(const voxelTree, const voxelTree);
 };
 
 extern const struct _voxelMethods Voxels;
+
+void RunVoxelUnitTests(void);
