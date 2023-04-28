@@ -179,6 +179,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\Source\array.c" />
     <ClCompile Include="src\Source\camera.c" />
     <ClCompile Include="src\Source\Collider.c" />
     <ClCompile Include="src\Source\colors.c" />
@@ -190,8 +191,10 @@
     <ClCompile Include="src\Source\instancedResource.c" />
     <ClCompile Include="src\Source\ints.c" />
     <ClCompile Include="src\Source\light.c" />
+    <ClCompile Include="src\Source\neat.c" />
     <ClCompile Include="src\Source\objectPool.c" />
     <ClCompile Include="src\Source\physics.c" />
+    <ClCompile Include="src\Source\random.c" />
     <ClCompile Include="src\Source\range.c" />
     <ClCompile Include="src\Source\reflection.c" />
     <ClCompile Include="src\Source\renderbuffers.c" />
@@ -236,6 +239,7 @@
     <ClCompile Include="src\Tests\tests_triangles.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\Headers\ai\neat.h" />
     <ClInclude Include="src\Headers\csharp.h" />
     <ClInclude Include="src\Headers\cunit.h" />
     <ClInclude Include="src\Headers\data\objectPool.h" />
@@ -279,6 +283,7 @@
     <ClInclude Include="src\Headers\physics\Collider.h" />
     <ClInclude Include="src\Headers\physics\physics.h" />
     <ClInclude Include="src\Headers\scripts\fpsCamera.h" />
+    <ClInclude Include="src\Headers\singine\array.h" />
     <ClInclude Include="src\Headers\singine\config.h" />
     <ClInclude Include="src\Headers\singine\defaults.h" />
     <ClInclude Include="src\Headers\Singine\exceptions.h" />
@@ -290,6 +295,7 @@
     <ClInclude Include="src\Headers\singine\InstancedResource.h" />
     <ClInclude Include="src\Headers\Singine\memory.h" />
     <ClInclude Include="src\Headers\singine\parsing.h" />
+    <ClInclude Include="src\Headers\singine\random.h" />
     <ClInclude Include="src\Headers\singine\reflection.h" />
     <ClInclude Include="src\Headers\singine\strings.h" />
     <ClInclude Include="src\Headers\singine\time.h" />

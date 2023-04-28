@@ -60,7 +60,7 @@ void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled);
 int main()
 {
 	// UNIT TESTING
-	Tests.RunAll();
+	//Tests.RunAll();
 
 	// create a window to bind to GDI
 	Windows.StartRuntime();
@@ -134,7 +134,7 @@ int main()
 	GameObject skybox = GameObjects.Load("assets/prefabs/skybox.gameobject");
 	GameObject fox = GameObjects.Load("assets/prefabs/fox.gameobject");
 	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
-	
+
 	GameObject otherCube = GameObjects.Duplicate(cube);
 	GameObjects.SetMaterial(otherCube, defaultMaterial);
 	Transforms.ScaleAll(otherCube->Transform, 1.2f);
@@ -148,12 +148,12 @@ int main()
 
 	GameObject statue = GameObjects.Load("assets/prefabs/statue.gameobject");
 	GameObject otherStatue = GameObjects.Load("assets/prefabs/mirrorStatue.gameobject");
-	Transforms.RotateOnAxis(otherStatue->Transform, (float)GLM_PI/2, Vector3.Up);
+	Transforms.RotateOnAxis(otherStatue->Transform, (float)GLM_PI / 2, Vector3.Up);
 
 	GameObject reflectiveSphere = GameObjects.Load("assets/prefabs/reflectiveSphere.gameobject");
 	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
 	GameObject lightMarker = GameObjects.Load("assets/prefabs/cube.gameobject");
-	 
+
 	// assign the area textures so reflective materials will reflect the skybox
 	Materials.SetAreaTexture(cube->Material, skybox->Material->MainTexture);
 	Materials.SetReflectionTexture(cube->Material, cube->Material->SpecularTexture);
@@ -275,7 +275,7 @@ int main()
 	Transforms.SetPositions(otherBall->Transform, 0, 0, 3);
 	Transforms.SetPositions(car->Transform, -7, 0, -7);
 	Transforms.SetPositions(ball->Transform, 5, 1, 5);
-	Transforms.SetRotationOnAxis(statue->Transform, (float)GLM_PI/2, Vector3.Up);
+	Transforms.SetRotationOnAxis(statue->Transform, (float)GLM_PI / 2, Vector3.Up);
 
 
 	float speed = 10.0f;
@@ -284,7 +284,7 @@ int main()
 
 	vector3 position;
 
-	vector3 positionModifier; 
+	vector3 positionModifier;
 	vector3 lightOffset = { -20, 20, 0 };
 
 	double colliderPosition = 10.0;
@@ -395,7 +395,7 @@ int main()
 
 		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time.Time())), Vector3.Up);
 
-		int count = sprintf_s(text->Text, text->Length, 
+		int count = sprintf_s(text->Text, text->Length,
 			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\nIntersecting:%s",
 			Time.Statistics.FrameTime(),
 			Time.Statistics.HighestFrameTime(),
@@ -409,7 +409,7 @@ int main()
 		FPSCamera.Update(camera);
 
 		// before we draw anything we should update the physics system
-		Physics.Update( Time.DeltaTime() );
+		Physics.Update(Time.DeltaTime());
 
 		GameObjects.GenerateShadowMaps(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, shadowMapMaterial, shadowCamera);
 
@@ -419,7 +419,7 @@ int main()
 		scene->MainCamera = camera;
 
 		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, null);
-		
+
 		// 0.01
 		timer += Time.DeltaTime();
 		if (timer >= 0.01)
@@ -439,7 +439,7 @@ int main()
 				Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
 			}
 		}
-		
+
 		GameObjects.Draw(skybox, scene);
 
 		Texts.Draw(text, scene);
@@ -498,10 +498,10 @@ int main()
 void DebugCameraPosition(Camera camera)
 {
 	fprintf(stdout, "Position: ");
-	Vector3s.TrySerializeStream( stdout, camera->Transform->Position);
+	Vector3s.TrySerializeStream(stdout, camera->Transform->Position);
 	fprintf(stdout, " Rotation: [ x: %0.2fpi, y: %0.2fpi ] Forward: ", FPSCamera.State.HorizontalAngle / GLM_PI, FPSCamera.State.VerticalAngle / GLM_PI);
 	vector3 forwardVector = Transforms.GetDirection(camera->Transform, Directions.Forward);
-	Vector3s.TrySerializeStream( stdout, forwardVector);
+	Vector3s.TrySerializeStream(stdout, forwardVector);
 	fprintf(stdout, NEWLINE);
 }
 

@@ -60,8 +60,8 @@
 // Ignores the provided parameter explicitly, avoiding any warnings generated from the compiler
 #define ignore_unused( parameter ) (void)parameter;
 
-#define increment( uint ) ( uint = max(uint, (uint + 1) ) )
-#define decrement( uint ) ( uint = min(uint, (uint - 1) ) )
+#define safe_increment( uint ) ( uint = max(uint, (uint + 1) ) )
+#define safe_decrement( uint ) ( uint = min(uint, (uint - 1) ) )
 
 #define safe_add( uint, value ) ( max(uint, (uint + value) ) )
 #define safe_subtract( uint, value ) ( min(uint, (uint - value) ) )

@@ -70,6 +70,9 @@
     <Filter Include="Header Files\Structures">
       <UniqueIdentifier>{62b2ffd8-4c85-4994-a04f-c844317c90b7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\AI">
+      <UniqueIdentifier>{4b52b975-2436-4b78-9d56-247a4da953ae}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\imaging.c">
@@ -235,6 +238,15 @@
       <Filter>Source Files\Core</Filter>
     </ClCompile>
     <ClCompile Include="src\Source\cuboid.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\neat.c">
+      <Filter>Header Files\AI</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\random.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Source\array.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
@@ -418,6 +430,15 @@
     </ClInclude>
     <ClInclude Include="src\Headers\math\cuboid.h">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\ai\neat.h">
+      <Filter>Header Files\AI</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\random.h">
+      <Filter>Header Files\Singine</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\array.h">
+      <Filter>Header Files\Singine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

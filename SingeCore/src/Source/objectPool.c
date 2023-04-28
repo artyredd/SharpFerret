@@ -27,7 +27,7 @@ static ObjectPool Create(size_t capacity)
 
 	pool->ProviderState = null;
 	pool->AutoResize = true;
-	
+
 	Resize(pool, capacity);
 
 	return pool;
@@ -72,9 +72,9 @@ static void* Get(ObjectPool pool)
 
 	pool->State.Objects[index] = object;
 
-	increment(pool->State.FirstAvailableIndex);
+	safe_increment(pool->State.FirstAvailableIndex);
 
-	increment(pool->Count);
+	safe_increment(pool->Count);
 
 	return object;
 }
@@ -85,17 +85,17 @@ static void ReleaseObject(ObjectPool pool, void* object, size_t index)
 	pool->State.Objects[index] = null;
 	pool->State.FirstAvailableIndex = index;
 
-	decrement(pool->Count);
+	safe_decrement(pool->Count);
 }
 
-static void Release(ObjectPool pool, void* object) 
+static void Release(ObjectPool pool, void* object)
 {
 	for (size_t i = 0; i < pool->State.Capacity; i++)
 	{
 		if (object == pool->State.Objects[i])
 		{
 			ReleaseObject(pool, object, i);
-			
+
 			return;
 		}
 	}
@@ -111,7 +111,7 @@ static void ReleaseAll(ObjectPool pool)
 	}
 }
 
-static void Resize(ObjectPool pool, size_t newCapacity) 
+static void Resize(ObjectPool pool, size_t newCapacity)
 {
 	// dont resize if the block is already the same 
 	// size
@@ -129,7 +129,7 @@ static void Resize(ObjectPool pool, size_t newCapacity)
 	}
 	else
 	{
-		Memory.ReallocOrCopy((void**) & pool->State.Objects, previousSize, newSize, Memory.GenericMemoryBlock);
+		Memory.ReallocOrCopy((void**)&pool->State.Objects, previousSize, newSize, Memory.GenericMemoryBlock);
 	}
 
 	pool->State.Capacity = newCapacity;

@@ -15,6 +15,7 @@ private int BetweenInt(int lower, int upper);
 private size_t NextSize_t(void);
 private size_t BetweenSize_t(size_t lower, size_t upper);
 private unsigned int NextUInt(void);
+private bool Chance(float chance);
 
 struct _randomMethods Random =
 {
@@ -100,4 +101,9 @@ private size_t BetweenSize_t(size_t lower, size_t upper)
 	size_t offset = (size_t)(NextFloat() * (float)range);
 
 	return lower + offset;
+}
+
+private bool Chance(float chance)
+{
+	return NextFloat() <= chance;
 }

@@ -329,9 +329,6 @@ TEST(VoxelGeneratesCorrectly)
 	voxelTree left = Create(&mesh);
 	left.Transform = &transform1;
 	
-	// make sure all the points where generated correctly in the tree
-	IsTrue(true);
-
 	return true;
 }
 
