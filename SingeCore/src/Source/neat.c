@@ -37,9 +37,9 @@ TYPE_ID(Population);
 
 private bool TryFindGene(Population species, gene gene, size_t* out_geneIndex)
 {
-	for (size_t i = 0; i < species->GeneCount; i++)
+	for (size_t i = 0; i < species->Genes->Count; i++)
 	{
-		Gene globalGene = &species->Genes[i];
+		Gene globalGene = &species->Genes->Values[i];
 		if (gene.StartNodeIndex is globalGene->StartNodeIndex && gene.EndNodeIndex is globalGene->EndNodeIndex)
 		{
 			*out_geneIndex = globalGene->Id;
@@ -50,41 +50,35 @@ private bool TryFindGene(Population species, gene gene, size_t* out_geneIndex)
 	return false;
 }
 
-private size_t AddGene(Population species, gene gene)
+private size_t AddGlobalGeneToPopulation(Population population, gene gene)
 {
-	size_t newId = species->GeneCount;
+	size_t newId = population->Genes->Count;
 
-	size_t previousSize = newId * sizeof(gene);
+	Arrays.Append((Array)population->Genes, &gene);
 
-	species->GeneCount = safe_add(species->GeneCount, 1);
-
-	size_t newSize = species->GeneCount * sizeof(gene);
-
-	Memory.ReallocOrCopy(&species->Genes, previousSize, newSize, GeneTypeId);
-
-	species->Genes[newId] = gene;
+	population->Genes->Values[newId] = gene;
 
 	return newId;
 }
 
-private gene CreateGene(Population species, size_t startNodeIndex, size_t endNodeIndex)
+private gene CreateGene(Population population, size_t startNodeIndex, size_t endNodeIndex)
 {
 	gene result = {
 		.Id = 0,
 		.Enabled = true,
 		.StartNodeIndex = startNodeIndex,
 		.EndNodeIndex = endNodeIndex,
-		.Weight = Random.NextFloat()
+		.Weight = RANDOM_NUMBER_GEN()
 	};
 
 	size_t existingGeneId;
-	if (TryFindGene(species, result, &existingGeneId))
+	if (TryFindGene(population, result, &existingGeneId))
 	{
 		result.Id = existingGeneId;
 	}
 	else
 	{
-		result.Id = AddGene(species, result);
+		result.Id = AddGlobalGeneToPopulation(population, result);
 	}
 
 	return result;
@@ -180,14 +174,14 @@ private Organism CreateOrganism(size_t inputNodeCount, size_t outputNodeCount)
 	return result;
 }
 
-private Species CreateSpecies(size_t inputNodeCount, size_t outputNodeCount, size_t organismPerPopulationCount)
+private Species CreateSpecies(size_t inputNodeCount, size_t outputNodeCount, size_t organismCount)
 {
 	Species result = Memory.Alloc(sizeof(species), SpeciesTypeId);
 
 	result->Id = 0;
 	result->InputNodeCount = inputNodeCount;
 	result->OutputNodeCount = outputNodeCount;
-	result->Organisms = (ARRAY(Organism))Arrays.Create(sizeof(Organism), organismPerPopulationCount, OrganismTypeId);
+	result->Organisms = (ARRAY(Organism))Arrays.Create(sizeof(Organism), organismCount, OrganismTypeId);
 
 	for (size_t i = 0; i < result->Organisms->Count; i++)
 	{
@@ -211,8 +205,7 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 
 	population population = {
 		.Id = 0,
-		.Genes = Memory.Alloc(sizeof(gene) * Neat.DefaultGenePoolSize, GeneTypeId),
-		.GeneCount = Neat.DefaultGenePoolSize,
+		.Genes = (ARRAY(gene))Arrays.Create(sizeof(gene), Neat.DefaultGenePoolSize, GeneTypeId),
 		.Species = (ARRAY(Species))Arrays.Create(sizeof(Species), 1, SpeciesTypeId),
 		.AddConnectionMutationChance = Neat.DefaultAddConnectionMutationChance,
 		.AddNodeMutationChance = Neat.DefaultAddNodeMutationChance,
@@ -343,6 +336,72 @@ private ai_number GetSimilarity(const Population population, const Organism left
 	return excessSimilarity + disjointSimilarity + weightSimilarity;
 }
 
+// returns true when two organisms are similar
+private bool SimilarOrganisms(const Population population, const Organism leftOrganism, const Organism rightOrganism)
+{
+	return GetSimilarity(population, leftOrganism, rightOrganism) <= population->SimilarityThreshold;
+}
+
+private void RemoveDisimilarOrganismsFromSpecies(Population population, Species species, ARRAY(Organism) destinationArray)
+{
+	Organism referenceOrganism = species->Organisms->Values[0];
+	for (size_t organismIndex = 1; organismIndex < species->Organisms->Count; organismIndex++)
+	{
+		Organism organism = species->Organisms->Values[organismIndex];
+		if (GetSimilarity(population, referenceOrganism, organism) > population->SimilarityThreshold)
+		{
+			// add to the array to get sorted
+			Arrays.Append((ARRAY(void))destinationArray, &organism);
+
+			// remove it from this array
+			Arrays.RemoveIndex((ARRAY(void))species->Organisms, organismIndex);
+
+			// go backwards and restart at this index since we removed this index from the array
+			safe_decrement(organismIndex);
+		}
+	}
+}
+
+private void SortOrganismsIntoSpecies(Population population, ARRAY(Organism) organisms)
+{
+	size_t organismIndex = organisms->Count;
+	while (organismIndex-- > 0)
+	{
+		Organism organism = organisms->Values[organismIndex];
+
+		bool sorted = false;
+		for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
+		{
+			Species species = population->Species->Values[speciesIndex];
+
+			if (species->Organisms->Count is 0)
+			{
+				// species should not have zero members here
+				throw(InvalidLogicException);
+			}
+
+			if (SimilarOrganisms(population, organism, species->Organisms->Values[0]))
+			{
+				Arrays.Append((ARRAY(void))species->Organisms, &organism);
+				sorted = true;
+				break;
+			}
+		}
+
+		if (sorted)
+		{
+			continue;
+		}
+
+		// create a new species
+		Species newSpecies = CreateSpecies(organism->InputNodeCount, organism->OutputNodeCount, 0);
+
+		Arrays.Append((ARRAY(void))newSpecies->Organisms, &organism);
+
+		Arrays.Append((ARRAY(void))population->Species, &newSpecies);
+	}
+}
+
 // Goes through all the organisms of the population
 // and ensures that they are properly sorted into
 // species according to their similarities
@@ -353,30 +412,23 @@ private void SpeciatePopulation(Population population)
 
 	for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
 	{
-		if (population->Species->Values[speciesIndex]->Organisms->Count == 0)
-		{
-			// TODO: remove it
-			Arrays.RemoveIndex((ARRAY(void))population->Species, speciesIndex);
-		}
-
 		Species species = population->Species->Values[speciesIndex];
+
+		// Remove the species if it doesnt have any organisms
+		if (species->Organisms->Count is 0)
+		{
+			Arrays.RemoveIndex((ARRAY(void))population->Species, speciesIndex);
+			safe_decrement(speciesIndex);
+			continue;
+		}
 
 		// go through all the organisms of this species
 		// check to make sure they're all similar to the first organism
 		// in the species, if they're not sort them into the other species
-		Organism referenceOrganism = species->Organisms->Values[0];
-		for (size_t organismIndex = 1; organismIndex < species->Organisms->Count; organismIndex++)
-		{
-			Organism organism = species->Organisms->Values[organismIndex];
-			if (GetSimilarity(population, referenceOrganism, organism) > population->SimilarityThreshold)
-			{
-				// Sort into new species
-				Arrays.Append((ARRAY(void))organismsNeedingSorting, &organism);
-				Arrays.RemoveIndex((ARRAY(void))species->Organisms, organismIndex);
-				safe_decrement(organismIndex);
-			}
-		}
+		RemoveDisimilarOrganismsFromSpecies(population, species, organismsNeedingSorting);
 	}
+
+	SortOrganismsIntoSpecies(population, organismsNeedingSorting);
 }
 
 private ai_number GetAdjustedFitness(const Organism organism)

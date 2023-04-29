@@ -3,7 +3,7 @@
 #include "csharp.h"
 
 // TEMPLATE
-#define DEFINE_ARRAY(type) struct _array##type\
+#define DEFINE_ARRAY(type) struct _array_##type\
 {\
 	/* The pointer to the backing array */\
 	type* Values;\
@@ -21,7 +21,7 @@
 	size_t TypeId;\
 };
 
-#define ARRAY(type) struct _array##type*
+#define ARRAY(type) struct _array_##type*
 
 DEFINE_ARRAY(void)
 

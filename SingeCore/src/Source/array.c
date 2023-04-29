@@ -25,9 +25,12 @@ private Array Create(size_t elementSize, size_t count, size_t typeId)
 {
 	REGISTER_TYPE(Array);
 
-	ARRAY(void) array = Memory.Alloc(sizeof(struct _arrayvoid), ArrayTypeId);
+	ARRAY(void) array = Memory.Alloc(sizeof(struct _array_void), ArrayTypeId);
 
-	array->Values = Memory.Alloc(elementSize * count, typeId);
+	if (count)
+	{
+		array->Values = Memory.Alloc(elementSize * count, typeId);
+	}
 
 	array->Count = count;
 	array->ElementSize = elementSize;

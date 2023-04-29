@@ -65,10 +65,7 @@ struct species
 struct population
 {
 	size_t Id;
-	// Array of GLOBAL genes for all organisms within this population
-	Gene Genes;
-	// Number of GLOBAL genes for all organisms within this population
-	size_t GeneCount;
+	ARRAY(gene) Genes;
 	ARRAY(Species) Species;
 	// the chance, checked once per fitness eval, of a node mutation 
 	// range: [0f - 1f]
