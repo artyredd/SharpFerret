@@ -35,6 +35,8 @@ private Array Create(size_t elementSize, size_t count, size_t typeId)
 	array->Count = count;
 	array->ElementSize = elementSize;
 	array->TypeId = typeId;
+	array->Size = elementSize * count;
+	array->Capacity = count;
 
 	return array;
 }

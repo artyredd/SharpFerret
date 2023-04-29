@@ -98,7 +98,7 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 	}\
 } while (false);
 
-#define TEST(testname) static bool Test_##testname(File stream)
+#define TEST(testname) static bool Test_##testname(FILE* stream)
 #define APPEND_TEST(testname) suite->Append(suite, #testname, &Test_##testname);
 #define TEST_SUITE(suiteName,tests)static void suiteName(void)\
 {\
@@ -119,3 +119,5 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 #define IsTrue(expr) BenchmarkAssertion(expr,stream);
 #define IsEqual(left,right,format) BenchmarkComparison(left,right,==,format,stream);
 #define IsNotEqual(left,right) BenchmarkAssertion(left != right,stream);
+
+#define IsApproximate(left,right,format) BenchmarkComparison(((left < 0 ? (-left) : (left)) - (right < 0 ? (-right) : (right))),1e-15,<=,format,stream);

@@ -6,6 +6,8 @@
 
 #include "singine/random.h"
 
+#include "Tests/cunit.h"
+
 #include <math.h>
 
 #define DOUBLE_E 2.71828
@@ -15,6 +17,7 @@
 private Population CreatePopulation(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount);
 private void DisposePopulation(Population);
 private ai_number SigmoidalTransferFunction(ai_number number);
+private void RunUnitTests();
 
 struct _neatMethods Neat = {
 	.DefaultGenePoolSize = 1024,
@@ -27,7 +30,8 @@ struct _neatMethods Neat = {
 	.DefaultMatchingGeneImportance = 0.4f,
 	.DefaultTransferFunction = SigmoidalTransferFunction,
 	.Create = CreatePopulation,
-	.Dispose = DisposePopulation
+	.Dispose = DisposePopulation,
+	.RunUnitTests = RunUnitTests
 };
 
 TYPE_ID(Gene);
@@ -238,31 +242,32 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 	return result;
 }
 
-private size_t GetHighestGeneId(const Gene genes, size_t count)
+private size_t GetHighestGeneId(const ARRAY(gene) genes)
 {
 	size_t largestId = 0;
-	for (size_t geneIndex = 0; geneIndex < count; geneIndex++)
+	for (size_t geneIndex = 0; geneIndex < genes->Count; geneIndex++)
 	{
-		if (genes[geneIndex].Id > largestId)
+		if (genes->Values[geneIndex].Id > largestId)
 		{
-			largestId = genes[geneIndex].Id;
+			largestId = genes->Values[geneIndex].Id;
 		}
 	}
 
 	return largestId;
 }
 
-private size_t GetDisjointGeneCount(const Gene leftGenes, size_t leftCount, const Gene rightGenes, size_t rightCount)
+private size_t GetDisjointGeneCount(const ARRAY(gene) leftGenes, const ARRAY(gene) rightGenes)
 {
+	size_t smallestCount = min(leftGenes->Count, rightGenes->Count);
 	size_t disjointCount = 0;
-	for (size_t leftIndex = 0; leftIndex < leftCount; leftIndex++)
+	for (size_t leftIndex = 0; leftIndex < smallestCount; leftIndex++)
 	{
-		size_t leftId = leftGenes[leftIndex].Id;
+		size_t leftId = leftGenes->Values[leftIndex].Id;
 
 		bool found = false;
-		for (size_t rightIndex = 0; rightIndex < rightCount; rightIndex++)
+		for (size_t rightIndex = 0; rightIndex < smallestCount; rightIndex++)
 		{
-			size_t rightId = rightGenes[rightIndex].Id;
+			size_t rightId = rightGenes->Values[rightIndex].Id;
 
 			if (leftId == rightId)
 			{
@@ -273,25 +278,25 @@ private size_t GetDisjointGeneCount(const Gene leftGenes, size_t leftCount, cons
 
 		if (found is false)
 		{
-			disjointCount = safe_add(leftId, 1);
+			safe_increment(disjointCount);
 		}
 	}
 
 	return disjointCount;
 }
 
-private ai_number GetAverageDifferenceBetweenWeights(const Gene leftGenes, size_t leftCount, const Gene rightGenes, size_t rightCount)
+private ai_number GetAverageDifferenceBetweenWeights(const ARRAY(gene) leftGenes, const ARRAY(gene) rightGenes)
 {
 	size_t count = 0;
 	ai_number value = 0;
 
-	for (size_t leftIndex = 0; leftIndex < leftCount; leftIndex++)
+	for (size_t leftIndex = 0; leftIndex < leftGenes->Count; leftIndex++)
 	{
-		const Gene leftGene = &leftGenes[leftIndex];
+		const Gene leftGene = &leftGenes->Values[leftIndex];
 
-		for (size_t rightIndex = 0; rightIndex < rightCount; rightIndex++)
+		for (size_t rightIndex = 0; rightIndex < rightGenes->Count; rightIndex++)
 		{
-			const Gene rightGene = &rightGenes[rightIndex];
+			const Gene rightGene = &rightGenes->Values[rightIndex];
 
 			if (leftGene->Id == rightGene->Id)
 			{
@@ -306,20 +311,20 @@ private ai_number GetAverageDifferenceBetweenWeights(const Gene leftGenes, size_
 	return value / (ai_number)count;
 }
 
-private size_t GetExcessGeneCount(const Gene leftGenes, size_t leftCount, const Gene rightGenes, size_t rightCount)
+private size_t GetExcessGeneCount(const ARRAY(gene) left, const ARRAY(gene) right)
 {
-	size_t highestLeftId = GetHighestGeneId(leftGenes, leftCount);
-	size_t highestRightId = GetHighestGeneId(rightGenes, rightCount);
+	size_t highestLeftId = GetHighestGeneId(left);
+	size_t highestRightId = GetHighestGeneId(right);
 
 	return safe_subtract(highestRightId, highestLeftId);
 }
 
-private size_t GetBothDisjointGeneCount(const Gene leftGenes, size_t leftCount, const Gene rightGenes, size_t rightCount)
+private size_t GetBothDisjointGeneCount(const ARRAY(gene) left, const ARRAY(gene) right)
 {
-	size_t leftDisjointCount = GetDisjointGeneCount(leftGenes, leftCount, rightGenes, rightCount);
-	size_t rightDisjointCount = GetDisjointGeneCount(rightGenes, rightCount, leftGenes, leftCount);
+	size_t leftDisjointCount = GetDisjointGeneCount(left, right);
+	size_t rightDisjointCount = GetDisjointGeneCount(right, left);
 
-	return leftDisjointCount + rightDisjointCount;
+	return safe_add(leftDisjointCount, rightDisjointCount);
 }
 
 // gets the similarity of two gene pools
@@ -327,11 +332,11 @@ private ai_number GetSimilarity(const Population population, const Organism left
 {
 	ai_number largestCount = (ai_number)max(leftOrganism->Genes->Count, rightOrganism->Genes->Count);
 
-	ai_number excessSimilarity = (population->ExcessGeneImportance * (ai_number)GetExcessGeneCount(leftOrganism->Genes->Values, leftOrganism->Genes->Count, rightOrganism->Genes->Values, rightOrganism->Genes->Count)) / largestCount;
+	ai_number excessSimilarity = (population->ExcessGeneImportance * (ai_number)GetExcessGeneCount(leftOrganism->Genes, rightOrganism->Genes)) / largestCount;
 
-	ai_number disjointSimilarity = (population->DisjointGeneImportance * (ai_number)GetBothDisjointGeneCount(leftOrganism->Genes->Values, leftOrganism->Genes->Count, rightOrganism->Genes->Values, rightOrganism->Genes->Count)) / largestCount;
+	ai_number disjointSimilarity = (population->DisjointGeneImportance * (ai_number)GetBothDisjointGeneCount(leftOrganism->Genes, rightOrganism->Genes)) / largestCount;
 
-	ai_number weightSimilarity = population->MatchingGeneImportance * GetAverageDifferenceBetweenWeights(leftOrganism->Genes->Values, leftOrganism->Genes->Count, rightOrganism->Genes->Values, rightOrganism->Genes->Count);
+	ai_number weightSimilarity = population->MatchingGeneImportance * GetAverageDifferenceBetweenWeights(leftOrganism->Genes, rightOrganism->Genes);
 
 	return excessSimilarity + disjointSimilarity + weightSimilarity;
 }
@@ -468,3 +473,186 @@ private void DisposePopulation(Population population)
 
 	Memory.Free(population, SpeciesTypeId);
 }
+
+// Tests
+ARRAY(gene) ExampleGenome_0()
+{
+	ARRAY(gene) genome = (ARRAY(gene))Arrays.Create(sizeof(gene), 5, GeneTypeId);
+
+	genome->Values[0] = (gene)
+	{
+		.Id = 1,
+		.Enabled = true,
+		.StartNodeIndex = 1,
+		.EndNodeIndex = 4,
+		.Weight = 1.0
+	};
+	genome->Values[1] = (gene)
+	{
+		.Id = 2,
+		.Enabled = true,
+		.StartNodeIndex = 2,
+		.EndNodeIndex = 4,
+		.Weight = 1.0
+	};
+	genome->Values[2] = (gene)
+	{
+		.Id = 4,
+		.Enabled = false,
+		.StartNodeIndex = 2,
+		.EndNodeIndex = 5,
+		.Weight = 1.0
+	};
+	genome->Values[3] = (gene)
+	{
+		.Id = 5,
+		.Enabled = true,
+		.StartNodeIndex = 3,
+		.EndNodeIndex = 5,
+		.Weight = 1.0
+	};
+	genome->Values[4] = (gene)
+	{
+		.Id = 6,
+		.Enabled = true,
+		.StartNodeIndex = 4,
+		.EndNodeIndex = 5,
+		.Weight = 1.0
+	};
+
+	return genome;
+}
+
+ARRAY(gene) ExampleGenome_1()
+{
+	ARRAY(gene) genome = (ARRAY(gene))Arrays.Create(sizeof(gene), 7, GeneTypeId);
+
+	genome->Values[0] = (gene)
+	{
+		.Id = 1,
+		.Enabled = false,
+		.StartNodeIndex = 1,
+		.EndNodeIndex = 4,
+		.Weight = -1.0
+	};
+	genome->Values[1] = (gene)
+	{
+		.Id = 2,
+		.Enabled = true,
+		.StartNodeIndex = 2,
+		.EndNodeIndex = 4,
+		.Weight = -1.0
+	};
+	genome->Values[2] = (gene)
+	{
+		.Id = 3,
+		.Enabled = true,
+		.StartNodeIndex = 3,
+		.EndNodeIndex = 4,
+		.Weight = -1.0
+	};
+	genome->Values[3] = (gene)
+	{
+		.Id = 4,
+		.Enabled = false,
+		.StartNodeIndex = 2,
+		.EndNodeIndex = 5,
+		.Weight = -1.0
+	};
+	genome->Values[4] = (gene)
+	{
+		.Id = 6,
+		.Enabled = true,
+		.StartNodeIndex = 4,
+		.EndNodeIndex = 5,
+		.Weight = -1.0
+	};
+	genome->Values[5] = (gene)
+	{
+		.Id = 7,
+		.Enabled = true,
+		.StartNodeIndex = 1,
+		.EndNodeIndex = 6,
+		.Weight = -1.0
+	};
+	genome->Values[6] = (gene)
+	{
+		.Id = 8,
+		.Enabled = true,
+		.StartNodeIndex = 6,
+		.EndNodeIndex = 4,
+		.Weight = -1.0
+	};
+
+	return genome;
+}
+
+TEST(GetExcessGeneCount)
+{
+	ARRAY(gene) left = ExampleGenome_0();
+
+	ARRAY(gene) right = ExampleGenome_1();
+
+	size_t expected = 2;
+
+	IsEqual(expected, GetExcessGeneCount(left, right), "%lli");
+
+	return true;
+}
+
+TEST(GetBothDisjointGeneCount)
+{
+	ARRAY(gene) left = ExampleGenome_0();
+
+	ARRAY(gene) right = ExampleGenome_1();
+
+	size_t expected = 2;
+
+	IsEqual(expected, GetBothDisjointGeneCount(left, right), "%lli");
+
+	return true;
+}
+
+TEST(GetAverageDifferenceBetweenWeights)
+{
+	ARRAY(gene) left = ExampleGenome_0();
+
+	ARRAY(gene) right = ExampleGenome_1();
+
+	ai_number expected = 0;
+
+	IsApproximate(expected, GetAverageDifferenceBetweenWeights(left, right), "%lf");
+
+	return true;
+}
+
+TEST(GetSimilarity)
+{
+	organism left = {
+		.Genes = ExampleGenome_0()
+	};
+
+	organism right = {
+		.Genes = ExampleGenome_1()
+	};
+
+	ai_number expected = (ai_number)4 / (ai_number)7;
+
+	population population = {
+		.MatchingGeneImportance = 1.0,
+		.ExcessGeneImportance = 1.0,
+		.DisjointGeneImportance = 1.0
+	};
+
+	IsApproximate(expected, GetSimilarity(&population, &left, &right), "%lf");
+
+	return true;
+}
+
+TEST_SUITE(
+	RunUnitTests,
+	APPEND_TEST(GetExcessGeneCount)
+	APPEND_TEST(GetBothDisjointGeneCount)
+	APPEND_TEST(GetAverageDifferenceBetweenWeights)
+	APPEND_TEST(GetSimilarity)
+)

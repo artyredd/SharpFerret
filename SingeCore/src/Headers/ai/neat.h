@@ -124,4 +124,5 @@ extern struct _neatMethods
 	ai_number(*DefaultTransferFunction)(ai_number input);
 	Population(*Create)(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount);
 	void (*Dispose)(Population);
+	void (*RunUnitTests)();
 } Neat;

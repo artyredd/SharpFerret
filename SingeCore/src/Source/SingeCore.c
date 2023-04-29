@@ -45,6 +45,7 @@
 #include "graphics/framebuffers.h"
 #include "singine/defaults.h"
 #include "graphics/drawing.h"
+#include "ai/neat.h"
 
 // scripts (not intrinsically part of the engine)
 #include "scripts/fpsCamera.h"
@@ -59,6 +60,8 @@ void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled);
 
 int main()
 {
+	Neat.RunUnitTests();
+	return;
 	// UNIT TESTING
 	//Tests.RunAll();
 
