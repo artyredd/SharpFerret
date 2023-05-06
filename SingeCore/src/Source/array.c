@@ -10,12 +10,16 @@ private void Resize(Array, size_t newCount);
 private void Dispose(Array);
 private void Append(Array, void*);
 private void RemoveIndex(Array, size_t index);
+private void InsertionSort(Array, int(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
+private void Swap(Array, size_t firstIndex, size_t secondIndex);
 
 const struct _arrayMethods Arrays = {
 	.Create = Create,
 	.AutoResize = AutoResize,
 	.Resize = Resize,
 	.Append = Append,
+	.InsertionSort = InsertionSort,
+	.Swap = Swap,
 	.Dispose = Dispose
 };
 
@@ -75,6 +79,7 @@ private void AutoResize(Array array)
 		Memory.ReallocOrCopy(&array->Values, array->Size, newSize, array->TypeId);
 	}
 
+	array->Capacity = array->Size / array->ElementSize;
 	array->Size = newSize;
 }
 
@@ -117,6 +122,56 @@ private void RemoveIndex(Array array, size_t index)
 	memmove((char*)array->Values + destinationOffset, (char*)array->Values + startOffset, size);
 
 	safe_decrement(array->Count);
+}
+
+private void Swap(Array array, size_t firstIndex, size_t secondIndex)
+{
+	char* firstSourcePointer = (char*)array->Values + (firstIndex * array->ElementSize);
+	char* secondSourcePointer = (char*)array->Values + (secondIndex * array->ElementSize);
+
+	for (size_t i = 0; i < array->ElementSize / sizeof(char); i++)
+	{
+		size_t offset = (sizeof(char) * i);
+
+		char* firstPointer = firstSourcePointer + offset;
+		char* secondPointer = secondSourcePointer + offset;
+
+		char tmp = *firstPointer;
+		*firstPointer = *secondPointer;
+		*secondPointer = tmp;
+	}
+}
+
+private void InsertionSort(Array array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock))
+{
+	// chat gpt generated insertion sort cuz im lazy
+	size_t j;
+
+	char* temporaryMemoryBlock = Memory.Alloc(array->ElementSize, Memory.GenericMemoryBlock);
+
+	for (size_t i = 1; i < array->Count; i++) {
+		size_t offset = array->ElementSize * i;
+
+		memcpy(temporaryMemoryBlock, (char*)array->Values + offset, array->ElementSize);
+
+		size_t jOffset = array->ElementSize * j;
+
+		char* jPointer = (char*)array->Values + jOffset;
+
+		while (j >= 0 && comparator(jPointer, temporaryMemoryBlock)) {
+			Swap(array, j + 1, j);
+
+			j = j - 1;
+
+			jOffset = array->ElementSize * j;
+
+			jPointer = (char*)array->Values + jOffset;
+		}
+
+		memcpy((char*)array->Values + ((j + 1) * array->ElementSize), temporaryMemoryBlock, array->ElementSize);
+	}
+
+	Memory.Free(temporaryMemoryBlock, Memory.GenericMemoryBlock);
 }
 
 private void Dispose(Array array)

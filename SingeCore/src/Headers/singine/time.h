@@ -18,6 +18,7 @@ struct _Time {
 
 	// Should be called once per frame to update DeltaTime()
 	void (*Update)();
+
 	// Returns the time between the current frame and the last frame, in seconds
 	double (*DeltaTime)();
 
@@ -34,7 +35,7 @@ struct _Time {
 
 		double (*AverageFrameTime)();
 	} Statistics;
-	
+
 };
 
 // Methods and values of the time of the engine

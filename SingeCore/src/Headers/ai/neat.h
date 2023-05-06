@@ -31,11 +31,14 @@ typedef species* Species;
 DEFINE_ARRAY(gene);
 DEFINE_ARRAY(Organism);
 DEFINE_ARRAY(Species);
+DEFINE_ARRAY(ai_number);
 
 struct organism
 {
 	// Id of the organism
 	size_t Id;
+	// The generation this organism was born
+	size_t Generation;
 	Species Parent;
 	ARRAY(gene) Genes;
 	// the nodes of this organism
@@ -56,15 +59,36 @@ typedef population* Population;
 struct species
 {
 	size_t Id;
+	// The average fitness for all the organisms within the species
+	ai_number AverageFitness;
+	// The highest fitness this species has achieved
+	ai_number MaximumFitness;
+	// The Generation this species was created
+	size_t StartGeneration;
+	// The current highest generation of an organism within this species
+	size_t Generation;
+	// The generation where the maximum fitness of this species went up
+	size_t LastGenerationWhereFitnessImproved;
 	Population Parent;
 	ARRAY(Organism) Organisms;
+	// This is an organism from the previous generation that is used
+	// for speciation
+	Organism ReferenceOrganism;
 	size_t InputNodeCount;
 	size_t OutputNodeCount;
 };
 
 struct population
 {
-	size_t Id;
+	// The next available organism Id for this population
+	size_t NextId;
+	// The current generation this population is on
+	size_t Generation;
+	// The number of organisms alloted to this population
+	size_t Count;
+	// The sum of all the average fitnesses within the population
+	// used to determine how many organisms get alloted to species
+	ai_number SummedAverageFitness;
 	ARRAY(gene) Genes;
 	ARRAY(Species) Species;
 	// the chance, checked once per fitness eval, of a node mutation 
@@ -88,8 +112,16 @@ struct population
 	// The threshold in similarity that two organisms must have to be considered part of the same
 	// species
 	ai_number SimilarityThreshold;
+	// The percentage of organisms that should be culled from each species to produce new offspring
+	ai_number OrganismCullingRate;
+	// The number of generations a species can exist while not improving it's maximum fitness
+	size_t GenerationsBeforeStagnation;
+	// The default ratio represented as a percentage [0-1], of how much of the new organisms in a generation
+	// should be created using crossover or just mutations with no crossover
+	ai_number MatingWithCrossoverRatio;
 	// the transfer function that should be used between all nodes in the network
 	ai_number(*TransferFunction)(ai_number input);
+	ai_number(*FitnessFunction)(ARRAY(ai_number));
 };
 
 extern struct _neatMethods
@@ -120,9 +152,24 @@ extern struct _neatMethods
 	// The threshold in similarity that two organisms must have to be considered part of the same
 	// species
 	ai_number DefaultSimilarityThreshold;
+	// The percentage of organisms that should be culled from each species to produce new offspring
+	ai_number DefaultOrganismCullingRate;
+	// The number of generations a species can exist while not improving it's maximum fitness
+	size_t DefaultGenerationsBeforeStagnation;
+	// The default ratio represented as a percentage [0-1], of how much of the new organisms in a generation
+	// should be created using crossover or just mutations with no crossover
+	ai_number DefaultMatingWithCrossoverRatio;
 	// the transfer function that should be used between all nodes in the network
 	ai_number(*DefaultTransferFunction)(ai_number input);
 	Population(*Create)(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount);
+	// Propogates inputdata forward through all the organisms within a population
+	void (*Propogate)(Population, ARRAY(ai_number) inputData);
+	void (*CalculateFitness)(Population, ARRAY(ai_number) inputData);
+	// Drops the lowest fitness organisms within a population and then mates the top performing
+	// organisms with eachother to replace the dropped organisms
+	void (*CrossAndMutate)(Population);
+	// Makes sure all the organisms in a population is in the correct species
+	void (*Speciate)(Population);
 	void (*Dispose)(Population);
 	void (*RunUnitTests)();
 } Neat;

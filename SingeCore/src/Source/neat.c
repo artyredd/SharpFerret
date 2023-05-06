@@ -18,6 +18,10 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 private void DisposePopulation(Population);
 private ai_number SigmoidalTransferFunction(ai_number number);
 private void RunUnitTests();
+private void Propogate(Population, ARRAY(ai_number));
+private void CalculateFitness(Population, ARRAY(ai_number));
+private void CrossAndMutate(Population);
+private void SpeciatePopulation(Population);
 
 struct _neatMethods Neat = {
 	.DefaultGenePoolSize = 1024,
@@ -28,10 +32,17 @@ struct _neatMethods Neat = {
 	.DefaultDisjointGeneImportance = 1.0f,
 	.DefaultExcessGeneImportance = 1.0f,
 	.DefaultMatchingGeneImportance = 0.4f,
+	.DefaultOrganismCullingRate = 0.5f,
+	.DefaultGenerationsBeforeStagnation = 15,
+	.DefaultMatingWithCrossoverRatio = 0.75f,
 	.DefaultTransferFunction = SigmoidalTransferFunction,
 	.Create = CreatePopulation,
 	.Dispose = DisposePopulation,
-	.RunUnitTests = RunUnitTests
+	.RunUnitTests = RunUnitTests,
+	.Propogate = Propogate,
+	.CalculateFitness = CalculateFitness,
+	.CrossAndMutate = CrossAndMutate,
+	.Speciate = SpeciatePopulation
 };
 
 TYPE_ID(Gene);
@@ -208,7 +219,8 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 	Population result = Memory.Alloc(sizeof(population), SpeciesTypeId);
 
 	population population = {
-		.Id = 0,
+		.NextId = 0,
+		.SummedAverageFitness = 0,
 		.Genes = (ARRAY(gene))Arrays.Create(sizeof(gene), Neat.DefaultGenePoolSize, GeneTypeId),
 		.Species = (ARRAY(Species))Arrays.Create(sizeof(Species), 1, SpeciesTypeId),
 		.AddConnectionMutationChance = Neat.DefaultAddConnectionMutationChance,
@@ -219,7 +231,12 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 		.ExcessGeneImportance = Neat.DefaultExcessGeneImportance,
 		.MatchingGeneImportance = Neat.DefaultMatchingGeneImportance,
 		.SimilarityThreshold = Neat.DefaultSimilarityThreshold,
-		.TransferFunction = Neat.DefaultTransferFunction
+		.GenerationsBeforeStagnation = Neat.DefaultGenerationsBeforeStagnation,
+		.OrganismCullingRate = Neat.DefaultOrganismCullingRate,
+		.Generation = 1,
+		.Count = populationSize,
+		.TransferFunction = Neat.DefaultTransferFunction,
+		.FitnessFunction = null
 	};
 
 	for (size_t i = 0; i < population.Species->Count; i++)
@@ -256,6 +273,20 @@ private size_t GetHighestGeneId(const ARRAY(gene) genes)
 	return largestId;
 }
 
+// returns true when the gene array contain the given gene
+private bool ContainsGeneId(size_t geneId, const ARRAY(gene) genes)
+{
+	for (size_t geneIndex = 0; geneIndex < genes->Count; geneIndex++)
+	{
+		if (genes->Values[geneIndex].Id is geneId)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 private size_t GetDisjointGeneCount(const ARRAY(gene) leftGenes, const ARRAY(gene) rightGenes)
 {
 	size_t smallestCount = min(leftGenes->Count, rightGenes->Count);
@@ -264,19 +295,7 @@ private size_t GetDisjointGeneCount(const ARRAY(gene) leftGenes, const ARRAY(gen
 	{
 		size_t leftId = leftGenes->Values[leftIndex].Id;
 
-		bool found = false;
-		for (size_t rightIndex = 0; rightIndex < smallestCount; rightIndex++)
-		{
-			size_t rightId = rightGenes->Values[rightIndex].Id;
-
-			if (leftId == rightId)
-			{
-				found = true;
-				break;
-			}
-		}
-
-		if (found is false)
+		if (ContainsGeneId(leftId, rightGenes) is false)
 		{
 			safe_increment(disjointCount);
 		}
@@ -349,7 +368,7 @@ private bool SimilarOrganisms(const Population population, const Organism leftOr
 
 private void RemoveDisimilarOrganismsFromSpecies(Population population, Species species, ARRAY(Organism) destinationArray)
 {
-	Organism referenceOrganism = species->Organisms->Values[0];
+	Organism referenceOrganism = species->ReferenceOrganism;
 	for (size_t organismIndex = 1; organismIndex < species->Organisms->Count; organismIndex++)
 	{
 		Organism organism = species->Organisms->Values[organismIndex];
@@ -385,7 +404,7 @@ private void SortOrganismsIntoSpecies(Population population, ARRAY(Organism) org
 				throw(InvalidLogicException);
 			}
 
-			if (SimilarOrganisms(population, organism, species->Organisms->Values[0]))
+			if (SimilarOrganisms(population, organism, species->ReferenceOrganism))
 			{
 				Arrays.Append((ARRAY(void))species->Organisms, &organism);
 				sorted = true;
@@ -401,9 +420,9 @@ private void SortOrganismsIntoSpecies(Population population, ARRAY(Organism) org
 		// create a new species
 		Species newSpecies = CreateSpecies(organism->InputNodeCount, organism->OutputNodeCount, 0);
 
-		Arrays.Append((ARRAY(void))newSpecies->Organisms, &organism);
+		Arrays.Append((Array)newSpecies->Organisms, &organism);
 
-		Arrays.Append((ARRAY(void))population->Species, &newSpecies);
+		Arrays.Append((Array)population->Species, &newSpecies);
 	}
 }
 
@@ -446,6 +465,77 @@ private ai_number SigmoidalTransferFunction(ai_number number)
 	return (ai_number)((ai_number)1.0 / ((ai_number)1.0 + pow((ai_number)DOUBLE_E, (ai_number)-4.9 * number)));
 }
 
+private Gene GetGeneWithId(ARRAY(gene) genes, size_t id)
+{
+	for (size_t i = 0; i < genes->Count; i++)
+	{
+		if (genes->Values[i].Id is id)
+		{
+			return &genes->Values[i];
+		}
+	}
+
+	return null;
+}
+
+private Organism BreedOrganisms(const Organism left, const Organism right)
+{
+	// matching genes are inherited randomly between organisms
+	// disjoint and excess genes are inherited from the more fit parent
+	const Organism moreFitOrganism = left->Fitness > right->Fitness ? left : right;
+	const Organism lessFitOrganism = left->Fitness < right->Fitness ? left : right;
+
+	Organism newOrganism = CreateOrganism(left->InputNodeCount, right->InputNodeCount);
+
+	for (size_t geneIndex = 0; geneIndex < moreFitOrganism->Genes->Count; geneIndex++)
+	{
+		const Gene moreFitGene = &moreFitOrganism->Genes->Values[geneIndex];
+
+		const bool matching = ContainsGeneId(moreFitGene->Id, lessFitOrganism->Genes);
+
+		// see if its a matching gene
+		if (matching && Random.NextBool())
+		{
+			const Gene lessFitGene = GetGeneWithId(lessFitOrganism->Genes, moreFitGene->Id);
+
+			if (lessFitGene is null)
+			{
+				throw(InvalidLogicException);
+			}
+
+			Arrays.Append((Array)newOrganism->Genes, lessFitGene);
+		}
+		else
+		{
+			Arrays.Append((Array)newOrganism->Genes, moreFitGene);
+		}
+	}
+
+	return newOrganism;
+}
+
+private void DisposeOrganism(Organism organism)
+{
+	Arrays.Dispose((Array)organism->Genes);
+	Arrays.Dispose((Array)organism->Nodes);
+
+	Memory.Free(organism, OrganismTypeId);
+}
+
+private void DisposeSpecies(Species species)
+{
+	for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
+	{
+		DisposeOrganism(species->Organisms->Values[organismIndex]);
+	}
+
+	DisposeOrganism(species->ReferenceOrganism);
+
+	Arrays.Dispose((Array)species->Organisms);
+
+	Memory.Free(species, SpeciesTypeId);
+}
+
 private void DisposePopulation(Population population)
 {
 	if (population is null)
@@ -457,21 +547,134 @@ private void DisposePopulation(Population population)
 	{
 		Species species = population->Species->Values[speciesIndex];
 
-		for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
-		{
-			Organism organism = species->Organisms->Values[organismIndex];
-
-			Memory.Free(organism->Nodes, Memory.GenericMemoryBlock);
-			Memory.Free(organism->Genes, GeneTypeId);
-		}
-
-		Memory.Free(species->Organisms, OrganismTypeId);
+		DisposeSpecies(species);
 	}
 
-	Memory.Free(population->Species, PopulationTypeId);
-	Memory.Free(population->Genes, GeneTypeId);
+	Arrays.Dispose((Array)population->Species);
+	Arrays.Dispose(population->Genes);
 
 	Memory.Free(population, SpeciesTypeId);
+}
+
+private void Propogate(Population population, ARRAY(ai_number) inputData)
+{
+	throw(NotImplementedException);
+}
+
+private void CalculateFitness(Population population, ARRAY(ai_number) inputData)
+{
+	throw(NotImplementedException);
+}
+
+private bool OrganismFitnessComparator(Organism left, Organism right)
+{
+	return left->Fitness < right->Fitness;
+}
+
+private void SortOrganismsByFitness(ARRAY(Organism) organisms)
+{
+	Arrays.InsertionSort((Array)organisms, OrganismFitnessComparator);
+}
+
+// removes the poorest performing organisms within a species
+// returns the number of organisms within this species that
+// were removed
+private size_t RemovePoorFitnessOrganisms(Population population, Species species)
+{
+	// sort by fitness
+	SortOrganismsByFitness(species->Organisms);
+
+	// determine how many to remove
+	const size_t count = (size_t)((ai_number)species->Organisms->Count * population->OrganismCullingRate);
+	const size_t stopIndex = safe_subtract(species->Organisms->Count, count);
+
+	size_t index = species->Organisms->Count;
+	while (index-- > stopIndex)
+	{
+		DisposeOrganism(species->Organisms->Values[index]);
+		Arrays.RemoveIndex((Array)species->Organisms, index);
+	}
+
+	return count;
+}
+
+private void CalculatePopulationFitnesses(Population population)
+{
+	ai_number summedAverage = 0;
+	for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
+	{
+		Species species = population->Species->Values[speciesIndex];
+		ai_number speciesAverage = 0;
+
+		for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
+		{
+			speciesAverage += species->Organisms->Values[organismIndex]->Fitness;
+		}
+
+		species->AverageFitness = speciesAverage / species->Organisms->Count;
+		summedAverage += speciesAverage;
+	}
+
+	population->SummedAverageFitness = summedAverage;
+}
+
+private void RemoveStagnatingSpecies(Population population)
+{
+	size_t speciesIndex = population->Species->Count;
+	while (speciesIndex-- > 0)
+	{
+		Species species = population->Species->Values[speciesIndex];
+
+		bool removeSpecies = safe_subtract(species->Generation, species->LastGenerationWhereFitnessImproved) > population->GenerationsBeforeStagnation;
+
+		if (removeSpecies)
+		{
+			// if a species isn't allowed to reproduce anymore 
+			// allot the portion of organisms to the rest
+			// of the species
+			population->SummedAverageFitness - species->AverageFitness;
+
+			// cull the whole species
+			DisposeSpecies(species);
+
+			Arrays.RemoveIndex((Array)population->Species, speciesIndex);
+		}
+	}
+}
+
+private void ReplenishSpecies(Population population, Species species, size_t count)
+{
+	throw(NotImplementedException);
+}
+
+private void CrossAndMutate(Population population)
+{
+	// since we're crossing and mutating we should increase our generation
+	safe_increment(population->Generation);
+
+	// go through and average fitnesses and sum them so we can determine
+	// how much each species can reproduce
+	CalculatePopulationFitnesses(population);
+
+	RemoveStagnatingSpecies(population);
+
+	for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
+	{
+		Species species = population->Species->Values[speciesIndex];
+
+		// since we're allowed to reproduce increase the generation of the species
+		species->Generation = population->Generation;
+
+		ai_number allotedPercentage = species->AverageFitness / population->SummedAverageFitness;
+
+		size_t allotedCount = (size_t)(allotedPercentage * (ai_number)population->Count);
+
+		// kill the bottom performing organisms within the species
+		size_t count = RemovePoorFitnessOrganisms(population, species);
+
+		// replenish UP TO the allotted count even if we removed more then the alloted
+		ReplenishSpecies(population, species, count);
+	}
 }
 
 // Tests
@@ -587,6 +790,70 @@ ARRAY(gene) ExampleGenome_1()
 	return genome;
 }
 
+ARRAY(gene) ExampleGenome_2()
+{
+	ARRAY(gene) genome = (ARRAY(gene))Arrays.Create(sizeof(gene), 7, GeneTypeId);
+
+	genome->Values[0] = (gene)
+	{
+		.Id = 1,
+		.Enabled = true,
+		.StartNodeIndex = 1,
+		.EndNodeIndex = 4,
+		.Weight = -1.0
+	};
+	genome->Values[1] = (gene)
+	{
+		.Id = 2,
+		.Enabled = true,
+		.StartNodeIndex = 2,
+		.EndNodeIndex = 4,
+		.Weight = -1.0
+	};
+	genome->Values[2] = (gene)
+	{
+		.Id = 3,
+		.Enabled = true,
+		.StartNodeIndex = 3,
+		.EndNodeIndex = 4,
+		.Weight = -1.0
+	};
+	genome->Values[3] = (gene)
+	{
+		.Id = 4,
+		.Enabled = false,
+		.StartNodeIndex = 2,
+		.EndNodeIndex = 5,
+		.Weight = -1.0
+	};
+	genome->Values[4] = (gene)
+	{
+		.Id = 6,
+		.Enabled = true,
+		.StartNodeIndex = 4,
+		.EndNodeIndex = 5,
+		.Weight = -1.0
+	};
+	genome->Values[5] = (gene)
+	{
+		.Id = 7,
+		.Enabled = true,
+		.StartNodeIndex = 1,
+		.EndNodeIndex = 6,
+		.Weight = -1.0
+	};
+	genome->Values[6] = (gene)
+	{
+		.Id = 8,
+		.Enabled = true,
+		.StartNodeIndex = 6,
+		.EndNodeIndex = 4,
+		.Weight = -1.0
+	};
+
+	return genome;
+}
+
 TEST(GetExcessGeneCount)
 {
 	ARRAY(gene) left = ExampleGenome_0();
@@ -644,9 +911,119 @@ TEST(GetSimilarity)
 		.DisjointGeneImportance = 1.0
 	};
 
-	IsApproximate(expected, GetSimilarity(&population, &left, &right), "%lf");
+	ai_number actual = GetSimilarity(&population, &left, &right);
+
+	IsApproximate(expected, actual, "%lf");
 
 	return true;
+}
+
+TEST(BreedOrganisms)
+{
+	organism left = {
+		.Genes = ExampleGenome_0(),
+		.Fitness = 0
+	};
+
+	organism right = {
+		.Genes = ExampleGenome_1(),
+		.Fitness = 69
+	};
+
+	ARRAY(gene) expectedGenes = ExampleGenome_2();
+
+	Random.Seed = 42;
+
+	Organism offspring = BreedOrganisms(&left, &right);
+
+	ARRAY(gene) actualGenes = offspring->Genes;
+
+	IsEqual(expectedGenes->Count, actualGenes->Count, "%lli");
+
+	for (size_t i = 0; i < expectedGenes->Count; i++)
+	{
+		Gene expectedGene = &expectedGenes->Values[i];
+
+		Gene actualGene = &actualGenes->Values[i];
+
+		// NON RANDOM TESTS
+		IsEqual(expectedGene->Id, actualGene->Id, "%lli");
+		IsEqual(expectedGene->StartNodeIndex, actualGene->StartNodeIndex, "%lli");
+		IsEqual(expectedGene->EndNodeIndex, actualGene->EndNodeIndex, "%lli");
+
+		// RANDOM TESTS
+		IsEqual(expectedGene->Enabled, actualGene->Enabled, "%x");
+		IsApproximate(expectedGene->Weight, actualGene->Weight, "%f");
+	}
+}
+
+DEFINE_ARRAY(ai_number_array);
+
+ARRAY(ai_number_array) GetXORTestData()
+{
+	ARRAY(ai_number_array) result = (ARRAY(ai_number_array))Arrays.Create(sizeof(ai_number_array), 4, Memory.GenericMemoryBlock);
+
+	result->Values[0] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 3, Memory.GenericMemoryBlock);
+	result->Values[1] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 3, Memory.GenericMemoryBlock);
+	result->Values[2] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 3, Memory.GenericMemoryBlock);
+	result->Values[3] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 3, Memory.GenericMemoryBlock);
+
+	result->Values[0]->Values[0] = false;
+	result->Values[0]->Values[1] = false;
+	result->Values[0]->Values[2] = false;
+
+	result->Values[1]->Values[0] = true;
+	result->Values[1]->Values[1] = true;
+	result->Values[1]->Values[2] = false;
+
+	result->Values[2]->Values[0] = true;
+	result->Values[2]->Values[1] = false;
+	result->Values[2]->Values[2] = true;
+
+	result->Values[3]->Values[0] = false;
+	result->Values[3]->Values[1] = true;
+	result->Values[3]->Values[2] = true;
+
+	return result;
+}
+
+TEST(XOR_Works)
+{
+	Random.Seed = 42;
+
+	// XOR (opposite) problem
+	// ^ 
+	// false ^ false = false
+	// true ^ true = false
+	// true ^ false = true
+	// false ^ true = true
+
+	size_t inputs = 2;
+	size_t outputs = 1;
+
+	Population ai = Neat.Create(15, inputs, outputs);
+
+	size_t expectedIterations = 3600;
+
+	ARRAY(ai_number_array) inputDataArrays = GetXORTestData();
+
+	for (size_t i = 0; i < expectedIterations; i++)
+	{
+		for (size_t inputDataIndex = 0; inputDataIndex < inputDataArrays->Count; inputDataIndex++)
+		{
+			ARRAY(ai_number) inputData = inputDataArrays->Values[inputDataIndex];
+
+			Neat.Propogate(ai, inputData);
+
+			Neat.CalculateFitness(ai, inputData);
+
+			Neat.CrossAndMutate(ai);
+
+			Neat.Speciate(ai);
+		}
+	}
+
+	Neat.Dispose(ai);
 }
 
 TEST_SUITE(
@@ -655,4 +1032,6 @@ TEST_SUITE(
 	APPEND_TEST(GetBothDisjointGeneCount)
 	APPEND_TEST(GetAverageDifferenceBetweenWeights)
 	APPEND_TEST(GetSimilarity)
+	APPEND_TEST(BreedOrganisms)
+	APPEND_TEST(XOR_Works)
 )

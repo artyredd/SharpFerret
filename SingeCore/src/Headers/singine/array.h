@@ -19,9 +19,10 @@
 	size_t Count;\
 	/* The typeid of the element stored in the array */\
 	size_t TypeId;\
-};
+};\
+typedef struct _array_##type* type##_array;
 
-#define ARRAY(type) struct _array_##type*
+#define ARRAY(type) type##_array
 
 DEFINE_ARRAY(void)
 
@@ -37,5 +38,9 @@ extern const struct _arrayMethods
 	// Removes the given index, moving all contents to the left
 	// in its place
 	void (*RemoveIndex)(Array, size_t index);
+	// Swaps the positions of two elements
+	void (*Swap)(Array, size_t firstIndex, size_t secondIndex);
+	// Insertion sorts given the provided comparator Func
+	void (*InsertionSort)(Array, int(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
 	void (*Dispose)(Array);
 } Arrays;
