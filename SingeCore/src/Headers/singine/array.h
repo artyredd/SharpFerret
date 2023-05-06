@@ -41,6 +41,6 @@ extern const struct _arrayMethods
 	// Swaps the positions of two elements
 	void (*Swap)(Array, size_t firstIndex, size_t secondIndex);
 	// Insertion sorts given the provided comparator Func
-	void (*InsertionSort)(Array, int(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
+	void (*InsertionSort)(Array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
 	void (*Dispose)(Array);
 } Arrays;

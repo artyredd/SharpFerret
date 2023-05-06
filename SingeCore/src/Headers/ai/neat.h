@@ -167,7 +167,7 @@ extern struct _neatMethods
 	void (*CalculateFitness)(Population, ARRAY(ai_number) inputData);
 	// Drops the lowest fitness organisms within a population and then mates the top performing
 	// organisms with eachother to replace the dropped organisms
-	void (*CrossAndMutate)(Population);
+	void (*CrossMutateAndSpeciate)(Population);
 	// Makes sure all the organisms in a population is in the correct species
 	void (*Speciate)(Population);
 	void (*Dispose)(Population);

@@ -10,7 +10,7 @@ private void Resize(Array, size_t newCount);
 private void Dispose(Array);
 private void Append(Array, void*);
 private void RemoveIndex(Array, size_t index);
-private void InsertionSort(Array, int(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
+private void InsertionSort(Array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
 private void Swap(Array, size_t firstIndex, size_t secondIndex);
 
 const struct _arrayMethods Arrays = {
@@ -145,7 +145,7 @@ private void Swap(Array array, size_t firstIndex, size_t secondIndex)
 private void InsertionSort(Array array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock))
 {
 	// chat gpt generated insertion sort cuz im lazy
-	size_t j;
+	size_t j = 0;
 
 	char* temporaryMemoryBlock = Memory.Alloc(array->ElementSize, Memory.GenericMemoryBlock);
 
@@ -153,6 +153,8 @@ private void InsertionSort(Array array, bool(comparator)(void* leftMemoryBlock, 
 		size_t offset = array->ElementSize * i;
 
 		memcpy(temporaryMemoryBlock, (char*)array->Values + offset, array->ElementSize);
+
+		j = i - 1;
 
 		size_t jOffset = array->ElementSize * j;
 

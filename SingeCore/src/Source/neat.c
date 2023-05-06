@@ -20,7 +20,7 @@ private ai_number SigmoidalTransferFunction(ai_number number);
 private void RunUnitTests();
 private void Propogate(Population, ARRAY(ai_number));
 private void CalculateFitness(Population, ARRAY(ai_number));
-private void CrossAndMutate(Population);
+private void CrossMutateAndSpeciate(Population);
 private void SpeciatePopulation(Population);
 
 struct _neatMethods Neat = {
@@ -41,7 +41,7 @@ struct _neatMethods Neat = {
 	.RunUnitTests = RunUnitTests,
 	.Propogate = Propogate,
 	.CalculateFitness = CalculateFitness,
-	.CrossAndMutate = CrossAndMutate,
+	.CrossMutateAndSpeciate = CrossMutateAndSpeciate,
 	.Speciate = SpeciatePopulation
 };
 
@@ -148,6 +148,8 @@ private void MutateAddConnection(Organism organism)
 	} while (startIndex is endIndex);
 
 	gene gene = CreateGene(organism->Parent->Parent, startIndex, endIndex);
+
+	Arrays.Append((Array)organism->Genes, &gene);
 }
 
 private void MutateWeights(Organism organism)
@@ -551,7 +553,7 @@ private void DisposePopulation(Population population)
 	}
 
 	Arrays.Dispose((Array)population->Species);
-	Arrays.Dispose(population->Genes);
+	Arrays.Dispose((Array)population->Genes);
 
 	Memory.Free(population, SpeciesTypeId);
 }
@@ -608,7 +610,14 @@ private void CalculatePopulationFitnesses(Population population)
 
 		for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
 		{
-			speciesAverage += species->Organisms->Values[organismIndex]->Fitness;
+			ai_number fitness = species->Organisms->Values[organismIndex]->Fitness;
+			if (species->MaximumFitness < fitness)
+			{
+				species->MaximumFitness = fitness;
+				species->LastGenerationWhereFitnessImproved = safe_subtract(population->Generation, 1);
+			}
+
+			speciesAverage += fitness;
 		}
 
 		species->AverageFitness = speciesAverage / species->Organisms->Count;
@@ -632,7 +641,7 @@ private void RemoveStagnatingSpecies(Population population)
 			// if a species isn't allowed to reproduce anymore 
 			// allot the portion of organisms to the rest
 			// of the species
-			population->SummedAverageFitness - species->AverageFitness;
+			population->SummedAverageFitness -= species->AverageFitness;
 
 			// cull the whole species
 			DisposeSpecies(species);
@@ -647,7 +656,7 @@ private void ReplenishSpecies(Population population, Species species, size_t cou
 	throw(NotImplementedException);
 }
 
-private void CrossAndMutate(Population population)
+private void CrossMutateAndSpeciate(Population population)
 {
 	// since we're crossing and mutating we should increase our generation
 	safe_increment(population->Generation);
@@ -670,11 +679,13 @@ private void CrossAndMutate(Population population)
 		size_t allotedCount = (size_t)(allotedPercentage * (ai_number)population->Count);
 
 		// kill the bottom performing organisms within the species
-		size_t count = RemovePoorFitnessOrganisms(population, species);
+		RemovePoorFitnessOrganisms(population, species);
 
 		// replenish UP TO the allotted count even if we removed more then the alloted
-		ReplenishSpecies(population, species, count);
+		ReplenishSpecies(population, species, allotedCount);
 	}
+
+	SpeciatePopulation(population);
 }
 
 // Tests
@@ -955,6 +966,8 @@ TEST(BreedOrganisms)
 		IsEqual(expectedGene->Enabled, actualGene->Enabled, "%x");
 		IsApproximate(expectedGene->Weight, actualGene->Weight, "%f");
 	}
+
+	return true;
 }
 
 DEFINE_ARRAY(ai_number_array);
@@ -1017,13 +1030,13 @@ TEST(XOR_Works)
 
 			Neat.CalculateFitness(ai, inputData);
 
-			Neat.CrossAndMutate(ai);
-
-			Neat.Speciate(ai);
+			Neat.CrossMutateAndSpeciate(ai);
 		}
 	}
 
 	Neat.Dispose(ai);
+
+	return true;
 }
 
 TEST_SUITE(
