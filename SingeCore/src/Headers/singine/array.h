@@ -42,5 +42,9 @@ extern const struct _arrayMethods
 	void (*Swap)(Array, size_t firstIndex, size_t secondIndex);
 	// Insertion sorts given the provided comparator Func
 	void (*InsertionSort)(Array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
+	// Gets a pointer to the value contained at index
+	void* (*At)(Array, size_t index);
+	// Appends the given value array to the end of the given array
+	void (*AppendArray)(Array array, Array appendedValue);
 	void (*Dispose)(Array);
 } Arrays;

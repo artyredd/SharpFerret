@@ -191,6 +191,20 @@ private Organism CreateOrganism(size_t inputNodeCount, size_t outputNodeCount)
 	return result;
 }
 
+private Organism CloneOrganism(Organism organism)
+{
+	Organism result = CreateOrganism(organism->InputNodeCount, organism->OutputNodeCount);
+
+	Arrays.AppendArray((Array)result->Genes, (Array)organism->Genes);
+
+	result->Fitness = organism->Fitness;
+	result->Generation = organism->Generation;
+	result->Id = organism->Id;
+	result->Parent = organism->Parent;
+
+	return result;
+}
+
 private Species CreateSpecies(size_t inputNodeCount, size_t outputNodeCount, size_t organismCount)
 {
 	Species result = Memory.Alloc(sizeof(species), SpeciesTypeId);
@@ -597,6 +611,9 @@ private size_t RemovePoorFitnessOrganisms(Population population, Species species
 		Arrays.RemoveIndex((Array)species->Organisms, index);
 	}
 
+	// set the reference organism to a random organism
+	species->ReferenceOrganism = CloneOrganism(species->Organisms->Values[Random.NextSize_t() % species->Organisms->Count]);
+
 	return count;
 }
 
@@ -653,7 +670,10 @@ private void RemoveStagnatingSpecies(Population population)
 
 private void ReplenishSpecies(Population population, Species species, size_t count)
 {
-	throw(NotImplementedException);
+	for (size_t i = 0; i < count; i++)
+	{
+
+	}
 }
 
 private void CrossMutateAndSpeciate(Population population)

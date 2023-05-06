@@ -12,6 +12,8 @@ private void Append(Array, void*);
 private void RemoveIndex(Array, size_t index);
 private void InsertionSort(Array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
 private void Swap(Array, size_t firstIndex, size_t secondIndex);
+private void AppendArray(Array array, Array appendedValue);
+private void* At(Array array, size_t index);
 
 const struct _arrayMethods Arrays = {
 	.Create = Create,
@@ -20,7 +22,9 @@ const struct _arrayMethods Arrays = {
 	.Append = Append,
 	.InsertionSort = InsertionSort,
 	.Swap = Swap,
-	.Dispose = Dispose
+	.Dispose = Dispose,
+	.AppendArray = AppendArray,
+	.At = At
 };
 
 TYPE_ID(Array);
@@ -50,8 +54,8 @@ private void Append(Array array, void* value)
 	// check to see if we need to resize or not
 	if (array->Count < array->Capacity)
 	{
-		size_t offset = array->Count * array->ElementSize;
-		memcpy((char*)array->Values + offset, value, array->ElementSize);
+		memcpy(At(array, array->Count), value, array->ElementSize);
+
 		array->Count = safe_add(array->Count, 1);
 	}
 	else
@@ -109,25 +113,19 @@ private void RemoveIndex(Array array, size_t index)
 		throw(IndexOutOfRangeException);
 	}
 
-	size_t destinationOffset = index * array->ElementSize;
 	size_t startOffset = safe_add(index, 1) * array->ElementSize;
 
-	if (destinationOffset > array->Size || startOffset > array->Size)
-	{
-		throw(IndexOutOfRangeException);
-	}
+	size_t size = safe_subtract(array->Size, safe_add(index, 1) * array->ElementSize);
 
-	size_t size = safe_subtract(array->Size, startOffset);
-
-	memmove((char*)array->Values + destinationOffset, (char*)array->Values + startOffset, size);
+	memmove(At(array, safe_add(index, 1)), At(array, index), size);
 
 	safe_decrement(array->Count);
 }
 
 private void Swap(Array array, size_t firstIndex, size_t secondIndex)
 {
-	char* firstSourcePointer = (char*)array->Values + (firstIndex * array->ElementSize);
-	char* secondSourcePointer = (char*)array->Values + (secondIndex * array->ElementSize);
+	char* firstSourcePointer = At(array, firstIndex);
+	char* secondSourcePointer = At(array, secondIndex);
 
 	for (size_t i = 0; i < array->ElementSize / sizeof(char); i++)
 	{
@@ -150,30 +148,39 @@ private void InsertionSort(Array array, bool(comparator)(void* leftMemoryBlock, 
 	char* temporaryMemoryBlock = Memory.Alloc(array->ElementSize, Memory.GenericMemoryBlock);
 
 	for (size_t i = 1; i < array->Count; i++) {
-		size_t offset = array->ElementSize * i;
 
-		memcpy(temporaryMemoryBlock, (char*)array->Values + offset, array->ElementSize);
+		memcpy(temporaryMemoryBlock, At(array, i), array->ElementSize);
 
 		j = i - 1;
 
-		size_t jOffset = array->ElementSize * j;
-
-		char* jPointer = (char*)array->Values + jOffset;
+		char* jPointer = At(array, j);
 
 		while (j >= 0 && comparator(jPointer, temporaryMemoryBlock)) {
 			Swap(array, j + 1, j);
 
 			j = j - 1;
 
-			jOffset = array->ElementSize * j;
-
-			jPointer = (char*)array->Values + jOffset;
+			jPointer = At(array, j);
 		}
 
-		memcpy((char*)array->Values + ((j + 1) * array->ElementSize), temporaryMemoryBlock, array->ElementSize);
+		memcpy(At(array, j + 1), temporaryMemoryBlock, array->ElementSize);
 	}
 
 	Memory.Free(temporaryMemoryBlock, Memory.GenericMemoryBlock);
+}
+
+// Gets a pointer to the value contained at index
+private void* At(Array array, size_t index)
+{
+	return (char*)array->Values + (index * array->ElementSize);
+}
+
+private void AppendArray(Array array, Array appension)
+{
+	for (size_t i = 0; i < appension->Count; i++)
+	{
+		Arrays.Append(array, At(appension, i));
+	}
 }
 
 private void Dispose(Array array)
