@@ -3,6 +3,9 @@
 #include "csharp.h"
 #include "singine/array.h"
 
+#include "math/bigMatrix.h"
+
+
 // the integral or floating point value type that should be used for math for all the AI stuff
 // default is: float (for speed)
 typedef float ai_number;
@@ -33,6 +36,8 @@ DEFINE_ARRAY(Organism);
 DEFINE_ARRAY(Species);
 DEFINE_ARRAY(ai_number);
 
+
+
 struct organism
 {
 	// Id of the organism
@@ -41,10 +46,10 @@ struct organism
 	size_t Generation;
 	Species Parent;
 	ARRAY(gene) Genes;
-	// the nodes of this organism
-	// format:
-	// input | output | otherNodes
-	ai_number* Nodes;
+	// Big matrix containing all the weights
+	BigMatrix WeightMatrix;
+	// Contains the results of the organism after propogation
+	ARRAY(ai_number) Outputs;
 	size_t NodeCount;
 	// The last calculated fitness
 	ai_number Fitness;

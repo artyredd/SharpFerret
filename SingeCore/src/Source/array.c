@@ -14,6 +14,7 @@ private void InsertionSort(Array, bool(comparator)(void* leftMemoryBlock, void* 
 private void Swap(Array, size_t firstIndex, size_t secondIndex);
 private void AppendArray(Array array, Array appendedValue);
 private void* At(Array array, size_t index);
+private void Clear(Array array);
 
 const struct _arrayMethods Arrays = {
 	.Create = Create,
@@ -24,7 +25,8 @@ const struct _arrayMethods Arrays = {
 	.Swap = Swap,
 	.Dispose = Dispose,
 	.AppendArray = AppendArray,
-	.At = At
+	.At = At,
+	.Clear = Clear
 };
 
 TYPE_ID(Array);
@@ -179,6 +181,12 @@ private void AppendArray(Array array, Array appension)
 	{
 		Arrays.Append(array, At(appension, i));
 	}
+}
+
+private void Clear(Array array)
+{
+	memset(array->Values, 0, array->Size);
+	array->Count = 0;
 }
 
 private void Dispose(Array array)

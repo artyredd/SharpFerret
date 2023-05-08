@@ -105,14 +105,6 @@ private size_t GetNewNodeId(Organism organism)
 
 	organism->NodeCount = safe_add(newNodeId, 1);
 
-	size_t previousSize = sizeof(ai_number) * newNodeId;
-	size_t newSize = sizeof(ai_number) * organism->NodeCount;
-
-	Memory.ReallocOrCopy(&organism->Nodes, previousSize, newSize, Memory.GenericMemoryBlock);
-
-	// give it a random bias
-	organism->Nodes[newNodeId] = Random.NextFloat();
-
 	return newNodeId;
 }
 
@@ -178,10 +170,13 @@ private Organism CreateOrganism(size_t inputNodeCount, size_t outputNodeCount)
 	result->Genes = ARRAYS(gene).Create(0);
 	result->Id = 0;
 	result->InputNodeCount = inputNodeCount;
-	result->Nodes = Memory.Alloc(sizeof(ai_number) * (inputNodeCount + outputNodeCount), Memory.GenericMemoryBlock);
+	result->WeightMatrix = BigMatrices.Create((inputNodeCount + outputNodeCount), (inputNodeCount + outputNodeCount));
+	result->Outputs = ARRAYS(ai_number).Create(outputNodeCount);
 	result->NodeCount = (inputNodeCount + outputNodeCount);
 	result->OutputNodeCount = outputNodeCount;
 	result->Parent = null;
+
+	result->Outputs->Count = 0;
 
 	return result;
 }
@@ -191,6 +186,8 @@ private Organism CloneOrganism(Organism organism)
 	Organism result = CreateOrganism(organism->InputNodeCount, organism->OutputNodeCount);
 
 	ARRAYS(gene).AppendArray(result->Genes, organism->Genes);
+	ARRAYS(ai_number).AppendArray(result->Outputs, organism->Outputs);
+	ARRAYS(float).AppendArray(result->WeightMatrix->Values, organism->WeightMatrix->Values);
 
 	result->Fitness = organism->Fitness;
 	result->Generation = organism->Generation;
@@ -282,6 +279,42 @@ private size_t GetHighestGeneId(const ARRAY(gene) genes)
 	}
 
 	return largestId;
+}
+
+private size_t GetNodeCount(ARRAY(gene) genes)
+{
+	size_t nodeCount = 0;
+
+	for (size_t i = 0; i < genes->Count; i++)
+	{
+		size_t highestIndex = max(genes->Values[i].EndNodeIndex, genes->Values[i].StartNodeIndex);
+		if (highestIndex > nodeCount) {
+			nodeCount = highestIndex;
+		}
+	}
+
+	return nodeCount;
+}
+
+private void LoadWeightsFromGenomeIntoMatrix(ARRAY(gene) genes, BigMatrix matrix)
+{
+	size_t matrixWidth = GetNodeCount(genes);
+
+	// make sure the matrix is big enoughs
+	BigMatrices.Resize(matrix, matrixWidth, matrixWidth);
+
+	// write zeros
+	BigMatrices.Clear(matrix);
+
+	for (size_t geneIndex = 0; geneIndex < genes->Count; geneIndex++)
+	{
+		Gene gene = ARRAYS(gene).At(genes, geneIndex);
+
+		if (gene->Enabled)
+		{
+			*BigMatrices.At(matrix, gene->StartNodeIndex, gene->EndNodeIndex) = gene->Weight;
+		}
+	}
 }
 
 // returns true when the gene array contain the given gene

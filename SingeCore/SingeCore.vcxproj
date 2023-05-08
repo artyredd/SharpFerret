@@ -180,6 +180,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\Source\array.c" />
+    <ClCompile Include="src\Source\bigMatrix.c" />
     <ClCompile Include="src\Source\camera.c" />
     <ClCompile Include="src\Source\Collider.c" />
     <ClCompile Include="src\Source\colors.c" />
@@ -240,6 +241,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\ai\neat.h" />
+    <ClInclude Include="src\Headers\bigMatrix.h" />
     <ClInclude Include="src\Headers\csharp.h" />
     <ClInclude Include="src\Headers\cunit.h" />
     <ClInclude Include="src\Headers\data\objectPool.h" />

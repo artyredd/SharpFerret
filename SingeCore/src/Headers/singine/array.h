@@ -47,6 +47,7 @@ struct _arrayMethods
 	void* (*At)(Array, size_t index);
 	// Appends the given value array to the end of the given array
 	void (*AppendArray)(Array array, Array appendedValue);
+	void (*Clear)(Array array);
 	void (*Dispose)(Array);
 };
 
@@ -92,6 +93,10 @@ private void _array_##type##_AppendArray(ARRAY(type) array, ARRAY(type) appended
 {\
 Arrays.AppendArray((Array)array, (Array)appendedValue); \
 }\
+private void _array_##type##_Clear(ARRAY(type)array)\
+{\
+Arrays.Clear((Array)array); \
+}\
 private void _array_##type##_Dispose(ARRAY(type)array)\
 {\
 Arrays.Dispose((Array)array); \
@@ -107,6 +112,7 @@ void (*Swap)(ARRAY(type), size_t firstIndex, size_t secondIndex); \
 void (*InsertionSort)(ARRAY(type), bool(comparator)(type* leftMemoryBlock, type* rightMemoryBlock)); \
 type* (*At)(ARRAY(type), size_t index); \
 void (*AppendArray)(ARRAY(type), ARRAY(type) appendedValue); \
+void (*Clear)(ARRAY(type));\
 void (*Dispose)(ARRAY(type)); \
 } type##_array##Arrays = \
 {\
@@ -119,8 +125,14 @@ void (*Dispose)(ARRAY(type)); \
 .InsertionSort = _array_##type##_InsertionSort, \
 .At = _array_##type##_At, \
 .AppendArray = _array_##type##_AppendArray, \
+.Clear = _array_##type##_Clear,\
 .Dispose = _array_##type##_Dispose\
 };
 
-
+// define common types
+DEFINE_ARRAY(bool);
+DEFINE_ARRAY(char);
 DEFINE_ARRAY(int);
+DEFINE_ARRAY(float);
+DEFINE_ARRAY(double);
+DEFINE_ARRAY(size_t);
