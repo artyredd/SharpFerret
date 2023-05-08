@@ -118,7 +118,7 @@ struct population
 	size_t GenerationsBeforeStagnation;
 	// The default ratio represented as a percentage [0-1], of how much of the new organisms in a generation
 	// should be created using crossover or just mutations with no crossover
-	ai_number MatingWithCrossoverRatio;
+	ai_number MatingWithCrossoverChance;
 	// the transfer function that should be used between all nodes in the network
 	ai_number(*TransferFunction)(ai_number input);
 	ai_number(*FitnessFunction)(ARRAY(ai_number));

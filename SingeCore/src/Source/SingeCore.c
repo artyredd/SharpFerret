@@ -234,11 +234,11 @@ int main()
 
 	Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
 
-	Collider collider1 = Colliders.Load("assets/colliders/cube.collider");
+	/*Collider collider1 = Colliders.Load("assets/colliders/cube.collider");
 	Collider collider2 = Colliders.Load("assets/colliders/cube.collider");
 
 	collider1->Transform = colliderObject1->Transform;
-	collider2->Transform = colliderObject2->Transform;
+	collider2->Transform = colliderObject2->Transform;*/
 
 	Transforms.SetPositions(colliderObject1->Transform, 10, 10, 10);
 	Transforms.SetPositions(colliderObject2->Transform, 10, 10, 10);
@@ -316,8 +316,8 @@ int main()
 
 		Transforms.SetRotationOnAxis(otherBall->Transform, -rotateAmount / (float)GLM_PI, Vector3.Up);
 
-		Transforms.RotateOnAxis(collider1->Transform, (float)Time.DeltaTime(), Vector3.Right);
-		Transforms.RotateOnAxis(collider1->Transform, (float)Time.DeltaTime(), Vector3.Up);
+		//Transforms.RotateOnAxis(collider1->Transform, (float)Time.DeltaTime(), Vector3.Right);
+		//Transforms.RotateOnAxis(collider1->Transform, (float)Time.DeltaTime(), Vector3.Up);
 
 		// drive car
 		vector3 carDirection = Transforms.GetDirection(car->Transform, Directions.Back);
@@ -380,11 +380,11 @@ int main()
 			colliderPosition += Time.DeltaTime();
 		}
 
-		vector3 newColliderPos = collider2->Transform->Position;
+		//vector3 newColliderPos = collider2->Transform->Position;
 
-		newColliderPos.y = (float)colliderPosition;
+		/*newColliderPos.y = (float)colliderPosition;
 
-		Transforms.SetPosition(collider2->Transform, newColliderPos);
+		Transforms.SetPosition(collider2->Transform, newColliderPos);*/
 
 		// toggle debug normals
 		if (GetKey(KeyCodes.N))
@@ -424,7 +424,7 @@ int main()
 		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, null);
 
 		// 0.01
-		timer += Time.DeltaTime();
+		/*timer += Time.DeltaTime();
 		if (timer >= 0.01)
 		{
 			timer = 0;
@@ -441,7 +441,7 @@ int main()
 				Materials.SetColors(colliderObject1->Material, 1.0, 0.0, 0.0, 0.0);
 				Materials.SetColors(colliderObject2->Material, 0.0, 1.0, 0.0, 0.0);
 			}
-		}
+		}*/
 
 		GameObjects.Draw(skybox, scene);
 

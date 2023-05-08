@@ -67,7 +67,7 @@ private void Append(Array array, void* value)
 
 private void AutoResize(Array array)
 {
-	size_t newSize = array->Size < 8192 ? max(array->Size << 1, 1) : (size_t)(array->Size * 1.2);
+	size_t newSize = max(array->Size << 1, 1);
 
 	if ((newSize % array->ElementSize) isnt 0)
 	{
@@ -112,8 +112,6 @@ private void RemoveIndex(Array array, size_t index)
 	{
 		throw(IndexOutOfRangeException);
 	}
-
-	size_t startOffset = safe_add(index, 1) * array->ElementSize;
 
 	size_t size = safe_subtract(array->Size, safe_add(index, 1) * array->ElementSize);
 

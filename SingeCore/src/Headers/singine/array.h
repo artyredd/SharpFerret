@@ -24,7 +24,7 @@
 typedef struct _array_##type* type##_array; 
 
 #define ARRAY(type) type##_array
-#define ARRAYS(type) type##Arrays
+#define ARRAYS(type) type##_array##Arrays
 
 _ARRAY_DEFINE_STRUCT(void);
 typedef ARRAY(void) Array;
