@@ -16,10 +16,10 @@
 
 private Population CreatePopulation(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount);
 private void DisposePopulation(Population);
-private ai_number SigmoidalTransferFunction(ai_number number);
+private void SigmoidalTransferFunction(ai_number* number);
 private void RunUnitTests();
-private void Propogate(Population, ARRAY(ai_number));
-private void CalculateFitness(Population, ARRAY(ai_number));
+private void Propogate(Population, ARRAY(ai_number) inputData);
+private void CalculateFitness(Population);
 private void CrossMutateAndSpeciate(Population);
 private void SpeciatePopulation(Population);
 
@@ -300,7 +300,7 @@ private void LoadWeightsFromGenomeIntoMatrix(ARRAY(gene) genes, BigMatrix matrix
 {
 	size_t matrixWidth = GetNodeCount(genes);
 
-	// make sure the matrix is big enoughs
+	// make sure the matrix is big enough
 	BigMatrices.Resize(matrix, matrixWidth, matrixWidth);
 
 	// write zeros
@@ -507,9 +507,9 @@ private ai_number GetAdjustedFitness(const Organism organism)
 	return organism->Fitness / (ai_number)organism->Parent->Organisms->Count;
 }
 
-private ai_number SigmoidalTransferFunction(ai_number number)
+private void SigmoidalTransferFunction(ai_number* number)
 {
-	return (ai_number)((ai_number)1.0 / ((ai_number)1.0 + pow((ai_number)DOUBLE_E, (ai_number)-4.9 * number)));
+	*number = (ai_number)((ai_number)1.0 / ((ai_number)1.0 + pow((ai_number)DOUBLE_E, (ai_number)-4.9 * *number)));
 }
 
 private Gene GetGeneWithId(ARRAY(gene) genes, size_t id)
@@ -603,14 +603,45 @@ private void DisposePopulation(Population population)
 	Memory.Free(population, SpeciesTypeId);
 }
 
-private void Propogate(Population population, ARRAY(ai_number) inputData)
+private void PropogateOrganism(Population population, Organism organism, ARRAY(ai_number) inputData)
 {
-	throw(NotImplementedException);
+	LoadWeightsFromGenomeIntoMatrix(organism->Genes, organism->WeightMatrix);
+
+	ARRAYS(ai_number).Clear(organism->Outputs);
+
+	BigMatrices.MultiplyVector(organism->WeightMatrix, (ARRAY(float))inputData, (ARRAY(float))organism->Outputs);
+
+	ARRAYS(ai_number).Foreach(organism->Outputs, population->TransferFunction);
 }
 
-private void CalculateFitness(Population population, ARRAY(ai_number) inputData)
+private void Propogate(Population population, ARRAY(ai_number) inputData)
 {
-	throw(NotImplementedException);
+	for (size_t i = 0; i < population->Species->Count; i++)
+	{
+		Species species = population->Species->Values[i];
+
+		for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
+		{
+			PropogateOrganism(population, species->Organisms->Values[organismIndex], inputData);
+		}
+	}
+}
+
+private void CalculateFitness(Population population)
+{
+	for (size_t i = 0; i < population->Species->Count; i++)
+	{
+		Species species = population->Species->Values[i];
+
+		for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
+		{
+			Organism organism = species->Organisms->Values[organismIndex];
+
+			organism->Fitness = population->FitnessFunction(organism);
+
+			organism->Fitness = GetAdjustedFitness(organism);
+		}
+	}
 }
 
 private bool OrganismFitnessComparator(Organism* left, Organism* right)
@@ -1068,6 +1099,15 @@ TEST(BreedOrganisms)
 
 	ARRAYS(gene).Dispose(expectedGenes);
 	ARRAYS(gene).Dispose(actualGenes);
+
+	return true;
+}
+
+TEST(LoadWeightsFromGenomeIntoMatrix)
+{
+	ARRAY(gene) genes = ExampleGenome_0();
+
+	BigMatrix matrix = BigMatrices.Create(genes->Count, genes->Count);
 
 	return true;
 }

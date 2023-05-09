@@ -125,8 +125,9 @@ struct population
 	// should be created using crossover or just mutations with no crossover
 	ai_number MatingWithCrossoverChance;
 	// the transfer function that should be used between all nodes in the network
-	ai_number(*TransferFunction)(ai_number input);
-	ai_number(*FitnessFunction)(ARRAY(ai_number));
+	// Takes in a reference to a number, should mutate it
+	void(*TransferFunction)(ai_number* input);
+	ai_number(*FitnessFunction)(const Organism organism);
 };
 
 extern struct _neatMethods
@@ -165,11 +166,12 @@ extern struct _neatMethods
 	// should be created using crossover or just mutations with no crossover
 	ai_number DefaultMatingWithCrossoverRatio;
 	// the transfer function that should be used between all nodes in the network
-	ai_number(*DefaultTransferFunction)(ai_number input);
+	// Takes in a reference to a number, should mutate it
+	void(*DefaultTransferFunction)(ai_number* input);
 	Population(*Create)(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount);
 	// Propogates inputdata forward through all the organisms within a population
 	void (*Propogate)(Population, ARRAY(ai_number) inputData);
-	void (*CalculateFitness)(Population, ARRAY(ai_number) inputData);
+	void (*CalculateFitness)(Population, ARRAY(ai_number) expectedData);
 	// Drops the lowest fitness organisms within a population and then mates the top performing
 	// organisms with eachother to replace the dropped organisms
 	void (*CrossMutateAndSpeciate)(Population);

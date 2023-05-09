@@ -48,6 +48,7 @@ struct _arrayMethods
 	// Appends the given value array to the end of the given array
 	void (*AppendArray)(Array array, Array appendedValue);
 	void (*Clear)(Array array);
+	void (*Foreach)(Array, void(*method)(void*));
 	void (*Dispose)(Array);
 };
 
@@ -97,6 +98,10 @@ private void _array_##type##_Clear(ARRAY(type)array)\
 {\
 Arrays.Clear((Array)array); \
 }\
+private void _array_##type##_Foreach(ARRAY(type)array, void(*method)(type*))\
+{\
+Arrays.Foreach((Array)array, method); \
+}\
 private void _array_##type##_Dispose(ARRAY(type)array)\
 {\
 Arrays.Dispose((Array)array); \
@@ -113,6 +118,7 @@ void (*InsertionSort)(ARRAY(type), bool(comparator)(type* leftMemoryBlock, type*
 type* (*At)(ARRAY(type), size_t index); \
 void (*AppendArray)(ARRAY(type), ARRAY(type) appendedValue); \
 void (*Clear)(ARRAY(type));\
+void (*Foreach)(ARRAY(type), void(*method)(type*));\
 void (*Dispose)(ARRAY(type)); \
 } type##_array##Arrays = \
 {\
@@ -126,6 +132,7 @@ void (*Dispose)(ARRAY(type)); \
 .At = _array_##type##_At, \
 .AppendArray = _array_##type##_AppendArray, \
 .Clear = _array_##type##_Clear,\
+.Foreach = _array_##type##_Foreach,\
 .Dispose = _array_##type##_Dispose\
 };
 

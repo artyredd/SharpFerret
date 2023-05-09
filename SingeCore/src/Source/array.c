@@ -15,6 +15,7 @@ private void Swap(Array, size_t firstIndex, size_t secondIndex);
 private void AppendArray(Array array, Array appendedValue);
 private void* At(Array array, size_t index);
 private void Clear(Array array);
+private void Foreach(Array array, void(*method)(void* item));
 
 const struct _arrayMethods Arrays = {
 	.Create = Create,
@@ -26,7 +27,8 @@ const struct _arrayMethods Arrays = {
 	.Dispose = Dispose,
 	.AppendArray = AppendArray,
 	.At = At,
-	.Clear = Clear
+	.Clear = Clear,
+	.Foreach = Foreach
 };
 
 TYPE_ID(Array);
@@ -187,6 +189,25 @@ private void Clear(Array array)
 {
 	memset(array->Values, 0, array->Size);
 	array->Count = 0;
+}
+
+private void food(int n)
+{
+
+}
+
+private void foo()
+{
+	ARRAY(int) thing = 0x1;
+	ARRAYS(int).Foreach(thing, food);
+}
+
+private void Foreach(Array array, void(*method)(void* item))
+{
+	for (size_t i = 0; i < array->Count; i++)
+	{
+		method(At(array, i));
+	}
 }
 
 private void Dispose(Array array)
