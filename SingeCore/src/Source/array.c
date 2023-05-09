@@ -23,6 +23,7 @@ const struct _arrayMethods Arrays = {
 	.Resize = Resize,
 	.Append = Append,
 	.InsertionSort = InsertionSort,
+	.RemoveIndex = RemoveIndex,
 	.Swap = Swap,
 	.Dispose = Dispose,
 	.AppendArray = AppendArray,
@@ -189,17 +190,6 @@ private void Clear(Array array)
 {
 	memset(array->Values, 0, array->Size);
 	array->Count = 0;
-}
-
-private void food(int n)
-{
-
-}
-
-private void foo()
-{
-	ARRAY(int) thing = 0x1;
-	ARRAYS(int).Foreach(thing, food);
 }
 
 private void Foreach(Array array, void(*method)(void* item))

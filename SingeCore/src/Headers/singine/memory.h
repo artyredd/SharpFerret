@@ -6,63 +6,29 @@
 
 #include "csharp.h"
 
-// These perform only helper methods for benchmarking the application
-
-/// <summary>
-/// The number of calls made to free
-/// </summary>
-size_t FreeCount(void);
-
-/// <summary>
-/// The number of calls to alloc made
-/// </summary>
-size_t AllocCount(void);
-
-/// <summary>
-/// The total number in bytes that has been allocated using SafeAlloc()
-/// </summary>
-size_t AllocSize(void);
-
-/// <summary>
-/// Resets the state of SafeAlloc allocation statistics; AllocSize(), AllocCount()
-/// </summary>
-void ResetAlloc(void);
-
-/// <summary>
-/// Resets the state of SafeFree statistics; FreeCount()
-/// </summary>
-void ResetFree(void);
-
-/// <summary>
-/// Prints the current allocation statistics to the provided stream
-/// </summary>
-/// <param name="stream"></param>
-void PrintAlloc(FILE* stream);
-
-/// <summary>
-/// Prints the current free statistics to the provided stream
-/// </summary>
-/// <param name="stream"></param>
-void PrintFree(FILE* stream);
-
 struct _memoryMethods {
+	size_t FreeCount;
+	size_t AllocCount;
+	size_t AllocSize;
+	void (*PrintAlloc)(FILE* stream);
+	void (*PrintFree)(FILE* stream);
 	// MemoryID for a generic block of memory with no associated type
 	const size_t GenericMemoryBlock;
 	// MemoryId for a string
 	const size_t String;
 	/// <summary>
 	/// Safely allocates the provided size of memory, otherwise throws OutOfMemoryException and exits program forcibly, 
-	/// use AllocCount() for the number of calls to this method, use AllocSize() for the amount of memory allocated using this method
+	/// use Memory.AllocCount for the number of calls to this method, use AllocSize() for the amount of memory allocated using this method
 	/// typeID is the id of the registed type name
 	/// </summary>
 	void* (*Alloc)(size_t size, size_t typeID);
-	// Safely frees the provided block of memory, use FreeCount() to get number of times this method was invoked
+	// Safely frees the provided block of memory, use Memory.FreeCount to get number of times this method was invoked
 	void (*Free)(void* address, size_t typeID);
 	// This function returns a pointer to the allocated memory, or NULL if the request fails.
 	void* (*Calloc)(size_t nitems, size_t size, size_t typeID);
 	/// <summary>
 	/// Safely allocates the provided size of memory with the provided alignment, otherwise throws OutOfMemoryException and exits program forcibly, 
-	/// use AllocCount() for the number of calls to this method, use AllocSize() for the amount of memory allocated using this method
+	/// use Memory.AllocCount for the number of calls to this method, use AllocSize() for the amount of memory allocated using this method
 	/// </summary>
 	void* (*AllocAligned)(size_t alignment, size_t size, size_t typeID);
 
@@ -84,7 +50,7 @@ struct _memoryMethods {
 	void(*RegisterTypeName)(const char* name, size_t* out_typeId);
 };
 
-extern const struct _memoryMethods Memory;
+extern struct _memoryMethods Memory;
 
 // generates a static type id storage location for the given type name
 #define TYPE_ID(name) static size_t name##TypeId = 0;

@@ -28,7 +28,8 @@ struct _randomMethods Random =
 	.NextSize_t = NextSize_t,
 	.BetweenFloat = BetweenFloat,
 	.BetweenInt = BetweenInt,
-	.BetweenSize_t = BetweenSize_t
+	.BetweenSize_t = BetweenSize_t,
+	.Chance = Chance
 };
 
 bool GLOBAL_HasInitializedRandomNumberGenerator = false;

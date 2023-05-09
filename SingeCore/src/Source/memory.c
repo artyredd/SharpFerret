@@ -18,8 +18,12 @@ static void ZeroArray(void* address, const size_t size);
 static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength, size_t typeID);
 static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength, size_t typeID);
 static void RegisterTypeName(const char* name, size_t* out_typeId);
+private void PrintAlloc(FILE* stream);
+private void PrintFree(FILE* stream);
 
-const struct _memoryMethods Memory = {
+struct _memoryMethods Memory = {
+	.AllocSize = 0,
+	.AllocSize = 0,
 	.GenericMemoryBlock = 0x0,
 	.String = 0x01,
 	.Alloc = &SafeAlloc,
@@ -29,40 +33,10 @@ const struct _memoryMethods Memory = {
 	.ZeroArray = &ZeroArray,
 	.DuplicateAddress = &DuplicateAddress,
 	.ReallocOrCopy = &ReallocOrCopy,
-	.RegisterTypeName = &RegisterTypeName
+	.RegisterTypeName = &RegisterTypeName,
+	.PrintAlloc = PrintAlloc,
+	.PrintFree = PrintFree
 };
-
-// Total amount of memory (bytes) allocated
-size_t ALLOC_SIZE;
-// Total amount of calls made to malloc()
-size_t ALLOC_COUNT;
-// Total amount of calls made to free()
-size_t FREE_COUNT;
-
-/// <summary>
-/// The number of calls made to free
-/// </summary>
-size_t FreeCount(void) { return FREE_COUNT; }
-
-/// <summary>
-/// The number of calls to alloc made
-/// </summary>
-size_t AllocCount(void) { return ALLOC_COUNT; }
-
-/// <summary>
-/// The total number in bytes that has been allocated using SafeAlloc()
-/// </summary>
-size_t AllocSize(void) { return ALLOC_SIZE; }
-
-/// <summary>
-/// Resets the state of SafeAlloc allocation statistics; AllocSize(), AllocCount()
-/// </summary>
-void ResetAlloc(void) { ALLOC_COUNT = ALLOC_SIZE = 0; }
-
-/// <summary>
-/// Resets the state of SafeFree statistics; FreeCount()
-/// </summary>
-void ResetFree(void) { FREE_COUNT = 0; }
 
 #define MAX_TYPENAME_LENGTH 1024
 #define MAX_REGISTERED_TYPENAMES 128
@@ -78,7 +52,7 @@ struct _typeName {
 	bool Used;
 };
 
-struct _typeName RegisteredTypeNames[MAX_REGISTERED_TYPENAMES] = 
+struct _typeName RegisteredTypeNames[MAX_REGISTERED_TYPENAMES] =
 {
 	{
 		.Id = 0,
@@ -100,12 +74,12 @@ struct _typeName RegisteredTypeNames[MAX_REGISTERED_TYPENAMES] =
 /// Prints the current allocation statistics to the provided stream
 /// </summary>
 /// <param name="stream"></param>
-void PrintAlloc(FILE* stream)
+private void PrintAlloc(FILE* stream)
 {
 	// determine how to shorten the number of bytes
 	fprintf(stream, "Allocated ");
-	PrintGroupedNumber(stream, ALLOC_SIZE);
-	fprintf(stream, " (%lli)\n", ALLOC_COUNT);
+	PrintGroupedNumber(stream, Memory.AllocSize);
+	fprintf(stream, " (%lli)\n", Memory.AllocCount);
 
 	// manually register typename for generic memory
 	for (size_t i = 0; i < MAX_REGISTERED_TYPENAMES; i++)
@@ -123,9 +97,9 @@ void PrintAlloc(FILE* stream)
 /// Prints the current free statistics to the provided stream
 /// </summary>
 /// <param name="stream"></param>
-void PrintFree(FILE* stream)
+private void PrintFree(FILE* stream)
 {
-	fprintf(stream, "Free Count (%lli) ", FREE_COUNT);
+	fprintf(stream, "Free Count (%lli) ", Memory.FreeCount);
 }
 
 /// <summary>
@@ -143,9 +117,9 @@ static void* SafeCalloc(size_t nitems, size_t size, size_t typeID)
 		throw(OutOfMemoryException);
 	}
 
-	ALLOC_SIZE += nitems * size;
+	Memory.AllocSize += nitems * size;
 
-	++ALLOC_COUNT;
+	++Memory.AllocCount;
 
 	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
 
@@ -202,7 +176,7 @@ static void RegisterTypeName(const char* name, size_t* out_typeId)
 #pragma warning (default : 4090)
 
 	memcpy(ptr, name, length);
-	
+
 	// set out var
 	*out_typeId = hash;
 }
@@ -221,9 +195,9 @@ static void* SafeAlloc(size_t size, size_t typeID)
 		throw(OutOfMemoryException);
 	}
 
-	ALLOC_SIZE += size;
+	Memory.AllocSize += size;
 
-	++ALLOC_COUNT;
+	++Memory.AllocCount;
 
 	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
 
@@ -241,9 +215,9 @@ static void* SafeAllocAligned(size_t alignment, size_t size, size_t typeID)
 		throw(OutOfMemoryException);
 	}
 
-	ALLOC_SIZE += size;
+	Memory.AllocSize += size;
 
-	++ALLOC_COUNT;
+	++Memory.AllocCount;
 
 	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
 
@@ -261,7 +235,7 @@ static void SafeFree(void* address, size_t typeID)
 
 	free(address);
 
-	++FREE_COUNT;
+	++Memory.FreeCount;
 
 	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
 

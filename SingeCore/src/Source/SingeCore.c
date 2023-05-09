@@ -486,8 +486,8 @@ int main()
 
 	Windows.StopRuntime();
 
-	PrintAlloc(stdout);
-	PrintFree(stdout);
+	Memory.PrintAlloc(stdout);
+	Memory.PrintFree(stdout);
 
 	// make sure we didn't orphan any textures, buffers, etc.. on the GDI
 	if (GraphicsDevice.TryVerifyCleanup() is false)

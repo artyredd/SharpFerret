@@ -171,7 +171,7 @@ extern struct _neatMethods
 	Population(*Create)(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount);
 	// Propogates inputdata forward through all the organisms within a population
 	void (*Propogate)(Population, ARRAY(ai_number) inputData);
-	void (*CalculateFitness)(Population, ARRAY(ai_number) expectedData);
+	void (*CalculateFitness)(Population);
 	// Drops the lowest fitness organisms within a population and then mates the top performing
 	// organisms with eachother to replace the dropped organisms
 	void (*CrossMutateAndSpeciate)(Population);

@@ -29,6 +29,6 @@ static void RunAll(void)
 	TriangleTests();
 	RunVoxelUnitTests();
 	// reset alloc and free so we get accurate runtime numbers
-	ResetAlloc();
-	ResetFree();
+	Memory.AllocCount = 0;
+	Memory.FreeCount = 0;
 }

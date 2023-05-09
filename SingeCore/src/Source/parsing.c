@@ -304,8 +304,8 @@ static bool Test_TryParseBoolean(File stream)
 
 static bool Test_TryParseStringArray(File stream)
 {
-	ResetAlloc();
-	ResetFree();
+	Memory.AllocCount = 0;
+	Memory.AllocSize = 0;
 
 	char* data = "this, should, be a, string, array";
 	size_t dataLength = strlen(data);
@@ -362,7 +362,7 @@ static bool Test_TryParseStringArray(File stream)
 	Memory.Free(strings, Memory.String);
 
 	// ensure no memory leak
-	Assert(AllocCount() <= FreeCount());
+	Assert(Memory.AllocCount <= Memory.FreeCount);
 
 	return true;
 }

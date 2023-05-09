@@ -6,22 +6,22 @@
 #pragma warning(disable: 4100)
 static bool Test_LeakBasic_Create(File stream)
 {
-	ResetAlloc();
-	ResetFree();
+	Memory.AllocCount = 0;
+	Memory.FreeCount = 0;
 
 	Material material = Materials.Create(null, null);
 
 	Materials.Dispose(material);
 
-	IsEqual(FreeCount(), AllocCount(), "%lli");
+	IsEqual(Memory.FreeCount, Memory.AllocCount, "%lli");
 
 	return true;
 }
 
 static bool Test_Leak_Instance(File stream)
 {
-	ResetAlloc();
-	ResetFree();
+	Memory.AllocCount = 0;
+	Memory.FreeCount = 0;
 
 	Material material = Materials.CreateMaterial();
 
@@ -35,7 +35,7 @@ static bool Test_Leak_Instance(File stream)
 
 	Materials.Dispose(material);
 
-	IsEqual(FreeCount(), AllocCount(), "%lli");
+	IsEqual(Memory.FreeCount, Memory.AllocCount, "%lli");
 
 	return true;
 }

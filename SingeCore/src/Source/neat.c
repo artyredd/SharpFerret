@@ -163,6 +163,19 @@ private void MutateWeights(Organism organism)
 	}
 }
 
+private void CreateDefaultGenome(Population population, ARRAY(gene) genes, size_t inputNodeCount, size_t outputNodeCount)
+{
+	for (size_t input = 0; input < inputNodeCount; input++)
+	{
+		for (size_t output = 0; output < outputNodeCount; output++)
+		{
+			gene newGene = CreateGene(population, input, output);
+
+			ARRAYS(gene).Append(genes, newGene);
+		}
+	}
+}
+
 private Organism CreateOrganism(size_t inputNodeCount, size_t outputNodeCount)
 {
 	Organism result = Memory.Alloc(sizeof(organism), OrganismTypeId);
@@ -259,6 +272,8 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 		for (size_t organism = 0; organism < species->Organisms->Count; organism++)
 		{
 			species->Organisms->Values[organism]->Parent = population.Species->Values[i];
+
+			CreateDefaultGenome(&population, species->Organisms->Values[organism]->Genes, inputNodeCount, outputNodeCount);
 		}
 	}
 
@@ -293,7 +308,7 @@ private size_t GetNodeCount(ARRAY(gene) genes)
 		}
 	}
 
-	return nodeCount;
+	return nodeCount + 1;
 }
 
 private void LoadWeightsFromGenomeIntoMatrix(ARRAY(gene) genes, BigMatrix matrix)
@@ -1103,43 +1118,44 @@ TEST(BreedOrganisms)
 	return true;
 }
 
-TEST(LoadWeightsFromGenomeIntoMatrix)
-{
-	ARRAY(gene) genes = ExampleGenome_0();
-
-	BigMatrix matrix = BigMatrices.Create(genes->Count, genes->Count);
-
-	return true;
-}
-
 DEFINE_ARRAY(ai_number_array);
 
 ARRAY(ai_number_array) GetXORTestData()
 {
-	ARRAY(ai_number_array) result = (ARRAY(ai_number_array))Arrays.Create(sizeof(ai_number_array), 4, Memory.GenericMemoryBlock);
+	ARRAY(ai_number_array) result = (ARRAY(ai_number_array))Arrays.Create(sizeof(ai_number_array), 5, Memory.GenericMemoryBlock);
 
-	result->Values[0] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 3, Memory.GenericMemoryBlock);
-	result->Values[1] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 3, Memory.GenericMemoryBlock);
-	result->Values[2] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 3, Memory.GenericMemoryBlock);
-	result->Values[3] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 3, Memory.GenericMemoryBlock);
+	result->Values[0] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 2, Memory.GenericMemoryBlock);
+	result->Values[1] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 2, Memory.GenericMemoryBlock);
+	result->Values[2] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 2, Memory.GenericMemoryBlock);
+	result->Values[3] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 2, Memory.GenericMemoryBlock);
+	result->Values[4] = (ARRAY(ai_number))Arrays.Create(sizeof(ai_number), 4, Memory.GenericMemoryBlock);
 
 	result->Values[0]->Values[0] = false;
 	result->Values[0]->Values[1] = false;
-	result->Values[0]->Values[2] = false;
 
 	result->Values[1]->Values[0] = true;
 	result->Values[1]->Values[1] = true;
-	result->Values[1]->Values[2] = false;
 
 	result->Values[2]->Values[0] = true;
 	result->Values[2]->Values[1] = false;
-	result->Values[2]->Values[2] = true;
 
 	result->Values[3]->Values[0] = false;
 	result->Values[3]->Values[1] = true;
-	result->Values[3]->Values[2] = true;
+
+	// expected data
+	result->Values[4]->Values[0] = false;
+	result->Values[4]->Values[1] = false;
+	result->Values[4]->Values[2] = true;
+	result->Values[4]->Values[3] = true;
 
 	return result;
+}
+
+static bool GLOBAL_expected = false;
+
+ai_number XORFitnessFunction(const Organism organism)
+{
+	return (ai_number)(fabs((double)organism->Outputs->Values[0]) - (double)GLOBAL_expected);
 }
 
 TEST(XOR_Works)
@@ -1158,25 +1174,35 @@ TEST(XOR_Works)
 
 	Population ai = Neat.Create(15, inputs, outputs);
 
+	ai->FitnessFunction = XORFitnessFunction;
+
 	size_t expectedIterations = 3600;
 
 	ARRAY(ai_number_array) inputDataArrays = GetXORTestData();
 
 	for (size_t i = 0; i < expectedIterations; i++)
 	{
-		for (size_t inputDataIndex = 0; inputDataIndex < inputDataArrays->Count; inputDataIndex++)
+		ARRAY(ai_number) expected = inputDataArrays->Values[inputDataArrays->Count - 1];
+
+		for (size_t inputDataIndex = 0; inputDataIndex < inputDataArrays->Count - 1; inputDataIndex++)
 		{
 			ARRAY(ai_number) inputData = inputDataArrays->Values[inputDataIndex];
 
+			GLOBAL_expected = expected->Values[inputDataIndex];
+
 			Neat.Propogate(ai, inputData);
 
-			Neat.CalculateFitness(ai, inputData);
+			Neat.CalculateFitness(ai);
 
 			Neat.CrossMutateAndSpeciate(ai);
 		}
 	}
 
 	Neat.Dispose(ai);
+	ARRAYS(ai_number_array).Dispose(inputDataArrays);
+
+	Memory.PrintAlloc(stdout);
+	Memory.PrintFree(stdout);
 
 	return true;
 }
@@ -1188,5 +1214,5 @@ TEST_SUITE(
 	APPEND_TEST(GetAverageDifferenceBetweenWeights)
 	APPEND_TEST(GetSimilarity)
 	APPEND_TEST(BreedOrganisms)
-	//APPEND_TEST(XOR_Works)
+	APPEND_TEST(XOR_Works)
 )
