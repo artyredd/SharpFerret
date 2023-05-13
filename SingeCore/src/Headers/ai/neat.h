@@ -91,6 +91,8 @@ struct population
 	size_t Generation;
 	// The number of organisms alloted to this population
 	size_t Count;
+	size_t InputNodeCount;
+	size_t OutputNodeCount;
 	// The sum of all the average fitnesses within the population
 	// used to determine how many organisms get alloted to species
 	ai_number SummedAverageFitness;

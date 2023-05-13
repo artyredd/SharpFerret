@@ -216,21 +216,25 @@ private Organism CloneOrganism(Organism organism)
 	return result;
 }
 
-private Species CreateSpecies(size_t inputNodeCount, size_t outputNodeCount, size_t organismCount)
+private Species CreateSpecies(Population population, size_t organismCount)
 {
 	Species result = Memory.Alloc(sizeof(species), SpeciesTypeId);
 
 	result->Id = 0;
 	result->ReferenceOrganism = null;
+	result->Generation = population->Generation;
 	result->AverageFitness = 0.0;
 	result->MaximumFitness = 0.0;
-	result->InputNodeCount = inputNodeCount;
-	result->OutputNodeCount = outputNodeCount;
+	result->InputNodeCount = population->InputNodeCount;
+	result->OutputNodeCount = population->OutputNodeCount;
 	result->Organisms = ARRAYS(Organism).Create(organismCount);
+	result->Parent = population;
 
 	for (size_t i = 0; i < result->Organisms->Count; i++)
 	{
-		Organism newOrganism = CreateOrganism(inputNodeCount, outputNodeCount);
+		Organism newOrganism = CreateOrganism(result->InputNodeCount, result->OutputNodeCount);
+
+		newOrganism->Generation = result->Generation;
 
 		newOrganism->Id = i;
 
@@ -253,6 +257,8 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 		.SummedAverageFitness = 0,
 		.Genes = ARRAYS(gene).Create(Neat.DefaultGenePoolSize),
 		.Species = ARRAYS(Species).Create(1),
+		.InputNodeCount = inputNodeCount,
+		.OutputNodeCount = outputNodeCount,
 		.AddConnectionMutationChance = Neat.DefaultAddConnectionMutationChance,
 		.AddNodeMutationChance = Neat.DefaultAddNodeMutationChance,
 		.NewWeightMutationChance = Neat.DefaultNewWeightMutationChance,
@@ -271,9 +277,11 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 
 	population.Genes->Count = 0;
 
+	*result = population;
+
 	for (size_t i = 0; i < population.Species->Count; i++)
 	{
-		Species species = CreateSpecies(inputNodeCount, outputNodeCount, populationSize);
+		Species species = CreateSpecies(result, populationSize);
 
 		population.Species->Values[i] = species;
 
@@ -284,11 +292,9 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 		{
 			species->Organisms->Values[organism]->Parent = population.Species->Values[i];
 
-			CreateDefaultGenome(&population, species->Organisms->Values[organism]->Genes, inputNodeCount, outputNodeCount);
+			CreateDefaultGenome(result, species->Organisms->Values[organism]->Genes, inputNodeCount, outputNodeCount);
 		}
 	}
-
-	*result = population;
 
 	return result;
 }
@@ -489,7 +495,7 @@ private void SortOrganismsIntoSpecies(Population population, ARRAY(Organism) org
 		}
 
 		// create a new species
-		Species newSpecies = CreateSpecies(organism->InputNodeCount, organism->OutputNodeCount, 0);
+		Species newSpecies = CreateSpecies(population, 0);
 
 		ARRAYS(Organism).Append(newSpecies->Organisms, organism);
 
