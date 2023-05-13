@@ -50,11 +50,11 @@ TYPE_ID(Species);
 TYPE_ID(Organism);
 TYPE_ID(Population);
 
-private bool TryFindGene(Population species, gene gene, size_t* out_geneIndex)
+private bool TryFindGene(Population population, gene gene, size_t* out_geneIndex)
 {
-	for (size_t i = 0; i < species->Genes->Count; i++)
+	for (size_t i = 0; i < population->Genes->Count; i++)
 	{
-		Gene globalGene = &species->Genes->Values[i];
+		Gene globalGene = &population->Genes->Values[i];
 		if (gene.StartNodeIndex is globalGene->StartNodeIndex && gene.EndNodeIndex is globalGene->EndNodeIndex)
 		{
 			*out_geneIndex = globalGene->Id;
@@ -69,15 +69,21 @@ private size_t AddGlobalGeneToPopulation(Population population, gene gene)
 {
 	size_t newId = population->Genes->Count;
 
-	ARRAYS(gene).Append(population->Genes, gene);
+	gene.Id = newId;
 
-	population->Genes->Values[newId] = gene;
+	ARRAYS(gene).Append(population->Genes, gene);
 
 	return newId;
 }
 
 private gene CreateGene(Population population, size_t startNodeIndex, size_t endNodeIndex)
 {
+	// a node shouldn't point to itself
+	if (startNodeIndex is endNodeIndex)
+	{
+		throw(InvalidArgumentException);
+	}
+
 	gene result = {
 		.Id = 0,
 		.Enabled = true,
@@ -167,7 +173,7 @@ private void CreateDefaultGenome(Population population, ARRAY(gene) genes, size_
 {
 	for (size_t input = 0; input < inputNodeCount; input++)
 	{
-		for (size_t output = 0; output < outputNodeCount; output++)
+		for (size_t output = inputNodeCount; output < outputNodeCount + inputNodeCount; output++)
 		{
 			gene newGene = CreateGene(population, input, output);
 
