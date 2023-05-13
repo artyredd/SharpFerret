@@ -49,6 +49,7 @@ struct _arrayMethods
 	void (*AppendArray)(Array array, Array appendedValue);
 	void (*Clear)(Array array);
 	void (*Foreach)(Array, void(*method)(void*));
+	void (*ForeachWithContext)(Array, void* context, void(*method)(void* context, void* item));
 	void (*Dispose)(Array);
 };
 
@@ -102,6 +103,10 @@ private void _array_##type##_Foreach(ARRAY(type)array, void(*method)(type*))\
 {\
 Arrays.Foreach((Array)array, method); \
 }\
+private void _array_##type##_ForeachWithContext(ARRAY(type)array, void* context, void(*method)(void* context, type* item))\
+{\
+Arrays.ForeachWithContext((Array)array, context, method);\
+}\
 private void _array_##type##_Dispose(ARRAY(type)array)\
 {\
 Arrays.Dispose((Array)array); \
@@ -114,11 +119,12 @@ void (*Resize)(ARRAY(type), size_t newCount); \
 void (*Append)(ARRAY(type), type); \
 void (*RemoveIndex)(ARRAY(type), size_t index); \
 void (*Swap)(ARRAY(type), size_t firstIndex, size_t secondIndex); \
-void (*InsertionSort)(ARRAY(type), bool(comparator)(type* leftMemoryBlock, type* rightMemoryBlock)); \
+void (*InsertionSort)(ARRAY(type), bool(comparator)(type* left, type* right)); \
 type* (*At)(ARRAY(type), size_t index); \
 void (*AppendArray)(ARRAY(type), ARRAY(type) appendedValue); \
 void (*Clear)(ARRAY(type));\
 void (*Foreach)(ARRAY(type), void(*method)(type*));\
+void (*ForeachWithContext)(ARRAY(type), void* context, void(*method)(void*, type*));\
 void (*Dispose)(ARRAY(type)); \
 } type##_array##Arrays = \
 {\
@@ -133,6 +139,7 @@ void (*Dispose)(ARRAY(type)); \
 .AppendArray = _array_##type##_AppendArray, \
 .Clear = _array_##type##_Clear,\
 .Foreach = _array_##type##_Foreach,\
+.ForeachWithContext = _array_##type##_ForeachWithContext,\
 .Dispose = _array_##type##_Dispose\
 };
 

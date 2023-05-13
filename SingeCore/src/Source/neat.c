@@ -3,7 +3,7 @@
 #include "ai/neat.h"
 
 #include "singine/memory.h"
-
+#include "singine/file.h"
 #include "singine/random.h"
 
 #include "Tests/cunit.h"
@@ -215,6 +215,9 @@ private Species CreateSpecies(size_t inputNodeCount, size_t outputNodeCount, siz
 	Species result = Memory.Alloc(sizeof(species), SpeciesTypeId);
 
 	result->Id = 0;
+	result->ReferenceOrganism = null;
+	result->AverageFitness = 0.0;
+	result->MaximumFitness = 0.0;
 	result->InputNodeCount = inputNodeCount;
 	result->OutputNodeCount = outputNodeCount;
 	result->Organisms = ARRAYS(Organism).Create(organismCount);
@@ -259,6 +262,8 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 		.TransferFunction = Neat.DefaultTransferFunction,
 		.FitnessFunction = null
 	};
+
+	population.Genes->Count = 0;
 
 	for (size_t i = 0; i < population.Species->Count; i++)
 	{
@@ -648,6 +653,8 @@ private void CalculateFitness(Population population)
 	{
 		Species species = population->Species->Values[i];
 
+		species->AverageFitness = 0;
+
 		for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
 		{
 			Organism organism = species->Organisms->Values[organismIndex];
@@ -655,7 +662,20 @@ private void CalculateFitness(Population population)
 			organism->Fitness = population->FitnessFunction(organism);
 
 			organism->Fitness = GetAdjustedFitness(organism);
+
+			if (species->MaximumFitness < organism->Fitness)
+			{
+				species->MaximumFitness = organism->Fitness;
+				species->LastGenerationWhereFitnessImproved = safe_subtract(population->Generation, 1);
+			}
+
+			species->AverageFitness += organism->Fitness;
 		}
+
+
+		species->AverageFitness = species->AverageFitness / species->Organisms->Count;
+
+		population->SummedAverageFitness += species->AverageFitness;
 	}
 }
 
@@ -797,10 +817,6 @@ private void CrossMutateAndSpeciate(Population population)
 	// since we're crossing and mutating we should increase our generation
 	safe_increment(population->Generation);
 
-	// go through and average fitnesses and sum them so we can determine
-	// how much each species can reproduce
-	CalculatePopulationFitnesses(population);
-
 	RemoveStagnatingSpecies(population);
 
 	for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
@@ -824,8 +840,47 @@ private void CrossMutateAndSpeciate(Population population)
 	SpeciatePopulation(population);
 }
 
+private void SerializeGene(File stream, Gene gene)
+{
+	fprintf_s(stream, "        [Id: %lli %lli->%lli %s %1.4f]\n", gene->Id, gene->StartNodeIndex, gene->EndNodeIndex, gene->Enabled ? "Enabled" : "Disabled", gene->Weight);
+}
+
+private void SerializeOrganism(File stream, Organism* organismPointer)
+{
+	Organism organism = *organismPointer;
+	if (organism)
+	{
+		fprintf_s(stream, "      Id: %lli\n      Generation: %lli\n      Fitness: %f\n      Genes(%lli):\n", organism->Id, organism->Generation, organism->Fitness, organism->Genes->Count);
+
+		ARRAYS(gene).ForeachWithContext(organism->Genes, stream, SerializeGene);
+	}
+}
+
+private void SerializeSpecies(File stream, Species* speciesPointer)
+{
+	Species species = *speciesPointer;
+
+	fprintf_s(stream, "    Id: %lli\n    Start Generation: %lli\n    Generation: %lli\n    Average Fitness: %f\n    Maximum Fitness: %f\n    Last Generation Where Fitness Improved: %lli\n    Reference Organism:\n", species->Id, species->StartGeneration, species->Generation, species->AverageFitness, species->MaximumFitness, species->LastGenerationWhereFitnessImproved);
+
+	SerializeOrganism(stream, &species->ReferenceOrganism);
+
+	fprintf_s(stream, "    Organisms(%lli):\n", species->Organisms->Count);
+
+	ARRAYS(Organism).ForeachWithContext(species->Organisms, stream, SerializeOrganism);
+}
+
+private void SerializePopulation(File stream, Population population)
+{
+	fprintf_s(stream, "Population(%lli):\n  Generation: %lli\n  Summed Average Fitness: %f\n  Genes(%lli):\n", population->Count, population->Generation, population->SummedAverageFitness, population->Genes->Count);
+
+	ARRAYS(gene).ForeachWithContext(population->Genes, stream, SerializeGene);
+
+	fprintf_s(stream, "  Species(%lli):\n", population->Species->Count);
+	ARRAYS(Species).ForeachWithContext(population->Species, stream, SerializeSpecies);
+}
+
 // Tests
-ARRAY(gene) ExampleGenome_0()
+private ARRAY(gene) ExampleGenome_0()
 {
 	ARRAY(gene) genome = ARRAYS(gene).Create(5);
 
@@ -873,7 +928,7 @@ ARRAY(gene) ExampleGenome_0()
 	return genome;
 }
 
-ARRAY(gene) ExampleGenome_1()
+private ARRAY(gene) ExampleGenome_1()
 {
 	ARRAY(gene) genome = ARRAYS(gene).Create(7);
 
@@ -937,7 +992,7 @@ ARRAY(gene) ExampleGenome_1()
 	return genome;
 }
 
-ARRAY(gene) ExampleGenome_2()
+private ARRAY(gene) ExampleGenome_2()
 {
 	ARRAY(gene) genome = ARRAYS(gene).Create(7);
 
@@ -1174,6 +1229,8 @@ TEST(XOR_Works)
 
 	Population ai = Neat.Create(15, inputs, outputs);
 
+	SerializePopulation(stdout, ai);
+
 	ai->FitnessFunction = XORFitnessFunction;
 
 	size_t expectedIterations = 3600;
@@ -1209,10 +1266,10 @@ TEST(XOR_Works)
 
 TEST_SUITE(
 	RunUnitTests,
+	APPEND_TEST(XOR_Works)
 	APPEND_TEST(GetExcessGeneCount)
 	APPEND_TEST(GetBothDisjointGeneCount)
 	APPEND_TEST(GetAverageDifferenceBetweenWeights)
 	APPEND_TEST(GetSimilarity)
 	APPEND_TEST(BreedOrganisms)
-	APPEND_TEST(XOR_Works)
 )

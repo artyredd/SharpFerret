@@ -99,7 +99,7 @@ private size_t BetweenSize_t(size_t lower, size_t upper)
 {
 	size_t range = safe_subtract(upper, lower);
 
-	size_t offset = (size_t)(NextFloat() * (float)range);
+	size_t offset = NextSize_t() % range;
 
 	return lower + offset;
 }

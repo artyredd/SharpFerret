@@ -16,6 +16,7 @@ private void AppendArray(Array array, Array appendedValue);
 private void* At(Array array, size_t index);
 private void Clear(Array array);
 private void Foreach(Array array, void(*method)(void* item));
+private void ForeachWithContext(Array array, void* context, void(*method)(void* context, void* item));
 
 const struct _arrayMethods Arrays = {
 	.Create = Create,
@@ -29,7 +30,8 @@ const struct _arrayMethods Arrays = {
 	.AppendArray = AppendArray,
 	.At = At,
 	.Clear = Clear,
-	.Foreach = Foreach
+	.Foreach = Foreach,
+	.ForeachWithContext = ForeachWithContext
 };
 
 TYPE_ID(Array);
@@ -197,6 +199,14 @@ private void Foreach(Array array, void(*method)(void* item))
 	for (size_t i = 0; i < array->Count; i++)
 	{
 		method(At(array, i));
+	}
+}
+
+private void ForeachWithContext(Array array, void* context, void(*method)(void* context, void* item))
+{
+	for (size_t i = 0; i < array->Count; i++)
+	{
+		method(context, At(array, i));
 	}
 }
 
