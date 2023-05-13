@@ -43,7 +43,7 @@ private bool NextBool(void)
 
 private float NextFloat(void)
 {
-	return (float)NextInt() / (float)INT_MAX;
+	return ((float)NextInt() / (float)(RAND_MAX));
 }
 
 private float BetweenFloat(float lower, float upper)

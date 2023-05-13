@@ -269,6 +269,7 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 		.SimilarityThreshold = Neat.DefaultSimilarityThreshold,
 		.GenerationsBeforeStagnation = Neat.DefaultGenerationsBeforeStagnation,
 		.OrganismCullingRate = Neat.DefaultOrganismCullingRate,
+		.MatingWithCrossoverChance = Neat.DefaultMatingWithCrossoverRatio,
 		.Generation = 1,
 		.Count = populationSize,
 		.TransferFunction = Neat.DefaultTransferFunction,
@@ -596,7 +597,8 @@ private Organism BreedOrganisms(const Organism left, const Organism right)
 private void DisposeOrganism(Organism organism)
 {
 	ARRAYS(gene).Dispose(organism->Genes);
-	//ARRAYS(float).Dispose(organism->Nodes);
+	ARRAYS(ai_number).Dispose(organism->Outputs);
+	BigMatrices.Dispose(organism->WeightMatrix);
 
 	Memory.Free(organism, OrganismTypeId);
 }
@@ -661,6 +663,8 @@ private void Propogate(Population population, ARRAY(ai_number) inputData)
 
 private void CalculateFitness(Population population)
 {
+	population->SummedAverageFitness = 0;
+
 	for (size_t i = 0; i < population->Species->Count; i++)
 	{
 		Species species = population->Species->Values[i];
@@ -696,18 +700,13 @@ private bool OrganismFitnessComparator(Organism* left, Organism* right)
 	return (*left)->Fitness < (*right)->Fitness;
 }
 
-private void SortOrganismsByFitness(ARRAY(Organism) organisms)
-{
-	ARRAYS(Organism).InsertionSort(organisms, OrganismFitnessComparator);
-}
-
 // removes the poorest performing organisms within a species
 // returns the number of organisms within this species that
 // were removed
 private size_t RemovePoorFitnessOrganisms(Population population, Species species)
 {
 	// sort by fitness
-	SortOrganismsByFitness(species->Organisms);
+	ARRAYS(Organism).InsertionSort(species->Organisms, OrganismFitnessComparator);
 
 	// determine how many to remove
 	const size_t count = (size_t)((ai_number)species->Organisms->Count * population->OrganismCullingRate);
@@ -846,7 +845,7 @@ private void CrossMutateAndSpeciate(Population population)
 		RemovePoorFitnessOrganisms(population, species);
 
 		// replenish UP TO the allotted count even if we removed more then the alloted
-		ReplenishSpecies(population, species, allotedCount);
+		ReplenishSpecies(population, species, safe_subtract(species->Organisms, allotedCount));
 	}
 
 	SpeciatePopulation(population);
@@ -1264,6 +1263,8 @@ TEST(XOR_Works)
 			Neat.CalculateFitness(ai);
 
 			Neat.CrossMutateAndSpeciate(ai);
+
+			SerializePopulation(stdout, ai);
 		}
 	}
 
