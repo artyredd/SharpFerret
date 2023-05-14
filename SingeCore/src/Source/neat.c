@@ -37,7 +37,7 @@ struct _neatMethods Neat = {
 	.DefaultOrganismCullingRate = 0.5f,
 	.DefaultGenerationsBeforeStagnation = 15,
 	.DefaultMatingWithCrossoverRatio = 0.75f,
-	//.DefaultSimilarityThreshold = 3.0f,
+	.DefaultSimilarityThreshold = 3.0f,
 	.DefaultTransferFunction = SigmoidalTransferFunction,
 	.Create = CreatePopulation,
 	.Dispose = DisposePopulation,
@@ -343,7 +343,6 @@ private void SerializePopulation(File stream, Population population)
 	ARRAYS(Species).ForeachWithContext(population->Species, stream, SerializeSpecies);
 }
 
-
 private size_t GetHighestGeneId(const ARRAY(gene) genes)
 {
 	size_t largestId = 0;
@@ -610,7 +609,7 @@ private Organism BreedOrganisms(const Organism left, const Organism right)
 	const Organism moreFitOrganism = left->Fitness > right->Fitness ? left : right;
 	const Organism lessFitOrganism = left->Fitness < right->Fitness ? left : right;
 
-	Organism newOrganism = CreateOrganism(left->InputNodeCount, right->InputNodeCount);
+	Organism newOrganism = CreateOrganism(left->InputNodeCount, left->OutputNodeCount);
 
 	for (size_t geneIndex = 0; geneIndex < moreFitOrganism->Genes->Count; geneIndex++)
 	{
