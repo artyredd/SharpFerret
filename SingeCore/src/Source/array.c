@@ -122,7 +122,7 @@ private void RemoveIndex(Array array, size_t index)
 
 	size_t size = safe_subtract(array->Size, safe_add(index, 1) * array->ElementSize);
 
-	memmove(At(array, safe_add(index, 1)), At(array, index), size);
+	memmove(At(array, index), At(array, safe_add(index, 1)), size);
 
 	safe_decrement(array->Count);
 }

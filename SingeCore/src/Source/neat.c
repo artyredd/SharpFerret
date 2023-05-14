@@ -22,6 +22,8 @@ private void Propogate(Population, ARRAY(ai_number) inputData);
 private void CalculateFitness(Population);
 private void CrossMutateAndSpeciate(Population);
 private void SpeciatePopulation(Population);
+private void DisposeSpecies(Species species);
+private void AssignReferenceOrganism(Species species);
 
 struct _neatMethods Neat = {
 	.DefaultGenePoolSize = 1024,
@@ -35,6 +37,7 @@ struct _neatMethods Neat = {
 	.DefaultOrganismCullingRate = 0.5f,
 	.DefaultGenerationsBeforeStagnation = 15,
 	.DefaultMatingWithCrossoverRatio = 0.75f,
+	//.DefaultSimilarityThreshold = 3.0f,
 	.DefaultTransferFunction = SigmoidalTransferFunction,
 	.Create = CreatePopulation,
 	.Dispose = DisposePopulation,
@@ -300,6 +303,47 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 	return result;
 }
 
+
+private void SerializeGene(File stream, Gene gene)
+{
+	fprintf_s(stream, "        [Id: %lli %lli->%lli %s %1.4f]\n", gene->Id, gene->StartNodeIndex, gene->EndNodeIndex, gene->Enabled ? "Enabled" : "Disabled", gene->Weight);
+}
+
+private void SerializeOrganism(File stream, Organism* organismPointer)
+{
+	Organism organism = *organismPointer;
+	if (organism)
+	{
+		fprintf_s(stream, "      Id: %lli\n      Generation: %lli\n      Fitness: %f\n      Genes(%lli):\n", organism->Id, organism->Generation, organism->Fitness, organism->Genes->Count);
+
+		ARRAYS(gene).ForeachWithContext(organism->Genes, stream, SerializeGene);
+	}
+}
+
+private void SerializeSpecies(File stream, Species* speciesPointer)
+{
+	Species species = *speciesPointer;
+
+	fprintf_s(stream, "    Id: %lli\n    Start Generation: %lli\n    Generation: %lli\n    Average Fitness: %f\n    Maximum Fitness: %f\n    Last Generation Where Fitness Improved: %lli\n    Reference Organism:\n", species->Id, species->StartGeneration, species->Generation, species->AverageFitness, species->MaximumFitness, species->LastGenerationWhereFitnessImproved);
+
+	SerializeOrganism(stream, &species->ReferenceOrganism);
+
+	fprintf_s(stream, "    Organisms(%lli):\n", species->Organisms->Count);
+
+	ARRAYS(Organism).ForeachWithContext(species->Organisms, stream, SerializeOrganism);
+}
+
+private void SerializePopulation(File stream, Population population)
+{
+	fprintf_s(stream, "Population(%lli):\n  Generation: %lli\n  Summed Average Fitness: %f\n  Genes(%lli):\n", population->Count, population->Generation, population->SummedAverageFitness, population->Genes->Count);
+
+	ARRAYS(gene).ForeachWithContext(population->Genes, stream, SerializeGene);
+
+	fprintf_s(stream, "  Species(%lli):\n", population->Species->Count);
+	ARRAYS(Species).ForeachWithContext(population->Species, stream, SerializeSpecies);
+}
+
+
 private size_t GetHighestGeneId(const ARRAY(gene) genes)
 {
 	size_t largestId = 0;
@@ -446,20 +490,17 @@ private bool SimilarOrganisms(const Population population, const Organism leftOr
 private void RemoveDisimilarOrganismsFromSpecies(Population population, Species species, ARRAY(Organism) destinationArray)
 {
 	Organism referenceOrganism = species->ReferenceOrganism;
-	for (size_t organismIndex = 1; organismIndex < species->Organisms->Count; organismIndex++)
+	size_t organismIndex = species->Organisms->Count;
+	while (organismIndex-- > 0)
 	{
 		Organism organism = species->Organisms->Values[organismIndex];
-		if (GetSimilarity(population, referenceOrganism, organism) > population->SimilarityThreshold)
+		if (SimilarOrganisms(population, referenceOrganism, organism) is false)
 		{
 			// add to the array to get sorted
 			ARRAYS(Organism).Append(destinationArray, organism);
 
 			// remove it from this array
-
 			ARRAYS(Organism).RemoveIndex(species->Organisms, organismIndex);
-
-			// go backwards and restart at this index since we removed this index from the array
-			safe_decrement(organismIndex);
 		}
 	}
 }
@@ -500,6 +541,10 @@ private void SortOrganismsIntoSpecies(Population population, ARRAY(Organism) org
 
 		ARRAYS(Organism).Append(newSpecies->Organisms, organism);
 
+		organism->Parent = newSpecies;
+
+		AssignReferenceOrganism(newSpecies);
+
 		ARRAYS(Species).Append(population->Species, newSpecies);
 	}
 }
@@ -512,16 +557,16 @@ private void SpeciatePopulation(Population population)
 	// create a spot to store the organisms needing sorting
 	ARRAY(Organism) organismsNeedingSorting = ARRAYS(Organism).Create(0);
 
-	for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
+	size_t speciesIndex = population->Species->Count;
+	while (speciesIndex-- > 0)
 	{
 		Species species = population->Species->Values[speciesIndex];
 
 		// Remove the species if it doesnt have any organisms
 		if (species->Organisms->Count is 0)
 		{
+			DisposeSpecies(species);
 			ARRAYS(Species).RemoveIndex(population->Species, speciesIndex);
-
-			safe_decrement(speciesIndex);
 
 			continue;
 		}
@@ -700,6 +745,12 @@ private bool OrganismFitnessComparator(Organism* left, Organism* right)
 	return (*left)->Fitness < (*right)->Fitness;
 }
 
+private void AssignReferenceOrganism(Species species)
+{
+	// set the reference organism to a random organism
+	species->ReferenceOrganism = CloneOrganism(species->Organisms->Values[Random.NextSize_t() % species->Organisms->Count]);
+}
+
 // removes the poorest performing organisms within a species
 // returns the number of organisms within this species that
 // were removed
@@ -719,8 +770,7 @@ private size_t RemovePoorFitnessOrganisms(Population population, Species species
 		ARRAYS(Organism).RemoveIndex(species->Organisms, index);
 	}
 
-	// set the reference organism to a random organism
-	species->ReferenceOrganism = CloneOrganism(species->Organisms->Values[Random.NextSize_t() % species->Organisms->Count]);
+	AssignReferenceOrganism(species);
 
 	return count;
 }
@@ -794,7 +844,12 @@ private void MutateOrganism(Population population, Organism organism)
 
 private void ReplenishSpecies(Population population, Species species, size_t count)
 {
-	size_t organismsCreated = 0;
+	if (count is 0)
+	{
+		return;
+	}
+
+	size_t organismsCreated = 1;
 
 	do
 	{
@@ -825,6 +880,9 @@ private void ReplenishSpecies(Population population, Species species, size_t cou
 
 private void CrossMutateAndSpeciate(Population population)
 {
+	fprintf(stdout, "------------------------------------ Before CrossMutateAndSpeciate:\n");
+	SerializePopulation(stdout, population);
+
 	// since we're crossing and mutating we should increase our generation
 	safe_increment(population->Generation);
 
@@ -845,49 +903,10 @@ private void CrossMutateAndSpeciate(Population population)
 		RemovePoorFitnessOrganisms(population, species);
 
 		// replenish UP TO the allotted count even if we removed more then the alloted
-		ReplenishSpecies(population, species, safe_subtract(species->Organisms, allotedCount));
+		ReplenishSpecies(population, species, safe_subtract(species->Organisms->Count, allotedCount));
 	}
 
 	SpeciatePopulation(population);
-}
-
-private void SerializeGene(File stream, Gene gene)
-{
-	fprintf_s(stream, "        [Id: %lli %lli->%lli %s %1.4f]\n", gene->Id, gene->StartNodeIndex, gene->EndNodeIndex, gene->Enabled ? "Enabled" : "Disabled", gene->Weight);
-}
-
-private void SerializeOrganism(File stream, Organism* organismPointer)
-{
-	Organism organism = *organismPointer;
-	if (organism)
-	{
-		fprintf_s(stream, "      Id: %lli\n      Generation: %lli\n      Fitness: %f\n      Genes(%lli):\n", organism->Id, organism->Generation, organism->Fitness, organism->Genes->Count);
-
-		ARRAYS(gene).ForeachWithContext(organism->Genes, stream, SerializeGene);
-	}
-}
-
-private void SerializeSpecies(File stream, Species* speciesPointer)
-{
-	Species species = *speciesPointer;
-
-	fprintf_s(stream, "    Id: %lli\n    Start Generation: %lli\n    Generation: %lli\n    Average Fitness: %f\n    Maximum Fitness: %f\n    Last Generation Where Fitness Improved: %lli\n    Reference Organism:\n", species->Id, species->StartGeneration, species->Generation, species->AverageFitness, species->MaximumFitness, species->LastGenerationWhereFitnessImproved);
-
-	SerializeOrganism(stream, &species->ReferenceOrganism);
-
-	fprintf_s(stream, "    Organisms(%lli):\n", species->Organisms->Count);
-
-	ARRAYS(Organism).ForeachWithContext(species->Organisms, stream, SerializeOrganism);
-}
-
-private void SerializePopulation(File stream, Population population)
-{
-	fprintf_s(stream, "Population(%lli):\n  Generation: %lli\n  Summed Average Fitness: %f\n  Genes(%lli):\n", population->Count, population->Generation, population->SummedAverageFitness, population->Genes->Count);
-
-	ARRAYS(gene).ForeachWithContext(population->Genes, stream, SerializeGene);
-
-	fprintf_s(stream, "  Species(%lli):\n", population->Species->Count);
-	ARRAYS(Species).ForeachWithContext(population->Species, stream, SerializeSpecies);
 }
 
 // Tests
@@ -1065,6 +1084,25 @@ private ARRAY(gene) ExampleGenome_2()
 	};
 
 	return genome;
+}
+
+TEST(ArrayWorks)
+{
+	ARRAY(int) ints = ARRAYS(int).Create(4);
+
+	ints->Values[0] = 0;
+	ints->Values[1] = 1;
+	ints->Values[2] = 2;
+	ints->Values[3] = 3;
+
+	ARRAYS(int).RemoveIndex(ints, 1);
+
+	IsEqual(3ull, ints->Count, "%lli");
+	IsEqual(0, ints->Values[0], "%d");
+	IsEqual(2, ints->Values[1], "%d");
+	IsEqual(3, ints->Values[2], "%d");
+
+	return true;
 }
 
 TEST(GetExcessGeneCount)
@@ -1263,8 +1301,6 @@ TEST(XOR_Works)
 			Neat.CalculateFitness(ai);
 
 			Neat.CrossMutateAndSpeciate(ai);
-
-			SerializePopulation(stdout, ai);
 		}
 	}
 
@@ -1279,6 +1315,7 @@ TEST(XOR_Works)
 
 TEST_SUITE(
 	RunUnitTests,
+	APPEND_TEST(ArrayWorks)
 	APPEND_TEST(XOR_Works)
 	APPEND_TEST(GetExcessGeneCount)
 	APPEND_TEST(GetBothDisjointGeneCount)
