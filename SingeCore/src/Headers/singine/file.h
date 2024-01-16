@@ -1,6 +1,7 @@
 #pragma once
 
 #include "csharp.h"
+#include "array.h"
 
 // When always binary is defined all read and write modes are post-fixed with "b" to enable binary
 #define ALWAYS_BINARY
@@ -32,6 +33,8 @@ static struct _fileModes {
 typedef FILE* File;
 
 struct _fileMethods {
+	bool UseAssetDirectories;
+	ARRAY(char_array) AssetDirectories;
 	/// <summary>
 	/// Attemps to open the file at the provided path with the requested file permissions
 	/// </summary>

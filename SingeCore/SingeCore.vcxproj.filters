@@ -252,6 +252,9 @@
     <ClCompile Include="src\Source\bigMatrix.c">
       <Filter>Source Files\Core</Filter>
     </ClCompile>
+    <ClCompile Include="src\Source\os.c">
+      <Filter>Source Files\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Headers\csharp.h">
@@ -445,6 +448,9 @@
     </ClInclude>
     <ClInclude Include="src\Headers\bigMatrix.h">
       <Filter>Header Files\Math</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Headers\singine\os.h">
+      <Filter>Header Files\Singine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

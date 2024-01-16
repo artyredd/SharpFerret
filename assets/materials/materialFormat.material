@@ -1,0 +1,5 @@
+# the array of shaders that should be loaded for this material
+shaders: assets/shaders/toon, assets/shaders/guiShader
+
+# the material base color
+color: 1.0 0.5 0.25 1.0

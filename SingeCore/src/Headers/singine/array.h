@@ -23,6 +23,25 @@
 };\
 typedef struct _array_##type* type##_array; 
 
+#define MAKE_CONST_ARRAY(type,count, ...) &(struct _array_##type)\
+{\
+	/* The pointer to the backing array */\
+	.Values = (type*) __VA_ARGS__,\
+	/* The size, in bytes, of the backing array*/\
+	.Size = sizeof(type) * count,\
+	/* The size in bytes between elements of the array\
+	// This would typically be the size of the element stored */\
+	.ElementSize = sizeof(type),\
+	/* the size in elements that this array can store\
+	this is the same as Size/ElementSize */\
+	.Capacity = count,\
+	/* The number of elements stored in the array */\
+	.Count = count,\
+	/* The typeid of the element stored in the array */\
+	.TypeId = 0\
+}
+
+// Creates an array of the given type, remember to define the type if this fails to compile
 #define ARRAY(type) type##_array
 #define ARRAYS(type) type##_array##Arrays
 
@@ -150,3 +169,5 @@ DEFINE_ARRAY(int);
 DEFINE_ARRAY(float);
 DEFINE_ARRAY(double);
 DEFINE_ARRAY(size_t);
+
+DEFINE_ARRAY(char_array);

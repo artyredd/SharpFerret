@@ -194,6 +194,7 @@
     <ClCompile Include="src\Source\light.c" />
     <ClCompile Include="src\Source\neat.c" />
     <ClCompile Include="src\Source\objectPool.c" />
+    <ClCompile Include="src\Source\os.c" />
     <ClCompile Include="src\Source\physics.c" />
     <ClCompile Include="src\Source\random.c" />
     <ClCompile Include="src\Source\range.c" />
@@ -296,6 +297,7 @@
     <ClInclude Include="src\Headers\singine\hashing.h" />
     <ClInclude Include="src\Headers\singine\InstancedResource.h" />
     <ClInclude Include="src\Headers\Singine\memory.h" />
+    <ClInclude Include="src\Headers\singine\os.h" />
     <ClInclude Include="src\Headers\singine\parsing.h" />
     <ClInclude Include="src\Headers\singine\random.h" />
     <ClInclude Include="src\Headers\singine\reflection.h" />

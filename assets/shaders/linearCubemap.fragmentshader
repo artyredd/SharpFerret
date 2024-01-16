@@ -1,0 +1,26 @@
+#version 330 core
+
+in vec4 fragmentPosition;
+
+
+vec3 lightPos = {0,3,0};
+float far_plane = 10.0;
+
+uniform int LightCount;
+
+void main()
+{
+    float lightDistance = 1.0;
+
+    if(LightCount > 0)
+    {
+        // get distance between fragment and light source
+        float lightDistance = length(fragmentPosition.xyz - lightPos);
+    
+        // map to [0;1] range by dividing by far_plane
+        lightDistance = lightDistance / far_plane;
+    }
+
+    // write this as modified depth
+    gl_FragDepth = lightDistance;
+}

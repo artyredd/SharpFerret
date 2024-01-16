@@ -4,21 +4,24 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "singine/os.h"
 
-static bool TryOpen(const char* path, FileMode fileMode, File* out_file);
-static File Open(const char* path, FileMode fileMode);
-static size_t GetFileSize(const File file);
-static char* ReadFile(const File file);
-static bool TryReadFile(const File file, char** out_data);
-static char* ReadAll(const char* path);
-static bool TryReadAll(const char* path, char** out_data);
-static bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength);
-static bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count);
-static bool TryClose(File file);
-static void Close(File file);
-static bool TryVerifyCleanup(void);
+private bool TryOpen(const char* path, FileMode fileMode, File* out_file);
+private File Open(const char* path, FileMode fileMode);
+private size_t GetFileSize(const File file);
+private char* ReadFile(const File file);
+private bool TryReadFile(const File file, char** out_data);
+private char* ReadAll(const char* path);
+private bool TryReadAll(const char* path, char** out_data);
+private bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength);
+private bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count);
+private bool TryClose(File file);
+private void Close(File file);
+private bool TryVerifyCleanup(void);
 
 const struct _fileMethods Files = {
+	.UseAssetDirectories = true,
+	.AssetDirectories = MAKE_CONST_ARRAY(char_array, 1, MAKE_CONST_ARRAY(char,sizeof("..\\..\\Singine\\") / sizeof(char) - 1,"..\\..\\Singine\\")),
 	.TryOpen = &TryOpen,
 	.Open = &Open,
 	.GetFileSize = &GetFileSize,
@@ -38,7 +41,7 @@ size_t FILES_OPENED;
 // the number of file handles closed using this file
 size_t FILES_CLOSED;
 
-static bool TryOpen(const char* path, FileMode fileMode, File* out_file)
+private bool TryOpenInteral(const char* path, FileMode fileMode, File* out_file)
 {
 	// make sure to set the out value always to it's default value first
 	*out_file = null;
@@ -71,7 +74,49 @@ static bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 	return true;
 }
 
-static File Open(const char* path, FileMode fileMode)
+
+private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
+{
+	if (TryOpenInteral(path, fileMode, out_file))
+	{
+		return true;
+	}
+
+	// check alternate paths
+	if (Files.UseAssetDirectories)
+	{
+		for (int i = 0; i < Files.AssetDirectories->Count; i++)
+		{
+			const size_t pathSize = strlen(path);
+
+			ARRAY(char) directory = ARRAYS(char_array).At(Files.AssetDirectories, i);
+
+			ARRAY(char) newPath = ARRAYS(char).Create(0);
+
+			ARRAYS(char).AppendArray(newPath, directory);
+
+			for (size_t cIndex = 0; cIndex < pathSize; cIndex++)
+			{
+				int c = *(path + cIndex);
+
+				ARRAYS(char).Append(newPath, c);
+			}
+
+			if (TryOpenInteral(newPath->Values, fileMode, out_file))
+			{
+				ARRAYS(char).Dispose(newPath);
+				return true;
+			}
+
+			ARRAYS(char).Dispose(newPath);
+		}
+	}
+
+	return false;
+}
+
+
+private File Open(const char* path, FileMode fileMode)
 {
 	GuardNotNull(path);
 	GuardNotNull(fileMode);
@@ -91,7 +136,7 @@ static File Open(const char* path, FileMode fileMode)
 	return file;
 }
 
-static size_t GetFileSize(const File file)
+private size_t GetFileSize(const File file)
 {
 	GuardNotNull(file);
 
@@ -121,7 +166,7 @@ static size_t GetFileSize(const File file)
 	return count;
 }
 
-static char* ReadFile(const File file)
+private char* ReadFile(const File file)
 {
 	size_t length = GetFileSize(file);
 
@@ -160,7 +205,7 @@ static char* ReadFile(const File file)
 	return result;
 }
 
-static bool TryReadFile(const File file, char** out_data)
+private bool TryReadFile(const File file, char** out_data)
 {
 	*out_data = null;
 
@@ -202,7 +247,7 @@ static bool TryReadFile(const File file, char** out_data)
 	return true;
 }
 
-static char* ReadAll(const char* path)
+private char* ReadAll(const char* path)
 {
 	File file;
 	if (TryOpen(path, FileModes.Read, &file))
@@ -231,7 +276,7 @@ static char* ReadAll(const char* path)
 	return null;
 }
 
-static bool TryReadAll(const char* path, char** out_data)
+private bool TryReadAll(const char* path, char** out_data)
 {
 	File file;
 
@@ -252,7 +297,7 @@ static bool TryReadAll(const char* path, char** out_data)
 	return false;
 }
 
-static bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength)
+private bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength)
 {
 	GuardNotNull(file);
 
@@ -285,7 +330,7 @@ static bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLen
 	return true;
 }
 
-static bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count)
+private bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count)
 {
 	GuardNotNull(targetSequence);
 	GuardNotZero(targetLength);
@@ -366,7 +411,7 @@ static bool TryClose(File file)
 	return fclose(file) != EOF;
 }
 
-static void Close(File file)
+private void Close(File file)
 {
 	if (TryClose(file) is false)
 	{
@@ -374,7 +419,7 @@ static void Close(File file)
 	}
 }
 
-static bool TryVerifyCleanup(void)
+private bool TryVerifyCleanup(void)
 {
 	if (FILES_OPENED != FILES_CLOSED)
 	{

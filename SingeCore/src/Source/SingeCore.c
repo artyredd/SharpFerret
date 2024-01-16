@@ -60,8 +60,6 @@ void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled);
 
 int main()
 {
-	Neat.RunUnitTests();
-	return;
 	// UNIT TESTING
 	//Tests.RunAll();
 

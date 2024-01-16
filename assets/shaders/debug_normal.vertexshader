@@ -1,0 +1,27 @@
+#version 330 core
+
+// Input vertex data, different for all executions of this shader.
+layout(location = 0) in vec3 vertexPosition_modelspace;
+layout(location = 2) in vec3 normalVector;
+
+//out mat4 view;
+
+// Values that stay constant for the whole mesh.
+uniform mat4 view;
+uniform mat4 model;
+
+out VS_OUT {
+    vec3 normal;
+} vs_out;
+
+void main(){
+
+	vec4 pos = view * model * vec4(vertexPosition_modelspace,1);
+
+	// Output position of the vertex, in clip space : MVP * position
+	gl_Position =  pos;
+
+	mat3 normalMatrix = mat3(transpose(inverse(view * model)));
+
+    vs_out.normal = normalize(vec3(vec4(normalMatrix * normalVector, 0.0)));
+}
