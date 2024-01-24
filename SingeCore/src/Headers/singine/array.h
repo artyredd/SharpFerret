@@ -41,6 +41,8 @@ typedef struct _array_##type* type##_array;
 	.TypeId = 0\
 }
 
+#define MAKE_CONST_STRING(string) MAKE_CONST_ARRAY(char, sizeof(string) / sizeof(char)-1, string)
+
 // Creates an array of the given type, remember to define the type if this fails to compile
 #define ARRAY(type) type##_array
 #define ARRAYS(type) type##_array##Arrays

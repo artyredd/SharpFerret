@@ -5,9 +5,14 @@
 // >:(
 
 private ARRAY(char) ExecutableDirectory(void);
+private ARRAY(char) ExecutableDirectorylINUX(void);
 
 extern const struct _osMethods OperatingSystem = {
+#ifdef LINUX
+	.ExecutableDirectory = ExecutableDirectoryLINUX
+#else
 	.ExecutableDirectory = ExecutableDirectory
+#endif
 };
 
 ARRAY(char) ExecutableDirectory(void)

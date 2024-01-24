@@ -21,7 +21,7 @@ private bool TryVerifyCleanup(void);
 
 const struct _fileMethods Files = {
 	.UseAssetDirectories = true,
-	.AssetDirectories = MAKE_CONST_ARRAY(char_array, 1, MAKE_CONST_ARRAY(char,sizeof("..\\..\\Singine\\") / sizeof(char) - 1,"..\\..\\Singine\\")),
+	.AssetDirectories = MAKE_CONST_ARRAY(char_array, 1, MAKE_CONST_STRING("..\\..\\Singine\\")),
 	.TryOpen = &TryOpen,
 	.Open = &Open,
 	.GetFileSize = &GetFileSize,

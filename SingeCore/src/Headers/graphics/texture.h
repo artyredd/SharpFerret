@@ -3,6 +3,7 @@
 #include "graphics/sharedBuffer.h"
 #include "graphics/imaging.h"
 #include "graphics/textureDefinitions.h"
+#include "singine/array.h"
 
 #define DEFAULT_MINIFYING_FILTER FilterTypes.Linear
 #define DEFAULT_MAGNIFYING_FILTER FilterTypes.Linear
@@ -32,6 +33,8 @@ struct _texture {
 	WrapMode WrapY;
 	WrapMode WrapZ;
 };
+
+DEFINE_ARRAY(Texture);
 
 struct _textureMethods
 {
