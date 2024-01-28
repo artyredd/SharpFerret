@@ -107,7 +107,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\_Programming\Repos\C\SingeEngine\external\stb_image;C:\_Programming\Repos\C\SingeEngine\external\glew-2.2.0\include;C:\_Programming\Repos\C\SingeEngine\external\cglm-282ea84\include;C:\_Programming\Repos\C\SingeEngine\external\glfw-3.3.5.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)external\stb_image;$(SolutionDir)external\glew\include;$(SolutionDir)external\cglm\include\;$(SolutionDir)external\glfw\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

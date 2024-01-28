@@ -61,9 +61,9 @@ static void RecalculateProjection(Camera camera)
 {
 	if (camera->Orthographic)
 	{
-		glm_ortho(camera->LeftDistance, 
-			camera->RightDistance, 
-			camera->BottomDistance, 
+		glm_ortho(camera->LeftDistance,
+			camera->RightDistance,
+			camera->BottomDistance,
 			camera->TopDistance,
 			camera->NearClippingDistance,
 			camera->FarClippingDistance,

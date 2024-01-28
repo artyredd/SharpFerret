@@ -1,0 +1,1628 @@
+[33mcommit 47c1e77fc29c9579a5f57ab516214e7936ffa0cf[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat Jan 27 03:36:01 2024 -0500
+
+    add build folder because it got ignored
+
+[33mcommit 4a5dd54fadb10b0bb754a869d86894c464750145[m
+Author: ArtyRedd <arty@example.com>
+Date:   Wed Jan 24 03:48:33 2024 -0500
+
+    add macros for const arrays for compile time RM#69696
+
+[33mcommit d2fa9c4246b1b54350d94fe68a3e864fecdfec94[m
+Author: ArtyRedd <arty@example.com>
+Date:   Mon Jan 15 22:23:41 2024 -0500
+
+    add os header, add helper func to arrays, delete some files, rename some stuff
+
+[33mcommit b5ac5491c01760681ddcbb66889ca4649094924e[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat May 13 23:27:28 2023 -0400
+
+    fix inputnode bug
+
+[33mcommit 247ce5404e26a1fe744f01b0ae91d14c77b7dde5[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat May 13 23:24:03 2023 -0400
+
+    fix array bug
+
+[33mcommit 38605512af0ef53e37043d52cec912d1a5aea3ec[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat May 13 18:15:05 2023 -0400
+
+    fix mating with crossover bug
+
+[33mcommit 6fd261796ba8889d55a5b25e703c6faebd42e402[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat May 13 17:12:27 2023 -0400
+
+    fix generation bug
+
+[33mcommit 5fa32a2a1720da1e596734bf2351886e1cbc7639[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat May 13 17:03:06 2023 -0400
+
+    fix id bug
+
+[33mcommit e8ab47230a7f06a19fea4f7bee057d50f0dea866[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat May 13 16:52:31 2023 -0400
+
+    added printing for neat stuff
+
+[33mcommit 8f04313de60333f353f200c90bcf75bc7dcfb416[m
+Author: ArtyRedd <arty@example.com>
+Date:   Mon May 8 23:08:37 2023 -0400
+
+    updated memory stuff, wrap up AI cont
+
+[33mcommit 476ef254247ff53ea392d5a36169d4d92943f3d6[m
+Author: ArtyRedd <arty@example.com>
+Date:   Mon May 8 21:44:43 2023 -0400
+
+    begin wrapping up AI
+
+[33mcommit 355a64ba0de10aa256327961bfccd3e1eb6b9e80[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sun May 7 22:10:27 2023 -0400
+
+    added big matrices and started progation stuff
+
+[33mcommit d5d2d52955abc8e1b159faf44884b991ce66f0cc[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sun May 7 21:05:33 2023 -0400
+
+    Updated use of new templated arrays within neat
+
+[33mcommit d92e717221f8ee322db65e9f80c4b279b125ad14[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sun May 7 20:36:41 2023 -0400
+
+    Upgraded templating for arrays
+
+[33mcommit fd0e0453c32e2a1b58067febb696e6f5cdf3dcd6[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri May 5 23:46:33 2023 -0400
+
+    added at method for arrays, added more neat stuff
+
+[33mcommit 46b504afd65f5b0290f30a9ba03afb81f713e7a1[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri May 5 23:02:31 2023 -0400
+
+    fix signature mismatches, more AI additions
+
+[33mcommit 404188246fa2299c6473fa8f4a73901ad260f964[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri May 5 22:39:40 2023 -0400
+
+    added sorting to arrays, added more AI work
+
+[33mcommit b7672803223f2b2b96946d97c9d8bd732508478b[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat Apr 29 09:36:11 2023 -0400
+
+    added some tests
+
+[33mcommit 3245129a995d0de372dd7063da563eaaaf3028be[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat Apr 29 08:41:56 2023 -0400
+
+    added speciation
+
+[33mcommit de758ba303938b1d77666a91e5e75b030ac1b44b[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Apr 28 15:26:00 2023 -0400
+
+    added ARRAYt macro, started NEAT implementation
+
+[33mcommit 79efbb60657ff7c6b6e21ecc159adc6dd7bee122[m
+Author: ArtyRedd <arty@example.com>
+Date:   Mon Apr 24 01:34:00 2023 -0400
+
+    Added random class
+
+[33mcommit e4571b0a7aa238f5040ba5b50ed1cffb4b6d4758[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Apr 14 17:24:48 2023 -0400
+
+    fixed voxel generation
+
+[33mcommit 0ada304920a3033b103f1d7084fb980e0d9adf14[m
+Author: ArtyRedd <arty@example.com>
+Date:   Wed Feb 15 06:04:08 2023 -0500
+
+    add voxels
+
+[33mcommit 3ee73beaacf5526d8b5033c0639b595df8b613c5[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Feb 10 00:14:28 2023 -0500
+
+    fixec collision cont
+
+[33mcommit 3fa413b454fe8b2a9d040603c9fb947446aa67c3[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Feb 10 00:14:19 2023 -0500
+
+    fixed collision
+
+[33mcommit d0ce12709edcb7ad90b0f6cd1783f66c2467e905[m
+Author: ArtyRedd <arty@example.com>
+Date:   Wed Feb 8 05:41:27 2023 -0500
+
+    clean up some warnings
+
+[33mcommit bcd9c1d27651589d2760d78aeefa0d94acd7de03[m
+Author: ArtyRedd <arty@example.com>
+Date:   Wed Feb 8 05:39:37 2023 -0500
+
+    Fix rendering
+
+[33mcommit 27b99c380532f55591827f77b285520845f04298[m
+Author: ArtyRedd <arty@example.com>
+Date:   Wed Feb 8 05:34:57 2023 -0500
+
+    update to struct vector cont
+
+[33mcommit 7452ec391058f9edbea4f6510397a742f242ce97[m
+Author: ArtyRedd <arty@example.com>
+Date:   Wed Feb 8 04:57:12 2023 -0500
+
+    Abstracted cglm into vectors, used structs instead of arrays for vectors
+
+[33mcommit 0bddbe2aeb646f1c6427d4817da2b89be533984c[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sun Feb 5 03:14:40 2023 -0500
+
+    start add physics
+
+[33mcommit 3a1f74d63a24062b0d14b967816a1bcc9ae904a5[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat Feb 4 22:06:39 2023 -0500
+
+    Removed debug stuff
+
+[33mcommit df4f8dd2a4219cd4be7373d0b116f95862bd1135[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat Feb 4 22:06:20 2023 -0500
+
+    removed some extra stuff
+
+[33mcommit ca8bb10510b4e1034c2f9256d94479b869bd6491[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat Feb 4 22:02:01 2023 -0500
+
+    added collision
+
+[33mcommit fda25f8df0773f69d35462e8a01792e0533cc059[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Feb 3 21:29:28 2023 -0500
+
+    fix buffer issue
+
+[33mcommit e6783fbcaef80f350365be9d6710e4a0491fcc95[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Feb 3 20:57:01 2023 -0500
+
+    fix drawing issue
+
+[33mcommit 6274b91802c05bf97ee00dfda538ca9b00fbe5ff[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sat Jan 7 07:09:09 2023 -0500
+
+    refactor config usage
+
+[33mcommit 9f76700a55058b10ec97f3f48df9c88496f7b531[m
+Author: ArtyRedd <arty@example.com>
+Date:   Thu Dec 29 07:05:03 2022 -0500
+
+    added triangle intersection
+
+[33mcommit 458a7ee59e7925f72ae14c9190f1b8e497aa7a6f[m
+Author: ArtyRedd <arty@example.com>
+Date:   Mon Dec 12 02:08:07 2022 -0500
+
+    added in memory allocation type system
+
+[33mcommit 4e852e286f7c74f7b64da09a252a8bba66745464[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Nov 25 00:56:58 2022 -0500
+
+    Added time comments
+
+[33mcommit c1912a3113dd16f722417167dbd707819dffc082[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Nov 25 00:55:22 2022 -0500
+
+    Remove macro constants
+
+[33mcommit 2134920f97b0a78cefa35ecf3f631f4b0e934d98[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Nov 25 00:47:35 2022 -0500
+
+    Update time api to match code style
+
+[33mcommit 7e37dbe79c43878f0144bc91ab34794cb0710e96[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Nov 25 00:27:23 2022 -0500
+
+    update sln
+
+[33mcommit 791674c6bacd75bfa13876a6a4d14bb8021ea122[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Nov 25 00:26:56 2022 -0500
+
+    update dependencies
+
+[33mcommit 467486d7c2c0482ba5aaff947e634cb7a03c3831[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Nov 25 00:25:22 2022 -0500
+
+    change memory api to adhere to code standards
+
+[33mcommit 975af2669454ab7a510473e6e0dd119685f6a16f[m
+Author: ArtyRedd <arty@example.com>
+Date:   Wed Nov 23 17:12:03 2022 -0500
+
+    add generic macro for abstracted pointer, started code cleanup
+
+[33mcommit 8aa2d5e71627634652f3a48672e5bcf512e57088[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sun Nov 20 15:10:05 2022 -0500
+
+    Add pointerbase, pre-macro-ification
+
+[33mcommit f5dd72991fcb6f10b5cfc2b57250b327144e4465[m
+Author: ArtyRedd <arty@example.com>
+Date:   Sun Nov 20 12:43:46 2022 -0500
+
+    remove file
+
+[33mcommit d273e47bb8d262382763468b67da80f1e071fa34[m
+Merge: 5ae18bd 047b868
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Nov 18 14:33:53 2022 -0500
+
+    Merge branch 'master' of https://github.com/DekuDesu/SingeEngine
+
+[33mcommit 5ae18bdc3250dc705ebef910578f4228e724469e[m
+Author: ArtyRedd <arty@example.com>
+Date:   Fri Nov 18 14:33:07 2022 -0500
+
+    fixed bug where fps camera was stuttering
+
+[33mcommit 047b8684efbf0b0f3b28b4d25d6b7383bcfb9c1e[m
+Author: Arty <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:59:28 2022 -0400
+
+    Update README.md
+
+[33mcommit 8aecb56547efe45a1ee34b71d6907a323afb8957[m
+Merge: d24c7cf 10224e9
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:46:32 2022 -0400
+
+    Merge branch 'master' of https://github.com/DekuDesu/SingeEngine
+
+[33mcommit d24c7cf77444e8e5596afa0cd8de2d27d3862255[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:46:23 2022 -0400
+
+    added more showcase stuff
+
+[33mcommit 10224e96a708c663210b0a27795878dfe33780d9[m
+Author: Arty <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:44:51 2022 -0400
+
+    Update README.md
+
+[33mcommit c2b716e50a9452bf46d1ea413a419f2705febec7[m
+Author: Arty <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:42:51 2022 -0400
+
+    Update README.md
+
+[33mcommit ab1bb6f7cb9cd2cfc10f860dab2f0c6a5839499b[m
+Author: Arty <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:24:50 2022 -0400
+
+    Update README.md
+
+[33mcommit 4ad197367c6dd76ab4e6259d194b768dada1e66a[m
+Author: Arty <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:23:18 2022 -0400
+
+    Update README.md
+
+[33mcommit 12dbecd59cf113b10da21b76116177f3d132433c[m
+Author: Arty <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:22:37 2022 -0400
+
+    Update README.md
+
+[33mcommit 496e7aa5fac3c3a6ae627799b5eaaeeb21231c33[m
+Author: Arty <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:22:24 2022 -0400
+
+    Update README.md
+
+[33mcommit efe640fcbc9622963e100776d1bea30064ba2514[m
+Author: Arty <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:21:59 2022 -0400
+
+    Update README.md
+
+[33mcommit 6dd75b75c120c78ef8554dee843f9ae5f1d8e8d2[m
+Author: Arty <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 11:21:39 2022 -0400
+
+    Create README.md
+
+[33mcommit 4f44ac4eb6b8458f12a1786cdad1d514c39aac3e[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Mar 21 07:31:03 2022 -0400
+
+    updated exmaple usage in main
+
+[33mcommit 94aa79bad492863057afebda2d21e53433ae553d[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Mar 21 05:22:26 2022 -0400
+
+    updated lighting algorithm
+
+[33mcommit 887c979e3bfa52ea2197baa13a2187a03a95ecb7[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Mar 1 05:38:30 2022 -0500
+
+    fixed point light lighting algorithm
+
+[33mcommit 3896b7e6a26f95acc32cab1007ba558957d94024[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Mar 1 03:32:34 2022 -0500
+
+    various lighting improvments
+
+[33mcommit a9618e12bc1a8b7c581ecd5efa5263a676db9f98[m
+Merge: 95d7f65 2ec96b3
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Feb 27 19:46:33 2022 -0500
+
+    updated cubemap shader definition
+
+[33mcommit 95d7f656dfcec651de0a299e34a5b2a1c9966100[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Feb 27 19:44:08 2022 -0500
+
+    fixed dangling cubemap textures on GDI for skybox, started point light implementation for shadows
+
+[33mcommit 2ec96b34f29d3e6d054c709c74d9e35dae999555[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Feb 27 19:44:08 2022 -0500
+
+    fixed dangling cubemap textures on GDI for skybox, started point light implementation for shadows
+
+[33mcommit 9de208a4f42f09d67048ec227c057b929c52766e[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Feb 25 14:28:38 2022 -0500
+
+    added shadow support
+
+[33mcommit 7416d948dbe40ff7c6cc4656ccb31de17fd247df[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Feb 24 22:02:39 2022 -0500
+
+    added culling type specifiers in shader definitions
+
+[33mcommit 8e70bbcc9e3dc55e9a59e1770d1ed6d05f7f1080[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Feb 24 21:44:16 2022 -0500
+
+    implemented basic shadows
+
+[33mcommit 3e73bf3486a87eb407e0e3f5274c3e6eddefd726[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Feb 24 21:39:31 2022 -0500
+
+    fixed specular lighting, started shadow implementation
+
+[33mcommit 7aa4e3304266970d19dde75945b2419696bad056[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Feb 24 05:47:30 2022 -0500
+
+    imeplemented auto-frame buffer creation for lights for shadowmapping
+
+[33mcommit 29982b575975d891419c9d9ca5e86fb809714a35[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Feb 24 04:34:52 2022 -0500
+
+    fixed sign flip in camera Create() causing un-usable default for orthographic camera
+
+[33mcommit bf03ce142255d3d91a8d78bc6f704a27e154c4cd[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Feb 24 04:26:26 2022 -0500
+
+    fixed bug in shader not instancing depth setting, added depth map test material and shaders
+
+[33mcommit 60caa3ec5cb1e54b82a9ea882b290757dc5ff0d8[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Feb 24 01:48:14 2022 -0500
+
+    added ortho graphic camera support
+
+[33mcommit f246a656f0bd218f9d5d0b5eec2da593008288e1[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Feb 22 06:15:18 2022 -0500
+
+    added some more convenience features in creating various types of frame buffers such as depth buffers for shadow maps
+
+[33mcommit ef581072755b69e09f804d76d40f4c5b8dc950c7[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Feb 22 03:55:09 2022 -0500
+
+    added default frame buffer
+
+[33mcommit 4af6db87d98dc642f9980ca8d2f73dfc1ddb845b[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Feb 21 03:05:16 2022 -0500
+
+    implemented frame buffer support
+
+[33mcommit c85e057c9cff87568f5ce9de3d48568df66ef245[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Feb 20 20:13:40 2022 -0500
+
+    started frame buffer implementation
+
+[33mcommit 12c9be9056cf7c888cf7ab4762e24bb7fda5347c[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Feb 20 17:17:52 2022 -0500
+
+    added more dependency seperation for opengl
+
+[33mcommit 95cc7cd16db174317c0fc0b7bdcc2a3b36e7c217[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Feb 20 16:13:39 2022 -0500
+
+    added shader toggling support
+
+[33mcommit c7b79ec891e4e1dd3c037723fe2e74c6543876c1[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Feb 20 16:11:30 2022 -0500
+
+    removed deprecated shader loading code, added testing geometry shader
+
+[33mcommit 62df779bf2a07c281a4fc5f77197c32dbbe4b76f[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Feb 18 14:12:45 2022 -0500
+
+    added support for geometry shaders
+
+[33mcommit 0986cd6e597334c2a4426ff59ed6873039a0bb44[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Feb 18 13:53:49 2022 -0500
+
+    refactored some uniform setting from material.c
+
+[33mcommit e0d2b6d315bbcac10b23bb6211e419cc012b7ab6[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Feb 16 20:50:14 2022 -0500
+
+    refactored uniform setting to shaders fine, fixed range and radius in lighting
+
+[33mcommit c76cd798b9df78f9e69fc427cb4b58a619508a6b[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Feb 14 06:26:20 2022 -0500
+
+    fixed reflections being in view space instead of model space
+
+[33mcommit 23b037e4a24d6147fe248bd294b99c8b2ac8b94c[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Feb 12 12:18:45 2022 -0500
+
+    started rework of lighting shaders
+
+[33mcommit a230c40c22f450ba897bc45bc83c175e4ca072f0[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Feb 9 16:13:00 2022 -0500
+
+    implemented reflections into materials
+
+[33mcommit bf3f40ecc312fefccaf22292e520d06bea01fa1a[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Feb 9 14:55:36 2022 -0500
+
+    re-ordered skybox test images
+
+[33mcommit 1397017d6f218fdc0453f6f6ef0845d531050c36[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Feb 9 14:49:06 2022 -0500
+
+    fixed reflection bug causing ambiguous token loading for configs, implemented test skybox
+
+[33mcommit 1cbf526aec9af1da641dfebe92336cb366e8ca46[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Feb 8 04:30:32 2022 -0500
+
+    added skypbox test
+
+[33mcommit 9afc98d457aacb4017635dd38bb7acb1f0b2771d[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Feb 8 04:23:18 2022 -0500
+
+    added cubemap support to textures
+
+[33mcommit 6b158efeb4e53ceb719d09ecc68a8b2ec727112c[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Feb 8 04:17:42 2022 -0500
+
+    added per-shader depth test support
+
+[33mcommit 8f353bbb8cec9234c698310c146187f7a0d2dfa0[m
+Merge: 9a42008 9c57f84
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Feb 8 03:50:42 2022 -0500
+
+    added skybox test shaders
+
+[33mcommit 9a42008d3b96f77b5a6dcb0dac50139e130ca2a1[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Feb 8 03:47:52 2022 -0500
+
+    added skybox testing shaders
+
+[33mcommit 9c57f84ed0bcf398500ed29403fd5699a6c6c712[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Feb 8 03:23:47 2022 -0500
+
+    refactored reflection helper API to be more in-line with the rest of the projects style/framework
+
+[33mcommit f2fee3b63ddb89b4e828e1ec448b11b1ee094a2b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Feb 7 03:25:36 2022 -0500
+
+    fixed dangling file handle bug
+
+[33mcommit 91139c07ba315159e832a0fd6cdc909d5368bb60[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Feb 6 18:22:37 2022 -0500
+
+    implemented cube maps into texture object
+
+[33mcommit d929f094967a22b379fa0e5641144dff88dcf782[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Feb 3 18:32:10 2022 -0500
+
+    implemented filter and wrap mode saving for textures
+
+[33mcommit 32379347e330016dee92cbd687b24620819494e0[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Feb 2 05:19:10 2022 -0500
+
+    removed opengl dependency within texture.c, added loading and saving textures to texture definition files
+
+[33mcommit fba05572d1946210fc52a9377538a4af5c1c7d91[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 31 18:28:18 2022 -0500
+
+    fixed memory leak in RenderMesh name importing
+
+[33mcommit 250652c06058d369f1b4e76b03b18efbee210636[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 31 17:05:11 2022 -0500
+
+    added spotlight and directional light support
+
+[33mcommit 6861c85f5ef345fc9fee18b68e9474ce289edc68[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 31 07:34:17 2022 -0500
+
+    added support for partial shaders
+
+[33mcommit db6f7e5da6e1ef24bd83231e26f10791b84dfd57[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Jan 28 10:25:49 2022 -0500
+
+    fixed text coords being reversed in shaders
+
+[33mcommit 59a6669b58001bb50c84c9f5df6740630b78249f[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Jan 28 09:02:07 2022 -0500
+
+    added specular texture support and created sensible default materials
+
+[33mcommit 258a49c5ba0ffb08ce1fdf6ac288a0085af6ba97[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 27 19:31:43 2022 -0500
+
+    implemented shader uniform caching
+
+[33mcommit 27c86a1d846b6c734286bd7cf5324783ec7078ed[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 27 17:34:56 2022 -0500
+
+    fixed memory error in rendermesh
+
+[33mcommit c4797184a4d0d4170c6005072710a9fd40c42dd0[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Jan 27 06:44:50 2022 -0500
+
+    fixed specular lighting not working becuase of missing uniform set call
+
+[33mcommit 07720f5c985d0a6a6586c791a0bbe2db20dc304c[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Jan 25 07:07:50 2022 -0500
+
+    started implementing lighting
+
+[33mcommit 360c875711f6104d31f200f32d025d132b09c11e[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Jan 25 04:05:32 2022 -0500
+
+    removed redudant macro definition of shininess
+
+[33mcommit 06ccdb8c4f23f44033041d284188fd7bb4866d3f[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Jan 25 04:03:54 2022 -0500
+
+    added shininess support and reasonable defaults for material colors
+
+[33mcommit d2fc9cf826cd65e7b4925efd0d7635b5fb3921a9[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Jan 25 03:57:20 2022 -0500
+
+    added support for diffuse portion of material
+
+[33mcommit 779c654a4b21fe272da591949b68ef55ebc2ef95[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Jan 25 02:28:00 2022 -0500
+
+    implemented light create and dispose, refactored material.c minor
+
+[33mcommit 3ba7647867fc798f7f7fec27dc29a319f2903343[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Jan 24 04:55:36 2022 -0500
+
+    added support in materials for specular and ambient colors/textures
+
+[33mcommit 0135de71b9a03346cc487289b5f6bf352a4f83ff[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Jan 24 04:19:19 2022 -0500
+
+    added scenes and light objects
+
+[33mcommit accf3ae7b530058b7e7b1572e0ee51f647c2683b[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Jan 24 03:40:43 2022 -0500
+
+    various preparations for lighting infrastructure
+
+[33mcommit 464731af969a327c27bcba789242189810138c99[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Jan 23 01:02:13 2022 -0500
+
+    added smoothing support
+
+[33mcommit 69b6a2ad99072c79f8d350992bebb1e2ea4e3662[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 22 22:32:48 2022 -0500
+
+    added constraints to fps camera
+
+[33mcommit 78f05ad6d8201b85284a89d16c84309fcd3ecf67[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 22 12:21:07 2022 -0500
+
+    Re-implemented wafefront(.obj) importer, new version handles more robust edge cases, reduces memory consumption by half, and is 25% faster
+
+[33mcommit 08964096baf3b33c041d7d4c9910ae996aad6aeb[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 22 07:46:19 2022 -0500
+
+    refactored DRY violation
+
+[33mcommit 5a59c991d85d2252e657f06a779138bb5f530c79[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 19 08:09:40 2022 -0500
+
+    importer minor
+
+[33mcommit ad16f3b5dd8e5cffa6e2ebfdeb169954b2dbdb4a[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 19 05:44:47 2022 -0500
+
+    added outline shader, fixed config loading bug not importing useStencilBuffer setting
+
+[33mcommit 637b9ec00c518e3395c19639b4f399849a278fea[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 19 05:03:13 2022 -0500
+
+    enabled the ability to control stencil functions, mask, and comparison values per-shader
+
+[33mcommit ec35b4d2713c8b72d85a087188084259d6db23ba[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 19 04:02:50 2022 -0500
+
+    added depth testing and stencil support for shader definitions
+
+[33mcommit a5dfc17f71ce53491286e1e5cde754e91032110f[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 19 02:55:04 2022 -0500
+
+    added stencil buffer test
+
+[33mcommit 8b2c8f1639f39d36216a7de20f7957c4d5ba987b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 19 02:50:59 2022 -0500
+
+    reset prefab positions and models
+
+[33mcommit d9a88bed9745f2da363c19745ad9092dae4f6782[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 19 02:47:52 2022 -0500
+
+    fixed rect transform method not using the refactored transformation properties
+
+[33mcommit 783ab76d64286a8101c72f782afdfb274d9d4555[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 19 01:45:16 2022 -0500
+
+    finished refactor of transform refresh
+
+[33mcommit 90b31c59ddaf3566eda1917b1d17798aa1ed024b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 19 01:36:08 2022 -0500
+
+    patched inverted transforms
+
+[33mcommit 2bbe130ae0f9defefa7c66ec0f0c7910f35c43c2[m
+Merge: 96a5fae 09813d7
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 18 23:53:37 2022 -0500
+
+    preparation for transform refactor
+
+[33mcommit 96a5faeb0563c0069c40444f4ab11dbb2086e5a3[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 18 15:57:49 2022 -0500
+
+    migrated more test samples to new load methods
+
+[33mcommit 09813d7411c3bd3cc63aa820b6eb4899959bdad8[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 18 15:57:49 2022 -0500
+
+    migrated more test samples to new load methods
+
+[33mcommit 12e3d6494c41f2f73a31aabec15fe0f44029b057[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 18 15:33:41 2022 -0500
+
+    performance minor
+
+[33mcommit fde07783c6dc92323d5e269c152948f35bc8bb7b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 17 04:08:37 2022 -0500
+
+    added more generic version of SharedHandle, migrated from char* to InstancedResource for RenderMesh name to avoid disposal issues
+
+[33mcommit 19d4620c4fc0f57defdc3f2cb9318b273cd5c048[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 17 03:18:29 2022 -0500
+
+    fixed missing abort token saving in gameobject.save
+
+[33mcommit 0e55c7d564f2335e22ac99a8a6478eee7d029bb7[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 17 03:14:13 2022 -0500
+
+    added gameobject loading from file
+
+[33mcommit 5a7f00184a9ec3fab67eae2db6fc52c9b1c4689c[m
+Merge: c0a05f1 ebf2814
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 17 00:50:41 2022 -0500
+
+    Merge branch 'master' of https://github.com/DekuDesu/SingeEngine
+
+[33mcommit c0a05f1f2bff55e9d9e2e5586cf705fa442e2729[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 17 00:50:30 2022 -0500
+
+    added transform loading and saving from stream, added stream overload of configloading
+
+[33mcommit ebf28146c838a41771f59633c618c701a866202b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 17 00:50:30 2022 -0500
+
+    added transform loading and saving from stream, added stream overload of configloading
+
+[33mcommit 043edd943c785666b8e2ddccb75fe9cecdc6642f[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 17 00:00:56 2022 -0500
+
+    added names to material for impending gameobject definition loading, ignored default libs in project
+
+[33mcommit 1ee5c93adf3cd6f854ed021bdd8abf3d37f4c4af[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Jan 16 03:59:24 2022 -0500
+
+    fixed memmory allloc count mismatch in Image creation, added unit tests for material, added unit tests for shader, added unit test framework for furture unit tests, changed composition root to reflect new refactors
+
+[33mcommit 2c50d6d6b9ac6b223a2224dede775e5715e76745[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Jan 16 01:14:21 2022 -0500
+
+    added memory helpers, migrated string helper methods to comply with new singine struct format, added paths to image and texture structs so they can be exported to material definitions, implemented material definition saving
+
+[33mcommit f869fa99b2b27484e6951b6c08acc6b12fdfca6e[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 15 03:26:39 2022 -0500
+
+    implemented material loading from file
+
+[33mcommit fcfbdaf88e7ac730ac0dd67182e033a8fe955c81[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 15 01:21:41 2022 -0500
+
+    added support to load shaders from material definition
+
+[33mcommit 47bc59995bbcd99cddad4ed3ac1d38cbe7826994[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 15 00:53:55 2022 -0500
+
+    added trim function
+
+[33mcommit f529102a80ae0a70c4bc003cbcd11150e52b7d3e[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 15 00:23:12 2022 -0500
+
+    added string array parser
+
+[33mcommit 7868b1f3d13df149dc482a453cb747d87e1f6645[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Jan 14 23:04:05 2022 -0500
+
+    added support for RGBA and RGB textures
+
+[33mcommit 75ea6b79c09d404fc78c318b4f1fc7fde7ff3b90[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Jan 14 03:49:44 2022 -0500
+
+    added implementations for settings for shaders
+
+[33mcommit acd79a44cf0ae00b921da5db7accf6dfdf63fea9[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Jan 13 06:10:01 2022 -0500
+
+    updated comp root to use new load mechanic
+
+[33mcommit 855885b2d2283aefedff1bb095636cb2cc215b84[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Jan 13 06:05:05 2022 -0500
+
+    implemented per shader settings
+
+[33mcommit 1c10a56397ad4f919ae6fa6a1f4f19be7ceb7d02[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Jan 13 05:38:57 2022 -0500
+
+    removed unecessary method pointers on shader struct
+
+[33mcommit a97a5eda4c0fcf34ba7ea4e65a4168e03d68ecb8[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Jan 13 05:25:58 2022 -0500
+
+    added ability to save shader definitions
+
+[33mcommit 30a091c82818be007ee8f86148f0aeacfa3be794[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Jan 13 02:49:50 2022 -0500
+
+    implemented shader caching
+
+[33mcommit 1b84d2fa05d41ab3e3a7b2538cd59cd78777a12f[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Jan 13 01:40:38 2022 -0500
+
+    added simple hashing methods
+
+[33mcommit 398dc984a8255784b7f27f2356491165df940698[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 12 21:40:53 2022 -0500
+
+    added shader loading from file
+
+[33mcommit 087d4efe27e3dce61756627a5f9298659bc1f680[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Jan 12 20:42:58 2022 -0500
+
+    added simple config loaded in order to load saved materials and shaders from disk
+
+[33mcommit 8c2a7232539c6c26cc2f54e474a96f5b07caa356[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Wed Jan 12 19:32:37 2022 -0500
+
+    started implementing material loading from file
+
+[33mcommit 25bd1884bdcf5dbaa0d15d649c4449491696831a[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Wed Jan 12 03:03:19 2022 -0500
+
+    added more serialization to vectors
+
+[33mcommit 61339c9294878bb5b8fd786d2c8ed4bc36dac167[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Jan 11 06:10:30 2022 -0500
+
+    changed format for material definitions
+
+[33mcommit 9eb2ef15cedfc0b2a628312c501db39d9828d571[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 10 21:55:00 2022 -0500
+
+    added per-shader settings
+
+[33mcommit 5ce4c766cdc94983f41d7dd40b8a58ccd1b75fb5[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 10 21:27:17 2022 -0500
+
+    added support for multiple shaders on one material
+
+[33mcommit 222932828aa9f265947b2d5badc350a8771dd1e0[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Jan 10 05:25:58 2022 -0500
+
+    migrated from malloc to calloc fr convenience
+
+[33mcommit dbd414aadd8d0961115f0760ef21877d160da260[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Jan 10 04:12:38 2022 -0500
+
+    added support for normals in shaders, added testing shader that uses normals
+
+[33mcommit f2f8fb59fb6cbead908d97a38f95240f146485dd[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Jan 10 04:05:21 2022 -0500
+
+    restructured file organization
+
+[33mcommit ea0653e4d3517fbe8af802d66f80a2c3390d5a4b[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Jan 10 03:51:59 2022 -0500
+
+    migrated transform children to array based instead of linked list
+
+[33mcommit 74725a25963548527c4b774e73514993dd862bad[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Jan 9 17:49:51 2022 -0500
+
+    cleaned up start file
+
+[33mcommit ec4db184ebf088dc414d8a26e26770d855692ae8[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Jan 9 17:45:21 2022 -0500
+
+    added GUI rect transform helpers
+
+[33mcommit 9a2b0046a8a3fdc3a6dfc8dc97e56d989868d780[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 8 22:46:47 2022 -0500
+
+    added some time convenience methods
+
+[33mcommit 8dfb502b1ba66401ef59504e916beca576dce91c[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 8 22:00:26 2022 -0500
+
+    fixed newline bug in text refresh algorithm
+
+[33mcommit 2b116836041a7482bd100b5970ff64e9ee09d3c7[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 8 21:52:29 2022 -0500
+
+    added alignment support for text
+
+[33mcommit 5e369d50884c9c3de6c35205c6cd6f7ce095bf1e[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 8 20:17:21 2022 -0500
+
+    fully implemented text changing at runtime
+
+[33mcommit d1c5660d8d7d07be4a969d13ed2559232dd018f2[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 8 19:12:00 2022 -0500
+
+    implemented text objects, refactored fonts, removed text handling from fonts
+
+[33mcommit edb51d310eb3c98017a31b223b651d7b38d1a1b1[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 8 02:20:24 2022 -0500
+
+    changed the way text lines are structures tramsform wise
+
+[33mcommit 68cccfe5bce3978fd8164750aee1b11215481d6a[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 8 02:01:11 2022 -0500
+
+    refactored fonts started mgrating algorithm for creating text lines
+
+[33mcommit 056e944cf9fd288207d0f85199e439ea2fed26ed[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Jan 7 20:56:07 2022 -0500
+
+    added whitespace support
+
+[33mcommit 7cf4935e55dd5118929188db4a8549f058820f15[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Jan 7 19:55:18 2022 -0500
+
+    implemented strings with font support
+
+[33mcommit 86606477112ec197a8680da8f2e3d9f93b39b703[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 22:57:19 2022 -0500
+
+    added default materials
+
+[33mcommit 8854473f5e3494e14b61bff0db8065c96c455c94[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 22:25:41 2022 -0500
+
+    made importer more robust to handle importing fonts,added more overloads for runtime convenience
+
+[33mcommit eb74145befcc1c23683f5c06fd5b77fe9e560658[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 19:47:53 2022 -0500
+
+    added external dependency
+
+[33mcommit d97a86bc5103a0ee87a4412d3136ce7dd12fd210[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 18:51:04 2022 -0500
+
+    formatting
+
+[33mcommit 61d15ee9be5ab0dd7ef1b0ca09477c13a2587e6f[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 18:50:46 2022 -0500
+
+    added primary colors and methods to set them for materials
+
+[33mcommit 5b87cf65ad60693915adbe9e744a763c940bfb6b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 18:37:01 2022 -0500
+
+    added support for colors in shaders
+
+[33mcommit de3b715f3311619b034b19889797f026fae4cdb0[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 18:15:52 2022 -0500
+
+    added togglable backface culling and transparency per material
+
+[33mcommit 62fc2c48cbcb01d0fb4ad119f5e60d538e4a70ef[m
+Merge: 23fb615 62cf853
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 17:14:00 2022 -0500
+
+    Merge branch 'master' of https://github.com/DekuDesu/SingeEngine
+
+[33mcommit 23fb615eed211a35cc147d56e20c3da5cc72045f[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 17:12:48 2022 -0500
+
+    fixed math error in memory.c
+
+[33mcommit 62cf85371e6d95c3179cadf7a2755aaf3b8ca08b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 17:12:48 2022 -0500
+
+    fixed math error in memory.c
+
+[33mcommit 7328e245b63ed4caf10c219a5fb9dbd7c3f66e84[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 17:00:11 2022 -0500
+
+    added more convenience functions in transform
+
+[33mcommit 0dd66f3c31262b22ad99c7052fb5ac57079c3690[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 16:55:51 2022 -0500
+
+    added transparent GUI support, minor addition to transform
+
+[33mcommit 602e1b39faf99772895146b65063ff373b60001e[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 15:33:51 2022 -0500
+
+    added methods to assist in assigning instanced objects to avoid potential memory leaks
+
+[33mcommit ce44305f2fd5f3029ea14b95ac48ae3ea1f6688b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 15:12:44 2022 -0500
+
+    updated warnings settings
+
+[33mcommit d6d4de2e842c7f6d1bb98a151daf06497b3c8f7f[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 02:04:17 2022 -0500
+
+    started general maintenance and minor refactors
+
+[33mcommit 848d4eab214c9c7577a9dfbae413cd98d41a3381[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Jan 6 01:38:19 2022 -0500
+
+    major refactor, refactored all header files to adhere with coding singine coding style, style chosen to limit global namespace pollution
+
+[33mcommit c306ec3530c7c543abc716a8c699079cff6041bb[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 4 23:24:26 2022 -0500
+
+    updated gitIgnore
+
+[33mcommit 2822ad0f202adefb826ff25877d0c351fa4ccef7[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 4 22:32:06 2022 -0500
+
+    migrated from shaders to Materials
+
+[33mcommit 64866172d9ec9f81a1f19829b723699f19621521[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 4 21:56:39 2022 -0500
+
+    implemented Materials
+
+[33mcommit a156023c105463ecb1282f29972ed6908abc9056[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 4 20:32:27 2022 -0500
+
+    implemented Texture abstraction
+
+[33mcommit a10d780507b93175eb6c8572fe9f188a12e36166[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 4 20:01:08 2022 -0500
+
+    implemented Texture abstraction around glBindTexture
+
+[33mcommit ba299c7bbae625bc83eb0cb84c2653716012caa7[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 4 19:14:32 2022 -0500
+
+    abstracted shared buffer started definition of Texture
+
+[33mcommit 1c22f84478fa6a336cbbd3e8cfaa0d655b48d47a[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 4 17:22:31 2022 -0500
+
+    extended shader uniform caching
+
+[33mcommit 49b057c8888e88c7095be14bc1d506f018dd8095[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 4 16:09:32 2022 -0500
+
+    added limites to delta time to prevent time issues on low-end hardware
+
+[33mcommit 4d11459ea1d463514231d057382842a6bdc7df58[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Jan 4 00:50:49 2022 -0500
+
+    flipped coordinate system's Y direction to be more intuitive
+
+[33mcommit b62379061b2034c2164a3827a6f0c20b532c6a56[m
+Merge: 8f66754 ff6b863
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Mon Jan 3 23:50:19 2022 -0500
+
+    created gameobject struct and helpers
+
+[33mcommit 8f66754c2a1c68dd2dfb7f9a0be6bcb092e668c5[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Jan 2 23:52:58 2022 -0500
+
+    inverted camera trasnform
+
+[33mcommit ff6b8634388df369659f3ba40011a2eefa8849e8[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Jan 2 23:52:58 2022 -0500
+
+    inverted camera trasnform
+
+[33mcommit 5c848710adaf395f4ebeb86ecc8ceeee415cfe90[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 1 23:58:51 2022 -0500
+
+    fully implemented axis with expanded values
+
+[33mcommit 73da9a8affba70a02def08e074487584e6d3c564[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 1 23:38:10 2022 -0500
+
+    fixed bug where rotation state was persisting between frames causing runoff condition
+
+[33mcommit dfbd9db211d889151b6090e726bba32acc43ba97[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 1 23:25:01 2022 -0500
+
+    added additional definitions for camera script
+
+[33mcommit 004f79e49e30f5579032686533458810d51631ea[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Jan 1 23:12:14 2022 -0500
+
+    fixed rotation bug causing objects rotating at positions not at orgin to rotate around orgin
+
+[33mcommit b4c591f547945ae8633a994f910336f0bd274023[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Dec 31 03:07:04 2021 -0500
+
+    Transform minor
+
+[33mcommit 4062bfb46825a9fb18cbf87d3efa37fbdb66dd63[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Dec 30 22:02:15 2021 -0500
+
+    added debug arrows
+
+[33mcommit 69345d2c281b38b6a6ea37e0ba7ababd6c99b0a0[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Dec 30 06:24:07 2021 -0500
+
+    Minor
+
+[33mcommit fbfff09ff74e2cd7ebf59d4e39cbe5d0f929ef48[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Dec 30 03:28:52 2021 -0500
+
+    Implemented Transform for the camera
+
+[33mcommit 0910645ddace2d6b962632d690d7b4a2a3a57e5d[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Dec 30 02:39:51 2021 -0500
+
+    implemented SetParent
+
+[33mcommit 59de917a7784c357f1fce28d2bf638bcc2c9dd08[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Wed Dec 29 06:42:33 2021 -0500
+
+    implemented transform inheritence
+
+[33mcommit 877ca031e480ebf7fa0d821ffdcd4522e228fcbc[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Wed Dec 29 03:09:04 2021 -0500
+
+    implemented time
+
+[33mcommit a95abd62bc8943a2ae027d74d0d42dc2611c9a24[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Dec 28 05:00:32 2021 -0500
+
+    implemented GetAxis for MouseX and MouseY
+
+[33mcommit 0015043f19530af4d8368bb115c86e9033115166[m
+Merge: b57b83d e3822ad
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Dec 28 03:42:06 2021 -0500
+
+    Merge branch 'master' of https://github.com/DekuDesu/SingeEngine
+
+[33mcommit b57b83dff89eb6d6acdfea8884f5beb4e7b3be46[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Dec 28 03:41:41 2021 -0500
+
+    started axis implementation
+
+[33mcommit e3822adf923fa3312a5dae292c18ea302d2a3efc[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Dec 28 00:40:43 2021 -0800
+
+    Delete external/glfw-3.3.5/build directory
+
+[33mcommit c9ab883a6547a635ee20b1a75c2ef31cff15b29e[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Dec 28 03:30:28 2021 -0500
+
+    updated .gitignore
+
+[33mcommit 924d73846264d7277eb5f3292989f635cddd09be[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Dec 28 03:23:48 2021 -0500
+
+    updated .gitignore
+
+[33mcommit b5dfb9ab62b47736612db3b7e2cd25dfda24cb0d[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Dec 23 18:35:49 2021 -0500
+
+    added mouse position and modes
+
+[33mcommit 04eb30bce64d4cc0f03664b6112aa92b272cee60[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Dec 23 17:57:31 2021 -0500
+
+    removed depenendency on cglm in top-level header files
+
+[33mcommit c7b42e77539a0fb7004ded6b1ce3fc99478302ca[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Dec 23 17:54:34 2021 -0500
+
+    moved GLFW dependencies out of top-level headers
+
+[33mcommit e1b96cb8cdfd0cf667d32b9179bd03bde3c782f8[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Dec 23 17:23:07 2021 -0500
+
+    added performance improvments in camera matrices
+
+[33mcommit 8eb7a0b07438f1719b1adf7773633ce07aedcc3b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Thu Dec 23 16:30:08 2021 -0500
+
+    finished implementing Transform
+
+[33mcommit 1bad53c5352e4394dcba1a4dbd848d9b2c68bb20[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Thu Dec 23 14:54:58 2021 -0500
+
+    further started optimizations in transform matrices
+
+[33mcommit cb01b2583dd0ccf1bfaddc162abf8f8391fa2fea[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Wed Dec 22 07:25:02 2021 -0500
+
+    implemented transform refresh methods
+
+[33mcommit 97eb3a0553f386511f55617ed4e57b416dc0fc2f[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Wed Dec 22 04:35:56 2021 -0500
+
+    various
+
+[33mcommit 854876f591b0c113d9109ffc8e6ff86f8a5dbffd[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Wed Dec 22 03:40:21 2021 -0500
+
+    implemented camera abstraction, started further abstraction of camera state to it's own struct
+
+[33mcommit a10a303d18a948e955780fe1637521b654fccfd6[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Dec 21 06:26:21 2021 -0500
+
+    started camera implementation
+
+[33mcommit f4b5263cc3a1c930fd90656548524929ee9f6206[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Dec 21 04:19:32 2021 -0500
+
+    seperated mesh instantiation from importer.c, started camera abstraction
+
+[33mcommit 9a20879dc127889160445d3191d60fdbdbf5f180[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Dec 19 23:40:31 2021 -0500
+
+    changes default viewpoint for testing object loading, added object loading test file
+
+[33mcommit b9a7f8968f82ccfd529e8e65230840bc6a64b93d[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Dec 19 23:33:59 2021 -0500
+
+    added missing count to the number of meshes attached to a model
+
+[33mcommit 980c852430a5f42fea42a29587c3d90826ca7c34[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Dec 19 23:26:34 2021 -0500
+
+    started abstracting rendering
+
+[33mcommit cac7830af1ee0452768886a1658f3b013ac3c926[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Dec 19 22:15:52 2021 -0500
+
+    fixed imported not loading multiple sub-objects within a obj file
+
+[33mcommit 9f64d84c0b675fe7945283a19b7cb92b0e3e5711[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Dec 19 19:30:33 2021 -0500
+
+    fixed error with .obj parser not accounting for multiple sub-objects becuase of typo
+
+[33mcommit 909706c056fbc25b9496ad18b6792cf81775de5c[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Dec 19 19:17:54 2021 -0500
+
+    fixed typo in GetSequenceCount that was causing no termination of the read Sequence
+
+[33mcommit f27975f26adfb93c9ffe8a71821aebae148732a2[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Dec 18 19:40:04 2021 -0500
+
+    fixed UV not endering, texture importing still needed for UV
+
+[33mcommit bd26cd5310a817ab09f3d6b25402ed242ea27025[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Dec 18 19:05:04 2021 -0500
+
+    fixed missing buffer binding
+
+[33mcommit 4b6a86c532d5882f8b0c392913b5062d5f64e9ec[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Dec 18 19:01:13 2021 -0500
+
+    fixed off by-one error in importer ComposeFaces
+
+[33mcommit c65a1cc08ab0343d6d3e57553b1213252bde54de[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Dec 18 18:29:20 2021 -0500
+
+    implemented model importing
+
+[33mcommit 346e0193a2bb8eb78b3e60c0f33f4ca196d5e3f6[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Wed Dec 15 06:45:17 2021 -0500
+
+    started implementing importer
+
+[33mcommit f8642408e9d393c4e74a270884d6fc3d5761b036[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Dec 14 20:39:09 2021 -0500
+
+    started importer
+
+[33mcommit 3bc156852d73e3843504045934fbff584e5d006a[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Dec 14 19:55:45 2021 -0500
+
+    started importer for .obj model files
+
+[33mcommit 82b3870ef8062f54e12f90b89978eb117c8580fa[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Dec 14 03:08:59 2021 -0500
+
+    started glm integration
+
+[33mcommit fa2adfcfda51494e58918b46c9aaab05d891c5d8[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Tue Dec 14 01:20:11 2021 -0500
+
+    fixed shader not verify compilation status
+
+[33mcommit 44bebfa7fdd7bcd942ee1f56ddaae7913d595f34[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Dec 13 04:52:08 2021 -0500
+
+    fixed typo
+
+[33mcommit c0734457a1e9e92938cf7ea8036a2f98d60a93a7[m
+Author: DekuDesu <canadianspycrab@gmail.com>
+Date:   Mon Dec 13 02:47:18 2021 -0500
+
+    updated gitignore
+
+[33mcommit 262bb12a6635e50899240f67f4e6a7520c781429[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Dec 12 15:41:59 2021 -0500
+
+    fixed line termination bug in ReadAll()
+
+[33mcommit 7dca9fe7e133df6640edc2682562215b1c5fe25c[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Dec 12 14:40:57 2021 -0500
+
+    implemented shader compilation
+
+[33mcommit 10aa962b8254dac6301aafe8a9bb22c64bd6e8fd[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sun Dec 12 00:24:17 2021 -0500
+
+    started implementation of shader compilation
+
+[33mcommit e0cd12e6701b070e3dd3b042279fa415b84a85d0[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Dec 11 21:25:29 2021 -0500
+
+    implemented basic file handing
+
+[33mcommit bbee7c149d5ed167502f35e372babb39318daeb6[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Dec 11 18:59:48 2021 -0500
+
+    fixed bug where GLEW_OK was 0 and not 1(true)
+
+[33mcommit 0cc546cc383ed9da7e2017a565d49c2c51168757[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Sat Dec 11 18:42:57 2021 -0500
+
+    implemented keycodes abstractions
+
+[33mcommit 2f059209578301f6cd9862896a41b990d5f2aa13[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Dec 10 20:19:44 2021 -0500
+
+    started adding keycodes
+
+[33mcommit 2ce649df882cbef93f1e67cbc0206147180895d9[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Dec 10 19:22:53 2021 -0500
+
+    finished implementing basic window abstractions
+
+[33mcommit 66cbffcf135cf8121878d026da232d934338b14a[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Dec 10 17:59:19 2021 -0500
+
+    implemented CreateWindow
+
+[33mcommit 2978f3fb3f0b5230e879ea726c8ff2cbefab2969[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Dec 10 15:45:40 2021 -0500
+
+    restructured Window and started implementing global methods not attached to Window
+
+[33mcommit f066674563ec504892709497f6a7e22d65342a59[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Dec 10 15:25:39 2021 -0500
+
+    started window implementation
+
+[33mcommit 75e6cec93f17b7185d518e1b9a41810c29a9e469[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Fri Dec 10 14:57:40 2021 -0500
+
+    added aligned_alloc
+
+[33mcommit 78f76029b3d8aec00945d40068474cdc66cf08bb[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Dec 8 21:30:46 2021 -0500
+
+    started work on window class, fixed missing pragma directives causing re-definitions
+
+[33mcommit df376ab593c58ff12781ba252a87f42a74d5c5f5[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Dec 8 21:02:38 2021 -0500
+
+    added unit tests for insert next and insert previous for enumerables
+
+[33mcommit f3a1edaf929809d518805a38c64944adb349fc41[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Dec 8 20:40:41 2021 -0500
+
+    fixed dispose bug in enumerable
+
+[33mcommit 55dac2dbfaaec4197923545d8672fbaf3ab72999[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Dec 8 19:32:01 2021 -0500
+
+    fixed remove not being assigned on Enumberable creation
+
+[33mcommit 7bf25b28fdc4de12634a3a5bb60c1abdd5a7412b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Dec 8 19:26:43 2021 -0500
+
+    Added enumerables, started adding tests for enumerables, created unit testing library
+
+[33mcommit c74863e37d47c3017d83c56ef9953bd596baa07b[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Dec 8 03:26:11 2021 -0500
+
+    added some method overloads for Enumerable
+
+[33mcommit 173747b7d59ce9d43861f458076899914eb24085[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Dec 8 03:19:44 2021 -0500
+
+    started initial setup
+
+[33mcommit 125255ecc4c38a488c5d50239d1db55c5fb72435[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Wed Dec 8 00:00:01 2021 -0500
+
+    Add project files.
+
+[33mcommit fa8fe5bb600896426b4bd95b44c46579242fb6a8[m
+Author: Deku <39616108+DekuDesu@users.noreply.github.com>
+Date:   Tue Dec 7 23:59:55 2021 -0500
+
+    Add .gitignore and .gitattributes.

@@ -1,5 +1,0 @@
-D:/Programming/Repos/C/SingeEngine/external/cglm/buiild/CMakeFiles/cglm.dir
-D:/Programming/Repos/C/SingeEngine/external/cglm/buiild/CMakeFiles/PACKAGE.dir
-D:/Programming/Repos/C/SingeEngine/external/cglm/buiild/CMakeFiles/INSTALL.dir
-D:/Programming/Repos/C/SingeEngine/external/cglm/buiild/CMakeFiles/ALL_BUILD.dir
-D:/Programming/Repos/C/SingeEngine/external/cglm/buiild/CMakeFiles/ZERO_CHECK.dir
