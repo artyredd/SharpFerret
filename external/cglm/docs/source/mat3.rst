@@ -34,6 +34,7 @@ Functions:
 #. :c:func:`glm_mat3_swap_col`
 #. :c:func:`glm_mat3_swap_row`
 #. :c:func:`glm_mat3_rmc`
+#. :c:func:`glm_mat3_make`
 
 Functions documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -71,6 +72,7 @@ Functions documentation
 .. c:function:: void  glm_mat3_mul(mat3 m1, mat3 m2, mat3 dest)
 
     multiply m1 and m2 to dest
+
     m1, m2 and dest matrices can be same matrix, it is possible to write this:
 
     .. code-block:: c
@@ -102,10 +104,10 @@ Functions documentation
 
 .. c:function:: void  glm_mat3_mulv(mat3 m, vec3 v, vec3 dest)
 
-    multiply mat4 with vec4 (column vector) and store in dest vector
+    multiply mat3 with vec3 (column vector) and store in dest vector
 
     Parameters:
-      | *[in]*  **mat**   mat3 (left)
+      | *[in]*  **m**     mat3 (left)
       | *[in]*  **v**     vec3 (right, column vector)
       | *[out]* **dest**  destination (result, column vector)
 
@@ -122,8 +124,8 @@ Functions documentation
     multiply matrix with scalar
 
     Parameters:
-      | *[in, out]* **mat**   matrix
-      | *[in]*      **dest**  scalar
+      | *[in, out]* **m** matrix
+      | *[in]*      **s** scalar
 
 .. c:function:: float  glm_mat3_det(mat3 mat)
 
@@ -187,3 +189,13 @@ Functions documentation
 
     Returns:
         scalar value e.g. Matrix1x1
+
+.. c:function:: void glm_mat3_make(float * __restrict src, mat3 dest)
+
+    Create mat3 matrix from pointer
+
+    | NOTE: **@src** must contain at least 9 elements.
+
+    Parameters:
+      | *[in]*  **src**  pointer to an array of floats
+      | *[out]* **dest** destination matrix3x3

@@ -28,6 +28,7 @@
    CGLM_INLINE void  glm_mat2_swap_col(mat2 mat, int col1, int col2)
    CGLM_INLINE void  glm_mat2_swap_row(mat2 mat, int row1, int row2)
    CGLM_INLINE float glm_mat2_rmc(vec2 r, mat2 m, vec2 c)
+   CGLM_INLINE void  glm_mat2_make(float * restrict src, mat2 dest)
  */
 
 #ifndef cglm_mat2_h
@@ -42,6 +43,10 @@
 
 #ifdef CGLM_NEON_FP
 #  include "simd/neon/mat2.h"
+#endif
+
+#ifdef CGLM_SIMD_WASM
+#  include "simd/wasm/mat2.h"
 #endif
 
 #define GLM_MAT2_IDENTITY_INIT  {{1.0f, 0.0f}, {0.0f, 1.0f}}
@@ -132,7 +137,9 @@ glm_mat2_zero(mat2 mat) {
 CGLM_INLINE
 void
 glm_mat2_mul(mat2 m1, mat2 m2, mat2 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glm_mat2_mul_wasm(m1, m2, dest);
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glm_mat2_mul_sse2(m1, m2, dest);
 #elif defined(CGLM_NEON_FP)
   glm_mat2_mul_neon(m1, m2, dest);
@@ -160,7 +167,9 @@ glm_mat2_mul(mat2 m1, mat2 m2, mat2 dest) {
 CGLM_INLINE
 void
 glm_mat2_transpose_to(mat2 m, mat2 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glm_mat2_transp_wasm(m, dest);
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glm_mat2_transp_sse2(m, dest);
 #else
   dest[0][0] = m[0][0];
@@ -222,7 +231,10 @@ glm_mat2_trace(mat2 m) {
 CGLM_INLINE
 void
 glm_mat2_scale(mat2 m, float s) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(m[0], wasm_f32x4_mul(wasm_v128_load(m[0]),
+                                  wasm_f32x4_splat(s)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(m[0], _mm_mul_ps(_mm_loadu_ps(m[0]), _mm_set1_ps(s)));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(m[0], vmulq_f32(vld1q_f32(m[0]), vdupq_n_f32(s)));
@@ -332,6 +344,21 @@ glm_mat2_rmc(vec2 r, mat2 m, vec2 c) {
   vec2 tmp;
   glm_mat2_mulv(m, c, tmp);
   return glm_vec2_dot(r, tmp);
+}
+
+/*!
+ * @brief Create mat2 matrix from pointer
+ *
+ * @param[in]  src  pointer to an array of floats
+ * @param[out] dest matrix
+ */
+CGLM_INLINE
+void
+glm_mat2_make(float * __restrict src, mat2 dest) {
+  dest[0][0] = src[0];
+  dest[0][1] = src[1];
+  dest[1][0] = src[2];
+  dest[1][1] = src[3];
 }
 
 #endif /* cglm_mat2_h */

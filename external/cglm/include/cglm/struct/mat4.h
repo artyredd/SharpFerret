@@ -25,7 +25,7 @@
    CGLM_INLINE mat4s   glms_mat4_zero(void);
    CGLM_INLINE mat3s   glms_mat4_pick3(mat4s mat);
    CGLM_INLINE mat3s   glms_mat4_pick3t(mat4s mat);
-   CGLM_INLINE mat4s   glms_mat4_ins3(mat3s mat);
+   CGLM_INLINE mat4s   glms_mat4_ins3(mat3s mat, mat4s dest);
    CGLM_INLINE mat4s   glms_mat4_mul(mat4s m1, mat4s m2);
    CGLM_INLINE mat4s   glms_mat4_mulN(mat4s * __restrict matrices[], uint32_t len);
    CGLM_INLINE vec4s   glms_mat4_mulv(mat4s m, vec4s v);
@@ -42,6 +42,7 @@
    CGLM_INLINE mat4s   glms_mat4_swap_col(mat4s mat, int col1, int col2);
    CGLM_INLINE mat4s   glms_mat4_swap_row(mat4s mat, int row1, int row2);
    CGLM_INLINE float   glms_mat4_rmc(vec4s r, mat4s m, vec4s c);
+   CGLM_INLINE mat4s   glms_mat4_make(float * __restrict src);
  */
 
 #ifndef cglms_mat4s_h
@@ -52,6 +53,9 @@
 #include "../mat4.h"
 #include "vec4.h"
 #include "vec3.h"
+
+/* api definition */ 
+#define glms_mat4_(NAME) CGLM_STRUCTAPI(mat4, NAME)
 
 #define GLMS_MAT4_IDENTITY_INIT  {GLM_MAT4_IDENTITY_INIT}
 #define GLMS_MAT4_ZERO_INIT      {GLM_MAT4_ZERO_INIT}
@@ -71,7 +75,7 @@
  */
 CGLM_INLINE
 mat4s
-glms_mat4_ucopy(mat4s mat) {
+glms_mat4_(ucopy)(mat4s mat) {
   mat4s r;
   glm_mat4_ucopy(mat.raw, r.raw);
   return r;
@@ -85,7 +89,7 @@ glms_mat4_ucopy(mat4s mat) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_copy(mat4s mat) {
+glms_mat4_(copy)(mat4s mat) {
   mat4s r;
   glm_mat4_copy(mat.raw, r.raw);
   return r;
@@ -107,7 +111,7 @@ glms_mat4_copy(mat4s mat) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_identity(void) {
+glms_mat4_(identity)(void) {
   mat4s r;
   glm_mat4_identity(r.raw);
   return r;
@@ -123,7 +127,7 @@ glms_mat4_identity(void) {
  */
 CGLM_INLINE
 void
-glms_mat4_identity_array(mat4s * __restrict mat, size_t count) {
+glms_mat4_(identity_array)(mat4s * __restrict mat, size_t count) {
   CGLM_ALIGN_MAT mat4s t = GLMS_MAT4_IDENTITY_INIT;
   size_t i;
 
@@ -139,7 +143,7 @@ glms_mat4_identity_array(mat4s * __restrict mat, size_t count) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_zero(void) {
+glms_mat4_(zero)(void) {
   mat4s r;
   glm_mat4_zero(r.raw);
   return r;
@@ -153,7 +157,7 @@ glms_mat4_zero(void) {
  */
 CGLM_INLINE
 mat3s
-glms_mat4_pick3(mat4s mat) {
+glms_mat4_(pick3)(mat4s mat) {
   mat3s r;
   glm_mat4_pick3(mat.raw, r.raw);
   return r;
@@ -169,7 +173,7 @@ glms_mat4_pick3(mat4s mat) {
  */
 CGLM_INLINE
 mat3s
-glms_mat4_pick3t(mat4s mat) {
+glms_mat4_(pick3t)(mat4s mat) {
   mat3s r;
   glm_mat4_pick3t(mat.raw, r.raw);
   return r;
@@ -179,14 +183,14 @@ glms_mat4_pick3t(mat4s mat) {
  * @brief copy mat3 to mat4's upper-left
  *
  * @param[in]  mat  source
+ * @param[in]  dest destination
  * @returns         destination
  */
 CGLM_INLINE
 mat4s
-glms_mat4_ins3(mat3s mat) {
-  mat4s r;
-  glm_mat4_ins3(mat.raw, r.raw);
-  return r;
+glms_mat4_(ins3)(mat3s mat, mat4s dest) {
+  glm_mat4_ins3(mat.raw, dest.raw);
+  return dest;
 }
 
 /*!
@@ -196,16 +200,16 @@ glms_mat4_ins3(mat3s mat) {
  *
  * @code
  * mat4 m = GLM_MAT4_IDENTITY_INIT;
- * glm_mat4_mul(m, m, m);
+ * r = glms_mat4_mul(m, m);
  * @endcode
  *
  * @param[in]  m1   left matrix
  * @param[in]  m2   right matrix
- * @returns         destination matrix
+ * @returns destination matrix
  */
 CGLM_INLINE
 mat4s
-glms_mat4_mul(mat4s m1, mat4s m2) {
+glms_mat4_(mul)(mat4s m1, mat4s m2) {
   mat4s r;
   glm_mat4_mul(m1.raw, m2.raw, r.raw);
   return r;
@@ -232,12 +236,12 @@ glms_mat4_mul(mat4s m1, mat4s m2) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_mulN(mat4s * __restrict matrices[], uint32_t len) {
+glms_mat4_(mulN)(mat4s * __restrict matrices[], uint32_t len) {
   CGLM_ALIGN_MAT mat4s r = GLMS_MAT4_IDENTITY_INIT;
   size_t i;
 
   for (i = 0; i < len; i++) {
-    r = glms_mat4_mul(r, *matrices[i]);
+    r = glms_mat4_(mul)(r, *matrices[i]);
   }
   
   return r;
@@ -252,7 +256,7 @@ glms_mat4_mulN(mat4s * __restrict matrices[], uint32_t len) {
  */
 CGLM_INLINE
 vec4s
-glms_mat4_mulv(mat4s m, vec4s v) {
+glms_mat4_(mulv)(mat4s m, vec4s v) {
   vec4s r;
   glm_mat4_mulv(m.raw, v.raw, r.raw);
   return r;
@@ -267,7 +271,7 @@ glms_mat4_mulv(mat4s m, vec4s v) {
  */
 CGLM_INLINE
 float
-glms_mat4_trace(mat4s m) {
+glms_mat4_(trace)(mat4s m) {
   return glm_mat4_trace(m.raw);
 }
 
@@ -280,7 +284,7 @@ glms_mat4_trace(mat4s m) {
  */
 CGLM_INLINE
 float
-glms_mat4_trace3(mat4s m) {
+glms_mat4_(trace3)(mat4s m) {
   return glm_mat4_trace3(m.raw);
 }
 
@@ -292,7 +296,7 @@ glms_mat4_trace3(mat4s m) {
  */
 CGLM_INLINE
 versors
-glms_mat4_quat(mat4s m) {
+glms_mat4_(quat)(mat4s m) {
   versors r;
   glm_mat4_quat(m.raw, r.raw);
   return r;
@@ -308,7 +312,7 @@ glms_mat4_quat(mat4s m) {
  */
 CGLM_INLINE
 vec3s
-glms_mat4_mulv3(mat4s m, vec3s v, float last) {
+glms_mat4_(mulv3)(mat4s m, vec3s v, float last) {
   vec3s r;
   glm_mat4_mulv3(m.raw, v.raw, last, r.raw);
   return r;
@@ -322,7 +326,7 @@ glms_mat4_mulv3(mat4s m, vec3s v, float last) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_transpose(mat4s m) {
+glms_mat4_(transpose)(mat4s m) {
   glm_mat4_transpose(m.raw);
   return m;
 }
@@ -338,7 +342,7 @@ glms_mat4_transpose(mat4s m) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_scale_p(mat4s m, float s) {
+glms_mat4_(scale_p)(mat4s m, float s) {
   glm_mat4_scale_p(m.raw, s);
   return m;
 }
@@ -354,7 +358,7 @@ glms_mat4_scale_p(mat4s m, float s) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_scale(mat4s m, float s) {
+glms_mat4_(scale)(mat4s m, float s) {
   glm_mat4_scale(m.raw, s);
   return m;
 }
@@ -368,7 +372,7 @@ glms_mat4_scale(mat4s m, float s) {
  */
 CGLM_INLINE
 float
-glms_mat4_det(mat4s mat) {
+glms_mat4_(det)(mat4s mat) {
   return glm_mat4_det(mat.raw);
 }
 
@@ -380,7 +384,7 @@ glms_mat4_det(mat4s mat) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_inv(mat4s mat) {
+glms_mat4_(inv)(mat4s mat) {
   mat4s r;
   glm_mat4_inv(mat.raw, r.raw);
   return r;
@@ -400,7 +404,7 @@ glms_mat4_inv(mat4s mat) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_inv_fast(mat4s mat) {
+glms_mat4_(inv_fast)(mat4s mat) {
   mat4s r;
   glm_mat4_inv_fast(mat.raw, r.raw);
   return r;
@@ -416,7 +420,7 @@ glms_mat4_inv_fast(mat4s mat) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_swap_col(mat4s mat, int col1, int col2) {
+glms_mat4_(swap_col)(mat4s mat, int col1, int col2) {
   glm_mat4_swap_col(mat.raw, col1, col2);
   return mat;
 }
@@ -431,7 +435,7 @@ glms_mat4_swap_col(mat4s mat, int col1, int col2) {
  */
 CGLM_INLINE
 mat4s
-glms_mat4_swap_row(mat4s mat, int row1, int row2) {
+glms_mat4_(swap_row)(mat4s mat, int row1, int row2) {
   glm_mat4_swap_row(mat.raw, row1, row2);
   return mat;
 }
@@ -452,8 +456,22 @@ glms_mat4_swap_row(mat4s mat, int row1, int row2) {
  */
 CGLM_INLINE
 float
-glms_mat4_rmc(vec4s r, mat4s m, vec4s c) {
+glms_mat4_(rmc)(vec4s r, mat4s m, vec4s c) {
   return glm_mat4_rmc(r.raw, m.raw, c.raw);
+}
+
+/*!
+ * @brief Create mat4 matrix from pointer
+ *
+ * @param[in]  src  pointer to an array of floats
+ * @return constructed matrix from raw pointer
+ */
+CGLM_INLINE
+mat4s
+glms_mat4_(make)(float * __restrict src) {
+  mat4s r;
+  glm_mat4_make(src, r.raw);
+  return r;
 }
 
 #endif /* cglms_mat4s_h */

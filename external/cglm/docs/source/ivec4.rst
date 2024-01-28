@@ -8,6 +8,13 @@ Header: cglm/ivec4.h
 Table of contents (click to go):
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+Macros:
+
+1. GLM_IVEC4_ONE_INIT
+#. GLM_IVEC4_ZERO_INIT
+#. GLM_IVEC4_ONE
+#. GLM_IVEC4_ZERO
+
 Functions:
 
 1. :c:func:`glm_ivec4`
@@ -25,6 +32,7 @@ Functions:
 #. :c:func:`glm_ivec4_maxv`
 #. :c:func:`glm_ivec4_minv`
 #. :c:func:`glm_ivec4_clamp`
+#. :c:func:`glm_ivec4_abs`
 
 Functions documentation
 ~~~~~~~~~~~~~~~~~~~~~~~
@@ -161,3 +169,11 @@ Functions documentation
       | *[in, out]* **v**      vector
       | *[in]*      **minVal** minimum value
       | *[in]*      **maxVal** maximum value
+
+.. c:function:: void glm_ivec4_abs(ivec4 v, ivec4 dest)
+
+    absolute value of each vector item
+
+    Parameters:
+      | *[in]*   **v**     vector
+      | *[out]*  **dest**  destination vector

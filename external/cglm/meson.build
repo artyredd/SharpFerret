@@ -1,9 +1,8 @@
 project('cglm', 'c',
-    version : '0.8.6',
+    version : '0.9.3',
     license : 'mit',
     default_options : [
         'c_std=c11',
-        'werror=true',
         'warning_level=2',
         'buildtype=release'
     ]
@@ -18,11 +17,19 @@ cglm_args = []
 build_args = []
 
 if get_option('default_library') == 'static'
-    cglm_args = '-DCGLM_STATIC'
+    cglm_args += '-DCGLM_STATIC'
+endif
+
+if cc.compiles(
+    'int *test(char *p) { return (int*)__builtin_assume_aligned(p, 4); }',
+    name : '__builtin_assume_aligned test')
+    cglm_args += '-DCGLM_HAVE_BUILTIN_ASSUME_ALIGNED=1'
+else
+    cglm_args += '-DCGLM_HAVE_BUILTIN_ASSUME_ALIGNED=0'
 endif
 
 if host_machine.system() == 'windows'
-    build_args = '-DCGLM_EXPORTS'
+    build_args += '-DCGLM_EXPORTS'
 endif
 
 cglm_inc = include_directories('include')
@@ -40,8 +47,14 @@ cglm_src = files(
     'src/vec4.c',
     'src/ivec4.c',
     'src/mat2.c',
+    'src/mat2x3.c',
+    'src/mat2x4.c',
     'src/mat3.c',
+    'src/mat3x2.c',
+    'src/mat3x4.c',
     'src/mat4.c',
+    'src/mat4x2.c',
+    'src/mat4x3.c',
     'src/plane.c',
     'src/frustum.c',
     'src/box.c',
@@ -74,7 +87,8 @@ cglm_lib = library('cglm',
     dependencies : cglm_deps,
     c_args : [ build_args, cglm_args ],
     version : meson.project_version(),
-    soversion : '0'
+    soversion : '0',
+    build_by_default: not meson.is_subproject()
 )
 
 cglm_dep = declare_dependency(
@@ -108,11 +122,6 @@ if get_option('build_tests') == true
 test_src = files(
     'test/runner.c',
     'test/src/test_bezier.c',
-    'test/src/test_cam.c',
-    'test/src/test_cam_lh_no.c',
-    'test/src/test_cam_lh_zo.c',
-    'test/src/test_cam_rh_no.c',
-    'test/src/test_cam_rh_zo.c',
     'test/src/test_clamp.c',
     'test/src/test_common.c',
     'test/src/test_euler.c',

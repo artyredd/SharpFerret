@@ -7,8 +7,9 @@
 
 /*
  Functions:
-   CGLM_INLINE vec3s glms_unprojecti_no(vec3s pos, mat4s invMat, vec4s vp, vec3 dest)
-   CGLM_INLINE vec3s glms_project_no(vec3s pos, mat4s m, vec4s vp, vec3s dest)
+   CGLM_INLINE vec3s glms_unprojecti_no(vec3s pos, mat4s invMat, vec4s vp)
+   CGLM_INLINE vec3s glms_project_no(vec3s pos, mat4s m, vec4s vp)
+   CGLM_INLINE float glms_project_z_no(vec3s v, mat4s m)
  */
 
 #ifndef cglms_project_no_h
@@ -18,6 +19,7 @@
 #include "../../types-struct.h"
 #include "../../plane.h"
 #include "../../cam.h"
+#include "../../clipspace/project_no.h"
 
 /*!
  * @brief maps the specified viewport coordinates into specified space [1]
@@ -43,11 +45,12 @@
  * @param[in]  pos          point/position in viewport coordinates
  * @param[in]  invMat   matrix (see brief)
  * @param[in]  vp            viewport as [x, y, width, height]
+ *
  * @returns unprojected coordinates
  */
 CGLM_INLINE
 vec3s
-glms_unprojecti_no(vec3s pos, mat4s invMat, vec4s vp, vec3 dest) {
+glms_unprojecti_no(vec3s pos, mat4s invMat, vec4s vp) {
   vec3s dest;
   glm_unprojecti_no(pos.raw, invMat.raw, vp.raw, dest.raw);
   return dest;
@@ -63,14 +66,33 @@ glms_unprojecti_no(vec3s pos, mat4s invMat, vec4s vp, vec3 dest) {
  * @param[in]  pos      object coordinates
  * @param[in]  m          MVP matrix
  * @param[in]  vp        viewport as [x, y, width, height]
+ *
  * @returns projected coordinates
  */
 CGLM_INLINE
 vec3s
-glms_project_no(vec3s pos, mat4s m, vec4s vp, vec3s dest) {
+glms_project_no(vec3s pos, mat4s m, vec4s vp) {
   vec3s dest;
   glm_project_no(pos.raw, m.raw, vp.raw, dest.raw);
   return dest;
+}
+
+/*!
+ * @brief map object's z coordinate to window coordinates
+ *
+ * Computing MVP:
+ *   glm_mat4_mul(proj, view, viewProj);
+ *   glm_mat4_mul(viewProj, model, MVP);
+ *
+ * @param[in]  v object coordinates
+ * @param[in]  m MVP matrix
+ *
+ * @returns projected z coordinate
+ */
+CGLM_INLINE
+float
+glms_project_z_no(vec3s v, mat4s m) {
+  return glm_project_z_no(v.raw, m.raw);
 }
 
 #endif /* cglms_project_rh_no_h */

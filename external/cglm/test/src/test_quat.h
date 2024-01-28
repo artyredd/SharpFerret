@@ -56,7 +56,7 @@ TEST_IMPL(GLM_PREFIX, quat_identity) {
 }
 
 TEST_IMPL(GLM_PREFIX, quat_identity_array) {
-  int i, count;
+  size_t i, count;
   versor quats[4] = {
     {1.0f, 2.0f, 3.0f, 4.0f},
     {1.0f, 2.0f, 3.0f, 4.0f},
@@ -1081,6 +1081,28 @@ TEST_IMPL(GLM_PREFIX, quat_rotate_atm) {
   ASSERT(test_eq(v1[0],  1.0f))
   ASSERT(test_eq(v1[1], -1.0f))
   ASSERT(test_eq(v1[2],  1.0f))
+
+  TEST_SUCCESS
+}
+
+TEST_IMPL(GLM_PREFIX, quat_make) {
+  versor dest[3];
+  float src[12] = {
+    7.2f, 1.0f, 2.5f, 6.1f,
+    0.2f, 2.8f, 17.3f, 5.1f,
+    4.2f, 7.3f, 6.6f, 8.8f
+  };
+
+  float *srcp = src;
+  unsigned int i, j;
+
+  for (i = 0, j = 0; i < sizeof(src) / sizeof(float); i+=4,j++) {
+    GLM(quat_make)(srcp + i, dest[j]);
+    ASSERT(test_eq(src[ i ], dest[j][0]));
+    ASSERT(test_eq(src[i+1], dest[j][1]));
+    ASSERT(test_eq(src[i+2], dest[j][2]));
+    ASSERT(test_eq(src[i+3], dest[j][3]));
+  }
 
   TEST_SUCCESS
 }

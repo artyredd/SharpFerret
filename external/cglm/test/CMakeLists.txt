@@ -5,11 +5,6 @@ set(TESTFILES
   runner.c
   src/test_euler.c
   src/test_bezier.c
-  src/test_cam.c
-  src/test_cam_lh_zo.c
-  src/test_cam_rh_zo.c
-  src/test_cam_lh_no.c
-  src/test_cam_rh_no.c
   src/test_struct.c
   src/test_clamp.c
   src/test_common.c
@@ -21,6 +16,11 @@ set(TEST_RUNNER_PARAMS "")
 
 add_executable(${TEST_MAIN} ${TESTFILES})
 target_compile_definitions(${TEST_MAIN} PRIVATE CGLM_DEFINE_PRINTS=1)
+
+if(CMAKE_SYSTEM_NAME STREQUAL WASI)
+  target_compile_definitions(${TEST_MAIN} PRIVATE _WASI_EMULATED_PROCESS_CLOCKS=1)
+  target_link_options(${TEST_MAIN} PRIVATE "-lwasi-emulated-process-clocks")
+endif()
 
 if(NOT MSVC)
   target_link_libraries(${TEST_MAIN} PRIVATE m)

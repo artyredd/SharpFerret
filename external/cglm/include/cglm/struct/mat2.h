@@ -27,6 +27,7 @@
    CGLM_INLINE void  glms_mat2_swap_col(mat2 mat, int col1, int col2)
    CGLM_INLINE void  glms_mat2_swap_row(mat2 mat, int row1, int row2)
    CGLM_INLINE float glms_mat2_rmc(vec2 r, mat2 m, vec2 c)
+   CGLM_INLINE mat2s glms_mat2_make(float * __restrict src);
  */
 
 #ifndef cglms_mat2_h
@@ -36,12 +37,15 @@
 #include "../types-struct.h"
 #include "../mat2.h"
 
+/* api definition */
+#define glms_mat2_(NAME) CGLM_STRUCTAPI(mat2, NAME)
+
 #define GLMS_MAT2_IDENTITY_INIT {GLM_MAT2_IDENTITY_INIT}
 #define GLMS_MAT2_ZERO_INIT     {GLM_MAT2_ZERO_INIT}
 
 /* for C only */
-#define GLMS_MAT2_IDENTITY ((mat3s)GLMS_MAT2_IDENTITY_INIT)
-#define GLMS_MAT2_ZERO     ((mat3s)GLMS_MAT2_ZERO_INIT)
+#define GLMS_MAT2_IDENTITY ((mat2s)GLMS_MAT2_IDENTITY_INIT)
+#define GLMS_MAT2_ZERO     ((mat2s)GLMS_MAT2_ZERO_INIT)
 
 /*!
  * @brief make given matrix identity. It is identical with below,
@@ -59,7 +63,7 @@
  */
 CGLM_INLINE
 mat2s
-glms_mat2_identity(void) {
+glms_mat2_(identity)(void) {
   mat2s r;
   glm_mat2_identity(r.raw);
   return r;
@@ -75,7 +79,7 @@ glms_mat2_identity(void) {
  */
 CGLM_INLINE
 void
-glms_mat2_identity_array(mat2s * __restrict mat, size_t count) {
+glms_mat2_(identity_array)(mat2s * __restrict mat, size_t count) {
   CGLM_ALIGN_MAT mat2s t = GLMS_MAT2_IDENTITY_INIT;
   size_t i;
 
@@ -91,7 +95,7 @@ glms_mat2_identity_array(mat2s * __restrict mat, size_t count) {
  */
 CGLM_INLINE
 mat2s
-glms_mat2_zero(void) {
+glms_mat2_(zero)(void) {
   mat2s r;
   glm_mat2_zero(r.raw);
   return r;
@@ -104,17 +108,17 @@ glms_mat2_zero(void) {
  *
  * @code
  * mat2 m = GLM_MAT2_IDENTITY_INIT;
- * glm_mat2_mul(m, m, m);
+ * r = glms_mat2_mul(m, m);
  * @endcode
  *
  * @param[in]  m1   left matrix
  * @param[in]  m2   right matrix
  *
- * @returns matrix
+ * @returns destination matrix
  */
 CGLM_INLINE
 mat2s
-glms_mat2_mul(mat2s m1, mat2s m2) {
+glms_mat2_(mul)(mat2s m1, mat2s m2) {
   mat2s r;
   glm_mat2_mul(m1.raw, m2.raw, r.raw);
   return r;
@@ -129,7 +133,7 @@ glms_mat2_mul(mat2s m1, mat2s m2) {
  */
 CGLM_INLINE
 mat2s
-glms_mat2_transpose(mat2s m) {
+glms_mat2_(transpose)(mat2s m) {
   glm_mat2_transpose(m.raw);
   return m;
 }
@@ -143,7 +147,7 @@ glms_mat2_transpose(mat2s m) {
  */
 CGLM_INLINE
 vec2s
-glms_mat2_mulv(mat2s m, vec2s v) {
+glms_mat2_(mulv)(mat2s m, vec2s v) {
   vec2s r;
   glm_mat2_mulv(m.raw, v.raw, r.raw);
   return r;
@@ -158,7 +162,7 @@ glms_mat2_mulv(mat2s m, vec2s v) {
  */
 CGLM_INLINE
 float
-glms_mat2_trace(mat2s m) {
+glms_mat2_(trace)(mat2s m) {
   return glm_mat2_trace(m.raw);
 }
 
@@ -173,7 +177,7 @@ glms_mat2_trace(mat2s m) {
  */
 CGLM_INLINE
 mat2s
-glms_mat2_scale(mat2s m, float s) {
+glms_mat2_(scale)(mat2s m, float s) {
   glm_mat2_scale(m.raw, s);
   return m;
 }
@@ -187,7 +191,7 @@ glms_mat2_scale(mat2s m, float s) {
  */
 CGLM_INLINE
 float
-glms_mat2_det(mat2s mat) {
+glms_mat2_(det)(mat2s mat) {
   return glm_mat2_det(mat.raw);
 }
 
@@ -199,7 +203,7 @@ glms_mat2_det(mat2s mat) {
  */
 CGLM_INLINE
 mat2s
-glms_mat2_inv(mat2s mat) {
+glms_mat2_(inv)(mat2s mat) {
   mat2s r;
   glm_mat2_inv(mat.raw, r.raw);
   return r;
@@ -215,7 +219,7 @@ glms_mat2_inv(mat2s mat) {
  */
 CGLM_INLINE
 mat2s
-glms_mat2_swap_col(mat2s mat, int col1, int col2) {
+glms_mat2_(swap_col)(mat2s mat, int col1, int col2) {
   glm_mat2_swap_col(mat.raw, col1, col2);
   return mat;
 }
@@ -230,7 +234,7 @@ glms_mat2_swap_col(mat2s mat, int col1, int col2) {
  */
 CGLM_INLINE
 mat2s
-glms_mat2_swap_row(mat2s mat, int row1, int row2) {
+glms_mat2_(swap_row)(mat2s mat, int row1, int row2) {
   glm_mat2_swap_row(mat.raw, row1, row2);
   return mat;
 }
@@ -251,8 +255,22 @@ glms_mat2_swap_row(mat2s mat, int row1, int row2) {
  */
 CGLM_INLINE
 float
-glms_mat2_rmc(vec2s r, mat2s m, vec2s c) {
+glms_mat2_(rmc)(vec2s r, mat2s m, vec2s c) {
   return glm_mat2_rmc(r.raw, m.raw, c.raw);
+}
+
+/*!
+ * @brief Create mat2 matrix from pointer
+ *
+ * @param[in]  src  pointer to an array of floats
+ * @return constructed matrix from raw pointer
+ */
+CGLM_INLINE
+mat2s
+glms_mat2_(make)(float * __restrict src) {
+  mat2s r;
+  glm_mat2_make(src, r.raw);
+  return r;
 }
 
 #endif /* cglms_mat2_h */

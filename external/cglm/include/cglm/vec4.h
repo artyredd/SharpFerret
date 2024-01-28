@@ -39,6 +39,12 @@
    CGLM_INLINE void  glm_vec4_muladds(vec4 a, float s, vec4 dest);
    CGLM_INLINE void  glm_vec4_maxadd(vec4 a, vec4 b, vec4 dest);
    CGLM_INLINE void  glm_vec4_minadd(vec4 a, vec4 b, vec4 dest);
+   CGLM_INLINE void  glm_vec4_subsub(vec4 a, vec4 b, vec4 dest);
+   CGLM_INLINE void  glm_vec4_addsub(vec4 a, vec4 b, vec4 dest);
+   CGLM_INLINE void  glm_vec4_mulsub(vec4 a, vec4 b, vec4 dest);
+   CGLM_INLINE void  glm_vec4_mulsubs(vec4 a, float s, vec4 dest);
+   CGLM_INLINE void  glm_vec4_maxsub(vec4 a, vec4 b, vec4 dest);
+   CGLM_INLINE void  glm_vec4_minsub(vec4 a, vec4 b, vec4 dest);
    CGLM_INLINE void  glm_vec4_negate(vec4 v);
    CGLM_INLINE void  glm_vec4_inv(vec4 v);
    CGLM_INLINE void  glm_vec4_inv_to(vec4 v, vec4 dest);
@@ -58,6 +64,7 @@
    CGLM_INLINE void  glm_vec4_smoothinterp(vec4 from, vec4 to, float t, vec4 dest);
    CGLM_INLINE void  glm_vec4_smoothinterpc(vec4 from, vec4 to, float t, vec4 dest);
    CGLM_INLINE void  glm_vec4_swizzle(vec4 v, int mask, vec4 dest);
+   CGLM_INLINE void  glm_vec4_make(float * restrict src, vec4 dest);
 
  DEPRECATED:
    glm_vec4_dup
@@ -137,7 +144,9 @@ glm_vec4_copy3(vec4 a, vec3 dest) {
 CGLM_INLINE
 void
 glm_vec4_copy(vec4 v, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, glmm_load(v));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, glmm_load(v));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(dest, vld1q_f32(v));
@@ -160,10 +169,15 @@ glm_vec4_copy(vec4 v, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_ucopy(vec4 v, vec4 dest) {
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  /* note here wasm v128.load/v128.store support unaligned loads and stores */
+  wasm_v128_store(dest, wasm_v128_load(v));
+#else
   dest[0] = v[0];
   dest[1] = v[1];
   dest[2] = v[2];
   dest[3] = v[3];
+#endif
 }
 
 /*!
@@ -174,7 +188,9 @@ glm_vec4_ucopy(vec4 v, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_zero(vec4 v) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(v, wasm_f32x4_const_splat(0.f));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(v, _mm_setzero_ps());
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(v, vdupq_n_f32(0.0f));
@@ -194,7 +210,9 @@ glm_vec4_zero(vec4 v) {
 CGLM_INLINE
 void
 glm_vec4_one(vec4 v) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(v, wasm_f32x4_const_splat(1.0f));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(v, _mm_set1_ps(1.0f));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(v, vdupq_n_f32(1.0f));
@@ -320,7 +338,9 @@ glm_vec4_norm_inf(vec4 v) {
 CGLM_INLINE
 void
 glm_vec4_add(vec4 a, vec4 b, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_add(glmm_load(a), glmm_load(b)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_add_ps(glmm_load(a), glmm_load(b)));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(dest, vaddq_f32(vld1q_f32(a), vld1q_f32(b)));
@@ -342,7 +362,9 @@ glm_vec4_add(vec4 a, vec4 b, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_adds(vec4 v, float s, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_add(glmm_load(v), wasm_f32x4_splat(s)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_add_ps(glmm_load(v), _mm_set1_ps(s)));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(dest, vaddq_f32(vld1q_f32(v), vdupq_n_f32(s)));
@@ -364,7 +386,9 @@ glm_vec4_adds(vec4 v, float s, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_sub(vec4 a, vec4 b, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_sub(glmm_load(a), glmm_load(b)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_sub_ps(glmm_load(a), glmm_load(b)));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(dest, vsubq_f32(vld1q_f32(a), vld1q_f32(b)));
@@ -386,7 +410,9 @@ glm_vec4_sub(vec4 a, vec4 b, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_subs(vec4 v, float s, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_sub(glmm_load(v), wasm_f32x4_splat(s)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_sub_ps(glmm_load(v), _mm_set1_ps(s)));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(dest, vsubq_f32(vld1q_f32(v), vdupq_n_f32(s)));
@@ -399,7 +425,7 @@ glm_vec4_subs(vec4 v, float s, vec4 dest) {
 }
 
 /*!
- * @brief multiply two vector (component-wise multiplication)
+ * @brief multiply two vectors (component-wise multiplication)
  *
  * @param a    vector1
  * @param b    vector2
@@ -408,7 +434,9 @@ glm_vec4_subs(vec4 v, float s, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_mul(vec4 a, vec4 b, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_mul(glmm_load(a), glmm_load(b)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_mul_ps(glmm_load(a), glmm_load(b)));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(dest, vmulq_f32(vld1q_f32(a), vld1q_f32(b)));
@@ -430,7 +458,9 @@ glm_vec4_mul(vec4 a, vec4 b, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_scale(vec4 v, float s, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_mul(glmm_load(v), wasm_f32x4_splat(s)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_mul_ps(glmm_load(v), _mm_set1_ps(s)));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(dest, vmulq_f32(vld1q_f32(v), vdupq_n_f32(s)));
@@ -493,7 +523,9 @@ glm_vec4_div(vec4 a, vec4 b, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_divs(vec4 v, float s, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_div(glmm_load(v), wasm_f32x4_splat(s)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_div_ps(glmm_load(v), _mm_set1_ps(s)));
 #else
   glm_vec4_scale(v, 1.0f / s, dest);
@@ -512,7 +544,11 @@ glm_vec4_divs(vec4 v, float s, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_addadd(vec4 a, vec4 b, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_add(
+          glmm_load(dest),
+          wasm_f32x4_add(glmm_load(a), glmm_load(b))));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_add_ps(glmm_load(dest),
                               _mm_add_ps(glmm_load(a),
                                          glmm_load(b))));
@@ -540,7 +576,11 @@ glm_vec4_addadd(vec4 a, vec4 b, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_subadd(vec4 a, vec4 b, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_add(
+          glmm_load(dest),
+          wasm_f32x4_sub(glmm_load(a), glmm_load(b))));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_add_ps(glmm_load(dest),
                               _mm_sub_ps(glmm_load(a),
                                          glmm_load(b))));
@@ -601,7 +641,7 @@ glm_vec4_muladds(vec4 a, float s, vec4 dest) {
 }
 
 /*!
- * @brief add max of two vector to result/dest
+ * @brief add max of two vectors to result/dest
  *
  * it applies += operator so dest must be initialized
  *
@@ -612,14 +652,15 @@ glm_vec4_muladds(vec4 a, float s, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_maxadd(vec4 a, vec4 b, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_add(glmm_load(dest),
+                                  glmm_max(glmm_load(a), glmm_load(b))));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_add_ps(glmm_load(dest),
-                              _mm_max_ps(glmm_load(a),
-                                         glmm_load(b))));
+                              glmm_max(glmm_load(a), glmm_load(b))));
 #elif defined(CGLM_NEON_FP)
-  vst1q_f32(dest, vaddq_f32(vld1q_f32(dest),
-                            vmaxq_f32(vld1q_f32(a),
-                                      vld1q_f32(b))));
+  glmm_store(dest, vaddq_f32(glmm_load(dest),
+                             glmm_max(glmm_load(a), glmm_load(b))));
 #else
   dest[0] += glm_max(a[0], b[0]);
   dest[1] += glm_max(a[1], b[1]);
@@ -629,7 +670,7 @@ glm_vec4_maxadd(vec4 a, vec4 b, vec4 dest) {
 }
 
 /*!
- * @brief add min of two vector to result/dest
+ * @brief add min of two vectors to result/dest
  *
  * it applies += operator so dest must be initialized
  *
@@ -640,19 +681,186 @@ glm_vec4_maxadd(vec4 a, vec4 b, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_minadd(vec4 a, vec4 b, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_add(glmm_load(dest),
+                                  glmm_min(glmm_load(a), glmm_load(b))));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glmm_store(dest, _mm_add_ps(glmm_load(dest),
-                              _mm_min_ps(glmm_load(a),
-                                         glmm_load(b))));
+                              glmm_min(glmm_load(a), glmm_load(b))));
 #elif defined(CGLM_NEON_FP)
-  vst1q_f32(dest, vaddq_f32(vld1q_f32(dest),
-                            vminq_f32(vld1q_f32(a),
-                                      vld1q_f32(b))));
+  glmm_store(dest, vaddq_f32(glmm_load(dest),
+                             glmm_min(glmm_load(a), glmm_load(b))));
 #else
   dest[0] += glm_min(a[0], b[0]);
   dest[1] += glm_min(a[1], b[1]);
   dest[2] += glm_min(a[2], b[2]);
   dest[3] += glm_min(a[3], b[3]);
+#endif
+}
+
+/*!
+ * @brief sub two vectors and sub result to dest
+ *
+ * it applies -= operator so dest must be initialized
+ *
+ * @param[in]  a    vector 1
+ * @param[in]  b    vector 2
+ * @param[out] dest dest -= (a - b)
+ */
+CGLM_INLINE
+void
+glm_vec4_subsub(vec4 a, vec4 b, vec4 dest) {
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_sub(
+          glmm_load(dest),
+          wasm_f32x4_sub(glmm_load(a), glmm_load(b))));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
+  glmm_store(dest, _mm_sub_ps(glmm_load(dest),
+                              _mm_sub_ps(glmm_load(a),
+                                         glmm_load(b))));
+#elif defined(CGLM_NEON_FP)
+  vst1q_f32(dest, vsubq_f32(vld1q_f32(dest),
+                            vsubq_f32(vld1q_f32(a),
+                                      vld1q_f32(b))));
+#else
+  dest[0] -= a[0] - b[0];
+  dest[1] -= a[1] - b[1];
+  dest[2] -= a[2] - b[2];
+  dest[3] -= a[3] - b[3];
+#endif
+}
+
+/*!
+ * @brief add two vectors and sub result to dest
+ *
+ * it applies -= operator so dest must be initialized
+ *
+ * @param[in]  a    vector 1
+ * @param[in]  b    vector 2
+ * @param[out] dest dest -= (a + b)
+ */
+CGLM_INLINE
+void
+glm_vec4_addsub(vec4 a, vec4 b, vec4 dest) {
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_sub(
+          glmm_load(dest),
+          wasm_f32x4_add(glmm_load(a), glmm_load(b))));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
+  glmm_store(dest, _mm_sub_ps(glmm_load(dest),
+                              _mm_add_ps(glmm_load(a),
+                                         glmm_load(b))));
+#elif defined(CGLM_NEON_FP)
+  vst1q_f32(dest, vsubq_f32(vld1q_f32(dest),
+                            vaddq_f32(vld1q_f32(a),
+                                      vld1q_f32(b))));
+#else
+  dest[0] -= a[0] + b[0];
+  dest[1] -= a[1] + b[1];
+  dest[2] -= a[2] + b[2];
+  dest[3] -= a[3] + b[3];
+#endif
+}
+
+/*!
+ * @brief mul two vectors and sub result to dest
+ *
+ * it applies -= operator so dest must be initialized
+ *
+ * @param[in]  a    vector 1
+ * @param[in]  b    vector 2
+ * @param[out] dest dest -= (a * b)
+ */
+CGLM_INLINE
+void
+glm_vec4_mulsub(vec4 a, vec4 b, vec4 dest) {
+#if defined(CGLM_SIMD)
+  glmm_store(dest, glmm_fnmadd(glmm_load(a), glmm_load(b), glmm_load(dest)));
+#else
+  dest[0] -= a[0] * b[0];
+  dest[1] -= a[1] * b[1];
+  dest[2] -= a[2] * b[2];
+  dest[3] -= a[3] * b[3];
+#endif
+}
+
+/*!
+ * @brief mul vector with scalar and sub result to dest
+ *
+ * it applies -= operator so dest must be initialized
+ *
+ * @param[in]  a    vector
+ * @param[in]  s    scalar
+ * @param[out] dest dest -= (a * b)
+ */
+CGLM_INLINE
+void
+glm_vec4_mulsubs(vec4 a, float s, vec4 dest) {
+#if defined(CGLM_SIMD)
+  glmm_store(dest, glmm_fnmadd(glmm_load(a), glmm_set1(s), glmm_load(dest)));
+#else
+  dest[0] -= a[0] * s;
+  dest[1] -= a[1] * s;
+  dest[2] -= a[2] * s;
+  dest[3] -= a[3] * s;
+#endif
+}
+
+/*!
+ * @brief sub max of two vectors to dest
+ *
+ * it applies -= operator so dest must be initialized
+ *
+ * @param[in]  a    vector 1
+ * @param[in]  b    vector 2
+ * @param[out] dest dest -= max(a, b)
+ */
+CGLM_INLINE
+void
+glm_vec4_maxsub(vec4 a, vec4 b, vec4 dest) {
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_sub(glmm_load(dest),
+                                  glmm_max(glmm_load(a), glmm_load(b))));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
+  glmm_store(dest, _mm_sub_ps(glmm_load(dest),
+                              glmm_max(glmm_load(a), glmm_load(b))));
+#elif defined(CGLM_NEON_FP)
+  glmm_store(dest, vsubq_f32(glmm_load(dest),
+                             glmm_max(glmm_load(a), glmm_load(b))));
+#else
+  dest[0] -= glm_max(a[0], b[0]);
+  dest[1] -= glm_max(a[1], b[1]);
+  dest[2] -= glm_max(a[2], b[2]);
+  dest[3] -= glm_max(a[3], b[3]);
+#endif
+}
+
+/*!
+ * @brief sub min of two vectors to dest
+ *
+ * it applies -= operator so dest must be initialized
+ *
+ * @param[in]  a    vector 1
+ * @param[in]  b    vector 2
+ * @param[out] dest dest -= min(a, b)
+ */
+CGLM_INLINE
+void
+glm_vec4_minsub(vec4 a, vec4 b, vec4 dest) {
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_sub(glmm_load(dest),
+                                  glmm_min(glmm_load(a), glmm_load(b))));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
+  glmm_store(dest, _mm_sub_ps(glmm_load(dest),
+                              glmm_min(glmm_load(a), glmm_load(b))));
+#elif defined(CGLM_NEON_FP)
+  glmm_store(dest, vsubq_f32(vld1q_f32(dest),
+                             glmm_min(glmm_load(a), glmm_load(b))));
+#else
+  dest[0] -= glm_min(a[0], b[0]);
+  dest[1] -= glm_min(a[1], b[1]);
+  dest[2] -= glm_min(a[2], b[2]);
+  dest[3] -= glm_min(a[3], b[3]);
 #endif
 }
 
@@ -665,8 +873,10 @@ glm_vec4_minadd(vec4 a, vec4 b, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_negate_to(vec4 v, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
-  glmm_store(dest, _mm_xor_ps(glmm_load(v), _mm_set1_ps(-0.0f)));
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(dest, wasm_f32x4_neg(glmm_load(v)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
+  glmm_store(dest, _mm_xor_ps(glmm_load(v), glmm_float32x4_SIGNMASK_NEG));
 #elif defined(CGLM_NEON_FP)
   vst1q_f32(dest, vnegq_f32(vld1q_f32(v)));
 #else
@@ -697,7 +907,22 @@ glm_vec4_negate(vec4 v) {
 CGLM_INLINE
 void
 glm_vec4_normalize_to(vec4 v, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_128 xdot, x0;
+  float  dot;
+
+  x0   = glmm_load(v);
+  xdot = glmm_vdot(x0, x0);
+  /* dot  = _mm_cvtss_f32(xdot); */
+  dot  = wasm_f32x4_extract_lane(xdot, 0);
+
+  if (dot == 0.0f) {
+    glmm_store(dest, wasm_f32x4_const_splat(0.f));
+    return;
+  }
+
+  glmm_store(dest, wasm_f32x4_div(x0, wasm_f32x4_sqrt(xdot)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   __m128 xdot, x0;
   float  dot;
 
@@ -746,7 +971,9 @@ glm_vec4_normalize(vec4 v) {
 CGLM_INLINE
 float
 glm_vec4_distance(vec4 a, vec4 b) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  return glmm_norm(wasm_f32x4_sub(glmm_load(a), glmm_load(b)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   return glmm_norm(_mm_sub_ps(glmm_load(a), glmm_load(b)));
 #elif defined(CGLM_NEON_FP)
   return glmm_norm(vsubq_f32(glmm_load(a), glmm_load(b)));
@@ -768,7 +995,9 @@ glm_vec4_distance(vec4 a, vec4 b) {
 CGLM_INLINE
 float
 glm_vec4_distance2(vec4 a, vec4 b) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  return glmm_norm2(wasm_f32x4_sub(glmm_load(a), glmm_load(b)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   return glmm_norm2(_mm_sub_ps(glmm_load(a), glmm_load(b)));
 #elif defined(CGLM_NEON_FP)
   return glmm_norm2(vsubq_f32(glmm_load(a), glmm_load(b)));
@@ -790,10 +1019,8 @@ glm_vec4_distance2(vec4 a, vec4 b) {
 CGLM_INLINE
 void
 glm_vec4_maxv(vec4 a, vec4 b, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
-  glmm_store(dest, _mm_max_ps(glmm_load(a), glmm_load(b)));
-#elif defined(CGLM_NEON_FP)
-  vst1q_f32(dest, vmaxq_f32(vld1q_f32(a), vld1q_f32(b)));
+#if defined(CGLM_SIMD)
+  glmm_store(dest, glmm_max(glmm_load(a), glmm_load(b)));
 #else
   dest[0] = glm_max(a[0], b[0]);
   dest[1] = glm_max(a[1], b[1]);
@@ -812,10 +1039,8 @@ glm_vec4_maxv(vec4 a, vec4 b, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_minv(vec4 a, vec4 b, vec4 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
-  glmm_store(dest, _mm_min_ps(glmm_load(a), glmm_load(b)));
-#elif defined(CGLM_NEON_FP)
-  vst1q_f32(dest, vminq_f32(vld1q_f32(a), vld1q_f32(b)));
+#if defined(CGLM_SIMD)
+  glmm_store(dest, glmm_min(glmm_load(a), glmm_load(b)));
 #else
   dest[0] = glm_min(a[0], b[0]);
   dest[1] = glm_min(a[1], b[1]);
@@ -834,11 +1059,14 @@ glm_vec4_minv(vec4 a, vec4 b, vec4 dest) {
 CGLM_INLINE
 void
 glm_vec4_clamp(vec4 v, float minVal, float maxVal) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
-  glmm_store(v, _mm_min_ps(_mm_max_ps(glmm_load(v), _mm_set1_ps(minVal)),
-                           _mm_set1_ps(maxVal)));
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glmm_store(v, glmm_min(glmm_max(glmm_load(v), wasm_f32x4_splat(minVal)),
+                         wasm_f32x4_splat(maxVal)));
+#elif defined( __SSE__ ) || defined( __SSE2__ )
+  glmm_store(v, glmm_min(glmm_max(glmm_load(v), _mm_set1_ps(minVal)),
+                         _mm_set1_ps(maxVal)));
 #elif defined(CGLM_NEON_FP)
-  vst1q_f32(v, vminq_f32(vmaxq_f32(vld1q_f32(v), vdupq_n_f32(minVal)),
+  glmm_store(v, glmm_min(glmm_max(vld1q_f32(v), vdupq_n_f32(minVal)),
                          vdupq_n_f32(maxVal)));
 #else
   v[0] = glm_clamp(v[0], minVal, maxVal);
@@ -1061,6 +1289,19 @@ glm_vec4_swizzle(vec4 v, int mask, vec4 dest) {
   t[3] = v[(mask & (3 << 6)) >> 6];
 
   glm_vec4_copy(t, dest);
+}
+
+/*!
+ * @brief Create four dimensional vector from pointer
+ *
+ * @param[in]  src  pointer to an array of floats
+ * @param[out] dest destination vector
+ */
+CGLM_INLINE
+void
+glm_vec4_make(float * __restrict src, vec4 dest) {
+  dest[0] = src[0]; dest[1] = src[1];
+  dest[2] = src[2]; dest[3] = src[3];
 }
 
 #endif /* cglm_vec4_h */

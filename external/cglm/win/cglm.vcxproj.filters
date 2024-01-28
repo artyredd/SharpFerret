@@ -41,6 +41,12 @@
     <Filter Include="src\clipspace">
       <UniqueIdentifier>{98a166bb-ba2d-4649-a20f-ba6bf4ce6383}</UniqueIdentifier>
     </Filter>
+    <Filter Include="include\cglm\simd\wasm">
+      <UniqueIdentifier>{24571788-2e78-4969-b66f-065aea5489be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include\cglm\struct\handed">
+      <UniqueIdentifier>{e6a410e7-83db-41a5-b9fc-34bbfcf46ae5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\affine.c">
@@ -58,7 +64,19 @@
     <ClCompile Include="..\src\mat3.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\mat3x2.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\mat3x4.c">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\mat4.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\mat4x2.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\mat4x3.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\quat.c">
@@ -95,6 +113,12 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\mat2.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\mat2x3.c">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\mat2x4.c">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="..\src\vec2.c">
@@ -157,6 +181,9 @@
     <ClCompile Include="..\src\ivec2.c">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\aabb2d.c">
+      <Filter>src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\config.h">
@@ -177,7 +204,19 @@
     <ClInclude Include="..\include\cglm\call\mat3.h">
       <Filter>include\cglm\call</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\cglm\call\mat3x2.h">
+      <Filter>include\cglm\call</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\call\mat3x4.h">
+      <Filter>include\cglm\call</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\cglm\call\mat4.h">
+      <Filter>include\cglm\call</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\call\mat4x2.h">
+      <Filter>include\cglm\call</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\call\mat4x3.h">
       <Filter>include\cglm\call</Filter>
     </ClInclude>
     <ClInclude Include="..\include\cglm\call\quat.h">
@@ -243,7 +282,19 @@
     <ClInclude Include="..\include\cglm\mat3.h">
       <Filter>include\cglm</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\cglm\mat3x2.h">
+      <Filter>include\cglm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\mat3x4.h">
+      <Filter>include\cglm</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\cglm\mat4.h">
+      <Filter>include\cglm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\mat4x2.h">
+      <Filter>include\cglm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\mat4x3.h">
       <Filter>include\cglm</Filter>
     </ClInclude>
     <ClInclude Include="..\include\cglm\quat.h">
@@ -360,7 +411,19 @@
     <ClInclude Include="..\include\cglm\struct\mat3.h">
       <Filter>include\cglm\struct</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\mat3x2.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\mat3x4.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\cglm\struct\mat4.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\mat4x2.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\mat4x3.h">
       <Filter>include\cglm\struct</Filter>
     </ClInclude>
     <ClInclude Include="..\include\cglm\struct\plane.h">
@@ -396,16 +459,34 @@
     <ClInclude Include="..\include\cglm\call\mat2.h">
       <Filter>include\cglm\call</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\cglm\call\mat2x3.h">
+      <Filter>include\cglm\call</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\call\mat2x4.h">
+      <Filter>include\cglm\call</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\cglm\call\vec2.h">
       <Filter>include\cglm\call</Filter>
     </ClInclude>
     <ClInclude Include="..\include\cglm\struct\mat2.h">
       <Filter>include\cglm\struct</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\mat2x3.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\mat2x4.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
     <ClInclude Include="..\include\cglm\applesimd.h">
       <Filter>include\cglm</Filter>
     </ClInclude>
     <ClInclude Include="..\include\cglm\mat2.h">
+      <Filter>include\cglm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\mat2x3.h">
+      <Filter>include\cglm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\mat2x4.h">
       <Filter>include\cglm</Filter>
     </ClInclude>
     <ClInclude Include="..\include\cglm\vec2-ext.h">
@@ -590,6 +671,54 @@
     </ClInclude>
     <ClInclude Include="..\include\cglm\ivec4.h">
       <Filter>include\cglm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\affine-post.h">
+      <Filter>include\cglm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\affine-pre.h">
+      <Filter>include\cglm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\affine-post.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\affine-pre.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\affine-mat.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\aabb2d.h">
+      <Filter>include\cglm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\call\aabb2d.h">
+      <Filter>include\cglm\call</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\simd\wasm\affine.h">
+      <Filter>include\cglm\simd\wasm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\simd\wasm\mat2.h">
+      <Filter>include\cglm\simd\wasm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\simd\wasm\mat3.h">
+      <Filter>include\cglm\simd\wasm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\simd\wasm\mat4.h">
+      <Filter>include\cglm\simd\wasm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\simd\wasm\quat.h">
+      <Filter>include\cglm\simd\wasm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\simd\wasm.h">
+      <Filter>include\cglm\simd</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\aabb2d.h">
+      <Filter>include\cglm\struct</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\handed\euler_to_quat_lh.h">
+      <Filter>include\cglm\struct\handed</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\cglm\struct\handed\euler_to_quat_rh.h">
+      <Filter>include\cglm\struct\handed</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

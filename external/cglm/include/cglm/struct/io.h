@@ -12,6 +12,8 @@
    CGLM_INLINE void glm_vec4_print(vec4 vec, FILE *ostream);
    CGLM_INLINE void glm_vec3_print(vec3 vec, FILE *ostream);
    CGLM_INLINE void glm_ivec3_print(ivec3 vec, FILE *ostream);
+   CGLM_INLINE void glm_ivec3_print(ivec3 vec, FILE *ostream);
+
    CGLM_INLINE void glm_versor_print(versor vec, FILE *ostream);
  */
 
@@ -75,7 +77,7 @@ glms_aabb_print(vec3s                   bbox[2],
                 FILE       * __restrict ostream) {
   vec3 rawBbox[2];
 
-  glms_vec3_unpack(rawBbox, bbox, 2);
+  glms_vec3_(unpack)(rawBbox, bbox, 2);
   glm_aabb_print(rawBbox, tag, ostream);
 }
 

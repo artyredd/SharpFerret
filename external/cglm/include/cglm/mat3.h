@@ -30,6 +30,7 @@
    CGLM_INLINE void  glm_mat3_swap_col(mat3 mat, int col1, int col2);
    CGLM_INLINE void  glm_mat3_swap_row(mat3 mat, int row1, int row2);
    CGLM_INLINE float glm_mat3_rmc(vec3 r, mat3 m, vec3 c);
+   CGLM_INLINE void  glm_mat3_make(float * restrict src, mat3 dest);
  */
 
 #ifndef cglm_mat3_h
@@ -40,6 +41,10 @@
 
 #ifdef CGLM_SSE_FP
 #  include "simd/sse2/mat3.h"
+#endif
+
+#ifdef CGLM_SIMD_WASM
+#  include "simd/wasm/mat3.h"
 #endif
 
 #define GLM_MAT3_IDENTITY_INIT  {{1.0f, 0.0f, 0.0f},                          \
@@ -148,7 +153,9 @@ glm_mat3_zero(mat3 mat) {
 CGLM_INLINE
 void
 glm_mat3_mul(mat3 m1, mat3 m2, mat3 dest) {
-#if defined( __SSE__ ) || defined( __SSE2__ )
+#if defined(__wasm__) && defined(__wasm_simd128__)
+  glm_mat3_mul_wasm(m1, m2, dest);
+#elif defined( __SSE__ ) || defined( __SSE2__ )
   glm_mat3_mul_sse2(m1, m2, dest);
 #else
   float a00 = m1[0][0], a01 = m1[0][1], a02 = m1[0][2],
@@ -419,6 +426,28 @@ glm_mat3_rmc(vec3 r, mat3 m, vec3 c) {
   vec3 tmp;
   glm_mat3_mulv(m, c, tmp);
   return glm_vec3_dot(r, tmp);
+}
+
+/*!
+ * @brief Create mat3 matrix from pointer
+ *
+ * @param[in]  src  pointer to an array of floats
+ * @param[out] dest matrix
+ */
+CGLM_INLINE
+void
+glm_mat3_make(float * __restrict src, mat3 dest) {
+  dest[0][0] = src[0];
+  dest[0][1] = src[1];
+  dest[0][2] = src[2];
+
+  dest[1][0] = src[3];
+  dest[1][1] = src[4];
+  dest[1][2] = src[5];
+
+  dest[2][0] = src[6];
+  dest[2][1] = src[7];
+  dest[2][2] = src[8];
 }
 
 #endif /* cglm_mat3_h */

@@ -27,6 +27,7 @@ Functions:
 #. :c:func:`glm_vec3_isinf`
 #. :c:func:`glm_vec3_isvalid`
 #. :c:func:`glm_vec3_sign`
+#. :c:func:`glm_vec3_abs`
 #. :c:func:`glm_vec3_sqrt`
 
 Functions documentation
@@ -48,6 +49,14 @@ Functions documentation
     Parameters:
       | *[in]*  **val**   value
       | *[out]* **dest**  destination
+
+.. c:function:: void  glm_vec3_fill(vec3 v, float val)
+
+    fill a vector with specified value
+
+    Parameters:
+      | *[out]*  **v**    vector
+      | *[in]*   **val**  value
 
 .. c:function:: bool  glm_vec3_eq(vec3 v, float val)
 
@@ -133,6 +142,14 @@ Functions documentation
     Parameters:
       | *[in]*   **v**     vector
       | *[out]*  **dest**  sign vector (only keeps signs as -1, 0, -1)
+
+.. c:function:: void glm_vec3_abs(vec3 v, vec3 dest)
+
+    absolute value of each vector item
+
+    Parameters:
+      | *[in]*   **v**     vector
+      | *[out]*  **dest**  destination vector
 
 .. c:function:: void glm_vec3_sqrt(vec3 v, vec3 dest)
 

@@ -7,6 +7,30 @@
 
 #include "test_common.h"
 
+TEST_IMPL(mat2x3s_zero_init) {
+  mat2x3s mat2x3_zero   = GLMS_MAT2X3_ZERO_INIT;
+  test_assert_mat2x3_eq_zero(mat2x3_zero.raw);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat2x3s_zero) {
+  mat2x3s mat2x3_zero   = GLMS_MAT2X3_ZERO;
+  test_assert_mat2x3_eq_zero(mat2x3_zero.raw);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat2x4s_zero_init) {
+  mat2x4s mat2x4_zero   = GLMS_MAT2X4_ZERO_INIT;
+  test_assert_mat2x4_eq_zero(mat2x4_zero.raw);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat2x4s_zero) {
+  mat2x4s mat2x4_zero   = GLMS_MAT2X4_ZERO;
+  test_assert_mat2x4_eq_zero(mat2x4_zero.raw);
+  TEST_SUCCESS
+}
+
 TEST_IMPL(mat3s_identity_init) {
   mat3s mat3_identity   = GLMS_MAT3_IDENTITY_INIT;
   mat3  mat3_identity_a =  GLM_MAT3_IDENTITY_INIT;
@@ -21,6 +45,30 @@ TEST_IMPL(mat3s_zero_init) {
   TEST_SUCCESS
 }
 
+TEST_IMPL(mat3x2s_zero_init) {
+  mat3x2s mat3x2_zero   = GLMS_MAT3X2_ZERO_INIT;
+  test_assert_mat3x2_eq_zero(mat3x2_zero.raw);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat3x2s_zero) {
+  mat3x2s mat3x2_zero   = GLMS_MAT3X2_ZERO;
+  test_assert_mat3x2_eq_zero(mat3x2_zero.raw);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat3x4s_zero_init) {
+  mat3x4s mat3x4_zero   = GLMS_MAT3X4_ZERO_INIT;
+  test_assert_mat3x4_eq_zero(mat3x4_zero.raw);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat3x4s_zero) {
+  mat3x4s mat3x4_zero   = GLMS_MAT3X4_ZERO;
+  test_assert_mat3x4_eq_zero(mat3x4_zero.raw);
+  TEST_SUCCESS
+}
+
 TEST_IMPL(mat4s_identity_init) {
   mat4s mat4_identity   = GLMS_MAT4_IDENTITY_INIT;
   mat4  mat4_identity_a =  GLM_MAT4_IDENTITY_INIT;
@@ -32,6 +80,30 @@ TEST_IMPL(mat4s_zero_init) {
   mat4s mat4_zero   = GLMS_MAT4_ZERO_INIT;
   mat4  mat4_zero_a =  GLM_MAT4_ZERO_INIT;
   test_assert_mat4_eq(mat4_zero.raw, mat4_zero_a);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat4x2s_zero_init) {
+  mat4x2s mat4x2_zero   = GLMS_MAT4X2_ZERO_INIT;
+  test_assert_mat4x2_eq_zero(mat4x2_zero.raw);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat4x2s_zero) {
+  mat4x2s mat4x2_zero   = GLMS_MAT4X2_ZERO;
+  test_assert_mat4x2_eq_zero(mat4x2_zero.raw);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat4x3s_zero_init) {
+  mat4x3s mat4x3_zero   = GLMS_MAT4X3_ZERO_INIT;
+  test_assert_mat4x3_eq_zero(mat4x3_zero.raw);
+  TEST_SUCCESS
+}
+
+TEST_IMPL(mat4x3s_zero) {
+  mat4x3s mat4x3_zero   = GLMS_MAT4X3_ZERO;
+  test_assert_mat4x3_eq_zero(mat4x3_zero.raw);
   TEST_SUCCESS
 }
 

@@ -1,8 +1,0 @@
-shaders: assets/shaders/diffuseLit.shader
-mainTexture: assets/textures/mountain.texture
-specularTexture: assets/textures/mountain.texture
-ambient: 0.19225 0.19225 0.19225 1.0
-diffuse: 0.50754 0.50754 0.50754 1.0
-specular: 0.508273 0.508273 0.508273 1.0
-shininess: 16
-reflectivity: 1.0

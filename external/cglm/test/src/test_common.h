@@ -10,14 +10,36 @@
 
 #include "../include/common.h"
 
+#if !defined(_WIN32) && !defined(_MSC_VER)
+#  pragma GCC diagnostic ignored "-Wstrict-prototypes"
+#endif
+
 void
 test_rand_mat4(mat4 dest);
+
+void
+test_rand_mat4x2(mat4x2 dest);
+
+void
+test_rand_mat4x3(mat4x3 dest);
 
 void
 test_rand_mat3(mat3 dest);
 
 void
+test_rand_mat3x2(mat3x2 dest);
+
+void
+test_rand_mat3x4(mat3x4 dest);
+
+void
 test_rand_mat2(mat2 dest);
+
+void
+test_rand_mat2x3(mat2x3 dest);
+
+void
+test_rand_mat2x4(mat2x4 dest);
 
 test_status_t
 test_assert_eqf(float a, float b);
@@ -38,6 +60,18 @@ test_status_t
 test_assert_mat4_eq_zero(mat4 m4);
 
 test_status_t
+test_assert_mat4x2_eq_zero(mat4x2 m4x2);
+
+test_status_t
+test_assert_mat4x2_eq(mat4x2 m1, mat4x2 m2);
+
+test_status_t
+test_assert_mat4x3_eq_zero(mat4x3 m4x3);
+
+test_status_t
+test_assert_mat4x3_eq(mat4x3 m1, mat4x3 m2);
+
+test_status_t
 test_assert_mat2_eqt(mat2 m1, mat2 m2);
 
 test_status_t
@@ -48,6 +82,18 @@ test_assert_mat2_eq_identity(mat2 m2);
 
 test_status_t
 test_assert_mat2_eq_zero(mat2 m2);
+
+test_status_t
+test_assert_mat2x3_eq_zero(mat2x3 m2x3);
+
+test_status_t
+test_assert_mat2x3_eq(mat2x3 m1, mat2x3 m2);
+
+test_status_t
+test_assert_mat2x4_eq_zero(mat2x4 m2x4);
+
+test_status_t
+test_assert_mat2x4_eq(mat2x4 m1, mat2x4 m2);
 
 test_status_t
 test_assert_mat3_eq(mat3 m1, mat3 m2);
@@ -63,6 +109,18 @@ test_assert_mat3_eq_identity(mat3 m3);
 
 test_status_t
 test_assert_mat3_eq_zero(mat3 m3);
+
+test_status_t
+test_assert_mat3x2_eq_zero(mat3x2 m3x2);
+
+test_status_t
+test_assert_mat3x2_eq(mat3x2 m1, mat3x2 m2);
+
+test_status_t
+test_assert_mat3x4_eq_zero(mat3x4 m3x4);
+
+test_status_t
+test_assert_mat3x4_eq(mat3x4 m1, mat3x4 m2);
 
 test_status_t
 test_assert_vec3_eq(vec3 v1, vec3 v2);

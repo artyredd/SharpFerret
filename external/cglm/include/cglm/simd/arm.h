@@ -12,6 +12,8 @@
 
 #if defined(_M_ARM64) || defined(_M_HYBRID_X86_ARM64) || defined(_M_ARM64EC) || defined(__aarch64__)
 # define CGLM_ARM64 1
+#else
+# define CGLM_ARM64 0
 #endif
 
 #define glmm_load(p)      vld1q_f32(p)
@@ -38,11 +40,25 @@
 #define glmm_combine_lh(x, y) vcombine_f32(vget_low_f32(x),  vget_high_f32(y))
 #define glmm_combine_hh(x, y) vcombine_f32(vget_high_f32(x), vget_high_f32(y))
 
-static inline
+#if defined(_WIN32) && defined(_MSC_VER)
+/* #  define glmm_float32x4_init(x, y, z, w) { .n128_f32 = { x, y, z, w } } */
+CGLM_INLINE
 float32x4_t
-glmm_abs(float32x4_t v) {
-  return vabsq_f32(v);
+glmm_float32x4_init(float x, float y, float z, float w) {
+  CGLM_ALIGN(16) float v[4] = {x, y, z, w};
+  return vld1q_f32(v);
 }
+#else
+#  define glmm_float32x4_init(x, y, z, w) { x, y, z, w }
+#endif
+
+#define glmm_float32x4_SIGNMASK_PNPN glmm_float32x4_init( 0.f, -0.f,  0.f, -0.f)
+#define glmm_float32x4_SIGNMASK_NPNP glmm_float32x4_init(-0.f,  0.f, -0.f,  0.f)
+#define glmm_float32x4_SIGNMASK_NPPN glmm_float32x4_init(-0.f,  0.f,  0.f, -0.f)
+
+static inline float32x4_t glmm_abs(float32x4_t v)                { return vabsq_f32(v);    }
+static inline float32x4_t glmm_min(float32x4_t a, float32x4_t b) { return vminq_f32(a, b); }
+static inline float32x4_t glmm_max(float32x4_t a, float32x4_t b) { return vmaxq_f32(a, b); }
 
 static inline
 float32x4_t
@@ -156,11 +172,7 @@ glmm_fnmadd(float32x4_t a, float32x4_t b, float32x4_t c) {
 static inline
 float32x4_t
 glmm_fmsub(float32x4_t a, float32x4_t b, float32x4_t c) {
-#if CGLM_ARM64
-  return vfmsq_f32(c, a, b);
-#else
-  return vmlsq_f32(c, a, b);
-#endif
+  return glmm_fmadd(a, b, vnegq_f32(c));
 }
 
 static inline

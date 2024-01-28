@@ -24,6 +24,8 @@
 #include "../../types-struct.h"
 #include "../../plane.h"
 #include "../../cam.h"
+#include "../vec3.h"
+#include "../../clipspace/ortho_rh_no.h"
 
 /*!
  * @brief set up orthographic projection matrix
@@ -64,7 +66,7 @@ glms_ortho_aabb_rh_no(vec3s box[2]) {
   mat4s dest;
   vec3  rawBox[2];
 
-  glms_vec3_unpack(rawBox, box, 2);
+  glms_vec3_(unpack)(rawBox, box, 2);
   glm_ortho_aabb_rh_no(rawBox, dest.raw);
 
   return dest;
@@ -87,7 +89,7 @@ glms_ortho_aabb_p_rh_no(vec3s box[2], float padding) {
   mat4s dest;
   vec3  rawBox[2];
 
-  glms_vec3_unpack(rawBox, box, 2);
+  glms_vec3_(unpack)(rawBox, box, 2);
   glm_ortho_aabb_p_rh_no(rawBox, padding, dest.raw);
 
   return dest;
@@ -110,7 +112,7 @@ glms_ortho_aabb_pz_rh_no(vec3s box[2], float padding) {
   mat4s dest;
   vec3  rawBox[2];
 
-  glms_vec3_unpack(rawBox, box, 2);
+  glms_vec3_(unpack)(rawBox, box, 2);
   glm_ortho_aabb_pz_rh_no(rawBox, padding, dest.raw);
 
   return dest;

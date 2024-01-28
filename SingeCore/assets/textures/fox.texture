@@ -1,7 +1,0 @@
-path: assets/textures/fox.png
-type: 2d
-minificationFilter: linear
-magnificationFilter: linear
-wrapX: clamp
-wrapY: clamp
-wrapZ: clamp

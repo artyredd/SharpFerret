@@ -1,3 +1,0 @@
-# the model path that should be loaded for this collider
-model: assets/models/voxel_debug.obj
-trigger: false
