@@ -1,5 +1,0 @@
-model: assets/models/cube.obj
-material: assets/materials/mirror.material
-transform:
-position: 15 -30 10
-# scale: 1 1 1

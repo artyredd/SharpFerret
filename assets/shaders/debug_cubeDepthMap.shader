@@ -1,3 +1,0 @@
-fragmentShader: assets/shaders/debug_cubeDepthMap.fragmentshader
-vertexShader: assets/shaders/debug_cubeDepthMap.vertexshader
-depthTest: lessOrEqual
