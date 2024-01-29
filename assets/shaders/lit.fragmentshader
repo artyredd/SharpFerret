@@ -1,25 +1,25 @@
-vec3 fragmentPosition;
-vec2 texcoords;
-vec3 cameraPosition;
-vec3 normal;
-vec4 lightFragmentPositions[10];
-mat4 view;
-
-uniform struct _material	{ 
-	vec4 ambient;
-	vec4 color;
-	vec4 diffuse;
-	vec4 specular;
-	float shininess;
-	float reflectivity;
-	bool useDiffuseMap;
-	sampler2D diffuseMap;
-	bool useSpecularMap;
-	sampler2D specularMap;
-	bool useReflectionMap;
-	sampler2D reflectionMap;
-	samplerCube areaMap;
-} material;
+//vec3 fragmentPosition;
+//vec2 texcoords;
+//vec3 cameraPosition;
+//vec3 normal;
+//vec4 lightFragmentPositions[10];
+//mat4 view;
+//
+//uniform struct _material	{ 
+//	vec4 ambient;
+//	vec4 color;
+//	vec4 diffuse;
+//	vec4 specular;
+//	float shininess;
+//	float reflectivity;
+//	bool useDiffuseMap;
+//	sampler2D diffuseMap;
+//	bool useSpecularMap;
+//	sampler2D specularMap;
+//	bool useReflectionMap;
+//	sampler2D reflectionMap;
+//	samplerCube areaMap;
+//} material;
 
 struct _light{
 	bool enabled;
