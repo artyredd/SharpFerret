@@ -1,5 +1,5 @@
-#include "graphics/recttransform.h"
-#include "singine/memory.h"
+#include "engine/graphics/recttransform.h"
+#include "core/memory.h"
 
 static void SetTransform(Transform, Anchor anchor, Anchor pivot, float x, float y, float width, float height);
 

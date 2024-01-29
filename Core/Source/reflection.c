@@ -1,6 +1,6 @@
-#include "singine/reflection.h"
-#include "csharp.h"
-#include "singine/strings.h"
+#include "core/reflection.h"
+#include "core/csharp.h"
+#include "core/strings.h"
 #include <string.h>
 
 static bool TryGetName(parsableValue* values, const size_t count, const int value, const char** out_name);

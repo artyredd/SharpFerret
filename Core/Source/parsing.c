@@ -1,12 +1,12 @@
-#include "singine/parsing.h"
+#include "core/parsing.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <string.h>
-#include "singine/memory.h"
-#include "singine/strings.h"
-#include "cunit.h"
-#include "singine/file.h"
-#include "csharp.h"
+#include "core/memory.h"
+#include "core/strings.h"
+#include "core/cunit.h"
+#include "core/file.h"
+#include "core/csharp.h"
 
 static bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool* out_bool);
 static bool TryParseLine(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string);

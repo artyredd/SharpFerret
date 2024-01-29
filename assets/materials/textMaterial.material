@@ -1,0 +1,4 @@
+# the array of shaders that should be loaded for this material
+shaders: assets/shaders/text.shader,
+# the material base color
+color: 1.000000 1.000000 1.000000 1.0

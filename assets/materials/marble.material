@@ -1,0 +1,9 @@
+shaders: assets/shaders/diffuseLit.shader
+mainTexture: assets/textures/marble_uv.texture
+specularMap: assets/textures/marble_specular.texture
+reflectionMap: assets/textures/marble_specular.texture
+ambient: 0.2 0.2 0.2 1.0
+diffuse: 0.8 0.8 0.8 1.0
+specular: 1 1 1 1.0
+shininess: 16
+reflectivity: 0

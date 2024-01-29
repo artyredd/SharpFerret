@@ -1,5 +1,5 @@
-#include "types.h"
-#include "singine/memory.h"
+#include "core/types.h"
+#include "core/memory.h"
 
 
 static Pointer Create(void);

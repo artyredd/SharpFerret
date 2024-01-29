@@ -1,9 +1,9 @@
-#include "singine/strings.h"
-#include "singine/guards.h"
+#include "core/strings.h"
+#include "core/guards.h"
 #include <ctype.h>
 #include <string.h>
 #include <stdlib.h>
-#include "singine/memory.h"
+#include "core/memory.h"
 
 
 static StringArray CreateStringArray(void);

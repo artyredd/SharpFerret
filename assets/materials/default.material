@@ -1,0 +1,10 @@
+# the array of shaders that should be loaded for this material
+shaders: assets/shaders/diffuseLit.shader, assets/shaders/debug_normal.shader
+
+# the material base color
+color: 1.000000 1.000000 1.000000 1.000000
+ambient: 0.01 0.01 0.01 1.0
+diffuse: 1.0 1.0 1.0 1.0
+specular: 0.7 0.7 0.7 1.0
+shininess: 2
+reflectivity: 0.0

@@ -1,6 +1,6 @@
-#include "cunit.h"
+#include "core/cunit.h"
 #include <stdlib.h>
-#include "singine/memory.h"
+#include "core/memory.h"
 
 static bool RunTest(Test test, FILE* stream);
 static Test CreateTest(char* name, bool(*Method)(FILE*));

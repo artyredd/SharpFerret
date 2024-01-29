@@ -1,7 +1,7 @@
-#include "graphics/text.h"
-#include "singine/memory.h"
+#include "engine/graphics/text.h"
+#include "core/memory.h"
 #include <string.h>
-#include "helpers/quickmask.h"
+#include "core/quickmask.h"
 
 static Text Create(void);
 static Text CreateText(Font font, char* string, size_t size);

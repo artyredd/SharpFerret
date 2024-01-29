@@ -1,5 +1,5 @@
 
-#include "math/triangles.h"
+#include "core/math/triangles.h"
 #include "cglm/ray.h"
 
 private bool Intersects(const triangle,const triangle);

@@ -1,7 +1,7 @@
-#include "singine/config.h"
-#include "singine/file.h"
+#include "core/config.h"
+#include "core/file.h"
 #include "string.h"
-#include "singine/strings.h"
+#include "core/strings.h"
 #include <stdlib.h>
 #include <ctype.h>
 

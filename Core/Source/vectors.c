@@ -1,7 +1,7 @@
-#include "math/vectors.h"
+#include "core/math/vectors.h"
 #include <stdio.h>
-#include "singine/file.h"
-#include "cunit.h"
+#include "core/file.h"
+#include "core/cunit.h"
 #include "string.h"
 #include "cglm/cam.h"
 #include "cglm/mat3.h"

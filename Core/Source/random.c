@@ -1,8 +1,8 @@
 #pragma once
 
-#include "singine/random.h"
+#include "core/random.h"
 #include <float.h>
-#include "singine/time.h"
+//#include "core/time.h"
 
 private float NextFloat();
 private float BetweenFloat(float lower, float upper);
@@ -59,7 +59,7 @@ private unsigned int NextUInt(void)
 	{
 		if (Random.RandomSeedOnStart && GLOBAL_HasInitializedRandomNumberGenerator is false)
 		{
-			Random.Seed = (size_t)(1.0 / Time.Time() * DBL_MAX);
+			Random.Seed = (size_t)(1.0 / /*Time.Time()*/ 42.0 * DBL_MAX);
 		}
 
 		srand(Random.Seed % UINT_MAX);

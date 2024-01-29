@@ -1,6 +1,6 @@
-#include "math/quaternions.h"
+#include "core/math/quaternions.h"
 #include "cglm/quat.h"
-#include "math/vectors.h"
+#include "core/math/vectors.h"
 
 static quaternion AddQuaternion(quaternion left, quaternion right);
 static quaternion Invert(quaternion quaternion);

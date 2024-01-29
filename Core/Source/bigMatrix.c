@@ -1,6 +1,6 @@
 #pragma once
 
-#include "math/bigMatrix.h"
+#include "core/math/bigMatrix.h"
 
 private BigMatrix Create(size_t rows, size_t columns);
 // Multiplies the big matrix with the given vector and appends the results to the destinationVector

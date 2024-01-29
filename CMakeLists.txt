@@ -8,7 +8,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 link_directories(external)
 
 file(GLOB coreHeaderFiles CONFIGURE_DEPENDS
-     "Core/Headers/math/*.h"
+     "Core/Headers/core/math/*.h"
+     "Core/Headers/core/*.h"
 )
 
 file(GLOB coreSourceFiles CONFIGURE_DEPENDS
@@ -18,12 +19,6 @@ file(GLOB coreSourceFiles CONFIGURE_DEPENDS
 add_library(Core ${coreSourceFiles} ${coreHeaderFiles})
 
 set_target_properties(Core PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
-
-target_include_directories(Core PUBLIC 
-    "external/stb_image"
-    "Core/Headers"
-    "Core"
-) 
 
 include(FetchContent)
 
@@ -37,6 +32,13 @@ add_subdirectory(${cglm_SOURCE_DIR} cglm/build)
 
 add_dependencies(Core cglm)
 
+target_include_directories(Core PUBLIC 
+    "external/stb_image"
+    "external/cglm/include"
+    "Core/Headers"
+    "Core"
+) 
+
 target_link_libraries(Core PRIVATE
     external/glew/lib/Release/x64/glew32
     external/glfw/lib-vc2022/glfw3
@@ -46,13 +48,15 @@ target_link_libraries(Core PRIVATE
 project(Engine)
 
 file(GLOB engineHeaderFiles CONFIGURE_DEPENDS
-     "Engine/Headers/ai/*.h"
-     "Engine/Headers/data/*.h"
-     "Engine/Headers/graphics/*.h"
-     "Engine/Headers/input/*.h"
-     "Engine/Headers/modeling/*.h"
-     "Engine/Headers/physics/*.h"
-     "Engine/Headers/scripts/*.h"
+     "Engine/Headers/engine/ai/*.h"
+     "Engine/Headers/engine/data/*.h"
+     "Engine/Headers/engine/graphics/*.h"
+     "Engine/Headers/engine/input/*.h"
+     "Engine/Headers/engine/modeling/*.h"
+     "Engine/Headers/engine/physics/*.h"
+     "Engine/Headers/engine/scripts/*.h"
+     "Engine/Headers/engine/*.h"
+
 )
 
 file(GLOB engineSourceFiles CONFIGURE_DEPENDS
@@ -70,8 +74,8 @@ target_include_directories(Engine PUBLIC
     "external/cglm/include"
     "external/glew/include"
     "external/stb_image"
-    "Core/Headers"
-    "Core"
+    "Engine/Headers"
+    "Engine"
 ) 
 
 target_link_libraries(Engine Core)

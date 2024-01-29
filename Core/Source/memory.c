@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
-#include "singine/memory.h"
-#include "csharp.h"
-#include "singine/hashing.h"
+#include "core/memory.h"
+#include "core/csharp.h"
+#include "core/hashing.h"
 
 static char GetByteGrouping(size_t value);
 static void PrintGroupedNumber(FILE* stream, size_t value);

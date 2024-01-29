@@ -1,5 +1,5 @@
-#include "singine/array.h"
-#include "singine/memory.h"
+#include "core/array.h"
+#include "core/memory.h"
 #include <memory.h>
 #include <string.h>
 

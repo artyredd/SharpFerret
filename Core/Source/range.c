@@ -1,6 +1,6 @@
-#include "math/range.h"
-#include "singine/memory.h"
-#include "csharp.h"
+#include "core/math/range.h"
+#include "core/memory.h"
+#include "core/csharp.h"
 
 static Range Create(double, double);
 static void Dispose(Range range);

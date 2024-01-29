@@ -1,4 +1,4 @@
-#include "math/cuboid.h"
+#include "core/math/cuboid.h"
 #include <float.h>
 
 private cuboid Create(triangle);

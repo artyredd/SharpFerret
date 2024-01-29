@@ -1,4 +1,4 @@
-#include "math/ints.h"
+#include "core/math/ints.h"
 
 static bool TryDeserialize(const char* buffer, size_t bufferLength, size_t* out_value);
 static void Serialize(File stream, size_t value);

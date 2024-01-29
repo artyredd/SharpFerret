@@ -1,6 +1,6 @@
-#include "graphics/scene.h"
-#include "singine/memory.h"
-#include "singine/guards.h"
+#include "engine/graphics/scene.h"
+#include "core/memory.h"
+#include "core/guards.h"
 
 static Scene Create(void);
 static void Dispose(Scene);

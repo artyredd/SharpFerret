@@ -1,10 +1,10 @@
-#include "singine/file.h"
-#include "singine/memory.h"
-#include "singine/guards.h"
+#include "core/file.h"
+#include "core/memory.h"
+#include "core/guards.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "singine/os.h"
+#include "core/os.h"
 
 private bool TryOpen(const char* path, FileMode fileMode, File* out_file);
 private File Open(const char* path, FileMode fileMode);

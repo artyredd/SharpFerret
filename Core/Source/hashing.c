@@ -1,5 +1,5 @@
-#include "singine/hashing.h"
-#include "csharp.h"
+#include "core/hashing.h"
+#include "core/csharp.h"
 
 static size_t Hash(const char* bytes);
 static size_t ChainHash(const char* bytes, const size_t previousHash);

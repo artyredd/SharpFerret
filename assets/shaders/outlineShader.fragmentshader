@@ -1,0 +1,19 @@
+#version 330 core
+
+// Interpolated values from the vertex shaders
+in vec2 UV;
+
+// Ouput data
+out vec4 color;
+
+uniform struct _material	{ 
+	vec4 ambient;
+	vec4 color;
+	vec4 diffuse;
+	vec4 specular;
+	float shininess;
+} material;
+
+void main(){
+	color = vec4(1,0,0,1);
+}

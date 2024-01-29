@@ -1,8 +1,8 @@
-#include "math/voxel.h"
-#include "singine/memory.h"
-#include "helpers/quickmask.h"
-#include "graphics/drawing.h"
-#include "cunit.h"
+#include "engine/physics/voxel.h"
+#include "core/memory.h"
+#include "core/quickmask.h"
+#include "engine/graphics/drawing.h"
+#include "core/cunit.h"
 
 private voxelTree Create(Mesh mesh);
 private bool Intersects(
