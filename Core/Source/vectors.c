@@ -10,17 +10,17 @@
 #include "cglm/affine.h"
 #include <math.h>
 
-static bool TryParseVector3(const char* buffer, const size_t length, vector3* out_vector3);
-static bool TrySerializeVec3(char* buffer, const size_t length, const vector3 vector);
-static bool TrySerializeVec3Stream(File stream, const vector3 vector);
-static vector3 Cross(const vector3 left, const vector3 right);
-static vector3 Multiply(const vector3 left, const vector3 right);
-static vector3 Scale(const vector3 vector, const float value);
-static vector3 Add(const vector3 left, const vector3 right);
-static vector3 Subtract(const vector3 left, const vector3 right);
-static bool Equals(const vector3 left, const vector3 right);
-static bool Close(const vector3 left, const vector3 right, float epsilon);
-static float Distance(const vector3 left, const vector3 right);
+private bool TryParseVector3(const char* buffer, const size_t length, vector3* out_vector3);
+private bool TrySerializeVec3(char* buffer, const size_t length, const vector3 vector);
+private bool TrySerializeVec3Stream(File stream, const vector3 vector);
+private vector3 Cross(const vector3 left, const vector3 right);
+private vector3 Multiply(const vector3 left, const vector3 right);
+private vector3 Scale(const vector3 vector, const float value);
+private vector3 Add(const vector3 left, const vector3 right);
+private vector3 Subtract(const vector3 left, const vector3 right);
+private bool Equals(const vector3 left, const vector3 right);
+private bool Close(const vector3 left, const vector3 right, float epsilon);
+private float Distance(const vector3 left, const vector3 right);
 private vector3 Mean(const vector3 left, const vector3 right);
 private vector3 MeanArray(const vector3* array, const size_t count);
 
@@ -30,7 +30,7 @@ const struct _vector3Methods Vector3s = {
 	.TrySerializeStream = &TrySerializeVec3Stream,
 	.Cross = &Cross,
 	.Multiply = Multiply,
-	.Scale  = Scale,
+	.Scale = Scale,
 	.Add = Add,
 	.Subtract = Subtract,
 	.Equals = Equals,
@@ -92,25 +92,25 @@ const struct _mat3Methods Matrix3s = {
 #define Vector3SerializationFormat "%f %f %f"
 #define Vector4SerializationFormat "%f %f %f %f"
 
-static bool EqualsVec2(const vector2 left, const vector2 right)
+private bool EqualsVec2(const vector2 left, const vector2 right)
 {
 	return left.x == right.x && left.y == right.y;
 }
 
-static bool CloseVec2(const vector2 left, const vector2 right, float epsilon)
+private bool CloseVec2(const vector2 left, const vector2 right, float epsilon)
 {
 	return (fabs(left.x - right.x) < epsilon) &&
 		(fabs(left.y - right.y) < epsilon);
 }
 
-static bool TryParseVector3(const char* buffer, size_t length, vector3* out_vector3)
+private bool TryParseVector3(const char* buffer, size_t length, vector3* out_vector3)
 {
 	if (length is 0)
 	{
 		return false;
 	}
 
-	int count = sscanf_s(buffer, "%f %f %f", 
+	int count = sscanf_s(buffer, "%f %f %f",
 		&out_vector3->x,
 		&out_vector3->y,
 		&out_vector3->z);
@@ -118,7 +118,7 @@ static bool TryParseVector3(const char* buffer, size_t length, vector3* out_vect
 	return count == 3;
 }
 
-static bool TryParseVector2(const char* buffer, size_t length, vector2* out_vector2)
+private bool TryParseVector2(const char* buffer, size_t length, vector2* out_vector2)
 {
 	if (length is 0)
 	{
@@ -132,25 +132,25 @@ static bool TryParseVector2(const char* buffer, size_t length, vector2* out_vect
 	return count == 2;
 }
 
-static bool Equals(const vector3 left, const vector3 right) 
+private bool Equals(const vector3 left, const vector3 right)
 {
 	return left.x == right.x && left.y == right.y && left.z == right.z;
 }
 
-static bool Close(const vector3 left, const vector3 right, float epsilon)
+private bool Close(const vector3 left, const vector3 right, float epsilon)
 {
 	return (fabs(left.x - right.x) < epsilon) &&
 		(fabs(left.y - right.y) < epsilon) &&
 		(fabs(left.z - right.z) < epsilon);
 }
 
-static vector3 Cross(const vector3 left, const vector3 right)
+private vector3 Cross(const vector3 left, const vector3 right)
 {
-	return (vector3) 
+	return (vector3)
 	{
-		left.y * right.z - left.z * right.y,
-		left.z * right.x - left.x * right.z,
-		left.x * right.y - left.y * right.x,
+		left.y* right.z - left.z * right.y,
+			left.z* right.x - left.x * right.z,
+			left.x* right.y - left.y * right.x,
 	};
 }
 
@@ -158,8 +158,8 @@ private vector3 Mean(const vector3 left, const vector3 right)
 {
 	return (vector3) {
 		(left.x + right.x) / 2,
-		(left.y + right.y) / 2,
-		(left.z + right.z) / 2
+			(left.y + right.y) / 2,
+			(left.z + right.z) / 2
 	};
 }
 
@@ -178,39 +178,39 @@ private vector3 MeanArray(const vector3* array, const size_t count)
 		z += vector.z;
 	}
 
-	return (vector3) { 
-		x / count, 
-		y / count, 
-		z / count
+	return (vector3) {
+		x / count,
+			y / count,
+			z / count
 	};
 }
 
-static float Distance(const vector3 left, const vector3 right)
+private float Distance(const vector3 left, const vector3 right)
 {
 	return glm_vec3_distance((float*)&left, (float*)&right);
 }
 
-static vector3 Multiply(const vector3 left, const vector3 right)
+private vector3 Multiply(const vector3 left, const vector3 right)
 {
-	return (vector3) { left.x * right.x, left.y * right.y, left.z * right.z };
+	return (vector3) { left.x* right.x, left.y* right.y, left.z* right.z };
 }
 
-static vector3 Add(const vector3 left, const vector3 right)
+private vector3 Add(const vector3 left, const vector3 right)
 {
 	return (vector3) { left.x + right.x, left.y + right.y, left.z + right.z };
 }
 
-static vector3 Subtract(const vector3 left, const vector3 right)
+private vector3 Subtract(const vector3 left, const vector3 right)
 {
 	return (vector3) { left.x - right.x, left.y - right.y, left.z - right.z };
 }
 
-static vector3 Scale(const vector3 vector, float value)
+private vector3 Scale(const vector3 vector, float value)
 {
-	return (vector3) { vector.x * value, vector.y* value, vector.z * value };
+	return (vector3) { vector.x* value, vector.y* value, vector.z* value };
 }
 
-static bool TrySerializeVec3Stream(File stream, const vector3 vector)
+private bool TrySerializeVec3Stream(File stream, const vector3 vector)
 {
 	if (stream is null)
 	{
@@ -226,7 +226,7 @@ static bool TrySerializeVec3Stream(File stream, const vector3 vector)
 	return result > 0;
 }
 
-static bool TrySerializeVec3(char* buffer, const size_t length, const vector3 vector)
+private bool TrySerializeVec3(char* buffer, const size_t length, const vector3 vector)
 {
 	if (length is 0)
 	{
@@ -239,7 +239,7 @@ static bool TrySerializeVec3(char* buffer, const size_t length, const vector3 ve
 	return result > 0;
 }
 
-static bool TrySerializeVec2(char* buffer, const size_t length, const vector2 vector)
+private bool TrySerializeVec2(char* buffer, const size_t length, const vector2 vector)
 {
 	if (length is 0)
 	{
@@ -252,7 +252,7 @@ static bool TrySerializeVec2(char* buffer, const size_t length, const vector2 ve
 	return result > 0;
 }
 
-static bool TryDeserializeVec4(const char* buffer, const size_t length, vector4* out_vector4)
+private bool TryDeserializeVec4(const char* buffer, const size_t length, vector4* out_vector4)
 {
 	if (length is 0)
 	{
@@ -267,7 +267,7 @@ static bool TryDeserializeVec4(const char* buffer, const size_t length, vector4*
 	return count == 4;
 }
 
-static bool TrySerializeVec4Stream(File stream, const vector4 vector)
+private bool TrySerializeVec4Stream(File stream, const vector4 vector)
 {
 	if (stream is null)
 	{
@@ -284,7 +284,7 @@ static bool TrySerializeVec4Stream(File stream, const vector4 vector)
 	return result > 0;
 }
 
-static bool TrySerializeVec4(char* buffer, const size_t length, const vector4 vector)
+private bool TrySerializeVec4(char* buffer, const size_t length, const vector4 vector)
 {
 	if (length is 0)
 	{
@@ -301,7 +301,7 @@ static bool TrySerializeVec4(char* buffer, const size_t length, const vector4 ve
 	return result > 0;
 }
 
-static bool Test_TryGetVector3(File stream)
+private bool Test_TryGetVector3(File stream)
 {
 	char* buffer = "-1.0 2.4 4.90";
 
@@ -316,7 +316,7 @@ static bool Test_TryGetVector3(File stream)
 	return true;
 }
 
-static matrix4 MultiplyMat4(matrix4 left, matrix4 right)
+private matrix4 MultiplyMat4(matrix4 left, matrix4 right)
 {
 	matrix4 result;
 	glm_mat4_mul((vec4*)&left, (vec4*)&right, (vec4*)&result);
@@ -324,23 +324,23 @@ static matrix4 MultiplyMat4(matrix4 left, matrix4 right)
 	return result;
 }
 
-static matrix4 ScaleMat4(matrix4 matrix, vector3 scale)
+private matrix4 ScaleMat4(matrix4 matrix, vector3 scale)
 {
 	matrix4 result;
-	glm_scale_to((vec4*)&matrix, (float*)&scale, (vec4*) & result);
+	glm_scale_to((vec4*)&matrix, (float*)&scale, (vec4*)&result);
 
 	return result;
 }
 
-static vector3 MultiplyVector3(matrix4 matrix, vector3 vector, float w)
+private vector3 MultiplyVector3(matrix4 matrix, vector3 vector, float w)
 {
 	vector3 result;
-	glm_mat4_mulv3( (vec4*)&matrix, (float*)&vector, w, (float*)&result);
+	glm_mat4_mulv3((vec4*)&matrix, (float*)&vector, w, (float*)&result);
 
 	return result;
 }
 
-static bool Test_TryGetVector2(File stream)
+private bool Test_TryGetVector2(File stream)
 {
 	char* buffer = "-1.0 2.4 4.90";
 
@@ -369,12 +369,12 @@ bool RunVectorUnitTests()
 	return pass;
 }
 
-static float Determinant(matrix3 matrix)
+private float Determinant(matrix3 matrix)
 {
-	return glm_mat3_det((vec3*) & matrix);
+	return glm_mat3_det((vec3*)&matrix);
 }
 
-static vector3 MultiplyMat3Vector3(matrix3 matrix, vector3 vector)
+private vector3 MultiplyMat3Vector3(matrix3 matrix, vector3 vector)
 {
 	vector3 result;
 	glm_mat3_mulv((vec3*)&matrix, (float*)&vector, (float*)&result);
@@ -382,7 +382,7 @@ static vector3 MultiplyMat3Vector3(matrix3 matrix, vector3 vector)
 	return result;
 }
 
-static matrix3 InverseMat3(matrix3 matrix)
+private matrix3 InverseMat3(matrix3 matrix)
 {
 	matrix3 result;
 	glm_mat3_inv((vec3*)&matrix, (vec3*)&result);
@@ -390,26 +390,26 @@ static matrix3 InverseMat3(matrix3 matrix)
 	return result;
 }
 
-static matrix4 LookAt(vector3 position, vector3 target, vector3 upDirection)
+private matrix4 LookAt(vector3 position, vector3 target, vector3 upDirection)
 {
 	matrix4 result;
-	glm_look((float*) & position, (float*)&target, (float*)&upDirection, (vec4*)&result);
+	glm_look((float*)&position, (float*)&target, (float*)&upDirection, (vec4*)&result);
 
 	return result;
 }
 
-static matrix4 Inverse(matrix4 matrix)
+private matrix4 Inverse(matrix4 matrix)
 {
 	matrix4 result;
-	glm_mat4_inv((vec4*) & matrix, (vec4*)&result);
+	glm_mat4_inv((vec4*)&matrix, (vec4*)&result);
 
 	return result;
 }
 
-static matrix4 Translate(matrix4 matrix, vector3 position)
+private matrix4 Translate(matrix4 matrix, vector3 position)
 {
 	matrix4 result;
-	glm_translate_to((vec4*) & matrix, (float*)&position, (vec4*) & result);
+	glm_translate_to((vec4*)&matrix, (float*)&position, (vec4*)&result);
 
 	return result;
 }

@@ -113,13 +113,13 @@ struct _vector3Methods {
 	bool (*TryDeserialize)(const char* buffer, const size_t length, vector3* out_vector3);
 	bool (*TrySerialize)(char* buffer, const size_t length, const vector3 vector);
 	bool (*TrySerializeStream)(File stream, const vector3 vector);
-	vector3 (*Cross)(vector3 left, vector3 right);
-	vector3 (*Multiply)(const vector3 left, const vector3 right);
-	vector3 (*Scale)(const vector3 vector, const float value);
-	vector3 (*Add)(const vector3 left, const vector3 right);
-	vector3 (*Subtract)(const vector3 left, const vector3 right);
-	vector3 (*Mean)(const vector3 left, const vector3 right);
-	vector3 (*MeanArray)(const vector3* array, const size_t count);
+	vector3(*Cross)(vector3 left, vector3 right);
+	vector3(*Multiply)(const vector3 left, const vector3 right);
+	vector3(*Scale)(const vector3 vector, const float value);
+	vector3(*Add)(const vector3 left, const vector3 right);
+	vector3(*Subtract)(const vector3 left, const vector3 right);
+	vector3(*Mean)(const vector3 left, const vector3 right);
+	vector3(*MeanArray)(const vector3* array, const size_t count);
 	float (*Distance)(const vector3 left, const vector3 right);
 	bool (*Equals)(const vector3 left, const vector3 right);
 	bool (*Close)(const vector3 left, const vector3 right, float epsilon);
@@ -136,21 +136,21 @@ struct _vector4Methods {
 };
 
 extern const struct _vector4Methods Vector4s;
-    
+
 static struct _matrixConstants {
 	matrix4 Identity;
 	matrix4 Zero;
 } Matrix4 = {
 	.Identity = {
-		{ 1.0f, 0.0f, 0.0f, 0.0f},                    
-		{ 0.0f, 1.0f, 0.0f, 0.0f},                    
-		{ 0.0f, 0.0f, 1.0f, 0.0f},                    
+		{ 1.0f, 0.0f, 0.0f, 0.0f},
+		{ 0.0f, 1.0f, 0.0f, 0.0f},
+		{ 0.0f, 0.0f, 1.0f, 0.0f},
 		{ 0.0f, 0.0f, 0.0f, 1.0f}
 	},
 	.Zero = {
-		{ 0.0f, 0.0f, 0.0f, 0.0f},                    
-		{ 0.0f, 0.0f, 0.0f, 0.0f},                    
-		{ 0.0f, 0.0f, 0.0f, 0.0f},                    
+		{ 0.0f, 0.0f, 0.0f, 0.0f},
+		{ 0.0f, 0.0f, 0.0f, 0.0f},
+		{ 0.0f, 0.0f, 0.0f, 0.0f},
 		{ 0.0f, 0.0f, 0.0f, 0.0f}
 	}
 };
@@ -158,21 +158,52 @@ static struct _matrixConstants {
 struct _mat3Methods
 {
 	float (*Determinant)(matrix3 matrix);
-	matrix3 (*Inverse)(matrix3);
-	vector3 (*MultiplyVector3)(matrix3, vector3);
+	matrix3(*Inverse)(matrix3);
+	vector3(*MultiplyVector3)(matrix3, vector3);
 };
 
 extern const struct _mat3Methods Matrix3s;
 
 struct _mat4Methods {
-	matrix4 (*LookAt)(vector3 position, vector3 target, vector3 upDirection);
-	matrix4 (*Inverse)(matrix4);
-	matrix4 (*Scale)(matrix4, vector3 scale);
-	matrix4 (*Translate)(matrix4, vector3 position);
-	matrix4 (*Multiply)(matrix4, matrix4);
-	vector3 (*MultiplyVector3)(matrix4, vector3, float w);
+	matrix4(*LookAt)(vector3 position, vector3 target, vector3 upDirection);
+	matrix4(*Inverse)(matrix4);
+	matrix4(*Scale)(matrix4, vector3 scale);
+	matrix4(*Translate)(matrix4, vector3 position);
+	matrix4(*Multiply)(matrix4, matrix4);
+	vector3(*MultiplyVector3)(matrix4, vector3, float w);
 };
 
 extern const struct _mat4Methods Matrix4s;
 
 bool RunVectorUnitTests();
+
+typedef struct ivector2 ivector2;
+
+struct ivector2
+{
+	int x;
+	int y;
+};
+
+typedef ivector2 ivector2;
+
+typedef struct ivector3 ivector3;
+
+struct ivector3
+{
+	ivector2;
+	int z;
+};
+
+typedef ivector3 ivector3;
+
+typedef struct ivector4 ivector4;
+
+_declspec(align(16))
+struct ivector4
+{
+	ivector3;
+	int w;
+};
+
+typedef struct ivector4 ivector4;
