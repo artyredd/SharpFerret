@@ -1,7 +1,7 @@
 #pragma once
 #include "engine/graphics/sharedBuffer.h"
 #include "engine/graphics/graphicsDevice.h"
-#include "engine/graphics/texture.h"
+#include "engine/graphics/rawTexture.h"
 #include "engine/graphics/renderbuffers.h"
 
 typedef unsigned int FrameBufferType;

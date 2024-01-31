@@ -73,10 +73,10 @@ static void Dispose(Material material)
 
 	Memory.Free(material->Name, Memory.String);
 
-	Textures.Dispose(material->MainTexture);
-	Textures.Dispose(material->SpecularTexture);
-	Textures.Dispose(material->ReflectionMap);
-	Textures.Dispose(material->AreaMap);
+	RawTextures.Dispose(material->MainTexture);
+	RawTextures.Dispose(material->SpecularTexture);
+	RawTextures.Dispose(material->ReflectionMap);
+	RawTextures.Dispose(material->AreaMap);
 
 	Memory.Free(material, MaterialTypeId);
 }
@@ -88,7 +88,7 @@ static Material Create(Shader shader, RawTexture texture)
 
 	Material material = Memory.Alloc(sizeof(struct _material), MaterialTypeId);
 
-	material->MainTexture = Textures.Instance(texture);
+	material->MainTexture = RawTextures.Instance(texture);
 
 	if (shader isnt null)
 	{
@@ -179,7 +179,7 @@ static Material InstanceMaterial(Material material)
 		return null;
 	}
 
-	RawTexture mainTexture = Textures.Instance(material->MainTexture);
+	RawTexture mainTexture = RawTextures.Instance(material->MainTexture);
 
 	Material newMaterial = Create(null, null);
 
@@ -187,11 +187,11 @@ static Material InstanceMaterial(Material material)
 
 	newMaterial->MainTexture = mainTexture;
 
-	newMaterial->SpecularTexture = Textures.Instance(material->SpecularTexture);
+	newMaterial->SpecularTexture = RawTextures.Instance(material->SpecularTexture);
 
-	newMaterial->AreaMap = Textures.Instance(material->AreaMap);
+	newMaterial->AreaMap = RawTextures.Instance(material->AreaMap);
 
-	newMaterial->ReflectionMap = Textures.Instance(material->ReflectionMap);
+	newMaterial->ReflectionMap = RawTextures.Instance(material->ReflectionMap);
 
 	if (material->Name isnt null)
 	{
@@ -453,29 +453,29 @@ static void Draw(Material material, RenderMesh mesh, Scene scene)
 static void SetMainTexture(Material material, RawTexture texture)
 {
 	GuardNotNull(material);
-	Textures.Dispose(material->MainTexture);
-	material->MainTexture = Textures.Instance(texture);
+	RawTextures.Dispose(material->MainTexture);
+	material->MainTexture = RawTextures.Instance(texture);
 }
 
 static void SetSpecularTexture(Material material, RawTexture texture)
 {
 	GuardNotNull(material);
-	Textures.Dispose(material->SpecularTexture);
-	material->SpecularTexture = Textures.Instance(texture);
+	RawTextures.Dispose(material->SpecularTexture);
+	material->SpecularTexture = RawTextures.Instance(texture);
 }
 
 static void SetAreaTexture(Material material, const RawTexture texture)
 {
 	GuardNotNull(material);
-	Textures.Dispose(material->AreaMap);
-	material->AreaMap = Textures.Instance(texture);
+	RawTextures.Dispose(material->AreaMap);
+	material->AreaMap = RawTextures.Instance(texture);
 }
 
 static void SetReflectionTexture(Material material, const RawTexture texture)
 {
 	GuardNotNull(material);
-	Textures.Dispose(material->ReflectionMap);
-	material->ReflectionMap = Textures.Instance(texture);
+	RawTextures.Dispose(material->ReflectionMap);
+	material->ReflectionMap = RawTextures.Instance(texture);
 }
 
 static void SetShader(Material material, Shader shader, size_t index)
@@ -782,7 +782,7 @@ static Material Load(const char* path)
 			// load any textures that were included in the material
 			if (state.MainTexturePath isnt null)
 			{
-				RawTexture texture = Textures.Load(state.MainTexturePath);
+				RawTexture texture = RawTextures.Load(state.MainTexturePath);
 
 				if (texture is null)
 				{
@@ -791,12 +791,12 @@ static Material Load(const char* path)
 
 				Materials.SetMainTexture(material, texture);
 
-				Textures.Dispose(texture);
+				RawTextures.Dispose(texture);
 			}
 
 			if (state.SpecularTexturePath isnt null)
 			{
-				RawTexture texture = Textures.Load(state.SpecularTexturePath);
+				RawTexture texture = RawTextures.Load(state.SpecularTexturePath);
 
 				if (texture is null)
 				{
@@ -805,12 +805,12 @@ static Material Load(const char* path)
 
 				Materials.SetSpecularTexture(material, texture);
 
-				Textures.Dispose(texture);
+				RawTextures.Dispose(texture);
 			}
 
 			if (state.ReflectionTexturePath isnt null)
 			{
-				RawTexture texture = Textures.Load(state.ReflectionTexturePath);
+				RawTexture texture = RawTextures.Load(state.ReflectionTexturePath);
 
 				if (texture is null)
 				{
@@ -819,7 +819,7 @@ static Material Load(const char* path)
 
 				Materials.SetReflectionTexture(material, texture);
 
-				Textures.Dispose(texture);
+				RawTextures.Dispose(texture);
 			}
 		}
 	}

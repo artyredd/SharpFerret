@@ -29,7 +29,7 @@
 #include "engine/time.h"
 #include "core/quickmask.h"
 #include "engine/gameobjectHelpers.h"
-#include "engine/graphics/texture.h"
+#include "engine/graphics/rawTexture.h"
 #include "engine/graphics/colors.h"
 #include "engine/graphics/font.h"
 #include <string.h>

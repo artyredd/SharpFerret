@@ -82,11 +82,11 @@ static void CreateFrameBuffer(Light light)
 	TextureType type = TextureTypes.Default;
 
 	RawTexture depthBuffer;
-	Textures.TryCreateBufferTexture(type, TextureFormats.DepthComponent, BufferFormats.Float, ShadowMaps.ResolutionX, ShadowMaps.ResolutionY, &depthBuffer);
+	RawTextures.TryCreateBufferTexture(type, TextureFormats.DepthComponent, BufferFormats.Float, ShadowMaps.ResolutionX, ShadowMaps.ResolutionY, &depthBuffer);
 
 	FrameBuffers.AttachTexture(frameBuffer, depthBuffer, 0);
 
-	Textures.Dispose(depthBuffer);
+	RawTextures.Dispose(depthBuffer);
 
 	frameBuffer->ClearMask = ClearMasks.Depth;
 

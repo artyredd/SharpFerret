@@ -15,8 +15,7 @@ struct irectangle
 
 typedef struct irectangle irectangle;
 
-DEFINE_ARRAY(irectangle);
-DEFINE_TUPLE(irectangle, irectangle);
+DEFINE_CONTAINERS(irectangle);
 
 extern const struct _rectangleMethods
 {

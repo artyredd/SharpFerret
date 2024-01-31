@@ -67,7 +67,7 @@ static void Dispose(FrameBuffer buffer)
 
 	if (buffer->Texture isnt null)
 	{
-		Textures.Dispose(buffer->Texture);
+		RawTextures.Dispose(buffer->Texture);
 	}
 
 	if (buffer->RenderBuffer isnt null)
@@ -156,7 +156,7 @@ static void AttachTexture(FrameBuffer buffer, RawTexture texture, unsigned int o
 		GraphicsDevice.AttachFrameBufferComponent(componentType, FrameBufferAttachments.Depth, texture->Handle->Handle);
 	}
 
-	buffer->Texture = Textures.Instance(texture);
+	buffer->Texture = RawTextures.Instance(texture);
 
 	// check to see if we need to store the height
 	StoreDimensions(buffer, texture->Width, texture->Height);

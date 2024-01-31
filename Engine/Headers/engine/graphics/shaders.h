@@ -3,7 +3,7 @@
 #include "core/math/vectors.h"
 #include "sharedBuffer.h"
 #include "engine/graphics/graphicsDevice.h"
-#include "engine/graphics/texture.h"
+#include "engine/graphics/rawTexture.h"
 #include "colors.h"
 
 #define DEFAULT_CULLING_TYPE CullingTypes.Back

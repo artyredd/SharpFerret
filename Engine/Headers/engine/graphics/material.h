@@ -1,7 +1,7 @@
 #pragma once
 
 #include "engine/graphics/shaders.h"
-#include "engine/graphics/texture.h"
+#include "engine/graphics/rawTexture.h"
 #include "engine/graphics/renderMesh.h"
 #include "engine/graphics/colors.h"
 #include "engine/graphics/scene.h"

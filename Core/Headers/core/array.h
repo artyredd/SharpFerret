@@ -178,6 +178,7 @@ DEFINE_ARRAY(char_array);
 #define DEFINE_TUPLE(left,right) DEFINE_TUPLE_FULL(left,First,right,Second)
 #define tuple(left,right) struct tuple_##left##_##right
 
+#define DEFINE_TUPLE_BOTH_WAYS(T1,T2) DEFINE_TUPLE(T1,T2); DEFINE_TUPLE(T2,T1);
 #define DEFINE_TUPLE_ALL(major,T1,T2,T3,T4,T5,T6) DEFINE_TUPLE(major,major);DEFINE_TUPLE(major, T1);DEFINE_TUPLE(major, T2);DEFINE_TUPLE(major, T3);DEFINE_TUPLE(major, T4);DEFINE_TUPLE(major, T5);DEFINE_TUPLE(major, T6);
 
 DEFINE_TUPLE_ALL(bool, char, int, long, size_t, float, double)
@@ -187,3 +188,14 @@ DEFINE_TUPLE_ALL(long, bool, char, int, size_t, float, double)
 DEFINE_TUPLE_ALL(size_t, bool, char, int, long, float, double)
 DEFINE_TUPLE_ALL(float, bool, char, int, long, size_t, double)
 DEFINE_TUPLE_ALL(double, bool, char, int, long, size_t, float)
+
+#define DEFINE_TUPLE_ALL_INTRINSIC(type)\
+DEFINE_TUPLE_BOTH_WAYS(type,bool);\
+DEFINE_TUPLE_BOTH_WAYS(type,char);\
+DEFINE_TUPLE_BOTH_WAYS(type,int);\
+DEFINE_TUPLE_BOTH_WAYS(type,long);\
+DEFINE_TUPLE_BOTH_WAYS(type,size_t);\
+DEFINE_TUPLE_BOTH_WAYS(type,float);\
+DEFINE_TUPLE_BOTH_WAYS(type,double);\
+
+#define DEFINE_CONTAINERS(type) DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type);
