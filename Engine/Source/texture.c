@@ -61,7 +61,7 @@ private void Dispose(RawTexture texture)
 
 private RawTexture CreateTexture(bool allocBuffer)
 {
-	Memory.RegisterTypeName(nameof(RawTexture), &typeid(RawTexture));
+	REGISTER_TYPE(RawTexture);
 
 	RawTexture texture = Memory.Alloc(sizeof(struct _texture), typeid(RawTexture));
 
