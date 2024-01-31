@@ -37,7 +37,7 @@ static void SetDefaultFont(Font font) { DefaultFont = font; }
 
 static Font GetDefaultFont(void) { return DefaultFont; }
 
-TYPE_ID(Text);
+DEFINE_TYPE_ID(Text);
 
 static Text Create(void)
 {

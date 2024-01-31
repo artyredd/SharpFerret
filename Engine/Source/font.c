@@ -31,8 +31,8 @@ const struct _fontCharacterMethods FontCharacters = {
 	.Dispose = &DisposeCharacter
 };
 
-TYPE_ID(FontCharacter);
-TYPE_ID(Font)
+DEFINE_TYPE_ID(FontCharacter);
+DEFINE_TYPE_ID(Font)
 
 static FontCharacter CreateWhiteSpaceCharacter(Font font, size_t width)
 {

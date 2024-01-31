@@ -9,8 +9,8 @@ const struct _modelMethods Models = {
 	.Dispose = &DisposeModel
 };
 
-TYPE_ID(ModelMeshes);
-TYPE_ID(Model);
+DEFINE_TYPE_ID(ModelMeshes);
+DEFINE_TYPE_ID(Model);
 
 static void DisposeModel(Model model)
 {

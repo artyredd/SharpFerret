@@ -27,7 +27,7 @@ struct _colliderMethods Colliders = {
 	.Load = &Load
 };
 
-TYPE_ID(Collider);
+DEFINE_TYPE_ID(Collider);
 
 static Collider Create(Model model)
 {
@@ -117,7 +117,7 @@ TOKEN_LOAD(model, struct _colliderState*)
 	return Parsing.TryGetString(buffer, length, MAX_PATH_LENGTH, &state->ModelPath);
 }
 
-TOKEN_SAVE(model, Collider) 
+TOKEN_SAVE(model, Collider)
 {
 	fprintf(stream, "%s", state->ModelPath);
 }
@@ -134,7 +134,7 @@ TOKEN_SAVE(trigger, Collider)
 
 TOKENS(2) {
 	TOKEN(model, "# the model path that should be loaded for the collider"),
-	TOKEN(trigger, "# whether or not the collider should have physics interactions at runtime")
+		TOKEN(trigger, "# whether or not the collider should have physics interactions at runtime")
 };
 
 CONFIG(Collider);

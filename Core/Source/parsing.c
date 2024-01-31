@@ -264,7 +264,7 @@ static bool TryParseStringArray(const char* buffer, const size_t bufferLength, c
 	return true;
 }
 
-static bool Test_Helper_TryParseBoolean(File stream, char* data, bool shouldParse, bool expected)
+static bool Test_Helper_TryParseBoolean(File __test_stream, char* data, bool shouldParse, bool expected)
 {
 	bool actual;
 
@@ -275,34 +275,34 @@ static bool Test_Helper_TryParseBoolean(File stream, char* data, bool shouldPars
 	return true;
 }
 
-static bool Test_TryParseBoolean(File stream)
+TEST(Test_TryParseBoolean)
 {
-	Test_Helper_TryParseBoolean(stream, "TRUE", true, true);
-	Test_Helper_TryParseBoolean(stream, "true", true, true);
-	Test_Helper_TryParseBoolean(stream, "True", true, true);
-	Test_Helper_TryParseBoolean(stream, "eurt", false, false);
-	Test_Helper_TryParseBoolean(stream, "notTrue", false, false);
+	Test_Helper_TryParseBoolean(__test_stream, "TRUE", true, true);
+	Test_Helper_TryParseBoolean(__test_stream, "true", true, true);
+	Test_Helper_TryParseBoolean(__test_stream, "True", true, true);
+	Test_Helper_TryParseBoolean(__test_stream, "eurt", false, false);
+	Test_Helper_TryParseBoolean(__test_stream, "notTrue", false, false);
 
-	Test_Helper_TryParseBoolean(stream, "FALSE", true, false);
-	Test_Helper_TryParseBoolean(stream, "False", true, false);
-	Test_Helper_TryParseBoolean(stream, "false", true, false);
-	Test_Helper_TryParseBoolean(stream, "eslaf", false, false);
-	Test_Helper_TryParseBoolean(stream, "alsds", false, false);
+	Test_Helper_TryParseBoolean(__test_stream, "FALSE", true, false);
+	Test_Helper_TryParseBoolean(__test_stream, "False", true, false);
+	Test_Helper_TryParseBoolean(__test_stream, "false", true, false);
+	Test_Helper_TryParseBoolean(__test_stream, "eslaf", false, false);
+	Test_Helper_TryParseBoolean(__test_stream, "alsds", false, false);
 
-	Test_Helper_TryParseBoolean(stream, "T", true, true);
-	Test_Helper_TryParseBoolean(stream, "F", true, false);
-	Test_Helper_TryParseBoolean(stream, "A", false, false);
-	Test_Helper_TryParseBoolean(stream, "G", false, false);
+	Test_Helper_TryParseBoolean(__test_stream, "T", true, true);
+	Test_Helper_TryParseBoolean(__test_stream, "F", true, false);
+	Test_Helper_TryParseBoolean(__test_stream, "A", false, false);
+	Test_Helper_TryParseBoolean(__test_stream, "G", false, false);
 
-	Test_Helper_TryParseBoolean(stream, "0", true, false);
-	Test_Helper_TryParseBoolean(stream, "1", true, true);
-	Test_Helper_TryParseBoolean(stream, "9", false, false);
-	Test_Helper_TryParseBoolean(stream, "23928398239283", false, false);
+	Test_Helper_TryParseBoolean(__test_stream, "0", true, false);
+	Test_Helper_TryParseBoolean(__test_stream, "1", true, true);
+	Test_Helper_TryParseBoolean(__test_stream, "9", false, false);
+	Test_Helper_TryParseBoolean(__test_stream, "23928398239283", false, false);
 
 	return true;
 }
 
-static bool Test_TryParseStringArray(File stream)
+TEST(Test_TryParseStringArray)
 {
 	Memory.AllocCount = 0;
 	Memory.AllocSize = 0;
@@ -366,17 +366,8 @@ static bool Test_TryParseStringArray(File stream)
 
 	return true;
 }
-
-static bool RunParsingUnitTests()
-{
-	TestSuite suite = CreateSuite(__FILE__);
-
-	suite->Append(suite, "TryParseBoolean", &Test_TryParseBoolean);
-	suite->Append(suite, "TryParseStringArray", &Test_TryParseStringArray);
-
-	bool pass = suite->Run(suite);
-
-	suite->Dispose(suite);
-
-	return pass;
-}
+TEST_SUITE(
+	RunParsingUnitTests,
+	APPEND_TEST(Test_TryParseStringArray)
+	APPEND_TEST(Test_TryParseBoolean)
+)

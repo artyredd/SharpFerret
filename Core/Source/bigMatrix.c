@@ -20,7 +20,7 @@ const struct _arbitraryMatrixMethods BigMatrices =
 	.At = At
 };
 
-TYPE_ID(BigMatrix);
+DEFINE_TYPE_ID(BigMatrix);
 
 private BigMatrix Create(size_t rows, size_t columns)
 {

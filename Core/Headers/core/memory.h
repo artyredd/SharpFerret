@@ -53,7 +53,8 @@ struct _memoryMethods {
 extern struct _memoryMethods Memory;
 
 // generates a static type id storage location for the given type name
-#define TYPE_ID(name) static size_t name##TypeId = 0;
+#define DEFINE_TYPE_ID(name) static size_t name##TypeId = 0;
+#define typeid(name) name##TypeId
 
 // registers the provided name with the memory handler
 #define REGISTER_TYPE(name) Memory.RegisterTypeName(#name, &name##TypeId)

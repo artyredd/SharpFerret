@@ -301,7 +301,7 @@ private bool TrySerializeVec4(char* buffer, const size_t length, const vector4 v
 	return result > 0;
 }
 
-private bool Test_TryGetVector3(File stream)
+TEST(Test_TryGetVector3)
 {
 	char* buffer = "-1.0 2.4 4.90";
 
@@ -340,7 +340,7 @@ private vector3 MultiplyVector3(matrix4 matrix, vector3 vector, float w)
 	return result;
 }
 
-private bool Test_TryGetVector2(File stream)
+TEST(Test_TryGetVector2)
 {
 	char* buffer = "-1.0 2.4 4.90";
 
@@ -355,19 +355,11 @@ private bool Test_TryGetVector2(File stream)
 	return true;
 }
 
-bool RunVectorUnitTests()
-{
-	TestSuite suite = CreateSuite(__FILE__);
-
-	suite->Append(suite, "TryGetVector3", Test_TryGetVector3);
-	suite->Append(suite, "TryGetVector2", Test_TryGetVector2);
-
-	bool pass = suite->Run(suite);
-
-	suite->Dispose(suite);
-
-	return pass;
-}
+TEST_SUITE(
+	RunVectorUnitTests,
+	APPEND_TEST(Test_TryGetVector3)
+	APPEND_TEST(Test_TryGetVector2)
+);
 
 private float Determinant(matrix3 matrix)
 {

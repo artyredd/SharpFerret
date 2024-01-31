@@ -13,7 +13,7 @@ const struct _sharedHandleMethods SharedHandles = {
 	.Instance = Instance
 };
 
-TYPE_ID(SharedHandle);
+DEFINE_TYPE_ID(SharedHandle);
 
 static void Dispose(SharedHandle buffer, void* state, void(*OnDispose)(void* state))
 {

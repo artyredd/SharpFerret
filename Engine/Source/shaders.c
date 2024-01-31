@@ -38,7 +38,7 @@ static bool UniformFieldSetVector3(Shader shader, Uniform uniform, size_t index,
 static bool UniformFieldSetVector4(Shader shader, Uniform uniform, size_t index, Uniform field, vector4 value);
 static bool UniformFieldSetColor(Shader shader, Uniform uniform, size_t index, Uniform field, color value);
 static bool UniformFieldSetMatrix(Shader shader, Uniform uniform, size_t index, Uniform field, matrix4 value);
-static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, unsigned int slot);
+static void SetTextureUniform(Shader shader, Uniform uniform, RawTexture texture, unsigned int slot);
 
 const struct _uniforms Uniforms = {
 	.MVP = {.Index = 0, .Name = "MVP" },
@@ -70,7 +70,7 @@ const struct _uniforms Uniforms = {
 		.Shininess = {.Index = 12, .Name = "material.shininess" },
 		.UseDiffuseMap = {.Index = 13, .Name = "material.useDiffuseMap" },
 		.UseSpecularMap = {.Index = 14, .Name = "material.useSpecularMap" },
-		.UseReflectionMap = { .Index = 15, .Name = "material.useReflectionMap"},
+		.UseReflectionMap = {.Index = 15, .Name = "material.useReflectionMap"},
 		.ReflectionMap = {.Index = 16, .Name = "material.reflectionMap"},
 		.UseAreaMap = {.Index = 17, .Name = "material.useAreaMap"},
 		.AreaMap = {.Index = 18, .Name = "material.areaMap"},
@@ -127,8 +127,8 @@ const struct _shaderMethods Shaders = {
 
 #define DEFAULT_SHADER_SETTINGS 0
 
-TYPE_ID(ShaderUniforms);
-TYPE_ID(Shader);
+DEFINE_TYPE_ID(ShaderUniforms);
+DEFINE_TYPE_ID(Shader);
 
 const struct _shaderSettings ShaderSettings = {
 	.UseCameraPerspective = UseCameraPerspectiveFlag,
@@ -353,7 +353,7 @@ static bool HasSetting(Shader shader, ShaderSetting setting)
 	return HasFlag(shader->Settings, setting);
 }
 
-static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, unsigned int slot)
+static void SetTextureUniform(Shader shader, Uniform uniform, RawTexture texture, unsigned int slot)
 {
 	if (texture isnt null)
 	{
@@ -444,5 +444,5 @@ static bool UniformFieldSetColor(Shader shader, Uniform uniform, size_t index, U
 
 static bool UniformFieldSetMatrix(Shader shader, Uniform uniform, size_t index, Uniform field, matrix4 value)
 {
-	SetUniformFieldMacro(glUniformMatrix4fv(handle, 1, false, (float*) &value));
+	SetUniformFieldMacro(glUniformMatrix4fv(handle, 1, false, (float*)&value));
 }

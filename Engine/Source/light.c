@@ -19,7 +19,7 @@ const struct _lightMethods Lights = {
 	.CreateFrameBuffer = &CreateFrameBuffer
 };
 
-TYPE_ID(Light);
+DEFINE_TYPE_ID(Light);
 
 static Light Create(LightType type)
 {
@@ -27,26 +27,26 @@ static Light Create(LightType type)
 
 	Light light = Memory.Alloc(sizeof(struct _light), LightTypeId);
 
-	light->Ambient = (color){ 
-		DEFAULT_AMBIENT_LIGHT_INTENSITY, 
-		DEFAULT_AMBIENT_LIGHT_INTENSITY, 
-		DEFAULT_AMBIENT_LIGHT_INTENSITY, 
+	light->Ambient = (color){
+		DEFAULT_AMBIENT_LIGHT_INTENSITY,
+		DEFAULT_AMBIENT_LIGHT_INTENSITY,
+		DEFAULT_AMBIENT_LIGHT_INTENSITY,
 		1
 	};
 
 	light->Diffuse = (color)
 	{
-		DEFAULT_DIFFUSE_LIGHT_INTENSITY, 
-		DEFAULT_DIFFUSE_LIGHT_INTENSITY, 
-		DEFAULT_DIFFUSE_LIGHT_INTENSITY, 
+		DEFAULT_DIFFUSE_LIGHT_INTENSITY,
+		DEFAULT_DIFFUSE_LIGHT_INTENSITY,
+		DEFAULT_DIFFUSE_LIGHT_INTENSITY,
 		1
 	};
 
 	light->Specular = (color)
 	{
-		DEFAULT_SPECULAR_LIGHT_INTENSITY, 
 		DEFAULT_SPECULAR_LIGHT_INTENSITY,
-		DEFAULT_SPECULAR_LIGHT_INTENSITY, 
+		DEFAULT_SPECULAR_LIGHT_INTENSITY,
+		DEFAULT_SPECULAR_LIGHT_INTENSITY,
 		1
 	};
 
@@ -80,8 +80,8 @@ static void CreateFrameBuffer(Light light)
 	FrameBuffers.Use(frameBuffer);
 
 	TextureType type = TextureTypes.Default;
-	
-	Texture depthBuffer;
+
+	RawTexture depthBuffer;
 	Textures.TryCreateBufferTexture(type, TextureFormats.DepthComponent, BufferFormats.Float, ShadowMaps.ResolutionX, ShadowMaps.ResolutionY, &depthBuffer);
 
 	FrameBuffers.AttachTexture(frameBuffer, depthBuffer, 0);

@@ -9,7 +9,7 @@ static bool RunSuite(TestSuite suite);
 static void Append(TestSuite suite, char* name, bool(*method)(FILE*));
 static void Dispose(TestSuite suite);
 
-TYPE_ID(TestSuite);
+DEFINE_TYPE_ID(TestSuite);
 
 TestSuite CreateSuite(char* name)
 {

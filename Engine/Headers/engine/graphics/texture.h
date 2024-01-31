@@ -14,7 +14,7 @@
 #define DEFAULT_TEXTURE_BUFFER_FORMAT BufferFormats.UByte
 #define DEFAULT_TEXTURE_TYPE TextureTypes.Default
 
-typedef struct _texture* Texture;
+typedef struct _texture* RawTexture;
 
 struct _texture {
 	/// <summary>
@@ -34,43 +34,43 @@ struct _texture {
 	WrapMode WrapZ;
 };
 
-DEFINE_ARRAY(Texture);
+DEFINE_ARRAY(RawTexture);
 
 struct _textureMethods
 {
 	/// <summary>
 	/// Returns a blank texture with a width and height of 1 px with the color white
 	/// </summary>
-	Texture(*Blank)(void);
+	RawTexture(*Blank)(void);
 	/// <summary>
 	/// Attempts to create a new texture from the provided image and invokes the given method after the texture has been bound so modifiers such as 
 	/// filters can be applied in-line
 	/// </summary>
-	bool (*TryCreateTextureAdvanced)(Image image, Texture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
+	bool (*TryCreateTextureAdvanced)(Image image, RawTexture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
 	/// <summary>
 	/// Attempts to create a new texture from the provided image
 	/// </summary>
-	bool (*TryCreateTexture)(Image, Texture* out_texture);
+	bool (*TryCreateTexture)(Image, RawTexture* out_texture);
 	/// <summary>
 	/// Create a texture on the graphics device that holds no data and can be used as a buffer
 	/// </summary>
-	bool (*TryCreateBufferTexture)(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, Texture* out_texture);
+	bool (*TryCreateBufferTexture)(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, RawTexture* out_texture);
 	/// <summary>
 	/// Instances a new copy of the provided texture
 	/// </summary>
-	Texture(*Instance)(Texture texture);
+	RawTexture(*Instance)(RawTexture texture);
 	/// <summary>
 	/// Disposed the provided texture
 	/// </summary>
-	void (*Dispose)(Texture);
+	void (*Dispose)(RawTexture);
 	/// <summary>
 	/// Loads a texture definition(.texture) from the provided path
 	/// </summary>
-	Texture(*Load)(const char* path);
+	RawTexture(*Load)(const char* path);
 	/// <summary>
 	/// Saves the provided texture to a given path
 	/// </summary>
-	void (*Save)(Texture texture, const char* path);
+	void (*Save)(RawTexture texture, const char* path);
 };
 
 extern const struct _textureMethods Textures;

@@ -9,7 +9,7 @@ const struct _meshMethods Meshes = {
 	.Dispose = &Dispose
 };
 
-TYPE_ID(Mesh);
+DEFINE_TYPE_ID(Mesh);
 
 static void Dispose(Mesh mesh)
 {

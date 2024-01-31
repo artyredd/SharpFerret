@@ -79,7 +79,7 @@ static bool TryGetImageInfo(const char* path, Image* out_info)
 	return result;
 }
 
-TYPE_ID(Image);
+DEFINE_TYPE_ID(Image);
 
 static void Dispose(Image image)
 {

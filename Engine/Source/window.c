@@ -84,7 +84,7 @@ static void Dispose(Window window);
 /// </summary>
 static bool IsRuntimeStarted = false;
 
-TYPE_ID(Window);
+DEFINE_TYPE_ID(Window);
 
 static Window CreateWindow(int width, int height, char* title)
 {

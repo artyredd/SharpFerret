@@ -16,20 +16,20 @@
 #include "core/math/floats.h"
 
 static void Dispose(Material material);
-static Material Create(const Shader shader, const Texture texture);
+static Material Create(const Shader shader, const RawTexture texture);
 static void Draw(Material material, RenderMesh mesh, Scene scene);
 static Material CreateMaterial(void);
 static Material InstanceMaterial(const Material);
-static void SetMainTexture(Material, Texture);
+static void SetMainTexture(Material, RawTexture);
 static void SetShader(Material, const Shader, size_t index);
 static void SetColor(Material, const color);
 static void SetColors(Material, const float r, const float g, const float b, const float a);
 static Material Load(const char* path);
 static bool Save(const Material material, const char* path);
 static void SetName(Material, const char* name);
-static void SetSpecularTexture(Material material, Texture texture);
-static void SetAreaTexture(Material, const Texture);
-static void SetReflectionTexture(Material, const Texture);
+static void SetSpecularTexture(Material material, RawTexture texture);
+static void SetAreaTexture(Material, const RawTexture);
+static void SetReflectionTexture(Material, const RawTexture);
 
 const struct _materialMethods Materials = {
 	.Dispose = &Dispose,
@@ -53,8 +53,8 @@ const struct _materialMethods Materials = {
 
 #define MATERIAL_LOADER_BUFFER_SIZE 1024
 
-TYPE_ID(MaterialShaders);
-TYPE_ID(Material);
+DEFINE_TYPE_ID(MaterialShaders);
+DEFINE_TYPE_ID(Material);
 
 static void Dispose(Material material)
 {
@@ -81,7 +81,7 @@ static void Dispose(Material material)
 	Memory.Free(material, MaterialTypeId);
 }
 
-static Material Create(Shader shader, Texture texture)
+static Material Create(Shader shader, RawTexture texture)
 {
 	Memory.RegisterTypeName(nameof(Material), &MaterialTypeId);
 	Memory.RegisterTypeName("MaterialShaders", &MaterialTypeId);
@@ -97,7 +97,7 @@ static Material Create(Shader shader, Texture texture)
 		material->Count = 1;
 	}
 
-	material->Color = (color){ 1, 1, 1, 1};
+	material->Color = (color){ 1, 1, 1, 1 };
 	material->AmbientColor = (color){ 1, 1, 1, 1 };
 	material->DiffuseColor = (color){ 1, 1, 1, 1 };
 	material->SpecularColor = (color){ 1, 1, 1, 1 };
@@ -179,7 +179,7 @@ static Material InstanceMaterial(Material material)
 		return null;
 	}
 
-	Texture mainTexture = Textures.Instance(material->MainTexture);
+	RawTexture mainTexture = Textures.Instance(material->MainTexture);
 
 	Material newMaterial = Create(null, null);
 
@@ -275,7 +275,7 @@ static void PrepareSettings(Shader shader)
 	GraphicsDevice.SetFillMode(shader->FillMode);
 }
 
-static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, unsigned int slot)
+static void SetTextureUniform(Shader shader, Uniform uniform, RawTexture texture, unsigned int slot)
 {
 	if (texture isnt null)
 	{
@@ -287,7 +287,7 @@ static void SetTextureUniform(Shader shader, Uniform uniform, Texture texture, u
 	}
 }
 
-static void SetMaterialTexture(Shader shader, Uniform textureUniform, Uniform mapUniform, Texture texture, unsigned int slot)
+static void SetMaterialTexture(Shader shader, Uniform textureUniform, Uniform mapUniform, RawTexture texture, unsigned int slot)
 {
 	if (Shaders.SetInt(shader, mapUniform, texture isnt null))
 	{
@@ -353,7 +353,7 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 
 	if (Shaders.TryGetUniformArray(shader, Uniforms.LightShadowMaps, index, &handle))
 	{
-		Texture texture = light->FrameBuffer->Texture;
+		RawTexture texture = light->FrameBuffer->Texture;
 
 		// MAGIC NUMBER ALERT
 		// index+4 is used here becuase 0,1,2,3 are all resevered for the current material's texture units
@@ -364,7 +364,7 @@ static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
 	// check to see if we need to load the light matrix into the shader so we can render the RESULTS of a shadowmap
 	if (Shaders.TryGetUniformArray(shader, Uniforms.LightViewMatrix, index, &handle))
 	{
-		glUniformMatrix4fv(handle, 1, false, (float*) & light->ViewMatrix);
+		glUniformMatrix4fv(handle, 1, false, (float*)&light->ViewMatrix);
 	}
 
 	return true;
@@ -450,28 +450,28 @@ static void Draw(Material material, RenderMesh mesh, Scene scene)
 	}
 }
 
-static void SetMainTexture(Material material, Texture texture)
+static void SetMainTexture(Material material, RawTexture texture)
 {
 	GuardNotNull(material);
 	Textures.Dispose(material->MainTexture);
 	material->MainTexture = Textures.Instance(texture);
 }
 
-static void SetSpecularTexture(Material material, Texture texture)
+static void SetSpecularTexture(Material material, RawTexture texture)
 {
 	GuardNotNull(material);
 	Textures.Dispose(material->SpecularTexture);
 	material->SpecularTexture = Textures.Instance(texture);
 }
 
-static void SetAreaTexture(Material material, const Texture texture)
+static void SetAreaTexture(Material material, const RawTexture texture)
 {
 	GuardNotNull(material);
 	Textures.Dispose(material->AreaMap);
 	material->AreaMap = Textures.Instance(texture);
 }
 
-static void SetReflectionTexture(Material material, const Texture texture)
+static void SetReflectionTexture(Material material, const RawTexture texture)
 {
 	GuardNotNull(material);
 	Textures.Dispose(material->ReflectionMap);
@@ -500,7 +500,7 @@ static void SetColors(Material material, const float r, const float g, const flo
 {
 	GuardNotNull(material);
 
-	material->Color = (color){ r, g, b, a};
+	material->Color = (color){ r, g, b, a };
 }
 
 static void SetName(Material material, const char* name)
@@ -579,7 +579,7 @@ TOKEN_SAVE(mainTexture, Material)
 {
 	if (state->MainTexture isnt null)
 	{
-		fprintf(stream, "%s",state->MainTexture->Path);
+		fprintf(stream, "%s", state->MainTexture->Path);
 	}
 }
 
@@ -682,17 +682,17 @@ TOKEN_SAVE(reflectivity, Material)
 }
 
 TOKENS(11) {
-	TOKEN(shaders, "# path array delimited by ','; the array of shaders that should be loaded for this material" ),
-	TOKEN(color, "# vector4; the material base color" ),
-	TOKEN(mainTexture, "# path; the main UV texture that should be used for this material" ),
-	TOKEN(specularMap, "# path; the texture that should be used to determine what parts of this material are shiny" ),
-	TOKEN(specular, "# vector4; the color that specular highlights should be" ),
-	TOKEN(ambient, "# vector4; the ambient color this object should be when exposed to no light" ),
-	TOKEN(shininess, "# float [0-255]; How shiny the material should be" ),
-	TOKEN(diffuse, "# vector4; the diffuse color of the material" ),
-	TOKEN(reflectionMap, "# the 2d texture path that should be used to determine which parts of this material should be reflective" ),
-	TOKEN(areaMap, "# the 3d cubemap texture path that should be used to determine what is shown in reflections off of this object" ),
-	TOKEN(reflectivity, "# float [0-1]; the reflectivity of this material" ),
+	TOKEN(shaders, "# path array delimited by ','; the array of shaders that should be loaded for this material"),
+		TOKEN(color, "# vector4; the material base color"),
+		TOKEN(mainTexture, "# path; the main UV texture that should be used for this material"),
+		TOKEN(specularMap, "# path; the texture that should be used to determine what parts of this material are shiny"),
+		TOKEN(specular, "# vector4; the color that specular highlights should be"),
+		TOKEN(ambient, "# vector4; the ambient color this object should be when exposed to no light"),
+		TOKEN(shininess, "# float [0-255]; How shiny the material should be"),
+		TOKEN(diffuse, "# vector4; the diffuse color of the material"),
+		TOKEN(reflectionMap, "# the 2d texture path that should be used to determine which parts of this material should be reflective"),
+		TOKEN(areaMap, "# the 3d cubemap texture path that should be used to determine what is shown in reflections off of this object"),
+		TOKEN(reflectivity, "# float [0-1]; the reflectivity of this material"),
 };
 
 CONFIG(Material);
@@ -782,7 +782,7 @@ static Material Load(const char* path)
 			// load any textures that were included in the material
 			if (state.MainTexturePath isnt null)
 			{
-				Texture texture = Textures.Load(state.MainTexturePath);
+				RawTexture texture = Textures.Load(state.MainTexturePath);
 
 				if (texture is null)
 				{
@@ -796,7 +796,7 @@ static Material Load(const char* path)
 
 			if (state.SpecularTexturePath isnt null)
 			{
-				Texture texture = Textures.Load(state.SpecularTexturePath);
+				RawTexture texture = Textures.Load(state.SpecularTexturePath);
 
 				if (texture is null)
 				{
@@ -810,7 +810,7 @@ static Material Load(const char* path)
 
 			if (state.ReflectionTexturePath isnt null)
 			{
-				Texture texture = Textures.Load(state.ReflectionTexturePath);
+				RawTexture texture = Textures.Load(state.ReflectionTexturePath);
 
 				if (texture is null)
 				{

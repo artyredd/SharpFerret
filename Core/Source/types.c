@@ -15,7 +15,7 @@ const struct _pointerMethods Pointers =
 	.Dispose = &Dispose
 };
 
-TYPE_ID(Pointer);
+DEFINE_TYPE_ID(Pointer);
 
 static Pointer Create(void)
 {
@@ -40,7 +40,7 @@ static void SetValue(Pointer pointer, void* value, size_t size)
 	{
 		if (pointer->Pointer)
 		{
-		
+
 		}
 		else
 		{
@@ -57,7 +57,7 @@ static bool GetValue(Pointer pointer, void* out_value)
 {
 	if (pointer && out_value)
 	{
-	
+
 	}
 	return true;
 }

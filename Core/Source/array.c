@@ -34,7 +34,7 @@ const struct _arrayMethods Arrays = {
 	.ForeachWithContext = ForeachWithContext
 };
 
-TYPE_ID(Array);
+DEFINE_TYPE_ID(Array);
 
 private Array Create(size_t elementSize, size_t count, size_t typeId)
 {

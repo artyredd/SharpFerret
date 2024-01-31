@@ -98,9 +98,9 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 	}\
 } while (false);
 
-#define TEST(testname) static bool Test_##testname(FILE* stream)
+#define TEST(testname) private bool Test_##testname(FILE* __test_stream)
 #define APPEND_TEST(testname) suite->Append(suite, #testname, &Test_##testname);
-#define TEST_SUITE(suiteName,tests)static void suiteName(void)\
+#define TEST_SUITE(suiteName,tests)private void suiteName(void)\
 {\
 	TestSuite suite = CreateSuite(#suiteName);\
 	tests\
@@ -108,16 +108,16 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 	suite->Dispose(suite);\
 }
 
-#define Assert(expr) BenchmarkAssertion(expr,stream);
+#define Assert(expr) BenchmarkAssertion(expr,__test_stream);
 #define StandardAssert(expr) Assert(expr,stdout);
 
-#define IsNull(expr) BenchmarkAssertion(expr == NULL,stream);
-#define NotNull(expr) BenchmarkAssertion(expr != NULL,stream);
-#define IsZero(expr) BenchmarkAssertion(expr == 0,stream);
-#define IsNotZero(expr) BenchmarkAssertion(expr != 0,stream);
-#define IsFalse(expr) BenchmarkAssertion(expr != true,stream);
-#define IsTrue(expr) BenchmarkAssertion(expr,stream);
-#define IsEqual(left,right,format) BenchmarkComparison(left,right,==,format,stream);
-#define IsNotEqual(left,right) BenchmarkAssertion(left != right,stream);
+#define IsNull(expr) BenchmarkAssertion(expr == NULL,__test_stream);
+#define NotNull(expr) BenchmarkAssertion(expr != NULL,__test_stream);
+#define IsZero(expr) BenchmarkAssertion(expr == 0,__test_stream);
+#define IsNotZero(expr) BenchmarkAssertion(expr != 0,__test_stream);
+#define IsFalse(expr) BenchmarkAssertion(expr != true,__test_stream);
+#define IsTrue(expr) BenchmarkAssertion(expr,__test_stream);
+#define IsEqual(left,right,format) BenchmarkComparison(left,right,==,format,__test_stream);
+#define IsNotEqual(left,right) BenchmarkAssertion(left != right,__test_stream);
 
-#define IsApproximate(left,right,format) BenchmarkComparison(((left < 0 ? (-left) : (left)) - (right < 0 ? (-right) : (right))),1e-15,<=,format,stream);
+#define IsApproximate(left,right,format) BenchmarkComparison(((left < 0 ? (-left) : (left)) - (right < 0 ? (-right) : (right))),1e-15,<=,format,__test_stream);

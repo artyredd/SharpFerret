@@ -6,7 +6,7 @@
 static void Dispose(FrameBuffer);
 static FrameBuffer Create(FrameBufferType);
 static void Use(FrameBuffer);
-static void AttachTexture(FrameBuffer, Texture, unsigned int offset);
+static void AttachTexture(FrameBuffer, RawTexture, unsigned int offset);
 static void AttachRenderBuffer(FrameBuffer, RenderBuffer);
 static void Clear(FrameBuffer);
 static void ClearThenUse(FrameBuffer);
@@ -20,9 +20,9 @@ static struct _sharedHandle DefaultHandle = {
 };
 
 // the default frame buffer, all calls to handle 0 go directly to graphics device
-static struct _frameBuffer Default = { 
+static struct _frameBuffer Default = {
 	.Handle = &DefaultHandle,
-	null, 
+	null,
 	null,
 	.Height = DEFAULT_VIEWPORT_RESOLUTION_Y,
 	.Width = DEFAULT_VIEWPORT_RESOLUTION_X,
@@ -40,7 +40,7 @@ const struct _frameBufferMethods FrameBuffers = {
 	.Clear = &Clear
 };
 
-TYPE_ID(FrameBuffer);
+DEFINE_TYPE_ID(FrameBuffer);
 
 #define FrameBufferType_None 0
 #define FrameBufferType_Default 4
@@ -128,13 +128,13 @@ static void StoreDimensions(FrameBuffer buffer, size_t width, size_t height)
 		// but a 1024x1024 depth buffer
 		if (buffer->Width isnt width || buffer->Height isnt height)
 		{
-			fprintf(stderr, "The resoltion of the current buffer %llix%lli does not match the provided resoltuion of %llix%lli, all attachments of the frame buffer must have the same resolution.", buffer->Width,buffer->Height, width, height);
+			fprintf(stderr, "The resoltion of the current buffer %llix%lli does not match the provided resoltuion of %llix%lli, all attachments of the frame buffer must have the same resolution.", buffer->Width, buffer->Height, width, height);
 			throw(ResolutionMismatchException);
 		}
 	}
 }
 
-static void AttachTexture(FrameBuffer buffer, Texture texture, unsigned int offset)
+static void AttachTexture(FrameBuffer buffer, RawTexture texture, unsigned int offset)
 {
 	FrameBufferComponent componentType = FrameBufferComponents.Texture;
 
@@ -146,7 +146,8 @@ static void AttachTexture(FrameBuffer buffer, Texture texture, unsigned int offs
 	if (texture->Format is TextureFormats.Depth24Stencil8)
 	{
 		GraphicsDevice.AttachFrameBufferComponent(componentType, FrameBufferAttachments.DepthStencil, texture->Handle->Handle);
-	}else if(texture->Format is TextureFormats.RGB)
+	}
+	else if (texture->Format is TextureFormats.RGB)
 	{
 		GraphicsDevice.AttachFrameBufferComponent(componentType, FrameBufferAttachments.Color + offset, texture->Handle->Handle);
 	}
@@ -184,7 +185,7 @@ static void Clear(FrameBuffer buffer)
 }
 
 static void ClearThenUse(FrameBuffer buffer)
-{	
+{
 	UseFrameBufferMacro();
 
 	GraphicsDevice.ClearCurrentFrameBuffer(buffer->ClearMask);

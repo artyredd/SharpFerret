@@ -1,7 +1,7 @@
 #include "engine/gameobjectHelpers.h"
 #include "core/memory.h"
 
-TYPE_ID(GameObjectMeshes);
+DEFINE_TYPE_ID(GameObjectMeshes);
 
 GameObject CreateGameObjectFromMesh(Mesh mesh)
 {

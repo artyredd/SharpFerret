@@ -6,7 +6,7 @@
 
 private voxelTree Create(Mesh mesh);
 private bool Intersects(
-	const Voxel left, const Transform leftTransform, 
+	const Voxel left, const Transform leftTransform,
 	const Voxel right, const Transform rightTransform,
 	Voxel* out_voxel);
 private bool IntersectsTree(const voxelTree, const voxelTree);
@@ -28,7 +28,7 @@ static quadrant GetQuadrant(vector3 center, vector3 point)
 
 	result |= upper ? 0 : FLAG_2;
 	result |= north ? 0 : FLAG_1;
-	result |= east  ? 0 : FLAG_0;
+	result |= east ? 0 : FLAG_0;
 
 	return result;
 }
@@ -65,40 +65,40 @@ private void SortNewVoxel(Voxel root, Voxel voxel)
 		SortOrAssignVoxel(&root->Upper.North.East, voxel);
 	}
 	else
-	if(quadrant is Octants.Upper.North.West)
-	{
-		SortOrAssignVoxel(&root->Upper.North.West, voxel);
-	}
-	else
-	if(quadrant is Octants.Upper.South.East)
-	{
-		SortOrAssignVoxel(&root->Upper.South.East, voxel);
-	}
-	else
-	if(quadrant is Octants.Upper.South.West)
-	{
-		SortOrAssignVoxel(&root->Upper.South.West, voxel);
-	}
-	else
-	if(quadrant is Octants.Lower.North.East)
-	{
-		SortOrAssignVoxel(&root->Lower.North.East, voxel);
-	}
-	else
-	if(quadrant is Octants.Lower.North.West)
-	{
-		SortOrAssignVoxel(&root->Lower.North.West, voxel);
-	}
-	else
-	if(quadrant is Octants.Lower.South.East)
-	{
-		SortOrAssignVoxel(&root->Lower.South.East, voxel);
-	}
-	else
-	if(quadrant is Octants.Lower.South.West)
-	{
-		SortOrAssignVoxel(&root->Lower.South.West, voxel);
-	}
+		if (quadrant is Octants.Upper.North.West)
+		{
+			SortOrAssignVoxel(&root->Upper.North.West, voxel);
+		}
+		else
+			if (quadrant is Octants.Upper.South.East)
+			{
+				SortOrAssignVoxel(&root->Upper.South.East, voxel);
+			}
+			else
+				if (quadrant is Octants.Upper.South.West)
+				{
+					SortOrAssignVoxel(&root->Upper.South.West, voxel);
+				}
+				else
+					if (quadrant is Octants.Lower.North.East)
+					{
+						SortOrAssignVoxel(&root->Lower.North.East, voxel);
+					}
+					else
+						if (quadrant is Octants.Lower.North.West)
+						{
+							SortOrAssignVoxel(&root->Lower.North.West, voxel);
+						}
+						else
+							if (quadrant is Octants.Lower.South.East)
+							{
+								SortOrAssignVoxel(&root->Lower.South.East, voxel);
+							}
+							else
+								if (quadrant is Octants.Lower.South.West)
+								{
+									SortOrAssignVoxel(&root->Lower.South.West, voxel);
+								}
 }
 
 private vector3 GetGlobalCenter(const Voxel array, const size_t count)
@@ -118,15 +118,15 @@ private vector3 GetGlobalCenter(const Voxel array, const size_t count)
 
 	return (vector3) {
 		x / count,
-		y / count,
-		z / count
+			y / count,
+			z / count
 	};
 }
 
-TYPE_ID(voxel);
-TYPE_ID(VoxelTree);
+DEFINE_TYPE_ID(voxel);
+DEFINE_TYPE_ID(VoxelTree);
 
-static voxelTree Create(Mesh mesh) 
+static voxelTree Create(Mesh mesh)
 {
 	const size_t voxelCount = mesh->VertexCount / 3;
 
@@ -142,7 +142,7 @@ static voxelTree Create(Mesh mesh)
 	// get the center of all the points in the model
 	// this will be the center of the root voxel tree
 	const vector3 globalCentroid = Vector3s.MeanArray(mesh->Vertices, mesh->VertexCount);
-	
+
 	// ensure that when the cuboid is joined
 	// the root always resizes to be the first cuboid
 	root->BoundingBox = Cuboids.Minimum;
@@ -246,12 +246,12 @@ private bool IntersectsTree(const voxelTree left, const voxelTree right)
 
 TEST(GetQuadrantWorks)
 {
-	const vector3 origin = {0,0,0};
-	vector3 vertex = {0,0,0};
+	const vector3 origin = { 0,0,0 };
+	vector3 vertex = { 0,0,0 };
 
-	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex),"%i");
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
 
-	vertex = (vector3){0,-1,0};
+	vertex = (vector3){ 0,-1,0 };
 	IsEqual(Octants.Lower.North.East, GetQuadrant(origin, vertex), "%i");
 
 	vertex = (vector3){ 0,1,0 };
@@ -319,7 +319,7 @@ TEST(VoxelGeneratesCorrectly)
 	struct _mesh mesh = {
 		.Name = "Voxel",
 		.Vertices = vertices,
-		.VertexCount = sizeof(vertices)/sizeof(vector3)
+		.VertexCount = sizeof(vertices) / sizeof(vector3)
 	};
 
 	struct _transform transform1 = {
@@ -328,7 +328,7 @@ TEST(VoxelGeneratesCorrectly)
 
 	voxelTree left = Create(&mesh);
 	left.Transform = &transform1;
-	
+
 	return true;
 }
 

@@ -617,7 +617,7 @@ static bool TryParseObjects(File stream,
 // buffer to keep the face counts
 size_t FaceCounts[MAX_FACES];
 
-TYPE_ID(Mesh);
+DEFINE_TYPE_ID(Mesh);
 
 static bool TryImportModelStream(File stream,
 	Model* out_model,

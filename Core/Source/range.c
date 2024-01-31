@@ -22,11 +22,11 @@ static float* ToArray(Range range)
 	return (float*)range;
 }
 
-TYPE_ID(Range);
+DEFINE_TYPE_ID(Range);
 
 static Range Create(double min, double max)
 {
-	Memory.RegisterTypeName( nameof(Range), &RangeTypeId );
+	Memory.RegisterTypeName(nameof(Range), &RangeTypeId);
 
 	Range newRange = Memory.Alloc(sizeof(struct range), RangeTypeId);
 

@@ -65,8 +65,8 @@ static void DisposeRenderMeshArray(GameObject gameobject)
 	}
 }
 
-TYPE_ID(GameObject);
-TYPE_ID(GameObjectMeshes);
+DEFINE_TYPE_ID(GameObject);
+DEFINE_TYPE_ID(GameObjectMeshes);
 
 static void Dispose(GameObject gameobject)
 {
@@ -378,7 +378,7 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 
 #define StreamAbortToken "transform"
 
-struct _gameObjectState 
+struct _gameObjectState
 {
 	size_t Id;
 	char* MaterialPath;
@@ -412,7 +412,7 @@ TOKEN_SAVE(model, GameObject)
 		RenderMeshes.Save(stream, state->Meshes[0]);
 	}
 }
-      
+
 TOKEN_SAVE(material, GameObject)
 {
 	if (state->Material)
@@ -423,8 +423,8 @@ TOKEN_SAVE(material, GameObject)
 
 TOKENS(3) {
 	TOKEN(id, "# the id of the gameobject at runtime"),
-	TOKEN(model, "# the model path that should be loaded for this gameobject"),
-	TOKEN(material, "# the material definition path of this gameobject")
+		TOKEN(model, "# the model path that should be loaded for this gameobject"),
+		TOKEN(material, "# the material definition path of this gameobject")
 };
 
 struct _configDefinition GameObjectConfigDefinition = {

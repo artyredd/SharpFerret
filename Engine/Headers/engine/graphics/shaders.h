@@ -198,7 +198,7 @@ struct _shaderMethods {
 	bool (*SetArrayFieldVector4)(Shader shader, Uniform uniform, size_t index, Uniform field, vector4 value);
 	bool (*SetArrayFieldColor)(Shader shader, Uniform uniform, size_t index, Uniform field, color value);
 	bool (*SetArrayFieldMatrix)(Shader shader, Uniform uniform, size_t index, Uniform field, matrix4 value);
-	bool(*SetTexture)(Shader shader, Uniform uniform, Texture texture, unsigned int slot);
+	bool(*SetTexture)(Shader shader, Uniform uniform, RawTexture texture, unsigned int slot);
 };
 
 const extern struct _shaderMethods Shaders;

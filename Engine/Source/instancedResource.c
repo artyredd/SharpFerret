@@ -13,7 +13,7 @@ const struct _instancedResourceMethods InstancedResources = {
 	.Instance = &Instance
 };
 
-TYPE_ID(InstancedResource);
+DEFINE_TYPE_ID(InstancedResource);
 
 static InstancedResource Create(void* resourceToInstance)
 {

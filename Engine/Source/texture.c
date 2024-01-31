@@ -12,15 +12,15 @@
 
 typedef Image CubeMapImages[6];
 
-static void Dispose(Texture);
-static bool TryCreateTexture(Image, Texture* out_texture);
-static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
-static Texture InstanceTexture(Texture texture);
-static Texture Blank(void);
-static void Save(Texture texture, const char* path);
-static Texture Load(const char* path);
-static TextureFormat GetFormat(Image image);
-static bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, Texture* out_texture);
+private void Dispose(RawTexture);
+private bool TryCreateTexture(Image, RawTexture* out_texture);
+private bool TryCreateTextureAdvanced(Image image, RawTexture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
+private RawTexture InstanceTexture(RawTexture texture);
+private RawTexture Blank(void);
+private void Save(RawTexture texture, const char* path);
+private RawTexture Load(const char* path);
+private TextureFormat GetFormat(Image image);
+private bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, RawTexture* out_texture);
 
 const struct _textureMethods Textures = {
 	.Dispose = &Dispose,
@@ -33,10 +33,10 @@ const struct _textureMethods Textures = {
 	.TryCreateBufferTexture = TryCreateBufferTexture
 };
 
-TYPE_ID(Texture);
+DEFINE_TYPE_ID(RawTexture);
 
 // this is only ran when there is only one remaining instance of the texture being disposed
-static void OnTextureBufferDispose(Texture texture)
+private void OnTextureBufferDispose(RawTexture texture)
 {
 	// delete the GDI texture
 	GraphicsDevice.DeleteTexture(texture->Handle->Handle);
@@ -45,7 +45,7 @@ static void OnTextureBufferDispose(Texture texture)
 	Memory.Free(texture->Path, Memory.String);
 }
 
-static void Dispose(Texture texture)
+private void Dispose(RawTexture texture)
 {
 	if (texture is null)
 	{
@@ -56,14 +56,14 @@ static void Dispose(Texture texture)
 	// the handle disposal is ONLY ran when a single instance remains of the provided texture
 	SharedHandles.Dispose(texture->Handle, texture, &OnTextureBufferDispose);
 
-	Memory.Free(texture, TextureTypeId);
+	Memory.Free(texture, typeid(RawTexture));
 }
 
-static Texture CreateTexture(bool allocBuffer)
+private RawTexture CreateTexture(bool allocBuffer)
 {
-	Memory.RegisterTypeName(nameof(Texture), &TextureTypeId);
+	Memory.RegisterTypeName(nameof(RawTexture), &typeid(RawTexture));
 
-	Texture texture = Memory.Alloc(sizeof(struct _texture), TextureTypeId);
+	RawTexture texture = Memory.Alloc(sizeof(struct _texture), typeid(RawTexture));
 
 	if (allocBuffer)
 	{
@@ -76,14 +76,14 @@ static Texture CreateTexture(bool allocBuffer)
 	return texture;
 }
 
-static bool TryGetHandle(unsigned int* out_handle)
+private bool TryGetHandle(unsigned int* out_handle)
 {
 	*out_handle = GraphicsDevice.CreateTexture(TextureTypes.Default);
 
 	return true;
 }
 
-static bool DefaultTryModifyTexture(void* state)
+private bool DefaultTryModifyTexture(void* state)
 {
 	if (state is null)
 	{
@@ -98,7 +98,7 @@ static bool DefaultTryModifyTexture(void* state)
 	return true;
 }
 
-static bool TryCreateCubeMapAdvanced(CubeMapImages images, Texture* out_texture,
+private bool TryCreateCubeMapAdvanced(CubeMapImages images, RawTexture* out_texture,
 	BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state))
 {
 	BoolGuardNotNull(images);
@@ -119,7 +119,7 @@ static bool TryCreateCubeMapAdvanced(CubeMapImages images, Texture* out_texture,
 		TryModifyTexture(state);
 	}
 
-	Texture texture = CreateTexture(true);
+	RawTexture texture = CreateTexture(true);
 
 	texture->Height = images[0]->Height;
 	texture->Width = images[0]->Width;
@@ -131,7 +131,7 @@ static bool TryCreateCubeMapAdvanced(CubeMapImages images, Texture* out_texture,
 
 	texture->Type = TextureTypes.CubeMap;
 
-	* out_texture = texture;
+	*out_texture = texture;
 
 	GraphicsDevice.ClearTexture(TextureTypes.Default);
 	GraphicsDevice.ClearTexture(TextureTypes.CubeMap);
@@ -140,7 +140,7 @@ static bool TryCreateCubeMapAdvanced(CubeMapImages images, Texture* out_texture,
 	return true;
 }
 
-static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const TextureType type, TextureFormat format,
+private bool TryCreateTextureAdvanced(Image image, RawTexture* out_texture, const TextureType type, TextureFormat format,
 	BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state))
 {
 	BoolGuardNotNull(image);
@@ -154,7 +154,7 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const Te
 		TryModifyTexture(state);
 	}
 
-	Texture texture = CreateTexture(true);
+	RawTexture texture = CreateTexture(true);
 
 	texture->Height = image->Height;
 	texture->Width = image->Width;
@@ -182,7 +182,7 @@ static bool TryCreateTextureAdvanced(Image image, Texture* out_texture, const Te
 	return true;
 }
 
-static bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, Texture* out_texture)
+private bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, RawTexture* out_texture)
 {
 	unsigned int handle = GraphicsDevice.CreateTexture(type);
 
@@ -202,7 +202,7 @@ static bool TryCreateBufferTexture(const TextureType type, const TextureFormat f
 
 	DefaultTryModifyTexture(null);
 
-	Texture texture = CreateTexture(true);
+	RawTexture texture = CreateTexture(true);
 
 	texture->Height = height;
 	texture->Width = width;
@@ -229,7 +229,7 @@ static bool TryCreateBufferTexture(const TextureType type, const TextureFormat f
 	return true;
 }
 
-static TextureFormat GetFormat(Image image)
+private TextureFormat GetFormat(Image image)
 {
 	// check the channels available, if there are 4 the format is RGBA, if 3 RGB
 	TextureFormat format = DEFAULT_TEXTURE_FORMAT;
@@ -246,7 +246,7 @@ static TextureFormat GetFormat(Image image)
 	return format;
 }
 
-static bool TryCreateTexture(Image image, Texture* out_texture)
+private bool TryCreateTexture(Image image, RawTexture* out_texture)
 {
 	// check the channels available, if there are 4 the format is RGBA, if 3 RGB
 	TextureFormat format = GetFormat(image);
@@ -254,14 +254,14 @@ static bool TryCreateTexture(Image image, Texture* out_texture)
 	return TryCreateTextureAdvanced(image, out_texture, TextureTypes.Default, format, DEFAULT_TEXTURE_BUFFER_FORMAT, null, &DefaultTryModifyTexture);
 }
 
-static Texture InstanceTexture(Texture texture)
+private RawTexture InstanceTexture(RawTexture texture)
 {
 	if (texture is null)
 	{
 		return null;
 	}
 
-	Texture newTexture = CreateTexture(false);
+	RawTexture newTexture = CreateTexture(false);
 
 	// value types
 	CopyMember(texture, newTexture, Height);
@@ -292,11 +292,11 @@ struct _image BlankImage = {
 	.Path = null,
 };
 
-static Texture Blank(void)
+private RawTexture Blank(void)
 {
 	Image blankImage = &BlankImage;
 
-	Texture texture;
+	RawTexture texture;
 
 	if (TryCreateTexture(blankImage, &texture))
 	{
@@ -325,137 +325,137 @@ struct _textureState {
 	char* back;
 };
 
-TOKEN_LOAD(path, struct _textureState*) 
+TOKEN_LOAD(path, struct _textureState*)
 {
 	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->path);
 }
 
-TOKEN_SAVE(path, Texture) 
+TOKEN_SAVE(path, RawTexture)
 {
 	fprintf(stream, "%s", state->Path);
 }
 
-TOKEN_LOAD(minificationFilter, struct _textureState*) 
+TOKEN_LOAD(minificationFilter, struct _textureState*)
 {
 	return TryGetFilterType(buffer, length, &state->MinificationFilter);
 }
 
-TOKEN_SAVE(minificationFilter, Texture) 
+TOKEN_SAVE(minificationFilter, RawTexture)
 {
 	fprintf(stream, "%s", state->MinificationFilter.Name);
 }
 
-TOKEN_LOAD(magnificationFilter, struct _textureState*) 
+TOKEN_LOAD(magnificationFilter, struct _textureState*)
 {
 	return TryGetFilterType(buffer, length, &state->MagnificationFilter);
 }
 
-TOKEN_SAVE(magnificationFilter, Texture) 
+TOKEN_SAVE(magnificationFilter, RawTexture)
 {
 	fprintf(stream, "%s", state->MagnificationFilter.Name);
 }
 
-TOKEN_LOAD(wrapX, struct _textureState*) 
+TOKEN_LOAD(wrapX, struct _textureState*)
 {
 	return TryGetWrapModeType(buffer, length, &state->WrapX);
 }
 
-TOKEN_SAVE(wrapX, Texture) 
+TOKEN_SAVE(wrapX, RawTexture)
 {
 	fprintf(stream, "%s", state->WrapX.Name);
 }
 
-TOKEN_LOAD(wrapY, struct _textureState*) 
+TOKEN_LOAD(wrapY, struct _textureState*)
 {
 	return TryGetWrapModeType(buffer, length, &state->WrapY);
 }
 
-TOKEN_SAVE(wrapY, Texture) 
+TOKEN_SAVE(wrapY, RawTexture)
 {
 	fprintf(stream, "%s", state->WrapY.Name);
 }
 
-TOKEN_LOAD(wrapZ, struct _textureState*) 
+TOKEN_LOAD(wrapZ, struct _textureState*)
 {
 	return TryGetWrapModeType(buffer, length, &state->WrapZ);
 }
 
-TOKEN_SAVE(wrapZ, Texture) 
+TOKEN_SAVE(wrapZ, RawTexture)
 {
 	fprintf(stream, "%s", state->WrapZ.Name);
 }
 
-TOKEN_LOAD(type, struct _textureState*) 
+TOKEN_LOAD(type, struct _textureState*)
 {
 	return TryGetTextureType(buffer, length, &state->Type);
 }
 
-TOKEN_SAVE(type, Texture) 
+TOKEN_SAVE(type, RawTexture)
 {
 	fprintf(stream, "%s", state->Type.Name);
 }
 
-TOKEN_LOAD(left, struct _textureState*) 
+TOKEN_LOAD(left, struct _textureState*)
 {
 	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->left);
 }
 
-TOKEN_SAVE(left, Texture) 
+TOKEN_SAVE(left, RawTexture)
 {
 	ignore_unused(stream);
 	ignore_unused(state);
 }
 
-TOKEN_LOAD(right, struct _textureState*) 
+TOKEN_LOAD(right, struct _textureState*)
 {
 	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->right);
 }
 
-TOKEN_SAVE(right, Texture) 
+TOKEN_SAVE(right, RawTexture)
 {
 	ignore_unused(stream);
 	ignore_unused(state);
 }
 
-TOKEN_LOAD(up, struct _textureState*) 
+TOKEN_LOAD(up, struct _textureState*)
 {
 	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->up);
 }
 
-TOKEN_SAVE(up, Texture) 
+TOKEN_SAVE(up, RawTexture)
 {
 	ignore_unused(stream);
 	ignore_unused(state);
 }
 
-TOKEN_LOAD(down, struct _textureState*) 
+TOKEN_LOAD(down, struct _textureState*)
 {
 	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->down);
 }
 
-TOKEN_SAVE(down, Texture) 
+TOKEN_SAVE(down, RawTexture)
 {
 	ignore_unused(stream);
 	ignore_unused(state);
 }
 
-TOKEN_LOAD(forward, struct _textureState*) 
+TOKEN_LOAD(forward, struct _textureState*)
 {
 	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->forward);
 }
 
-TOKEN_SAVE(forward, Texture) 
+TOKEN_SAVE(forward, RawTexture)
 {
 	ignore_unused(stream);
 	ignore_unused(state);
 }
 
-TOKEN_LOAD(back, struct _textureState*) 
+TOKEN_LOAD(back, struct _textureState*)
 {
 	return Parsing.TryGetString(buffer, length, MAX_PATH_SIZE, &state->back);
 }
 
-TOKEN_SAVE(back, Texture) 
+TOKEN_SAVE(back, RawTexture)
 {
 	ignore_unused(stream);
 	ignore_unused(state);
@@ -464,18 +464,18 @@ TOKEN_SAVE(back, Texture)
 
 TOKENS(13) {
 	TOKEN(path, "# the path to the texture"),
-	TOKEN(minificationFilter, "# the minification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"),
-	TOKEN(magnificationFilter, "# the maginification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"),
-	TOKEN(wrapX, "# How to wrap the texture along the x (S) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"),
-	TOKEN(wrapY, "# How to wrap the texture along the y (T) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"),
-	TOKEN(wrapZ, "# How to wrap the texture along the z (R) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"),
-	TOKEN(type, "# the type of texture this represents"NEWLINE"# 2d, cubemap"),
-	TOKEN(left, "# the path for the left face of the cube map"),
-	TOKEN(right, "# the path for the right face of the cube map"),
-	TOKEN(up, "# the path for the up face of the cube map"),
-	TOKEN(down, "# the path for the down face of the cube map"),
-	TOKEN(forward, "# the path for the forward face of the cube map"),
-	TOKEN(back, "# the path for the back face of the cube map")
+		TOKEN(minificationFilter, "# the minification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"),
+		TOKEN(magnificationFilter, "# the maginification filter to use for the texture"NEWLINE"# nearest, linear, nearestNearest, linearNearest, nearestLinear, linearLinear"),
+		TOKEN(wrapX, "# How to wrap the texture along the x (S) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"),
+		TOKEN(wrapY, "# How to wrap the texture along the y (T) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"),
+		TOKEN(wrapZ, "# How to wrap the texture along the z (R) axis"NEWLINE"# clamped, repeat, mirrored, clampToBorder, mirroredClamped"),
+		TOKEN(type, "# the type of texture this represents"NEWLINE"# 2d, cubemap"),
+		TOKEN(left, "# the path for the left face of the cube map"),
+		TOKEN(right, "# the path for the right face of the cube map"),
+		TOKEN(up, "# the path for the up face of the cube map"),
+		TOKEN(down, "# the path for the down face of the cube map"),
+		TOKEN(forward, "# the path for the forward face of the cube map"),
+		TOKEN(back, "# the path for the back face of the cube map")
 };
 
 struct _configDefinition TextureConfigDefinition = {
@@ -484,7 +484,7 @@ struct _configDefinition TextureConfigDefinition = {
 	.Count = sizeof(Tokens) / sizeof(struct _configToken)
 };
 
-static bool ModifyLoadedTexture(struct _textureState* state)
+private bool ModifyLoadedTexture(struct _textureState* state)
 {
 	if (state is null)
 	{
@@ -500,7 +500,7 @@ static bool ModifyLoadedTexture(struct _textureState* state)
 	return true;
 }
 
-static void Load2dTexture(struct _textureState state, Texture* out_texture)
+private void Load2dTexture(struct _textureState state, RawTexture* out_texture)
 {
 	Image image = Images.LoadImage(state.path);
 
@@ -519,7 +519,7 @@ static void Load2dTexture(struct _textureState state, Texture* out_texture)
 	Images.Dispose(image);
 }
 
-static void VerifyCubeMapImages(CubeMapImages images)
+private void VerifyCubeMapImages(CubeMapImages images)
 {
 	for (size_t i = 0; i < 6; i++)
 	{
@@ -533,7 +533,7 @@ static void VerifyCubeMapImages(CubeMapImages images)
 	}
 }
 
-static void LoadCubemap(struct _textureState state, Texture* out_texture)
+private void LoadCubemap(struct _textureState state, RawTexture* out_texture)
 {
 	CubeMapImages images = {
 		Images.LoadImage(state.left),
@@ -561,9 +561,9 @@ static void LoadCubemap(struct _textureState state, Texture* out_texture)
 	}
 }
 
-static Texture Load(const char* path)
+private RawTexture Load(const char* path)
 {
-	Texture texture = null;
+	RawTexture texture = null;
 
 	// ignore const violation for type default
 #pragma warning(disable:4090)
@@ -618,7 +618,7 @@ static Texture Load(const char* path)
 	return texture;
 }
 
-static void Save(Texture texture, const char* path)
+private void Save(RawTexture texture, const char* path)
 {
 	GuardNotNull(texture);
 	GuardNotNull(path);

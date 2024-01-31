@@ -78,7 +78,7 @@ extern const struct _arrayMethods Arrays;
 
 // TEMPLATE FOR METHODS
 #define DEFINE_ARRAY(type) _ARRAY_DEFINE_STRUCT(type)\
-TYPE_ID(type##_array); \
+DEFINE_TYPE_ID(type##_array); \
 private ARRAY(type) _array_##type##_Create(size_t count)\
 {\
 REGISTER_TYPE(type##_array); \
@@ -173,3 +173,17 @@ DEFINE_ARRAY(double);
 DEFINE_ARRAY(size_t);
 
 DEFINE_ARRAY(char_array);
+
+#define DEFINE_TUPLE_FULL(left,leftname,right,rightname) struct tuple_##left##_##right{ left leftname;right rightname;}
+#define DEFINE_TUPLE(left,right) DEFINE_TUPLE_FULL(left,First,right,Second)
+#define tuple(left,right) struct tuple_##left##_##right
+
+#define DEFINE_TUPLE_ALL(major,T1,T2,T3,T4,T5,T6) DEFINE_TUPLE(major,major);DEFINE_TUPLE(major, T1);DEFINE_TUPLE(major, T2);DEFINE_TUPLE(major, T3);DEFINE_TUPLE(major, T4);DEFINE_TUPLE(major, T5);DEFINE_TUPLE(major, T6);
+
+DEFINE_TUPLE_ALL(bool, char, int, long, size_t, float, double)
+DEFINE_TUPLE_ALL(char, bool, int, long, size_t, float, double)
+DEFINE_TUPLE_ALL(int, bool, char, long, size_t, float, double)
+DEFINE_TUPLE_ALL(long, bool, char, int, size_t, float, double)
+DEFINE_TUPLE_ALL(size_t, bool, char, int, long, float, double)
+DEFINE_TUPLE_ALL(float, bool, char, int, long, size_t, double)
+DEFINE_TUPLE_ALL(double, bool, char, int, long, size_t, float)

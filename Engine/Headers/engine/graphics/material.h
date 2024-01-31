@@ -44,20 +44,20 @@ struct _material {
 	/// <summary>
 	/// The main texture for the object, this is synonomous with TEXTURE0 and is typically the UV texture for the object
 	/// </summary>
-	Texture MainTexture;
+	RawTexture MainTexture;
 	/// <summary>
 	/// The specular texture that should be used to define what parts of an object should receive
 	/// specular lighting
 	/// </summary>
-	Texture SpecularTexture;
+	RawTexture SpecularTexture;
 	/// <summary>
 	/// The 2d texture that should be used to determine which parts of an object should be reflective
 	/// </summary>
-	Texture ReflectionMap;
+	RawTexture ReflectionMap;
 	/// <summary>
 	/// The 3d cubemap that should be used to generate reflections on the object
 	/// </summary>
-	Texture AreaMap;
+	RawTexture AreaMap;
 	/// <summary>
 	/// The name, or path of this material
 	/// </summary>
@@ -66,7 +66,7 @@ struct _material {
 
 struct _materialMethods {
 	Material(*CreateMaterial)(void);
-	Material(*Create)(const Shader, const Texture);
+	Material(*Create)(const Shader, const RawTexture);
 	// Attempts to load the material definition at the given path
 	Material(*Load)(const char* path);
 	// Saves the provided  material to a material definition file at the given path so it can be loaded with Materials.Load, returns true 
@@ -83,19 +83,19 @@ struct _materialMethods {
 	/// <summary>
 	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
 	/// </summary>
-	void (*SetMainTexture)(Material, const Texture);
+	void (*SetMainTexture)(Material, const RawTexture);
 	/// <summary>
 	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
 	/// </summary>
-	void (*SetSpecularTexture)(Material, const Texture);
+	void (*SetSpecularTexture)(Material, const RawTexture);
 	/// <summary>
 	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
 	/// </summary>
-	void (*SetAreaTexture)(Material, const Texture);
+	void (*SetAreaTexture)(Material, const RawTexture);
 	/// <summary>
 	/// Creates a new instance of the provided texture, disposes the old one and reassigns the main texture of the provided material
 	/// </summary>
-	void (*SetReflectionTexture)(Material, const Texture);
+	void (*SetReflectionTexture)(Material, const RawTexture);
 	/// <summary>
 	/// Creates a new instance of the provided shade, disposes the old one and reassigns the main texture of the provided shader
 	/// </summary>

@@ -7,7 +7,7 @@ static RenderBuffer Instance(RenderBuffer);
 
 const struct _renderBufferMethods RenderBuffers = {
 	.Dispose = &Dispose,
-	.Create  = &Create,
+	.Create = &Create,
 	.Instance = &Instance
 };
 
@@ -16,7 +16,7 @@ static void OnDispose(RenderBuffer state)
 	GraphicsDevice.DeleteRenderBuffer(state->Handle->Handle);
 }
 
-TYPE_ID(RenderBuffer);
+DEFINE_TYPE_ID(RenderBuffer);
 
 static void Dispose(RenderBuffer buffer)
 {
@@ -24,7 +24,7 @@ static void Dispose(RenderBuffer buffer)
 	{
 		SharedHandles.Dispose(buffer->Handle, buffer, OnDispose);
 	}
-	
+
 	Memory.Free(buffer, RenderBufferTypeId);
 }
 
@@ -57,7 +57,7 @@ static RenderBuffer Instance(RenderBuffer buffer)
 	RenderBuffer newBuffer = Memory.Alloc(sizeof(struct _renderBuffer), RenderBufferTypeId);
 
 	newBuffer->Handle = SharedHandles.Instance(buffer->Handle);
-	
+
 	newBuffer->Format = buffer->Format;
 	newBuffer->Width = buffer->Width;
 	newBuffer->Height = buffer->Height;

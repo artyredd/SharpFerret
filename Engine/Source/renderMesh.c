@@ -37,7 +37,7 @@ static void OnNameDispose(InstancedResource resource, void* state)
 	}
 }
 
-TYPE_ID(RenderMesh);
+DEFINE_TYPE_ID(RenderMesh);
 
 static void Dispose(RenderMesh mesh)
 {
@@ -289,7 +289,7 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 			// dispose of any children before this index where we failed
 			for (int childIndex = 0; childIndex < i; ++childIndex)
 			{
-				RenderMeshes.Dispose( meshesArray[childIndex] );
+				RenderMeshes.Dispose(meshesArray[childIndex]);
 			}
 
 			Memory.Free(meshesArray, RenderMeshTypeId);

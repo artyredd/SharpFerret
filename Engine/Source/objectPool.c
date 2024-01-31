@@ -17,7 +17,7 @@ const struct _objectPoolMethods ObjectPools = {
 	.Resize = Resize
 };
 
-TYPE_ID(ObjectPool);
+DEFINE_TYPE_ID(ObjectPool);
 
 static ObjectPool Create(size_t capacity)
 {

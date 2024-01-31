@@ -48,10 +48,10 @@ struct _neatMethods Neat = {
 	.Speciate = SpeciatePopulation
 };
 
-TYPE_ID(Gene);
-TYPE_ID(Species);
-TYPE_ID(Organism);
-TYPE_ID(Population);
+DEFINE_TYPE_ID(Gene);
+DEFINE_TYPE_ID(Species);
+DEFINE_TYPE_ID(Organism);
+DEFINE_TYPE_ID(Population);
 
 private bool TryFindGene(Population population, gene gene, size_t* out_geneIndex)
 {

@@ -51,6 +51,7 @@
 #include <engine/physics/Collider.h>
 
 #include "core/math/triangles.h"
+#include "core/math/rectangles.h"
 
 Window window;
 
@@ -61,6 +62,9 @@ int main()
 {
 	// UNIT TESTING
 	//Tests.RunAll();
+	Rectangles.RunUnitTests();
+	return;
+
 
 	// create a window to bind to GDI
 	Windows.StartRuntime();

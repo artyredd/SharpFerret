@@ -81,7 +81,7 @@ const struct _transformMethods Transforms = {
 	.TransformPoint = TransformPoint
 };
 
-TYPE_ID(Transform);
+DEFINE_TYPE_ID(Transform);
 
 static void Dispose(Transform transform)
 {
@@ -196,11 +196,11 @@ static vector3 GetPosition(Transform transform)
 {
 	if (transform->InvertTransform)
 	{
-		return (vector3) 
-		{ 
-			-transform->Position.x, 
-			-transform->Position.y,
-			-transform->Position.z
+		return (vector3)
+		{
+			-transform->Position.x,
+				-transform->Position.y,
+				-transform->Position.z
 		};
 	}
 
@@ -290,7 +290,7 @@ static matrix4 ForceRefreshTransform(Transform transform)
 	vector3 position = GetPosition(transform);
 
 	// create and store a translation matrix
-	transform->State.TranslationMatrix = Matrix4s.Translate( Matrix4.Identity, position);
+	transform->State.TranslationMatrix = Matrix4s.Translate(Matrix4.Identity, position);
 
 	// create and store a rotation matrix
 	transform->State.RotationMatrix = Quaternions.RotateMatrix(rotation, transform->State.TranslationMatrix);
@@ -560,7 +560,7 @@ static void LookAt(Transform transform, vector3 target)
 
 static void LookAtPositions(Transform transform, float x, float y, float z)
 {
-	vector3 target = { x, y, z};
+	vector3 target = { x, y, z };
 
 	transform->Rotation = Quaternions.LookAt(transform->Position, target, Vector3.Up);
 
@@ -717,7 +717,7 @@ static vector3 GetDirection(Transform transform, Direction direction)
 		return transform->State.Directions.Directions[direction];
 	}
 
-	transform->State.Directions.Directions[direction] = Quaternions.RotateVector( transform->Rotation, directions[direction]);
+	transform->State.Directions.Directions[direction] = Quaternions.RotateVector(transform->Rotation, directions[direction]);
 
 	SetFlag(transform->State.Directions.Accessed, FlagN(direction));
 
@@ -792,10 +792,10 @@ TOKEN_SAVE(rotateAroundCenter, Transform)
 TOKENS(5)
 {
 	TOKEN(position, "# the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective"),
-	TOKEN(rotation, "# the rotation of the object"),
-	TOKEN(scale, "# the scale of the object"),
-	TOKEN(invertTransform, "# whether or not the values listed are inverted before the object is rendered"),
-	TOKEN(rotateAroundCenter, "# whether or not the object is rotated around world center or it's position in world/screen space")
+		TOKEN(rotation, "# the rotation of the object"),
+		TOKEN(scale, "# the scale of the object"),
+		TOKEN(invertTransform, "# whether or not the values listed are inverted before the object is rendered"),
+		TOKEN(rotateAroundCenter, "# whether or not the object is rotated around world center or it's position in world/screen space")
 };
 
 struct _configDefinition TransformConfigDefinition = {

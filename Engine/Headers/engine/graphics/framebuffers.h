@@ -35,7 +35,7 @@ struct _frameBuffer {
 	/// <summary>
 	/// The attached texture, if present
 	/// </summary>
-	Texture Texture;
+	RawTexture Texture;
 	/// <summary>
 	/// The attached render buffer, if present
 	/// </summary>
@@ -66,7 +66,7 @@ struct _frameBufferMethods {
 	void (*Use)(FrameBuffer);
 	void (*Clear)(FrameBuffer);
 	void (*ClearAndUse)(FrameBuffer);
-	void (*AttachTexture)(FrameBuffer, Texture, unsigned int offset);
+	void (*AttachTexture)(FrameBuffer, RawTexture, unsigned int offset);
 	void (*AttachRenderBuffer)(FrameBuffer, RenderBuffer);
 	void (*Dispose)(FrameBuffer);
 };
