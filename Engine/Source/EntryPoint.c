@@ -60,12 +60,6 @@ void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled);
 
 int main()
 {
-	// UNIT TESTING
-	//Tests.RunAll();
-	Rectangles.RunUnitTests();
-	return;
-
-
 	// create a window to bind to GDI
 	Windows.StartRuntime();
 

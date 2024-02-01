@@ -5,7 +5,7 @@
 #include "engine/graphics/shaders.h"
 #include "engine/graphics/transform.h"
 #include "engine/graphics/sharedBuffer.h"
-#include "core/InstancedResource.h"
+#include "core/array.h"
 
 static unsigned int VertexShaderPosition = 0;
 static unsigned int UVShaderPosition = 1;
@@ -16,7 +16,7 @@ typedef struct _renderMesh* RenderMesh;
 struct _renderMesh {
 	size_t Id;
 
-	InstancedResource Name;
+	Pointer(char) Name;
 
 	SharedHandle VertexBuffer;
 	SharedHandle UVBuffer;
@@ -32,7 +32,7 @@ struct _renderMesh {
 
 	// The CPU Side mesh to copy over data to the GPU when
 	// CopyBuffersOnDraw is enabled 
-	InstancedResource Mesh;
+	Pointer(mesh) Mesh;
 };
 
 struct _renderMeshMethods {

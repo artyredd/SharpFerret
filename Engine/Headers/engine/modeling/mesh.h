@@ -2,9 +2,11 @@
 
 #include "core/csharp.h"
 #include "core/math/vectors.h"
+#include "core/array.h"
 
 // options
 typedef struct _mesh* Mesh;
+typedef struct _mesh mesh;
 
 struct _mesh {
 	char* Name;
@@ -27,3 +29,7 @@ struct _meshMethods {
 };
 
 extern const struct _meshMethods Meshes;
+
+#pragma warning(disable:4113)
+DEFINE_CONTAINERS(mesh);
+DEFINE_CONTAINERS(Mesh);

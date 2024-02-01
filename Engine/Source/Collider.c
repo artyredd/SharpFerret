@@ -1,6 +1,5 @@
 #include <engine/physics/Collider.h>
 
-#include "core/types.h"
 #include "core/memory.h"
 #include <stdlib.h>
 #include <string.h>

@@ -4,14 +4,14 @@
 #include "core/macros.h"
 #include "core/strings.h"
 
-static RenderMesh InstanceMesh(RenderMesh mesh);
-static void Draw(RenderMesh model);
-static void Dispose(RenderMesh mesh);
-static bool TryBindMesh(const Mesh mesh, RenderMesh* out_model);
-static RenderMesh Duplicate(RenderMesh mesh);
-static RenderMesh CreateRenderMesh(void);
-static bool TryBindModel(Model model, RenderMesh** out_meshArray);
-static void Save(File, RenderMesh mesh);
+private RenderMesh InstanceMesh(RenderMesh mesh);
+private void Draw(RenderMesh model);
+private void Dispose(RenderMesh mesh);
+private bool TryBindMesh(const Mesh mesh, RenderMesh* out_model);
+private RenderMesh Duplicate(RenderMesh mesh);
+private RenderMesh CreateRenderMesh(void);
+private bool TryBindModel(Model model, RenderMesh** out_meshArray);
+private void Save(File, RenderMesh mesh);
 
 const struct _renderMeshMethods RenderMeshes = {
 	.Dispose = &Dispose,
@@ -24,12 +24,12 @@ const struct _renderMeshMethods RenderMeshes = {
 	.Save = &Save
 };
 
-static void OnBufferDispose(SharedHandle handle)
+private void OnBufferDispose(SharedHandle handle)
 {
 	GraphicsDevice.DeleteBuffer(handle->Handle);
 }
 
-static void OnNameDispose(InstancedResource resource, void* state)
+private void OnNameDispose(Pointer(char) resource, void* state)
 {
 	if (state is null)
 	{
@@ -39,7 +39,7 @@ static void OnNameDispose(InstancedResource resource, void* state)
 
 DEFINE_TYPE_ID(RenderMesh);
 
-static void Dispose(RenderMesh mesh)
+private void Dispose(RenderMesh mesh)
 {
 	if (mesh is null)
 	{
@@ -48,7 +48,7 @@ static void Dispose(RenderMesh mesh)
 
 	// since the name is shared between all rendermeshes that come from the same model we must not dispose the name till the last render
 	// mesh instance is being disposed
-	InstancedResources.Dispose(mesh->Name, null, &OnNameDispose);
+	Pointers(char).Dispose(mesh->Name, null, &OnNameDispose);
 
 	// since these handles are shared among possibly many instances we only want to actually
 	// clear the buffer when the final instance has been disposed
@@ -61,7 +61,7 @@ static void Dispose(RenderMesh mesh)
 	Memory.Free(mesh, RenderMeshTypeId);
 }
 
-static void LoadAttributeBuffer(unsigned int Position, unsigned int Handle, unsigned int dimensions)
+private void LoadAttributeBuffer(unsigned int Position, unsigned int Handle, unsigned int dimensions)
 {
 	glEnableVertexAttribArray(Position);
 
@@ -77,7 +77,7 @@ static void LoadAttributeBuffer(unsigned int Position, unsigned int Handle, unsi
 	);
 }
 
-static void Draw(RenderMesh mesh)
+private void Draw(RenderMesh mesh)
 {
 	if (mesh->VertexBuffer isnt null)
 	{
@@ -124,7 +124,7 @@ static void Draw(RenderMesh mesh)
 	glDisableVertexAttribArray(NormalShaderPosition);
 }
 
-static RenderMesh CreateRenderMesh()
+private RenderMesh CreateRenderMesh()
 {
 	Memory.RegisterTypeName(nameof(RenderMesh), &RenderMeshTypeId);
 
@@ -137,7 +137,7 @@ static RenderMesh CreateRenderMesh()
 	return mesh;
 }
 
-static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedHandle destinationBuffer)
+private bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedHandle destinationBuffer)
 {
 	destinationBuffer->Handle = 0;
 
@@ -161,7 +161,7 @@ static bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedHandle destin
 	return true;
 }
 
-static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
+private bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 {
 	*out_renderMesh = null;
 
@@ -204,14 +204,14 @@ static bool TryBindMesh(const Mesh mesh, RenderMesh* out_renderMesh)
 
 	model->ShadeSmooth = mesh->SmoothingEnabled;
 
-	model->Mesh = InstancedResources.Create(mesh);
+	model->Mesh = Pointers(mesh).Create(mesh);
 
 	*out_renderMesh = model;
 
 	return true;
 }
 
-static void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
+private void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 {
 	CopyMember(source, destination, VertexBuffer);
 
@@ -238,16 +238,16 @@ static void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 
 	if (source->Name isnt null)
 	{
-		destination->Name = InstancedResources.Instance(source->Name);
+		destination->Name = Pointers(char).Instance(source->Name);
 	}
 
 	if (source->Mesh isnt null)
 	{
-		destination->Mesh = InstancedResources.Instance(source->Mesh);
+		destination->Mesh = Pointers(mesh).Instance(source->Mesh);
 	}
 }
 
-static RenderMesh InstanceMesh(RenderMesh mesh)
+private RenderMesh InstanceMesh(RenderMesh mesh)
 {
 	RenderMesh result = CreateRenderMesh();
 
@@ -256,7 +256,7 @@ static RenderMesh InstanceMesh(RenderMesh mesh)
 	return result;
 }
 
-static RenderMesh Duplicate(RenderMesh mesh)
+private RenderMesh Duplicate(RenderMesh mesh)
 {
 	RenderMesh result = InstanceMesh(mesh);
 
@@ -267,14 +267,14 @@ static RenderMesh Duplicate(RenderMesh mesh)
 	return result;
 }
 
-static bool TryBindModel(Model model, RenderMesh** out_meshArray)
+private bool TryBindModel(Model model, RenderMesh** out_meshArray)
 {
 	RenderMesh* meshesArray = Memory.Alloc(sizeof(RenderMesh) * model->Count, RenderMeshTypeId);
 
 	// all sub-meshes within a model share the same name
 	char* sharedName = Strings.DuplicateTerminated(model->Name);
 
-	InstancedResource name = InstancedResources.Create(sharedName);
+	Pointer(char) name = Pointers(char).Create(sharedName);
 
 	for (size_t i = 0; i < model->Count; i++)
 	{
@@ -284,7 +284,7 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 		if (RenderMeshes.TryBindMesh(mesh, &newMesh) is false)
 		{
 			// dispose of the extra instance we made for convenience
-			InstancedResources.Dispose(name, null, null);
+			Pointers(char).Dispose(name, null, null);
 
 			// dispose of any children before this index where we failed
 			for (int childIndex = 0; childIndex < i; ++childIndex)
@@ -297,22 +297,22 @@ static bool TryBindModel(Model model, RenderMesh** out_meshArray)
 			return false;
 		}
 
-		newMesh->Name = InstancedResources.Instance(name);
+		newMesh->Name = Pointers(char).Instance(name);
 
-		newMesh->Mesh = InstancedResources.Create(mesh);
+		newMesh->Mesh = Pointers(mesh).Create(mesh);
 
 		meshesArray[i] = newMesh;
 	}
 
 	// dispose of the extra instance we made for convenience
-	InstancedResources.Dispose(name, null, null);
+	Pointers(char).Dispose(name, null, null);
 
 	*out_meshArray = meshesArray;
 
 	return true;
 }
 
-static void Save(File stream, RenderMesh mesh)
+private void Save(File stream, RenderMesh mesh)
 {
 	if (mesh isnt null)
 	{

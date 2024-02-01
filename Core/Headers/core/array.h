@@ -200,3 +200,14 @@ DEFINE_TUPLE_BOTH_WAYS(type,float);\
 DEFINE_TUPLE_BOTH_WAYS(type,double);\
 
 #define DEFINE_CONTAINERS(type) DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type); DEFINE_POINTER(type);
+
+#pragma warning(disable:4113)
+DEFINE_POINTER(_Bool);
+DEFINE_POINTER(char);
+DEFINE_POINTER(int);
+DEFINE_POINTER(short);
+DEFINE_POINTER(long);
+DEFINE_POINTER(size_t);
+DEFINE_POINTER(float);
+DEFINE_POINTER(double);
+#pragma warning(default: 4113)
