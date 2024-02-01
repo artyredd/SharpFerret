@@ -2,6 +2,7 @@
 
 #include "core/csharp.h"
 #include "memory.h"
+#include "pointer.h"
 
 // TEMPLATE
 #define _ARRAY_DEFINE_STRUCT(type) struct _array_##type\
@@ -198,4 +199,4 @@ DEFINE_TUPLE_BOTH_WAYS(type,size_t);\
 DEFINE_TUPLE_BOTH_WAYS(type,float);\
 DEFINE_TUPLE_BOTH_WAYS(type,double);\
 
-#define DEFINE_CONTAINERS(type) DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type);
+#define DEFINE_CONTAINERS(type) DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type); DEFINE_POINTER(type);

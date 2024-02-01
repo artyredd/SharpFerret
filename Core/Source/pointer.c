@@ -1,25 +1,25 @@
-#include "engine/InstancedResource.h"
+#include "core/pointer.h"
 #include "core/csharp.h"
 #include "core/memory.h"
 #include <stdlib.h>
 
-static InstancedResource Create(void* resourceToInstance);
-static void Dispose(InstancedResource, void* state, void(*OnDispose)(InstancedResource, void* state));
-static InstancedResource Instance(InstancedResource resource);
+private Pointer(void) Create(void* resourceToInstance);
+private void Dispose(Pointer(void), void* state, void(*OnDispose)(Pointer(void), void* state));
+private Pointer(void) Instance(Pointer(void) resource);
 
-const struct _instancedResourceMethods InstancedResources = {
+const struct _pointerMethods_void Pointers(void) = {
 	.Create = &Create,
 	.Dispose = &Dispose,
 	.Instance = &Instance
 };
 
-DEFINE_TYPE_ID(InstancedResource);
+DEFINE_TYPE_ID(voidPointer);
 
-static InstancedResource Create(void* resourceToInstance)
+private Pointer(void) Create(void* resourceToInstance)
 {
-	Memory.RegisterTypeName("InstancedResource", &InstancedResourceTypeId);
+	REGISTER_TYPE(voidPointer);
 
-	InstancedResource resource = Memory.Alloc(sizeof(struct _instancedResource), InstancedResourceTypeId);
+	Pointer(void) resource = Memory.Alloc(sizeof(struct _pointer_void), typeid(voidPointer));
 
 	resource->Instances = 1;
 	resource->Resource = resourceToInstance;
@@ -27,7 +27,7 @@ static InstancedResource Create(void* resourceToInstance)
 	return resource;
 }
 
-static void Dispose(InstancedResource resource, void* state, void(*OnDispose)(InstancedResource, void* state))
+private void Dispose(Pointer(void) resource, void* state, void(*OnDispose)(Pointer(void), void* state))
 {
 	// if passed null for some reason ignore it?
 	if (resource is null) { return; }
@@ -44,7 +44,7 @@ static void Dispose(InstancedResource resource, void* state, void(*OnDispose)(In
 
 		// actually free the buffer since this is the last instance
 		resource->Resource = null;
-		Memory.Free(resource, InstancedResourceTypeId);
+		Memory.Free(resource, typeid(voidPointer));
 		return;
 	}
 
@@ -52,7 +52,7 @@ static void Dispose(InstancedResource resource, void* state, void(*OnDispose)(In
 	resource->Instances = min(resource->Instances - 1, resource->Instances);
 }
 
-static InstancedResource Instance(InstancedResource resource)
+private Pointer(void) Instance(Pointer(void) resource)
 {
 	if (resource is null)
 	{

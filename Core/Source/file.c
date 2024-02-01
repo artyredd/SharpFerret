@@ -89,7 +89,7 @@ private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 		{
 			const size_t pathSize = strlen(path);
 
-			ARRAY(char) directory = ARRAYS(char_array).At(Files.AssetDirectories, i);
+			ARRAY(char) directory = *ARRAYS(char_array).At(Files.AssetDirectories, i);
 
 			ARRAY(char) newPath = ARRAYS(char).Create(0);
 
