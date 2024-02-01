@@ -24,7 +24,7 @@ include(FetchContent)
 
 FetchContent_Populate(
     cglm                             # Recommendation: Stick close to the original name.
-    GIT_REPOSITORY https://github.com/recp/cglm.git
+    #GIT_REPOSITORY https://github.com/recp/cglm.git
     SOURCE_DIR     external/cglm              # (Relative) path within in the build directory.
 )
 

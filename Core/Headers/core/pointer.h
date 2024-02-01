@@ -8,6 +8,7 @@ size_t Instances; \
 };\
 typedef struct _pointer_##type* type##Pointer;
 
+// A pointer to the given type, that keeps track of references to that pointer
 #define Pointer(type) type##Pointer
 #define Pointers(type) type##PointerMethods
 

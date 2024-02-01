@@ -34,7 +34,7 @@ struct _rawTexture {
 	WrapMode WrapZ;
 };
 
-DEFINE_ARRAY(RawTexture);
+DEFINE_CONTAINERS(RawTexture);
 
 struct _rawTextureMethods
 {
