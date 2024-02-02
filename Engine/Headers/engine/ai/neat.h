@@ -31,10 +31,10 @@ typedef struct species species;
 
 typedef species* Species;
 
-DEFINE_ARRAY(gene);
-DEFINE_ARRAY(Organism);
-DEFINE_ARRAY(Species);
-DEFINE_ARRAY(ai_number);
+DEFINE_CONTAINERS(gene);
+DEFINE_CONTAINERS(Organism);
+DEFINE_CONTAINERS(Species);
+DEFINE_CONTAINERS(ai_number);
 
 
 

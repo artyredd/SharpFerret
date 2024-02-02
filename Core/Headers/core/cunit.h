@@ -29,7 +29,7 @@ struct testSuite {
 	Test Tail;
 	size_t Count;
 	FILE* OutputStream;
-	void(*Append)(TestSuite suite, char* name, void(*method)(FILE*));
+	void(*Append)(TestSuite suite, char* name, bool(*method)(FILE*));
 	void(*Dispose)(TestSuite suite);
 	void(*Run)(TestSuite suite);
 };

@@ -18,7 +18,7 @@ size_t Global_AvailableIndex = 0;
 
 static size_t GetAvailableIndex()
 {
-	if (Global_AvailableIndex < Global_ColliderCapacity)
+	/*if (Global_AvailableIndex < Global_ColliderCapacity)
 	{
 		return Global_AvailableIndex;
 	}
@@ -30,7 +30,8 @@ static size_t GetAvailableIndex()
 			Global_AvailableIndex = index;
 			return Global_AvailableIndex;
 		}
-	}
+	}*/
+	return 0;
 }
 
 static void RegisterCollider(Collider collider)

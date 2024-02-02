@@ -175,8 +175,6 @@ struct _mat4Methods {
 
 extern const struct _mat4Methods Matrix4s;
 
-bool RunVectorUnitTests();
-
 typedef struct ivector2 ivector2;
 
 struct ivector2
