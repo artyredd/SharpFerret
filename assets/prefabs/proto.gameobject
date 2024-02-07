@@ -1,6 +1,6 @@
 # the model path that should be loaded for this gameobject
 model: assets/models/cube.obj
-material: assets/materials/default.material
+material: assets/materials/fox.material
 transform:
 # the position of the object, this may be in world space or screen space depending if the object is rendered with camera perspective
 position: 0.0 2.000000 -10.000000

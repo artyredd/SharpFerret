@@ -1,9 +1,10 @@
 #pragma once
 #include <stdlib.h>
 #include "engine/graphics/sharedBuffer.h"
-#include "engine/graphics/imaging.h"
+#include "core/imaging/imaging.h"
 #include "engine/graphics/textureDefinitions.h"
 #include "core/array.h"
+#include "core/math/rectangles.h"
 
 #define DEFAULT_MINIFYING_FILTER FilterTypes.Linear
 #define DEFAULT_MAGNIFYING_FILTER FilterTypes.Linear
@@ -20,10 +21,9 @@ struct _rawTexture {
 	/// <summary>
 	/// The path of this texture
 	/// </summary>
-	char* Path;
+	ARRAY(char) Path;
 	SharedHandle Handle;
-	size_t Height;
-	size_t Width;
+	irectangle Rect;
 	BufferFormat BufferFormat;
 	TextureFormat Format;
 	TextureType Type;

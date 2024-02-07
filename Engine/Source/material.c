@@ -579,7 +579,7 @@ TOKEN_SAVE(mainTexture, Material)
 {
 	if (state->MainTexture isnt null)
 	{
-		fprintf(stream, "%s", state->MainTexture->Path);
+		fprintf(stream, "%s", state->MainTexture->Path->Values);
 	}
 }
 
@@ -592,7 +592,7 @@ TOKEN_SAVE(specularMap, Material)
 {
 	if (state->SpecularTexture isnt null)
 	{
-		fprintf(stream, "%s", state->SpecularTexture->Path);
+		fprintf(stream, "%s", state->SpecularTexture->Path->Values);
 	}
 }
 
@@ -654,7 +654,7 @@ TOKEN_SAVE(reflectionMap, Material)
 {
 	if (state->ReflectionMap isnt null)
 	{
-		fprintf(stream, "%s", state->ReflectionMap->Path);
+		fprintf(stream, "%s", state->ReflectionMap->Path->Values);
 	}
 }
 
@@ -667,7 +667,7 @@ TOKEN_SAVE(areaMap, Material)
 {
 	if (state->AreaMap isnt null)
 	{
-		fprintf(stream, "%s", state->AreaMap->Path);
+		fprintf(stream, "%s", state->AreaMap->Path->Values);
 	}
 }
 

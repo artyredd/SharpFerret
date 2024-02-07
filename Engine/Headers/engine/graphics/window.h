@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/csharp.h"
-#include "imaging.h"
+#include "core/imaging/imaging.h"
 #include "core/math/shapes.h"
 
 #ifndef _window_h_

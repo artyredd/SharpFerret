@@ -4,6 +4,7 @@
 #include "engine/graphics/camera.h"
 #include "engine/graphics/material.h"
 #include "engine/graphics/scene.h"
+#include "core/array.h"
 
 #define MAX_GAMEOBJECT_NAME_LENGTH 512 // in ANSI characters(bytes)
 
@@ -73,3 +74,5 @@ struct _gameObjectMethods {
 };
 
 const extern struct _gameObjectMethods GameObjects;
+
+DEFINE_CONTAINERS(GameObject);

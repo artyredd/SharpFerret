@@ -7,21 +7,23 @@
 #include "stb_image.h"
 #endif
 
-static void Dispose(Image image);
-static bool TryLoadImage(const char* path, Image* out_image);
-static Image LoadImage(const char* path);
-static bool TryGetImageInfo(const char* path, Image* out_info);
-static Image CreateImage(void);
+private void Dispose(Image image);
+private bool TryLoadImage(const ARRAY(char) path, Image* out_image);
+private Image LoadImage(const ARRAY(char) path);
+private bool TryGetImageInfo(const ARRAY(char) path, Image* out_info);
+private Image CreateImage(void);
+private Image LoadImageFromCString(const char* path);
 
 const struct _imageMethods Images = {
 	.CreateImage = &CreateImage,
 	.TryLoadImage = &TryLoadImage,
 	.TryGetImageInfo = &TryGetImageInfo,
 	.LoadImage = &LoadImage,
+	.LoadImageFromCString = LoadImageFromCString,
 	.Dispose = &Dispose
 };
 
-static bool TryLoadImage(const char* path, Image* out_image)
+private bool TryLoadImage(const ARRAY(char) path, Image* out_image)
 {
 	*out_image = null;
 
@@ -35,13 +37,43 @@ static bool TryLoadImage(const char* path, Image* out_image)
 	return *out_image isnt null;
 }
 
-static Image LoadImage(const char* path)
+// An array of innstanced pointers to image
+// Only dispose of them if they have no references
+ARRAY(Image) GLOBAL_ImageCache = null;
+
+private Image LoadImageFromCString(const char* path)
 {
+	ARRAY(char) tmp = ARRAYS(char).CreateFromCArray(path, strlen(path));
+
+	Image image = LoadImage(tmp);
+
+	ARRAYS(char).Dispose(tmp);
+
+	return image;
+}
+
+private Image LoadImage(const ARRAY(char) path)
+{
+	if (GLOBAL_ImageCache is null)
+	{
+		GLOBAL_ImageCache = ARRAYS(Image).Create(0);
+	}
+
+	for (size_t i = 0; i < GLOBAL_ImageCache->Count; i++)
+	{
+		Image image = *ARRAYS(Image).At(GLOBAL_ImageCache, i);
+
+		if (ARRAYS(char).Equals(path, image->Path))
+		{
+			return image;
+		}
+	}
+
 	Image image = CreateImage();
 
-	image->Path = Strings.DuplicateTerminated(path);
+	image->Path = ARRAYS(char).Clone(path);
 
-	image->Pixels = stbi_load(path, &image->Width, &image->Height, &image->Channels, 0);
+	image->Pixels = stbi_load(path->Values, &image->Width, &image->Height, &image->Channels, 0);
 
 	if (image->Pixels is null)
 	{
@@ -50,14 +82,16 @@ static Image LoadImage(const char* path)
 		return null;
 	}
 
+	ARRAYS(Image).Append(GLOBAL_ImageCache, image);
+
 	return image;
 }
 
-static bool TryGetImageInfo(const char* path, Image* out_info)
+private bool TryGetImageInfo(const ARRAY(char) path, Image* out_info)
 {
 	*out_info = null;
 
-	if (path is null)
+	if (path is null || path->Values is null)
 	{
 		return false;
 	}
@@ -68,7 +102,7 @@ static bool TryGetImageInfo(const char* path, Image* out_info)
 	int height = 0;
 	int channels = 0;
 
-	bool result = stbi_load(path, &width, &height, &channels, 0);
+	bool result = stbi_load(path->Values, &width, &height, &channels, 0);
 
 	image->Width = (size_t)width;
 	image->Height = (size_t)height;
@@ -81,20 +115,31 @@ static bool TryGetImageInfo(const char* path, Image* out_info)
 
 DEFINE_TYPE_ID(Image);
 
-static void Dispose(Image image)
+private void Dispose(Image image)
 {
 	if (image is null)
 	{
 		return;
 	}
 
-	Memory.Free(image->Path, Memory.String);
+	for (size_t i = 0; i < GLOBAL_ImageCache->Count; i++)
+	{
+		Image cachedImage = *ARRAYS(Image).At(GLOBAL_ImageCache, i);
+
+		if (cachedImage == image)
+		{
+			return;
+		}
+	}
+
+	ARRAYS(char).Dispose(image->Path);
+
 	// these pixels are provided by stbi and are freed using free() instead to keep acccurate Memory.Alloc stats
 	free(image->Pixels);
 	Memory.Free(image, ImageTypeId);
 }
 
-static Image CreateImage()
+private Image CreateImage()
 {
 	Memory.RegisterTypeName(nameof(Image), &ImageTypeId);
 

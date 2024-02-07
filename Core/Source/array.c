@@ -1,9 +1,11 @@
 #include "core/array.h"
 #include "core/memory.h"
 #include <memory.h>
+#include <core/hashing.h>
 #include <string.h>
 
 private Array Create(size_t elementSize, size_t count, size_t typeId);
+private Array CreateFromCArray(const void* cArray, size_t elementSize, size_t count, size_t typeId);
 private size_t GetNextAvailableIndex(Array);
 private void AutoResize(Array);
 private void Resize(Array, size_t newCount);
@@ -17,9 +19,13 @@ private void* At(Array array, size_t index);
 private void Clear(Array array);
 private void Foreach(Array array, void(*method)(void* item));
 private void ForeachWithContext(Array array, void* context, void(*method)(void* context, void* item));
+private Array Clone(Array);
+private bool Equals(Array, Array);
+private size_t Hash(Array);
 
 const struct _arrayMethods Arrays = {
 	.Create = Create,
+	.CreateFromCArray = CreateFromCArray,
 	.AutoResize = AutoResize,
 	.Resize = Resize,
 	.Append = Append,
@@ -31,10 +37,22 @@ const struct _arrayMethods Arrays = {
 	.At = At,
 	.Clear = Clear,
 	.Foreach = Foreach,
-	.ForeachWithContext = ForeachWithContext
+	.ForeachWithContext = ForeachWithContext,
+	.Clone = Clone,
+	.Equals = Equals,
+	.Hash = Hash
 };
 
 DEFINE_TYPE_ID(Array);
+
+private Array CreateFromCArray(const void* cArray, size_t elementSize, size_t count, size_t typeId)
+{
+	Array array = Create(elementSize, count, typeId);
+
+	memcpy(array->Values, cArray, count * elementSize);
+
+	return array;
+}
 
 private Array Create(size_t elementSize, size_t count, size_t typeId)
 {
@@ -44,14 +62,19 @@ private Array Create(size_t elementSize, size_t count, size_t typeId)
 
 	if (count)
 	{
-		array->Values = Memory.Alloc(elementSize * count, typeId);
+		array->Values = Memory.Alloc((elementSize * count) + 1, typeId);
+
+		// null terminate memory block for legacy reasons
+		((char*)array->Values)[elementSize * count] = '\0';
 	}
 
 	array->Count = count;
 	array->ElementSize = elementSize;
 	array->TypeId = typeId;
-	array->Size = elementSize * count;
+	// size is +1 to fit the null terminator
+	array->Size = (elementSize * count) + 1;
 	array->Capacity = count;
+	array->Hashcode = 0;
 
 	return array;
 }
@@ -70,6 +93,15 @@ private void Append(Array array, void* value)
 		AutoResize(array);
 		Append(array, value);
 	}
+
+	if (array->Hashcode is 0)
+	{
+		Hash(array->Values);
+	}
+	else
+	{
+		array->Hashcode = Hashing.ChainHash(value, array->Hashcode);
+	}
 }
 
 private void AutoResize(Array array)
@@ -81,6 +113,9 @@ private void AutoResize(Array array)
 		newSize = safe_add(newSize, (newSize % array->ElementSize));
 	}
 
+	// add one to add null terminator for legacy cstr things
+	newSize = newSize + 1;
+
 	if (array->Size is 0)
 	{
 		array->Values = Memory.Alloc(newSize, array->TypeId);
@@ -89,6 +124,8 @@ private void AutoResize(Array array)
 	{
 		Memory.ReallocOrCopy(&array->Values, array->Size, newSize, array->TypeId);
 	}
+
+	((char*)array->Values)[newSize - 1] = '\0';
 
 	array->Capacity = array->Size / array->ElementSize;
 	array->Size = newSize;
@@ -107,7 +144,13 @@ private void Resize(Array array, size_t newCount)
 
 	size_t newSize = array->ElementSize * newCount;
 
+	// add one to add null terminator for legacy cstr things
+	newSize = newSize + 1;
+
 	Memory.ReallocOrCopy(&array->Values, array->Size, newSize, array->TypeId);
+
+	// set null terminator
+	((char*)array->Values)[newSize - 1] = '\0';
 
 	array->Size = newSize;
 	array->Count = newCount;
@@ -191,7 +234,11 @@ private void AppendArray(Array array, Array appension)
 private void Clear(Array array)
 {
 	memset(array->Values, 0, array->Size);
+
 	array->Count = 0;
+
+	// set null terminator
+	((char*)array->Values)[array->Size - 1] = '\0';
 }
 
 private void Foreach(Array array, void(*method)(void* item))
@@ -208,6 +255,60 @@ private void ForeachWithContext(Array array, void* context, void(*method)(void* 
 	{
 		method(context, At(array, i));
 	}
+}
+
+private Array Clone(Array array)
+{
+	Array newArray = Create(array->ElementSize, array->Count, array->TypeId);
+
+	memcpy(newArray->Values, array->Values, array->Size);
+
+	return newArray;
+}
+
+private bool Equals(Array left, Array right)
+{
+	// if they point to the same memory block they must be equal
+	if (left->Values == right->Values)
+	{
+		return true;
+	}
+
+	if (left->Count != right->Count)
+	{
+		return false;
+	}
+
+	if (left->ElementSize != right->ElementSize)
+	{
+		return false;
+	}
+
+	if (left->Hashcode && right->Hashcode)
+	{
+		return left->Hashcode == right->Hashcode;
+	}
+
+	if (left->Hashcode is 0)
+	{
+		Hash(left);
+	}
+
+	if (right->Hashcode is 0)
+	{
+		Hash(right);
+	}
+
+	return left->Hashcode == right->Hashcode;
+}
+
+private size_t Hash(Array array)
+{
+	size_t hash = Hashing.Hash(array->Values);
+
+	array->Hashcode = hash;
+
+	return hash;
 }
 
 private void Dispose(Array array)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/csharp.h"
+#include "core/array.h"
 
 /// <summary>
 /// Types of supported formats
@@ -18,13 +19,17 @@ enum ImageFormat {
 	PNM
 };
 
+typedef struct _image image;
 typedef struct _image* Image;
+
+DEFINE_CONTAINERS(Image);
+
 
 struct _image {
 	/// <summary>
 	/// The path that was used to load the image
 	/// </summary>
-	char* Path;
+	ARRAY(char) Path;
 	/// <summary>
 	/// The width in pixels of the image
 	/// </summary>
@@ -43,6 +48,8 @@ struct _image {
 	unsigned char* Pixels;
 };
 
+DEFINE_CONTAINERS(image);
+
 struct _imageMethods {
 	/// Allocates a new image and returns a pointer to it
 	Image(*CreateImage)(void);
@@ -51,13 +58,17 @@ struct _imageMethods {
 	/// </summary>
 	/// <param name="path"></param>
 	/// <returns></returns>
-	Image(*LoadImage)(const char* path);
+	Image(*LoadImage)(const ARRAY(char) path);
+	/// <summary>
+	///  DEPRECATED
+	/// </summary>
+	Image(*LoadImageFromCString)(const char* path);
 	/// Attempts to load the image's information, returns true if the image was located and info obtained, otherwise false
 	/// Use Dispose to free the object
-	bool (*TryGetImageInfo)(const char* path, Image* out_info);
+	bool (*TryGetImageInfo)(const ARRAY(char) path, Image* out_info);
 	/// Attempts to load the provided image, returns true if it was successfully loaded, otherwise false
 	/// Use Dispose to free the object
-	bool (*TryLoadImage)(const char* path, Image* out_image);
+	bool (*TryLoadImage)(const ARRAY(char) path, Image* out_image);
 	/// <summary>
 	/// Disposes the image
 	/// </summary>

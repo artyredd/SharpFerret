@@ -121,8 +121,8 @@ private bool TryCreateCubeMapAdvanced(CubeMapImages images, RawTexture* out_text
 
 	RawTexture texture = CreateTexture(true);
 
-	texture->Height = images[0]->Height;
-	texture->Width = images[0]->Width;
+	texture->Rect.Height = images[0]->Height;
+	texture->Rect.Width = images[0]->Width;
 
 	texture->Handle->Handle = handle;
 
@@ -156,15 +156,15 @@ private bool TryCreateTextureAdvanced(Image image, RawTexture* out_texture, cons
 
 	RawTexture texture = CreateTexture(true);
 
-	texture->Height = image->Height;
-	texture->Width = image->Width;
+	texture->Rect.Height = image->Height;
+	texture->Rect.Width = image->Width;
 
 	texture->Handle->Handle = handle;
 
 	texture->BufferFormat = bufferFormat;
 	texture->Format = format;
 
-	texture->Path = Strings.DuplicateTerminated(image->Path);
+	texture->Path = ARRAYS(char).Clone(image->Path);;
 
 	// ignore const violation, we are intentionally passing a const value here
 	// this is known to be problematic
@@ -204,8 +204,8 @@ private bool TryCreateBufferTexture(const TextureType type, const TextureFormat 
 
 	RawTexture texture = CreateTexture(true);
 
-	texture->Height = height;
-	texture->Width = width;
+	texture->Rect.Height = height;
+	texture->Rect.Width = width;
 
 	texture->Handle->Handle = handle;
 
@@ -264,8 +264,8 @@ private RawTexture InstanceTexture(RawTexture texture)
 	RawTexture newTexture = CreateTexture(false);
 
 	// value types
-	CopyMember(texture, newTexture, Height);
-	CopyMember(texture, newTexture, Width);
+	CopyMember(texture, newTexture, Rect.Height);
+	CopyMember(texture, newTexture, Rect.Width);
 	CopyMember(texture, newTexture, BufferFormat);
 	CopyMember(texture, newTexture, Format);
 
@@ -332,7 +332,7 @@ TOKEN_LOAD(path, struct _textureState*)
 
 TOKEN_SAVE(path, RawTexture)
 {
-	fprintf(stream, "%s", state->Path);
+	fprintf(stream, "%s", state->Path->Values);
 }
 
 TOKEN_LOAD(minificationFilter, struct _textureState*)
@@ -502,7 +502,7 @@ private bool ModifyLoadedTexture(struct _textureState* state)
 
 private void Load2dTexture(struct _textureState state, RawTexture* out_texture)
 {
-	Image image = Images.LoadImage(state.path);
+	Image image = Images.LoadImageFromCString(state.path);
 
 	if (image is null)
 	{
@@ -536,12 +536,12 @@ private void VerifyCubeMapImages(CubeMapImages images)
 private void LoadCubemap(struct _textureState state, RawTexture* out_texture)
 {
 	CubeMapImages images = {
-		Images.LoadImage(state.left),
-		Images.LoadImage(state.right),
-		Images.LoadImage(state.up),
-		Images.LoadImage(state.down),
-		Images.LoadImage(state.back),
-		Images.LoadImage(state.forward)
+		Images.LoadImageFromCString(state.left),
+		Images.LoadImageFromCString(state.right),
+		Images.LoadImageFromCString(state.up),
+		Images.LoadImageFromCString(state.down),
+		Images.LoadImageFromCString(state.back),
+		Images.LoadImageFromCString(state.forward)
 	};
 
 	VerifyCubeMapImages(images);
@@ -592,7 +592,7 @@ private RawTexture Load(const char* path)
 
 			// since a cubemap has multiple source textures it's path is not set when we create the texture
 			// asign the path name to the texture instead of any one source
-			texture->Path = Strings.DuplicateTerminated(path);
+			texture->Path = ARRAYS(char).CreateFromCArray(Strings.DuplicateTerminated(path), strlen(path));
 		}
 		else
 		{

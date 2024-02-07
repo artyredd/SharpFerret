@@ -683,19 +683,19 @@ TOKEN_SAVE(fillMode, Shader)
 TOKENS(14)
 {
 	TOKEN(vertexShader, "# The paths to the vertex shader that should be used for this shader"),
-	TOKEN(fragmentShader, "# The paths to the fragment shader that should be used for this shader"),
-	TOKEN(geometryShader, "# the paths to any geometry shaders that should be used for this shader"),
-	TOKEN(culling, "# whether or not backface culling should be enabled for this shader"),
-	TOKEN(useCameraPerspective, "# whether or not this shader should use camera perspective, (GUI elements for example shouldnt)"),
-	TOKEN(enableBlending, "# whether or not blending (transparency) should be enabled"),
-	TOKEN(writeToStencilBuffer, "# whether or not fragments that are drawn are written to the stencil buffer"),
-	TOKEN(depthTest, "# whether or not depth testing should be used when this shader is used to render an object"),
-	TOKEN(useCustomStencilAttributes, "# whether or not this shader should set various stencil function attributes when it's enabled"),
-	TOKEN(customStencilFunction, "# the custom function that should be used for this shader\n# does not do anythig when useComstomStencilAttributes is set to false\n# Valid Values: always, never, equal, notEqual, greaterThan, lessThan, greaterThanOrEqual, lessThanOrEqual"),
-	TOKEN(customStencilValue, "# the value that a fragment's stencil buffer value should be compared to using customStencilFunction"),
-	TOKEN(customStencilMask, "# the mask that should be bitwise AND'd with a fragemnt's stencil buffer value BEFORE it's compared to customStencilValue to determine if a fragment passes"),
-	TOKEN(useStencilBuffer, "# whether or not the stencil buffer should be used to determine if fragments are rendered, if this is false fragments are always rendered and never write to the stencil buffer"),
-	TOKEN(fillMode, "# how polygons should be drawn, fill would be normal, while line would be wireframe")
+		TOKEN(fragmentShader, "# The paths to the fragment shader that should be used for this shader"),
+		TOKEN(geometryShader, "# the paths to any geometry shaders that should be used for this shader"),
+		TOKEN(culling, "# whether or not backface culling should be enabled for this shader"),
+		TOKEN(useCameraPerspective, "# whether or not this shader should use camera perspective, (GUI elements for example shouldnt)"),
+		TOKEN(enableBlending, "# whether or not blending (transparency) should be enabled"),
+		TOKEN(writeToStencilBuffer, "# whether or not fragments that are drawn are written to the stencil buffer"),
+		TOKEN(depthTest, "# whether or not depth testing should be used when this shader is used to render an object"),
+		TOKEN(useCustomStencilAttributes, "# whether or not this shader should set various stencil function attributes when it's enabled"),
+		TOKEN(customStencilFunction, "# the custom function that should be used for this shader\n# does not do anythig when useComstomStencilAttributes is set to false\n# Valid Values: always, never, equal, notEqual, greaterThan, lessThan, greaterThanOrEqual, lessThanOrEqual"),
+		TOKEN(customStencilValue, "# the value that a fragment's stencil buffer value should be compared to using customStencilFunction"),
+		TOKEN(customStencilMask, "# the mask that should be bitwise AND'd with a fragemnt's stencil buffer value BEFORE it's compared to customStencilValue to determine if a fragment passes"),
+		TOKEN(useStencilBuffer, "# whether or not the stencil buffer should be used to determine if fragments are rendered, if this is false fragments are always rendered and never write to the stencil buffer"),
+		TOKEN(fillMode, "# how polygons should be drawn, fill would be normal, while line would be wireframe")
 };
 
 const struct _configDefinition ShaderConfigDefinition = {
@@ -784,7 +784,7 @@ static bool Save(Shader shader, const char* path)
 		return false;
 	}
 
-	Configs.SaveConfigStream(file, (const ConfigDefinition)&ShaderConfigDefinition, shader );
+	Configs.SaveConfigStream(file, (const ConfigDefinition)&ShaderConfigDefinition, shader);
 
 	return Files.TryClose(file);
 }

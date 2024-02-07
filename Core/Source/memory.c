@@ -39,7 +39,7 @@ struct _memoryMethods Memory = {
 };
 
 #define MAX_TYPENAME_LENGTH 1024
-#define MAX_REGISTERED_TYPENAMES 128
+#define MAX_REGISTERED_TYPENAMES 1024
 
 struct _typeName {
 	size_t Id;

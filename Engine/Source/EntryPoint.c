@@ -5,6 +5,7 @@
 #include "core/csharp.h"
 #include "core/memory.h"
 
+
 #include "GL/glew.h"
 
 #include "GLFW/glfw3.h"
@@ -12,7 +13,7 @@
 #include "engine/graphics/window.h"
 
 #include "engine/graphics/window.h"
-#include "engine/graphics/imaging.h"
+#include "core/imaging/imaging.h"
 
 #include "engine/graphics/shadercompiler.h"
 #include "cglm/cam.h"
@@ -36,6 +37,7 @@
 #include "engine/graphics/text.h"
 #include "engine/graphics/recttransform.h"
 #include "core/strings.h"
+#include "core/random.h"
 #include "engine/graphics/graphicsDevice.h"
 #include "engine/graphics/scene.h"
 #include "engine/physics/physics.h"
@@ -79,7 +81,7 @@ int main()
 	window = Windows.Create(DEFAULT_VIEWPORT_RESOLUTION_X, DEFAULT_VIEWPORT_RESOLUTION_Y, "Singine");
 
 	// load window icon
-	Image icon = Images.LoadImage("assets/textures/icon.png");
+	Image icon = Images.LoadImageFromCString("assets/textures/icon.png");
 	Windows.SetIcon(window, icon);
 	Images.Dispose(icon);
 
@@ -141,8 +143,18 @@ int main()
 	GameObject ball = GameObjects.Load("assets/prefabs/ball.gameobject");
 	GameObject otherBall = GameObjects.Load("assets/prefabs/ball.gameobject");
 
-	GameObject car = GameObjects.Load("assets/prefabs/proto.gameobject");
-	Materials.SetColor(car->Material, Colors.Green);
+
+
+	ARRAY(GameObject) cars = ARRAYS(GameObject).Create(0);
+
+	for (int i = 0; i < 100; i++)
+	{
+		GameObject car = GameObjects.Load("assets/prefabs/proto.gameobject");
+
+		Materials.SetColors(car->Material, Random.NextFloat(), Random.NextFloat(), Random.NextFloat(), 1.0f);
+
+		ARRAYS(GameObject).Append(cars, car);
+	}
 
 	GameObject statue = GameObjects.Load("assets/prefabs/statue.gameobject");
 	GameObject otherStatue = GameObjects.Load("assets/prefabs/mirrorStatue.gameobject");
@@ -181,7 +193,7 @@ int main()
 	Light light = Lights.Create(LightTypes.Directional);
 
 	// light body
-	Transforms.SetPositions(light->Transform, -1, 20, -20);
+	Transforms.SetPositions(light->Transform, -110, 110, -110);
 
 	Transforms.SetPositions(lightMarker->Transform, 0, 0, 0);
 
@@ -206,7 +218,7 @@ int main()
 
 	// create a scene to render
 	Camera camera = Cameras.Create();
-	Cameras.SetFarClippingDistance(camera, 500.0f);
+	Cameras.SetFarClippingDistance(camera, 5099999900000.0f);
 	camera->Orthographic = false;
 
 	// don't spawn camera at origin, it's disorienting
@@ -239,22 +251,22 @@ int main()
 	Transforms.SetPositions(colliderObject2->Transform, 10, 10, 10);
 
 	// group up the gameobjects so we can call GameObjects.DrawMany instead of .Draw for each object
-	GameObject gameobjects[] = {
-		lightMarker,
-		cube,
-		sphere,
-		car,
-		ball,
-		otherBall,
-		fox,
-		statue,
-		otherStatue,
-		reflectiveSphere,
-		colliderObject1,
-		colliderObject2
-	};
 
-	const size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
+	ARRAY(GameObject) gameobjects = ARRAYS(GameObject).Create(0);
+
+	ARRAYS(GameObject).Append(gameobjects, lightMarker);
+	ARRAYS(GameObject).Append(gameobjects, cube);
+	ARRAYS(GameObject).Append(gameobjects, sphere);
+	ARRAYS(GameObject).Append(gameobjects, ball);
+	ARRAYS(GameObject).Append(gameobjects, otherBall);
+	ARRAYS(GameObject).Append(gameobjects, fox);
+	ARRAYS(GameObject).Append(gameobjects, statue);
+	ARRAYS(GameObject).Append(gameobjects, otherStatue);
+	ARRAYS(GameObject).Append(gameobjects, reflectiveSphere);
+	ARRAYS(GameObject).Append(gameobjects, colliderObject1);
+	ARRAYS(GameObject).Append(gameobjects, colliderObject2);
+
+	ARRAYS(GameObject).AppendArray(gameobjects, cars);
 
 	// load the shadow material used to render shadowmaps
 	// and create a camera that should be used to render to the framebuffer for shadows
@@ -265,15 +277,22 @@ int main()
 	// main game loop
 	bool showNormals = false;
 
-	ToggleNormalShaders(gameobjects, gameobjectCount, showNormals);
+	ToggleNormalShaders(gameobjects->Values, gameobjects->Count, showNormals);
 
 	// set some parents and positions so all the objects aren't all sitting at world origin
 	Transforms.SetParent(otherBall->Transform, ball->Transform);
 	Transforms.SetScales(otherBall->Transform, 0.5, 0.5, 0.5);
 	Transforms.SetPositions(otherBall->Transform, 0, 0, 3);
-	Transforms.SetPositions(car->Transform, -7, 0, -7);
+
 	Transforms.SetPositions(ball->Transform, 5, 1, 5);
 	Transforms.SetRotationOnAxis(statue->Transform, (float)GLM_PI / 2, Vector3.Up);
+
+	for (size_t i = 0; i < cars->Count; i++)
+	{
+		GameObject car = *ARRAYS(GameObject).At(cars, i);
+
+		Transforms.SetPositions(car->Transform, Random.BetweenFloat(-100.0, 100.0), Random.BetweenFloat(-100.0, 100.0), Random.BetweenFloat(-100.0, 100.0));
+	}
 
 
 	float speed = 10.0f;
@@ -283,7 +302,7 @@ int main()
 	vector3 position;
 
 	vector3 positionModifier;
-	vector3 lightOffset = { -20, 20, 0 };
+	vector3 lightOffset = { -110, 110, -100 };
 
 	double colliderPosition = 10.0;
 
@@ -302,6 +321,33 @@ int main()
 
 		rotateAmount += modifier;
 
+		if (GetKey(KeyCodes.Up))
+		{
+			speed += Time.DeltaTime() * 10;
+		}
+		if (GetKey(KeyCodes.Down))
+		{
+			speed -= Time.DeltaTime() * 10;
+		}
+
+		if (GetKey(KeyCodes.C))
+		{
+			for (int i = 0; i < speed; i++)
+			{
+				GameObject car = GameObjects.Load("assets/prefabs/proto.gameobject");
+
+				Materials.SetColors(car->Material, Random.NextFloat(), Random.NextFloat(), Random.NextFloat(), 1.0f);
+
+
+				Transforms.SetPositions(car->Transform, Random.BetweenFloat(-100.0, 100.0), Random.BetweenFloat(-100.0, 100.0), Random.BetweenFloat(-100.0, 100.0));
+
+				ToggleNormalShaders(&car, 1, false);
+
+				ARRAYS(GameObject).Append(cars, car);
+				ARRAYS(GameObject).Append(gameobjects, car);
+			}
+		}
+
 		// move the soccer balls to test transform inheritance
 		vector3 ballPosition = { 5, (2 + (float)sin(rotateAmount)), 5 };
 
@@ -315,13 +361,20 @@ int main()
 		//Transforms.RotateOnAxis(collider1->Transform, (float)Time.DeltaTime(), Vector3.Up);
 
 		// drive car
-		vector3 carDirection = Transforms.GetDirection(car->Transform, Directions.Back);
+		for (size_t i = 0; i < cars->Count; i++)
+		{
+			GameObject car = *ARRAYS(GameObject).At(cars, i);
 
-		carDirection = Vector3s.Scale(carDirection, modifier);
+			vector3 carDirection = Transforms.GetDirection(car->Transform, Directions.Back);
 
-		Transforms.AddPosition(car->Transform, carDirection);
+			carDirection = Vector3s.Scale(carDirection, modifier);
 
-		Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / 8.0f) * modifier, Vector3.Up);
+			Transforms.AddPosition(car->Transform, carDirection);
+
+			Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / (Random.NextFloat() * 8.0f)) * modifier, Vector3.Up);
+
+			Transforms.RotateOnAxis(car->Transform, ((float)GLM_PI / (Random.NextFloat() * 8.0f)) * modifier, Vector3.Left);
+		}
 
 		Transforms.SetPosition(light->Transform, lightOffset);
 		Transforms.LookAt(light->Transform, Vector3.Zero);
@@ -384,7 +437,7 @@ int main()
 		// toggle debug normals
 		if (GetKey(KeyCodes.N))
 		{
-			ToggleNormalShaders(gameobjects, gameobjectCount, !showNormals);
+			ToggleNormalShaders(gameobjects->Values, gameobjects->Count, !showNormals);
 
 			showNormals = !showNormals;
 		}
@@ -394,29 +447,33 @@ int main()
 		Transforms.SetRotationOnAxis(cube->Transform, (float)(3 * cos(Time.Time())), Vector3.Up);
 
 		int count = sprintf_s(text->Text, text->Length,
-			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\nIntersecting:%s",
+			"%2.4lf ms (high:%2.4lf ms avg:%2.4lf)\n%4.1lf FPS\nIntersecting:%s\nSpeed: %f\nCars:%lli",
 			Time.Statistics.FrameTime(),
 			Time.Statistics.HighestFrameTime(),
 			Time.Statistics.AverageFrameTime(),
-			1.0 / Time.Statistics.FrameTime(), intersects ? "true" : "false");
+			1.0 / Time.Statistics.FrameTime(), intersects ? "true" : "false",
+			speed,
+			cars->Count
+		);
 
 		Texts.SetText(text, text->Text, count);
 
 		// update the FPS camera
+
 		Transforms.SetPosition(camera->Transform, position);
 		FPSCamera.Update(camera);
 
 		// before we draw anything we should update the physics system
 		Physics.Update(Time.DeltaTime());
 
-		GameObjects.GenerateShadowMaps(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, shadowMapMaterial, shadowCamera);
+		GameObjects.GenerateShadowMaps(gameobjects->Values, gameobjects->Count, scene, shadowMapMaterial, shadowCamera);
 
 		// draw scene
 		FrameBuffers.ClearAndUse(FrameBuffers.Default);
 
 		scene->MainCamera = camera;
 
-		GameObjects.DrawMany(gameobjects, sizeof(gameobjects) / sizeof(GameObject), scene, null);
+		GameObjects.DrawMany(gameobjects->Values, gameobjects->Count, scene, null);
 
 		// 0.01
 		/*timer += Time.DeltaTime();
@@ -456,18 +513,10 @@ int main()
 
 	Fonts.Dispose(font);
 
-	GameObjects.Destroy(ball);
-	//GameObjects.Destroy(otherBall);
-	GameObjects.Destroy(car);
-	GameObjects.Destroy(fox);
-	GameObjects.Destroy(cube);
-	//GameObjects.Destroy(otherCube);
-	GameObjects.Destroy(lightMarker);
-	GameObjects.Destroy(reflectiveSphere);
-	GameObjects.Destroy(skybox);
-	GameObjects.Destroy(sphere);
-	GameObjects.Destroy(statue);
-	GameObjects.Destroy(otherStatue);
+	for (size_t i = 0; i < gameobjects->Count; i++)
+	{
+		GameObjects.Destroy(*ARRAYS(GameObject).At(gameobjects, i));
+	}
 
 	Materials.Dispose(defaultMaterial);
 	Materials.Dispose(shadowMapMaterial);

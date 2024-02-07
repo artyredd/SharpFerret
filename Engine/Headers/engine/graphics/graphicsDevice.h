@@ -1,7 +1,7 @@
 #pragma once
 #include "core/csharp.h"
 #include <stdint.h>
-#include "engine/graphics/imaging.h"
+#include "core/imaging/imaging.h"
 #include "engine/graphics/textureDefinitions.h"
 #include "engine/graphics/colors.h"
 

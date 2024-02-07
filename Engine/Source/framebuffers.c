@@ -159,7 +159,7 @@ static void AttachTexture(FrameBuffer buffer, RawTexture texture, unsigned int o
 	buffer->Texture = RawTextures.Instance(texture);
 
 	// check to see if we need to store the height
-	StoreDimensions(buffer, texture->Width, texture->Height);
+	StoreDimensions(buffer, texture->Rect.Width, texture->Rect.Height);
 }
 
 static void AttachRenderBuffer(FrameBuffer buffer, RenderBuffer renderBuffer)

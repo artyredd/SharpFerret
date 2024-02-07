@@ -19,17 +19,19 @@
 	size_t Capacity;\
 	/* The number of elements stored in the array */\
 	size_t Count;\
+	/* The Hash of the elements of this array */\
+	size_t Hashcode; \
 	/* The typeid of the element stored in the array */\
-	size_t TypeId;\
-};\
-typedef struct _array_##type* type##_array; 
+	size_t TypeId; \
+}; \
+typedef struct _array_##type* type##_array;
 
 #define MAKE_CONST_ARRAY(type,count, ...) &(struct _array_##type)\
 {\
 	/* The pointer to the backing array */\
 	.Values = (type*) __VA_ARGS__,\
 	/* The size, in bytes, of the backing array*/\
-	.Size = sizeof(type) * count,\
+	.Size = (sizeof(type) * (count)),\
 	/* The size in bytes between elements of the array\
 	// This would typically be the size of the element stored */\
 	.ElementSize = sizeof(type),\
@@ -38,15 +40,18 @@ typedef struct _array_##type* type##_array;
 	.Capacity = count,\
 	/* The number of elements stored in the array */\
 	.Count = count,\
+	.Hashcode = 0,\
 	/* The typeid of the element stored in the array */\
 	.TypeId = 0\
 }
 
-#define MAKE_CONST_STRING(string) MAKE_CONST_ARRAY(char, sizeof(string) / sizeof(char)-1, string)
+#define MAKE_CONST_CHAR_ARRAY(string) MAKE_CONST_ARRAY(char, (sizeof(string) / sizeof(char)) - 1, string)
 
+#define _ARRAY(type) type##_array
 // Creates an array of the given type, remember to define the type if this fails to compile
-#define ARRAY(type) type##_array
-#define ARRAYS(type) type##_array##Arrays
+#define ARRAY(type) _ARRAY(type)
+#define _ARRAYS(type) type##_array##Arrays
+#define ARRAYS(type) _ARRAYS(type)
 
 _ARRAY_DEFINE_STRUCT(void);
 typedef ARRAY(void) Array;
@@ -54,6 +59,7 @@ typedef ARRAY(void) Array;
 struct _arrayMethods
 {
 	Array(*Create)(size_t elementSize, size_t count, size_t typeId);
+	Array(*CreateFromCArray)(const void* cArray, size_t elementSize, size_t count, size_t typeId);
 	void (*AutoResize)(Array);
 	void (*Resize)(Array, size_t newCount);
 	// Appends the given item to the end of the array
@@ -72,6 +78,12 @@ struct _arrayMethods
 	void (*Clear)(Array array);
 	void (*Foreach)(Array, void(*method)(void*));
 	void (*ForeachWithContext)(Array, void* context, void(*method)(void* context, void* item));
+	// Clones the provided array with no reference to the old array
+	Array(*Clone)(Array);
+	// Checks if the two arrays are the same
+	bool (*Equals)(Array, Array);
+	// Hashes the array bytewise
+	size_t(*Hash)(Array);
 	void (*Dispose)(Array);
 };
 
@@ -84,6 +96,11 @@ private ARRAY(type) _array_##type##_Create(size_t count)\
 {\
 REGISTER_TYPE(type##_array); \
 return (ARRAY(type))Arrays.Create(sizeof(type), count, type##_arrayTypeId); \
+}\
+private ARRAY(type) _array_##type##_CreateFromCArray(const type* carray, size_t count)\
+{\
+REGISTER_TYPE(type##_array); \
+return (ARRAY(type))Arrays.CreateFromCArray(carray, sizeof(type), count, type##_arrayTypeId); \
 }\
 private void _array_##type##_AutoResize(ARRAY(type) array)\
 {\
@@ -121,13 +138,36 @@ private void _array_##type##_Clear(ARRAY(type)array)\
 {\
 Arrays.Clear((Array)array); \
 }\
+private bool _array_##type##_Contains(ARRAY(type) array, type value)\
+{\
+for (size_t i = 0; i < array->Count; i++)\
+{\
+	if (memcmp(&value, _array_##type##_At(array, i), array->ElementSize) == 0)\
+	{\
+		return true;\
+	}\
+}\
+return false;\
+}\
+private ARRAY(type) _array_##type##_Clone(ARRAY(type) array)\
+{\
+	return (ARRAY(type))Arrays.Clone((Array)array);\
+}\
 private void _array_##type##_Foreach(ARRAY(type)array, void(*method)(type*))\
 {\
 Arrays.Foreach((Array)array, method); \
 }\
 private void _array_##type##_ForeachWithContext(ARRAY(type)array, void* context, void(*method)(void* context, type* item))\
 {\
-Arrays.ForeachWithContext((Array)array, context, method);\
+Arrays.ForeachWithContext((Array)array, context, method); \
+}\
+private bool _array_##type##_Equals(ARRAY(type)left, ARRAY(type)right)\
+{\
+return Arrays.Equals((Array)left,(Array)right);\
+}\
+private size_t _array_##type##_Hash(ARRAY(type)array)\
+{\
+return Arrays.Hash((Array)array); \
 }\
 private void _array_##type##_Dispose(ARRAY(type)array)\
 {\
@@ -136,6 +176,7 @@ Arrays.Dispose((Array)array); \
 const static struct _array_##type##_methods\
 {\
 ARRAY(type) (*Create)(size_t count); \
+ARRAY(type) (*CreateFromCArray)(const type* cArray, size_t count); \
 void (*AutoResize)(ARRAY(type)); \
 void (*Resize)(ARRAY(type), size_t newCount); \
 void (*Append)(ARRAY(type), type); \
@@ -144,13 +185,18 @@ void (*Swap)(ARRAY(type), size_t firstIndex, size_t secondIndex); \
 void (*InsertionSort)(ARRAY(type), bool(comparator)(type* left, type* right)); \
 type* (*At)(ARRAY(type), size_t index); \
 void (*AppendArray)(ARRAY(type), ARRAY(type) appendedValue); \
-void (*Clear)(ARRAY(type));\
-void (*Foreach)(ARRAY(type), void(*method)(type*));\
-void (*ForeachWithContext)(ARRAY(type), void* context, void(*method)(void*, type*));\
+void (*Clear)(ARRAY(type)); \
+bool (*Contains)(ARRAY(type), type value); \
+void (*Foreach)(ARRAY(type), void(*method)(type*)); \
+void (*ForeachWithContext)(ARRAY(type), void* context, void(*method)(void*, type*)); \
+ARRAY(type) (*Clone)(ARRAY(type)); \
+bool (*Equals)(ARRAY(type), ARRAY(type)); \
+size_t(*Hash)(ARRAY(type)); \
 void (*Dispose)(ARRAY(type)); \
 } type##_array##Arrays = \
 {\
 .Create = _array_##type##_Create, \
+.CreateFromCArray = _array_##type##_CreateFromCArray, \
 .AutoResize = _array_##type##_AutoResize, \
 .Resize = _array_##type##_Resize, \
 .Append = _array_##type##_Append, \
@@ -159,9 +205,13 @@ void (*Dispose)(ARRAY(type)); \
 .InsertionSort = _array_##type##_InsertionSort, \
 .At = _array_##type##_At, \
 .AppendArray = _array_##type##_AppendArray, \
-.Clear = _array_##type##_Clear,\
-.Foreach = _array_##type##_Foreach,\
-.ForeachWithContext = _array_##type##_ForeachWithContext,\
+.Clear = _array_##type##_Clear, \
+.Contains = _array_##type##_Contains, \
+.Foreach = _array_##type##_Foreach, \
+.ForeachWithContext = _array_##type##_ForeachWithContext, \
+.Clone = _array_##type##_Clone, \
+.Equals = _array_##type##_Equals, \
+.Hash = _array_##type##_Hash, \
 .Dispose = _array_##type##_Dispose\
 };
 
@@ -199,8 +249,6 @@ DEFINE_TUPLE_BOTH_WAYS(type,size_t);\
 DEFINE_TUPLE_BOTH_WAYS(type,float);\
 DEFINE_TUPLE_BOTH_WAYS(type,double);\
 
-#define DEFINE_CONTAINERS(type) __pragma(warning(disable:4113)); DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type); DEFINE_POINTER(type); __pragma(warning(default:4113))
-
 #pragma warning(disable:4113)
 DEFINE_POINTER(_Bool);
 DEFINE_POINTER(char);
@@ -211,3 +259,5 @@ DEFINE_POINTER(size_t);
 DEFINE_POINTER(float);
 DEFINE_POINTER(double);
 #pragma warning(default: 4113)
+
+#define DEFINE_CONTAINERS(type) __pragma(warning(disable:4113)); DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type); DEFINE_POINTER(type); DEFINE_ARRAY(type##Pointer); __pragma(warning(default:4113))
