@@ -21,7 +21,7 @@ private bool TryVerifyCleanup(void);
 
 const struct _fileMethods Files = {
 	.UseAssetDirectories = true,
-	.AssetDirectories = MAKE_CONST_ARRAY(char_array, 1, MAKE_CONST_STRING("..\\..\\Singine\\")),
+	.AssetDirectories = stack_array(array(char), 1, stack_string("..\\..\\Singine\\")),
 	.TryOpen = &TryOpen,
 	.Open = &Open,
 	.GetFileSize = &GetFileSize,
@@ -89,26 +89,26 @@ private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 		{
 			const size_t pathSize = strlen(path);
 
-			ARRAY(char) directory = *ARRAYS(char_array).At(Files.AssetDirectories, i);
+			array(char) directory = *Arrays(char_array).At(Files.AssetDirectories, i);
 
-			ARRAY(char) newPath = ARRAYS(char).Create(0);
+			array(char) newPath = Arrays(char).Create(0);
 
-			ARRAYS(char).AppendArray(newPath, directory);
+			Arrays(char).AppendArray(newPath, directory);
 
 			for (size_t cIndex = 0; cIndex < pathSize; cIndex++)
 			{
 				int c = *(path + cIndex);
 
-				ARRAYS(char).Append(newPath, c);
+				Arrays(char).Append(newPath, c);
 			}
 
 			if (TryOpenInteral(newPath->Values, fileMode, out_file))
 			{
-				ARRAYS(char).Dispose(newPath);
+				Arrays(char).Dispose(newPath);
 				return true;
 			}
 
-			ARRAYS(char).Dispose(newPath);
+			Arrays(char).Dispose(newPath);
 		}
 	}
 

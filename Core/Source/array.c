@@ -40,7 +40,7 @@ private Array Create(size_t elementSize, size_t count, size_t typeId)
 {
 	REGISTER_TYPE(Array);
 
-	ARRAY(void) array = Memory.Alloc(sizeof(struct _array_void), ArrayTypeId);
+	array(void) array = Memory.Alloc(sizeof(struct _array_void), ArrayTypeId);
 
 	if (count)
 	{
@@ -67,6 +67,13 @@ private void Append(Array array, void* value)
 	}
 	else
 	{
+		// if a user allocs a array on the stack they can't modify past the given
+		// memory block without overwriting stack stuff
+		if (array->StackObject)
+		{
+			throw(StackObjectModifiedException);
+		}
+
 		AutoResize(array);
 		Append(array, value);
 	}

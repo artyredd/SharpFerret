@@ -4,7 +4,7 @@
 
 struct _osMethods {
 	// Gets the current running executable directory
-	ARRAY(char) (*ExecutableDirectory)(void);
+	array(char) (*ExecutableDirectory)(void);
 };
 
 extern const struct _osMethods OperatingSystem;

@@ -34,7 +34,7 @@ typedef FILE* File;
 
 struct _fileMethods {
 	bool UseAssetDirectories;
-	ARRAY(char_array) AssetDirectories;
+	array(array(char)) AssetDirectories;
 	/// <summary>
 	/// Attemps to open the file at the provided path with the requested file permissions
 	/// </summary>

@@ -45,11 +45,11 @@ struct organism
 	// The generation this organism was born
 	size_t Generation;
 	Species Parent;
-	ARRAY(gene) Genes;
+	array(gene) Genes;
 	// Big matrix containing all the weights
 	BigMatrix WeightMatrix;
 	// Contains the results of the organism after propogation
-	ARRAY(ai_number) Outputs;
+	array(ai_number) Outputs;
 	size_t NodeCount;
 	// The last calculated fitness
 	ai_number Fitness;
@@ -75,7 +75,7 @@ struct species
 	// The generation where the maximum fitness of this species went up
 	size_t LastGenerationWhereFitnessImproved;
 	Population Parent;
-	ARRAY(Organism) Organisms;
+	array(Organism) Organisms;
 	// This is an organism from the previous generation that is used
 	// for speciation
 	Organism ReferenceOrganism;
@@ -96,8 +96,8 @@ struct population
 	// The sum of all the average fitnesses within the population
 	// used to determine how many organisms get alloted to species
 	ai_number SummedAverageFitness;
-	ARRAY(gene) Genes;
-	ARRAY(Species) Species;
+	array(gene) Genes;
+	array(Species) Species;
 	// the chance, checked once per fitness eval, of a node mutation 
 	// range: [0f - 1f]
 	ai_number AddNodeMutationChance;
@@ -172,7 +172,7 @@ extern struct _neatMethods
 	void(*DefaultTransferFunction)(ai_number* input);
 	Population(*Create)(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount);
 	// Propogates inputdata forward through all the organisms within a population
-	void (*Propogate)(Population, ARRAY(ai_number) inputData);
+	void (*Propogate)(Population, array(ai_number) inputData);
 	void (*CalculateFitness)(Population);
 	// Drops the lowest fitness organisms within a population and then mates the top performing
 	// organisms with eachother to replace the dropped organisms

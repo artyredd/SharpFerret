@@ -4,7 +4,7 @@
 
 private BigMatrix Create(size_t rows, size_t columns);
 // Multiplies the big matrix with the given vector and appends the results to the destinationVector
-private void MultiplyVector(BigMatrix, ARRAY(float) vector, ARRAY(float) destinationVector);
+private void MultiplyVector(BigMatrix, array(float) vector, array(float) destinationVector);
 private void Dispose(BigMatrix);
 private void Resize(BigMatrix, size_t rows, size_t columns);
 private void Clear(BigMatrix);
@@ -27,7 +27,7 @@ private BigMatrix Create(size_t rows, size_t columns)
 	REGISTER_TYPE(BigMatrix);
 	BigMatrix result = Memory.Alloc(sizeof(struct _bigMatrix), BigMatrixTypeId);
 
-	result->Values = ARRAYS(float).Create(rows * columns);
+	result->Values = Arrays(float).Create(rows * columns);
 	result->Rows = rows;
 	result->Columns = columns;
 
@@ -35,7 +35,7 @@ private BigMatrix Create(size_t rows, size_t columns)
 }
 
 // Multiplies the big matrix with the given vector and appends the results to the destinationVector
-private void MultiplyVector(BigMatrix matrix, ARRAY(float) vector, ARRAY(float) destinationVector)
+private void MultiplyVector(BigMatrix matrix, array(float) vector, array(float) destinationVector)
 {
 	if (vector->Count > matrix->Columns)
 	{
@@ -51,13 +51,13 @@ private void MultiplyVector(BigMatrix matrix, ARRAY(float) vector, ARRAY(float) 
 			value += matrix->Values->Values[(row * matrix->Columns) + i] * vector->Values[i];
 		}
 
-		ARRAYS(float).Append(destinationVector, value);
+		Arrays(float).Append(destinationVector, value);
 	}
 }
 
 private void Dispose(BigMatrix matrix)
 {
-	ARRAYS(float).Dispose(matrix->Values);
+	Arrays(float).Dispose(matrix->Values);
 
 	Memory.Free(matrix, BigMatrixTypeId);
 }
@@ -66,15 +66,15 @@ private void Resize(BigMatrix matrix, size_t rows, size_t columns)
 {
 	matrix->Rows = rows;
 	matrix->Columns = columns;
-	ARRAYS(float).Resize(matrix->Values, rows * columns);
+	Arrays(float).Resize(matrix->Values, rows * columns);
 }
 
 private void Clear(BigMatrix matrix)
 {
-	ARRAYS(float).Clear(matrix->Values);
+	Arrays(float).Clear(matrix->Values);
 }
 
 private float* At(BigMatrix matrix, size_t row, size_t column)
 {
-	return ARRAYS(float).At(matrix->Values, (row * matrix->Columns) + column);
+	return Arrays(float).At(matrix->Values, (row * matrix->Columns) + column);
 }

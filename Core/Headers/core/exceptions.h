@@ -48,9 +48,11 @@ static Exception FailedToOpenFileException = 0x70000004;
 static Exception FailedToWriteToStreamException = 0x70000005;
 static Exception FailedToImportModelException = 0x70000006;
 static Exception MissingCharacterException = 0x70000007;
-static Exception FailedToSerializeException = 0x70000008; 
+static Exception FailedToSerializeException = 0x70000008;
 static Exception NoAvailableObjectInPoolException = 0x70000009;
 static Exception ItemNotFoundInCollectionException = 0x7000000A;
+// Attempted to free, modify or change a stack variable inaparopriately
+static Exception StackObjectModifiedException = 0x7000000B;
 
 // The logic path or branching that lead to this error needs to be evaluated or tested more thoroughly.
 // This error denotes and exception that may or may not be dangerous but is unexpected and clearly unintended.
