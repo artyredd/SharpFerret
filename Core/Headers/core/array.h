@@ -39,6 +39,17 @@ typedef struct _array_##type* type##_array;
 	.StackObject = true\
 }
 
+#define empty_stack_array(type,count)  &(struct _EXPAND_STRUCT_NAME(type))\
+{\
+	.Values = (type*)(type[count]){ 0 },\
+	.Size = sizeof(type) * count,\
+	.ElementSize = sizeof(type),\
+	.Capacity = count,\
+	.Count = 0,\
+	.TypeId = 0,\
+	.StackObject = true\
+}
+
 #define stack_string(string) stack_array(char, sizeof(string) - 1, string)
 
 #define _EXPAND_array(type) type##_array
@@ -79,7 +90,7 @@ struct _arrayMethods
 extern const struct _arrayMethods Arrays;
 
 // TEMPLATE FOR METHODS
-#define DEFINE_ARRAY(type) _ARRAY_DEFINE_STRUCT(type)\
+#define _EXPAND_DEFINE_ARRAY(type) _ARRAY_DEFINE_STRUCT(type)\
 DEFINE_TYPE_ID(type##_array); \
 private array(type) _array_##type##_Create(size_t count)\
 {\
@@ -166,6 +177,8 @@ void (*Dispose)(array(type)); \
 .Dispose = _array_##type##_Dispose\
 };
 
+#define DEFINE_ARRAY(type) _EXPAND_DEFINE_ARRAY(type)
+
 // define common types
 DEFINE_ARRAY(bool);
 DEFINE_ARRAY(char);
@@ -176,9 +189,11 @@ DEFINE_ARRAY(size_t);
 
 DEFINE_ARRAY(char_array);
 
-#define DEFINE_TUPLE_FULL(left,leftname,right,rightname) struct tuple_##left##_##right{ left leftname;right rightname;}
-#define DEFINE_TUPLE(left,right) DEFINE_TUPLE_FULL(left,First,right,Second)
-#define tuple(left,right) struct tuple_##left##_##right
+#define _EXPAND_tuple(left,right) tuple_##left##_##right
+#define tuple(left,right) _EXPAND_tuple(left,right)
+
+#define DEFINE_TUPLE_FULL(left,leftname,right,rightname) struct _tuple_##left##_##right{ left leftname;right rightname;}; typedef struct _tuple_##left##_##right tuple_##left##_##right; 
+#define DEFINE_TUPLE(left,right) DEFINE_TUPLE_FULL(left,First,right,Second)  DEFINE_ARRAY(tuple(left,right));
 
 #define DEFINE_TUPLE_BOTH_WAYS(T1,T2) DEFINE_TUPLE(T1,T2); DEFINE_TUPLE(T2,T1);
 #define DEFINE_TUPLE_ALL(major,T1,T2,T3,T4,T5,T6) DEFINE_TUPLE(major,major);DEFINE_TUPLE(major, T1);DEFINE_TUPLE(major, T2);DEFINE_TUPLE(major, T3);DEFINE_TUPLE(major, T4);DEFINE_TUPLE(major, T5);DEFINE_TUPLE(major, T6);

@@ -67,13 +67,6 @@ private void Append(Array array, void* value)
 	}
 	else
 	{
-		// if a user allocs a array on the stack they can't modify past the given
-		// memory block without overwriting stack stuff
-		if (array->StackObject)
-		{
-			throw(StackObjectModifiedException);
-		}
-
 		AutoResize(array);
 		Append(array, value);
 	}
@@ -81,6 +74,13 @@ private void Append(Array array, void* value)
 
 private void AutoResize(Array array)
 {
+	// if a user allocs a array on the stack they can't modify past the given
+		// memory block without overwriting stack stuff
+	if (array->StackObject)
+	{
+		throw(StackObjectModifiedException);
+	}
+
 	size_t newSize = max(array->Size << 1, 1);
 
 	if ((newSize % array->ElementSize) isnt 0)
@@ -103,6 +103,13 @@ private void AutoResize(Array array)
 
 private void Resize(Array array, size_t newCount)
 {
+	// if a user allocs a array on the stack they can't modify past the given
+		// memory block without overwriting stack stuff
+	if (array->StackObject)
+	{
+		throw(StackObjectModifiedException);
+	}
+
 	if (newCount is 0)
 	{
 		Memory.Free(array->Values, array->TypeId);
@@ -187,11 +194,11 @@ private void* At(Array array, size_t index)
 	return (char*)array->Values + (index * array->ElementSize);
 }
 
-private void AppendArray(Array array, Array appension)
+private void AppendArray(Array destinationArray, Array values)
 {
-	for (size_t i = 0; i < appension->Count; i++)
+	for (size_t i = 0; i < values->Count; i++)
 	{
-		Arrays.Append(array, At(appension, i));
+		Arrays.Append(destinationArray, At(values, i));
 	}
 }
 
@@ -219,6 +226,12 @@ private void ForeachWithContext(Array array, void* context, void(*method)(void* 
 
 private void Dispose(Array array)
 {
+	// avoid crazyness
+	if (array->StackObject)
+	{
+		throw(StackObjectModifiedException);
+	}
+
 	Memory.Free(array->Values, array->TypeId);
 	Memory.Free(array, ArrayTypeId);
 }
