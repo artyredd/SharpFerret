@@ -82,6 +82,8 @@ private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 		return true;
 	}
 
+	fprintf_s(stdout, "%s", OperatingSystem.ExecutableDirectory()->Values, OperatingSystem.ExecutableDirectory()->Count);
+
 	// check alternate paths
 	if (Files.UseAssetDirectories)
 	{

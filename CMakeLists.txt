@@ -25,7 +25,7 @@ include(FetchContent)
 FetchContent_Populate(
     cglm                             # Recommendation: Stick close to the original name.
     GIT_REPOSITORY https://github.com/recp/cglm.git
-    SOURCE_DIR     external/cglm              # (Relative) path within in the build directory.
+    SOURCE_DIR     ../external/cglm              # (Relative) path within in the build directory.
 )
 
 add_subdirectory(${cglm_SOURCE_DIR} cglm/build)
@@ -39,9 +39,12 @@ target_include_directories(Core PUBLIC
     "Core"
 ) 
 
+# copy glew to build dir so we can debug code from there
+file(COPY "external/glew/bin/Release/x64/glew32.dll" DESTINATION .)
+
 target_link_libraries(Core PRIVATE
-    external/glew/lib/Release/x64/glew32
-    external/glfw/lib-vc2022/glfw3
+    ../external/glew/lib/Release/x64/glew32
+    ../external/glfw/lib-vc2022/glfw3
     opengl32.lib
 )
 
