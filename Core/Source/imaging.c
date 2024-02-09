@@ -2,6 +2,7 @@
 #include "core/csharp.h"
 #include "core/memory.h"
 #include "core/strings.h"
+#include "core/file.h"
 
 #ifndef STBI_INCLUDE_STB_IMAGE_H
 #include "stb_image.h"
@@ -37,11 +38,17 @@ static bool TryLoadImage(const char* path, Image* out_image)
 
 static Image LoadImage(const char* path)
 {
+	File file;
+	if (Files.TryOpen(path, FileModes.ReadBinary, &file) is false)
+	{
+		return null;
+	}
+
 	Image image = CreateImage();
 
 	image->Path = Strings.DuplicateTerminated(path);
 
-	image->Pixels = stbi_load(path, &image->Width, &image->Height, &image->Channels, 0);
+	image->Pixels = stbi_load_from_file(file, &image->Width, &image->Height, &image->Channels, 0);
 
 	if (image->Pixels is null)
 	{

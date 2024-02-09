@@ -82,7 +82,6 @@ private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 		return true;
 	}
 
-	fprintf_s(stdout, "%s", OperatingSystem.ExecutableDirectory()->Values, OperatingSystem.ExecutableDirectory()->Count);
 
 	// check alternate paths
 	if (Files.UseAssetDirectories)
@@ -91,9 +90,9 @@ private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 		{
 			const size_t pathSize = strlen(path);
 
-			array(char) directory = *Arrays(char_array).At(Files.AssetDirectories, i);
+			array(char) directory = Arrays(array(char)).ValueAt(Files.AssetDirectories, i);
 
-			array(char) newPath = Arrays(char).Create(0);
+			array(char) newPath = empty_stack_array(char, _MAX_PATH);
 
 			Arrays(char).AppendArray(newPath, directory);
 
@@ -106,13 +105,12 @@ private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 
 			if (TryOpenInteral(newPath->Values, fileMode, out_file))
 			{
-				Arrays(char).Dispose(newPath);
 				return true;
 			}
-
-			Arrays(char).Dispose(newPath);
 		}
 	}
+
+	fprintf(stdout, "%s", OperatingSystem.ExecutableDirectory()->Values);
 
 	return false;
 }
@@ -125,15 +123,7 @@ private File Open(const char* path, FileMode fileMode)
 
 	File file;
 
-	errno_t error = fopen_s(&file, path, fileMode);
-
-	if (file is null)
-	{
-		fprintf(stderr, "Failed to open the file %s ErrorCode: %i"NEWLINE, path, error);
-		throw(FileNotFoundException);
-	}
-
-	++(FILES_OPENED);
+	TryOpen(path, fileMode, &file);
 
 	return file;
 }

@@ -5,6 +5,15 @@
 #include "pointer.h"
 
 // TEMPLATE
+
+#define _EXPAND_array(type) type##_array
+#define _EXPAND_Arrays(type) type##_array##Arrays
+
+// Creates an array of the given type, remember to define the type if this fails to compile
+#define array(type) _EXPAND_array(type)
+// Convenience methods that can be used with an array(type)
+#define Arrays(type) _EXPAND_Arrays(type)
+
 #define _EXPAND_STRUCT_NAME(type) _array_##type
 
 #define _ARRAY_DEFINE_STRUCT(type) struct _EXPAND_STRUCT_NAME(type)\
@@ -28,9 +37,9 @@
 }; \
 typedef struct _array_##type* type##_array;
 
-#define stack_array(type,count, ...) &(struct _EXPAND_STRUCT_NAME(type))\
+#define stack_array(type,count, ...) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
-	.Values = (type*) __VA_ARGS__,\
+	.Values = (type*)(type[count]){ __VA_ARGS__ },\
 	.Size = sizeof(type) * count,\
 	.ElementSize = sizeof(type),\
 	.Capacity = count,\
@@ -39,7 +48,7 @@ typedef struct _array_##type* type##_array;
 	.StackObject = true\
 }
 
-#define empty_stack_array(type,count)  &(struct _EXPAND_STRUCT_NAME(type))\
+#define empty_stack_array(type,count)  (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
 	.Values = (type*)(type[count]){ 0 },\
 	.Size = sizeof(type) * count,\
@@ -51,14 +60,6 @@ typedef struct _array_##type* type##_array;
 }
 
 #define stack_string(string) stack_array(char, sizeof(string) - 1, string)
-
-#define _EXPAND_array(type) type##_array
-#define _EXPAND_Arrays(type) type##_array##Arrays
-
-// Creates an array of the given type, remember to define the type if this fails to compile
-#define array(type) _EXPAND_array(type)
-// Convenience methods that can be used with an array(type)
-#define Arrays(type) _EXPAND_Arrays(type)
 
 _ARRAY_DEFINE_STRUCT(void);
 typedef array(void) Array;
@@ -90,58 +91,66 @@ struct _arrayMethods
 extern const struct _arrayMethods Arrays;
 
 // TEMPLATE FOR METHODS
+#define _EXPAND_METHOD_NAME(type, method) _array_##type##_##method
 #define _EXPAND_DEFINE_ARRAY(type) _ARRAY_DEFINE_STRUCT(type)\
 DEFINE_TYPE_ID(type##_array); \
-private array(type) _array_##type##_Create(size_t count)\
+private array(type) _EXPAND_METHOD_NAME(type,Create)(size_t count)\
 {\
 REGISTER_TYPE(type##_array); \
 return (array(type))Arrays.Create(sizeof(type), count, type##_arrayTypeId); \
 }\
-private void _array_##type##_AutoResize(array(type) array)\
+private void _EXPAND_METHOD_NAME(type,AutoResize)(array(type) array)\
 {\
 Arrays.AutoResize((Array)array); \
 }\
-private void _array_##type##_Resize(array(type) array, size_t newCount)\
+private void _EXPAND_METHOD_NAME(type,Resize)(array(type) array, size_t newCount)\
 {\
 Arrays.Resize((Array)array, newCount); \
 }\
-private void _array_##type##_Append(array(type)array, type value)\
+private void _EXPAND_METHOD_NAME(type,Append)(array(type)array, type value)\
 {\
 Arrays.Append((Array)array, &value); \
 }\
-private void _array_##type##_RemoveIndex(array(type) array, size_t index)\
+private void _EXPAND_METHOD_NAME(type,RemoveIndex)(array(type) array, size_t index)\
 {\
 Arrays.RemoveIndex((Array)array, index); \
 }\
-private void _array_##type##_Swap(array(type) array, size_t firstIndex, size_t secondIndex)\
+private void _EXPAND_METHOD_NAME(type,Swap)(array(type) array, size_t firstIndex, size_t secondIndex)\
 {\
 Arrays.Swap((Array)array, firstIndex, secondIndex); \
 }\
-private void _array_##type##_InsertionSort(array(type) array, bool(comparator)(type* leftMemoryBlock, type* rightMemoryBlock))\
+private void _EXPAND_METHOD_NAME(type,InsertionSort)(array(type) array, bool(comparator)(type* leftMemoryBlock, type* rightMemoryBlock))\
 {\
 Arrays.InsertionSort((Array)array, comparator); \
 }\
-private type* _array_##type##_At(array(type) array, size_t index)\
+private type* _EXPAND_METHOD_NAME(type,At)(array(type) array, size_t index)\
 {\
 return (type*)Arrays.At((Array)array, index); \
 }\
-private void _array_##type##_AppendArray(array(type) array, array(type) appendedValue)\
+private type _EXPAND_METHOD_NAME(type,ValueAt)(array(type) array, size_t index)\
+{\
+	if(index >= array->Count){\
+		throw(IndexOutOfRangeException);\
+	}\
+	return array->Values[index]; \
+}\
+private void _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, array(type) appendedValue)\
 {\
 Arrays.AppendArray((Array)array, (Array)appendedValue); \
 }\
-private void _array_##type##_Clear(array(type)array)\
+private void _EXPAND_METHOD_NAME(type, Clear)(array(type)array)\
 {\
 Arrays.Clear((Array)array); \
 }\
-private void _array_##type##_Foreach(array(type)array, void(*method)(type*))\
+private void _EXPAND_METHOD_NAME(type, Foreach)(array(type)array, void(*method)(type*))\
 {\
 Arrays.Foreach((Array)array, method); \
 }\
-private void _array_##type##_ForeachWithContext(array(type)array, void* context, void(*method)(void* context, type* item))\
+private void _EXPAND_METHOD_NAME(type, ForeachWithContext)(array(type)array, void* context, void(*method)(void* context, type* item))\
 {\
-Arrays.ForeachWithContext((Array)array, context, method);\
+Arrays.ForeachWithContext((Array)array, context, method); \
 }\
-private void _array_##type##_Dispose(array(type)array)\
+private void _EXPAND_METHOD_NAME(type, Dispose)(array(type)array)\
 {\
 Arrays.Dispose((Array)array); \
 }\
@@ -155,26 +164,28 @@ void (*RemoveIndex)(array(type), size_t index); \
 void (*Swap)(array(type), size_t firstIndex, size_t secondIndex); \
 void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
 type* (*At)(array(type), size_t index); \
+type(*ValueAt)(array(type), size_t index); \
 void (*AppendArray)(array(type), array(type) appendedValue); \
-void (*Clear)(array(type));\
-void (*Foreach)(array(type), void(*method)(type*));\
-void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*));\
+void (*Clear)(array(type)); \
+void (*Foreach)(array(type), void(*method)(type*)); \
+void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
 void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\
-.Create = _array_##type##_Create, \
-.AutoResize = _array_##type##_AutoResize, \
-.Resize = _array_##type##_Resize, \
-.Append = _array_##type##_Append, \
-.RemoveIndex = _array_##type##_RemoveIndex, \
-.Swap = _array_##type##_Swap, \
-.InsertionSort = _array_##type##_InsertionSort, \
-.At = _array_##type##_At, \
-.AppendArray = _array_##type##_AppendArray, \
-.Clear = _array_##type##_Clear,\
-.Foreach = _array_##type##_Foreach,\
-.ForeachWithContext = _array_##type##_ForeachWithContext,\
-.Dispose = _array_##type##_Dispose\
+.Create = _EXPAND_METHOD_NAME(type, Create), \
+.AutoResize = _EXPAND_METHOD_NAME(type, AutoResize), \
+.Resize = _EXPAND_METHOD_NAME(type, Resize), \
+.Append = _EXPAND_METHOD_NAME(type, Append), \
+.RemoveIndex = _EXPAND_METHOD_NAME(type, RemoveIndex), \
+.Swap = _EXPAND_METHOD_NAME(type, Swap), \
+.InsertionSort = _EXPAND_METHOD_NAME(type, InsertionSort), \
+.At = _EXPAND_METHOD_NAME(type, At), \
+.ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
+.AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
+.Clear = _EXPAND_METHOD_NAME(type, Clear), \
+.Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
+.ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
+.Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
 
 #define DEFINE_ARRAY(type) _EXPAND_DEFINE_ARRAY(type)
