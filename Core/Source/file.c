@@ -90,18 +90,13 @@ private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 		{
 			const size_t pathSize = strlen(path);
 
-			array(char) directory = Arrays(array(char)).ValueAt(Files.AssetDirectories, i);
+			const array(char) directory = Arrays(array(char)).ValueAt(Files.AssetDirectories, i);
 
 			array(char) newPath = empty_stack_array(char, _MAX_PATH);
 
 			Arrays(char).AppendArray(newPath, directory);
 
-			for (size_t cIndex = 0; cIndex < pathSize; cIndex++)
-			{
-				int c = *(path + cIndex);
-
-				Arrays(char).Append(newPath, c);
-			}
+			Arrays(char).AppendCArray(newPath, path, pathSize);
 
 			if (TryOpenInteral(newPath->Values, fileMode, out_file))
 			{
@@ -110,7 +105,8 @@ private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 		}
 	}
 
-	fprintf(stdout, "%s", OperatingSystem.ExecutableDirectory()->Values);
+	fprintf(stdout, "Is the asset in the right directory? Current working directory: %s",
+		OperatingSystem.ExecutableDirectory()->Values);
 
 	return false;
 }

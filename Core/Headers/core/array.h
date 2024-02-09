@@ -138,6 +138,15 @@ private void _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, array(typ
 {\
 Arrays.AppendArray((Array)array, (Array)appendedValue); \
 }\
+private void _EXPAND_METHOD_NAME(type,AppendCArray)(array(type) array, const type* carray, const size_t arraySize)\
+{\
+for (size_t cIndex = 0; cIndex < arraySize; ++cIndex)\
+{\
+	type value = carray[cIndex];\
+\
+_EXPAND_METHOD_NAME(type, Append)(array, value);\
+}\
+}\
 private void _EXPAND_METHOD_NAME(type, Clear)(array(type)array)\
 {\
 Arrays.Clear((Array)array); \
@@ -164,8 +173,9 @@ void (*RemoveIndex)(array(type), size_t index); \
 void (*Swap)(array(type), size_t firstIndex, size_t secondIndex); \
 void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
 type* (*At)(array(type), size_t index); \
-type(*ValueAt)(array(type), size_t index); \
-void (*AppendArray)(array(type), array(type) appendedValue); \
+type (*ValueAt)(array(type), size_t index); \
+void (*AppendArray)(array(type), const array(type) appendedValue); \
+void (*AppendCArray)(array(type), const type* carray, const size_t count);\
 void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
@@ -182,6 +192,7 @@ void (*Dispose)(array(type)); \
 .At = _EXPAND_METHOD_NAME(type, At), \
 .ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
 .AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
+.AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray),\
 .Clear = _EXPAND_METHOD_NAME(type, Clear), \
 .Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
 .ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
