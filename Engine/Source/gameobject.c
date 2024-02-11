@@ -27,8 +27,8 @@ static GameObject CreateWithMaterial(Material);
 static GameObject CreateEmpty(size_t size);
 static void Clear(GameObject);
 static void Resize(GameObject, size_t count);
-static GameObject Load(const char* path);
-static bool Save(GameObject, const char* path);
+static GameObject Load(const string path);
+static bool Save(GameObject, const string path);
 static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera);
 
 
@@ -264,7 +264,7 @@ static Material GetDefaultMaterial(void)
 {
 	if (DefaultMaterial is null)
 	{
-		fprintf(stderr, "Warning: Default material was retrieved, but no default material has been set with GameObjects.SetDefaultMaterial()");
+		fprintf(stderr, "Warning: Default material was retrieved, but no default material has been set with GameObjects.SetDefaultMaterial()"NEWLINE);
 	}
 
 	return Materials.Instance(DefaultMaterial);
@@ -417,7 +417,7 @@ TOKEN_SAVE(material, GameObject)
 {
 	if (state->Material)
 	{
-		fprintf(stream, "%s", state->Material->Name);
+		fprintf(stream, "%s", state->Material->Name->Values);
 	}
 }
 
@@ -434,7 +434,7 @@ struct _configDefinition GameObjectConfigDefinition = {
 	.AbortToken = ABORT_TOKEN(transform)
 };
 
-static GameObject Load(const char* path)
+static GameObject Load(const string path)
 {
 	GameObject gameObject = null;
 
@@ -448,7 +448,7 @@ static GameObject Load(const char* path)
 	File stream;
 	if (Files.TryOpen(path, FileModes.ReadBinary, &stream) is false)
 	{
-		fprintf(stderr, "Failed to load gameobject from file: %s", path);
+		fprintf(stderr, "Failed to load gameobject from file: %s"NEWLINE, path->Values);
 		return null;
 	}
 
@@ -459,9 +459,13 @@ static GameObject Load(const char* path)
 
 		if (state.ModelPath isnt null)
 		{
+			size_t modelPathLength = strlen(state.ModelPath ? state.ModelPath : "");
+			string modelPath = empty_stack_array(char, _MAX_PATH);
+			strings.AppendCArray(modelPath, state.ModelPath, modelPathLength);
+
 			// load the model first so we can determine how many render meshes we will need
 			Model model;
-			if (Importers.TryImport(state.ModelPath, FileFormats.Obj, &model) is false)
+			if (Importers.TryImport(modelPath, FileFormats.Obj, &model) is false)
 			{
 				fprintf(stderr, "Failed to import the model at path: %s"NEWLINE, state.ModelPath);
 				throw(FailedToImportModelException);
@@ -482,7 +486,10 @@ static GameObject Load(const char* path)
 		}
 
 		// load the material
-		Material material = Materials.Load(state.MaterialPath);
+		size_t materialPathLength = strlen(state.MaterialPath ? state.MaterialPath : "");
+		string materialPath = empty_stack_array(char, _MAX_PATH);
+		strings.AppendCArray(materialPath, state.MaterialPath, materialPathLength);
+		Material material = Materials.Load(materialPath);
 
 		// if no material was listed use the default one
 		if (material is null)
@@ -538,7 +545,7 @@ static GameObject Load(const char* path)
 	return gameObject;
 }
 
-static void SaveStream(File stream, GameObject gameobject, const char* path)
+static void SaveStream(File stream, GameObject gameobject, const string path)
 {
 	ignore_unused(path);
 
@@ -547,7 +554,7 @@ static void SaveStream(File stream, GameObject gameobject, const char* path)
 	Transforms.Save(gameobject->Transform, stream);
 }
 
-static bool Save(GameObject gameobject, const char* path)
+static bool Save(GameObject gameobject, const string path)
 {
 	// manually open the file and use the stream overload since we have to serialize the transform mid-stream
 	File stream;

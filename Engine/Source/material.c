@@ -24,9 +24,9 @@ static void SetMainTexture(Material, RawTexture);
 static void SetShader(Material, const Shader, size_t index);
 static void SetColor(Material, const color);
 static void SetColors(Material, const float r, const float g, const float b, const float a);
-static Material Load(const char* path);
-static bool Save(const Material material, const char* path);
-static void SetName(Material, const char* name);
+static Material Load(const string path);
+static bool Save(const Material material, const string path);
+static void SetName(Material, const string name);
 static void SetSpecularTexture(Material material, RawTexture texture);
 static void SetAreaTexture(Material, const RawTexture);
 static void SetReflectionTexture(Material, const RawTexture);
@@ -195,7 +195,7 @@ static Material InstanceMaterial(Material material)
 
 	if (material->Name isnt null)
 	{
-		newMaterial->Name = Strings.DuplicateTerminated(material->Name);
+		newMaterial->Name = strings.Clone(material->Name);
 	}
 
 	material->Color = newMaterial->Color;
@@ -503,15 +503,15 @@ static void SetColors(Material material, const float r, const float g, const flo
 	material->Color = (color){ r, g, b, a };
 }
 
-static void SetName(Material material, const char* name)
+static void SetName(Material material, const string name)
 {
 	GuardNotNull(material);
 	if (material->Name isnt null)
 	{
-		Memory.Free(material->Name, Memory.String);
+		strings.Dispose(material->Name);
 	}
 
-	material->Name = Strings.DuplicateTerminated(name);
+	material->Name = strings.Clone(name);
 }
 
 #define ExportTokenFormat "%s: %s\n"
@@ -697,7 +697,7 @@ TOKENS(11) {
 
 CONFIG(Material);
 
-static Material Load(const char* path)
+static Material Load(const string path)
 {
 	// create an empty material
 	Material material = null;
@@ -773,7 +773,10 @@ static Material Load(const char* path)
 				// this is a valid path array for example ",,,,,,,,,,,,,,,,,,,"
 				if (shaderPathLength isnt 0)
 				{
-					Shader shader = ShaderCompilers.Load(shaderPath);
+					string shaderPathAsString = empty_stack_array(char, _MAX_PATH);
+					strings.AppendCArray(shaderPathAsString, shaderPath, shaderPathLength);
+
+					Shader shader = ShaderCompilers.Load(shaderPathAsString);
 
 					material->Shaders[currentIndex++] = shader;
 				}
@@ -782,7 +785,9 @@ static Material Load(const char* path)
 			// load any textures that were included in the material
 			if (state.MainTexturePath isnt null)
 			{
-				RawTexture texture = RawTextures.Load(state.MainTexturePath);
+				string mainTexturePath = empty_stack_array(char, _MAX_PATH);
+				strings.AppendCArray(mainTexturePath, state.MainTexturePath, Strings.Length(state.MainTexturePath));
+				RawTexture texture = RawTextures.Load(mainTexturePath);
 
 				if (texture is null)
 				{
@@ -796,7 +801,10 @@ static Material Load(const char* path)
 
 			if (state.SpecularTexturePath isnt null)
 			{
-				RawTexture texture = RawTextures.Load(state.SpecularTexturePath);
+				string specularTexturePath = empty_stack_array(char, _MAX_PATH);
+				strings.AppendCArray(specularTexturePath, state.SpecularTexturePath, Strings.Length(state.SpecularTexturePath));
+
+				RawTexture texture = RawTextures.Load(specularTexturePath);
 
 				if (texture is null)
 				{
@@ -810,7 +818,9 @@ static Material Load(const char* path)
 
 			if (state.ReflectionTexturePath isnt null)
 			{
-				RawTexture texture = RawTextures.Load(state.ReflectionTexturePath);
+				string reflectionTexturePath = empty_stack_array(char, _MAX_PATH);
+				strings.AppendCArray(reflectionTexturePath, state.ReflectionTexturePath, Strings.Length(state.ReflectionTexturePath));
+				RawTexture texture = RawTextures.Load(reflectionTexturePath);
 
 				if (texture is null)
 				{
@@ -826,7 +836,7 @@ static Material Load(const char* path)
 
 	if (material isnt null)
 	{
-		material->Name = Strings.DuplicateTerminated(path);
+		material->Name = strings.Clone(path);
 	}
 
 	Memory.Free(state.MainTexturePath, Memory.String);
@@ -845,7 +855,7 @@ static Material Load(const char* path)
 	return material;
 }
 
-static bool Save(const Material material, const char* path)
+static bool Save(const Material material, const string path)
 {
 	GuardNotNull(material);
 	GuardNotNull(path);

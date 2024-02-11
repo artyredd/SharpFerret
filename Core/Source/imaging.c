@@ -38,8 +38,12 @@ static bool TryLoadImage(const char* path, Image* out_image)
 
 static Image LoadImage(const char* path)
 {
+	string newPath = empty_stack_array(char, _MAX_PATH);
+
+	strings.AppendCArray(newPath, path, strlen(path));
+
 	File file;
-	if (Files.TryOpen(path, FileModes.ReadBinary, &file) is false)
+	if (Files.TryOpen(newPath, FileModes.ReadBinary, &file) is false)
 	{
 		return null;
 	}

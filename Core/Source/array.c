@@ -34,8 +34,6 @@ const struct _arrayMethods Arrays = {
 	.ForeachWithContext = ForeachWithContext
 };
 
-DEFINE_TYPE_ID(Array);
-
 private Array Create(size_t elementSize, size_t count, size_t typeId)
 {
 	REGISTER_TYPE(Array);
@@ -44,13 +42,16 @@ private Array Create(size_t elementSize, size_t count, size_t typeId)
 
 	if (count)
 	{
-		array->Values = Memory.Alloc(elementSize * count, typeId);
+		// since alloc gets a zeroed block of memory and 0 is '\0'
+		// alloc one more byte of space to ensure all of our arrays are
+		// always terminated, regardless if their strings or not
+		array->Values = Memory.Alloc((elementSize * count) + 1, typeId);
 	}
 
-	array->Count = count;
+	array->Count = 0;
 	array->ElementSize = elementSize;
 	array->TypeId = typeId;
-	array->Size = elementSize * count;
+	array->Size = (elementSize * count) + 1;
 	array->Capacity = count;
 
 	return array;
@@ -90,15 +91,17 @@ private void AutoResize(Array array)
 
 	if (array->Size is 0)
 	{
-		array->Values = Memory.Alloc(newSize, array->TypeId);
+		// alloc one more byte so its terminated
+		array->Values = Memory.Alloc(newSize + 1, array->TypeId);
 	}
 	else
 	{
-		Memory.ReallocOrCopy(&array->Values, array->Size, newSize, array->TypeId);
+		// alloc one more byte so its terminated
+		Memory.ReallocOrCopy(&array->Values, array->Size, newSize + 1, array->TypeId);
 	}
 
-	array->Capacity = array->Size / array->ElementSize;
-	array->Size = newSize;
+	array->Capacity = newSize / array->ElementSize;
+	array->Size = newSize + 1;
 }
 
 private void Resize(Array array, size_t newCount)
@@ -121,15 +124,15 @@ private void Resize(Array array, size_t newCount)
 
 	size_t newSize = array->ElementSize * newCount;
 
-	Memory.ReallocOrCopy(&array->Values, array->Size, newSize, array->TypeId);
+	Memory.ReallocOrCopy(&array->Values, array->Size, newSize + 1, array->TypeId);
 
-	array->Size = newSize;
+	array->Size = newSize + 1;
 	array->Count = newCount;
 }
 
 private void RemoveIndex(Array array, size_t index)
 {
-	if (index >= array->Capacity)
+	if (index >= array->Count)
 	{
 		throw(IndexOutOfRangeException);
 	}

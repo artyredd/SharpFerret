@@ -4,6 +4,7 @@
 #include "engine/graphics/camera.h"
 #include "engine/graphics/material.h"
 #include "engine/graphics/scene.h"
+#include "core/array.h"
 
 #define MAX_GAMEOBJECT_NAME_LENGTH 512 // in ANSI characters(bytes)
 
@@ -67,8 +68,8 @@ struct _gameObjectMethods {
 	void(*SetMaterial)(GameObject, Material);
 	void (*DestroyMany)(GameObject* array, size_t count);
 	void (*Destroy)(GameObject);
-	GameObject(*Load)(const char* path);
-	bool (*Save)(GameObject, const char* path);
+	GameObject(*Load)(const string path);
+	bool (*Save)(GameObject, const string path);
 	void (*GenerateShadowMaps)(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera);
 };
 

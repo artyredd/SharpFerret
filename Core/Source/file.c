@@ -6,22 +6,22 @@
 #include <stdlib.h>
 #include "core/os.h"
 
-private bool TryOpen(const char* path, FileMode fileMode, File* out_file);
-private File Open(const char* path, FileMode fileMode);
+private bool TryOpen(const string, FileMode fileMode, File* out_file);
+private File Open(const string path, FileMode fileMode);
 private size_t GetFileSize(const File file);
-private char* ReadFile(const File file);
-private bool TryReadFile(const File file, char** out_data);
-private char* ReadAll(const char* path);
-private bool TryReadAll(const char* path, char** out_data);
-private bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength);
-private bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count);
+private array(char) ReadFile(const File file);
+private bool TryReadFile(const File file, string* out_data);
+private array(char) ReadAll(const string path);
+private bool TryReadAll(const string path, string* out_data);
+private bool TryReadLine(File file, string buffer, size_t offset, size_t* out_lineLength);
+private bool TryGetSequenceCount(File file, const string targetSequence, const string abortSequence, size_t* out_count);
 private bool TryClose(File file);
 private void Close(File file);
 private bool TryVerifyCleanup(void);
 
 const struct _fileMethods Files = {
 	.UseAssetDirectories = true,
-	.AssetDirectories = stack_array(array(char), 1, stack_string("..\\..\\Singine\\")),
+	.AssetDirectories = stack_array(string,stack_string("..\\..\\Singine\\")),
 	.TryOpen = &TryOpen,
 	.Open = &Open,
 	.GetFileSize = &GetFileSize,
@@ -37,16 +37,16 @@ const struct _fileMethods Files = {
 };
 
 // the number of file handles opened using this file
-size_t FILES_OPENED;
+size_t Global_Files_Opened;
 // the number of file handles closed using this file
-size_t FILES_CLOSED;
+size_t Global_Files_Closed;
 
-private bool TryOpenInteral(const char* path, FileMode fileMode, File* out_file)
+private bool TryOpenInteral(const string path, FileMode fileMode, File* out_file)
 {
 	// make sure to set the out value always to it's default value first
 	*out_file = null;
 
-	if (path is null || fileMode is null)
+	if (path is null || fileMode is null || strings.Empty(path))
 	{
 		return false;
 	}
@@ -54,7 +54,7 @@ private bool TryOpenInteral(const char* path, FileMode fileMode, File* out_file)
 	File file;
 
 #pragma warning(disable: 4189)
-	errno_t error = fopen_s(&file, path, fileMode);
+	errno_t error = fopen_s(&file, path->Values, fileMode);
 #pragma warning(default: 4189)
 	if (file is null)
 	{
@@ -62,20 +62,20 @@ private bool TryOpenInteral(const char* path, FileMode fileMode, File* out_file)
 
 		strerror_s(buffer, 1024, error);
 
-		fprintf(stderr, "Error opening file %s: %s"NEWLINE, path, buffer);
+		fprintf(stderr, "Error opening file %s: %s"NEWLINE, path->Values, buffer);
 
 		return false;
 	}
 
 	*out_file = file;
 
-	++(FILES_OPENED);
+	++(Global_Files_Opened);
 
 	return true;
 }
 
 
-private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
+private bool TryOpen(const string path, FileMode fileMode, File* out_file)
 {
 	if (TryOpenInteral(path, fileMode, out_file))
 	{
@@ -88,33 +88,31 @@ private bool TryOpen(const char* path, FileMode fileMode, File* out_file)
 	{
 		for (int i = 0; i < Files.AssetDirectories->Count; i++)
 		{
-			const size_t pathSize = strlen(path);
+			const string directory = Arrays(string).ValueAt(Files.AssetDirectories, i);
 
-			const array(char) directory = Arrays(array(char)).ValueAt(Files.AssetDirectories, i);
+			string newPath = empty_stack_array(char, _MAX_PATH);
 
-			array(char) newPath = empty_stack_array(char, _MAX_PATH);
+			strings.AppendArray(newPath, directory);
 
-			Arrays(char).AppendArray(newPath, directory);
+			strings.AppendArray(newPath, path);
 
-			Arrays(char).AppendCArray(newPath, path, pathSize);
-
-			if (TryOpenInteral(newPath->Values, fileMode, out_file))
+			if (TryOpenInteral(newPath, fileMode, out_file))
 			{
 				return true;
 			}
 		}
 	}
 
-	fprintf(stdout, "Is the asset in the right directory? Current working directory: %s",
+	fprintf(stdout, "Is the asset in the right directory? Current working directory: %s"NEWLINE,
 		OperatingSystem.ExecutableDirectory()->Values);
 
 	return false;
 }
 
 
-private File Open(const char* path, FileMode fileMode)
+private File Open(const string path, FileMode fileMode)
 {
-	GuardNotNull(path);
+	Guard(strings.Empty(path));
 	GuardNotNull(fileMode);
 
 	File file;
@@ -154,13 +152,13 @@ private size_t GetFileSize(const File file)
 	return count;
 }
 
-private char* ReadFile(const File file)
+private string ReadFile(const File file)
 {
 	size_t length = GetFileSize(file);
 
-	char* result = Memory.Alloc(length + 1, Memory.String);
+	string result = strings.Create(length + 1);
 
-	result[length] = '\0'; // add line terminator
+	result->Values[length] = '\0'; // add line terminator
 
 	rewind(file);
 
@@ -178,30 +176,30 @@ private char* ReadFile(const File file)
 			// only attempt rewinding once
 			if (error != 0)
 			{
-				Memory.Free(result, Memory.String);
+				strings.Dispose(result);
 				fprintf(stderr, "An error occurred while reading the file at ptr: %llix, Error Code %i", (size_t)file, ferror(file));
 				throw(FailedToReadFileException);
 			}
 
-			result[i] = '\0';
+			result->Values[i] = '\0';
 			break;
 		}
 
-		result[i] = (char)c;
+		result->Values[i] = (char)c;
 	}
 
 	return result;
 }
 
-private bool TryReadFile(const File file, char** out_data)
+private bool TryReadFile(const File file, string* out_data)
 {
 	*out_data = null;
 
-	size_t length = GetFileSize(file);
+	const size_t length = GetFileSize(file);
 
-	char* result = Memory.Alloc(length + 1, Memory.String);
+	string result = strings.Create(length + 1);
 
-	result[length] = '\0'; // add line terminator
+	result->Values[length] = '\0'; // add line terminator
 
 	rewind(file);
 
@@ -219,15 +217,15 @@ private bool TryReadFile(const File file, char** out_data)
 			// only attempt rewinding once
 			if (error != 0)
 			{
-				Memory.Free(result, Memory.String);
+				strings.Dispose(result);
 				return false;
 			}
 
-			result[i] = '\0';
+			result->Values[i] = '\0';
 			break;
 		}
 
-		result[i] = (char)c;
+		result->Values[i] = (char)c;
 	}
 
 	*out_data = result;
@@ -235,42 +233,42 @@ private bool TryReadFile(const File file, char** out_data)
 	return true;
 }
 
-private char* ReadAll(const char* path)
+private string ReadAll(const string path)
 {
 	File file;
 	if (TryOpen(path, FileModes.Read, &file))
 	{
-		char* data = ReadFile(file);
+		string data = ReadFile(file);
 
-		if (data is null)
+		if (strings.Empty(data))
 		{
-			fprintf(stderr, "Failed to read file %s"NEWLINE, path);
+			fprintf(stderr, "Failed to read file %s"NEWLINE, path->Values);
 			throw(FailedToReadFileException);
 		}
 
 		if (TryClose(file) is false)
 		{
-			fprintf(stderr, "Failed to close the file %s"NEWLINE, path);
+			fprintf(stderr, "Failed to close the file %s"NEWLINE, path->Values);
 			throw(FailedToCloseFileException);
 		}
 
 		return data;
 	}
 
-	fprintf(stderr, "Failed to open file %s"NEWLINE, path);
+	fprintf(stderr, "Failed to open file %s"NEWLINE, path->Values);
 	throw(FailedToOpenFileException);
 
 	// we shouldn't be able to get here, but it's possible if __debugbreak() is continued
 	return null;
 }
 
-private bool TryReadAll(const char* path, char** out_data)
+private bool TryReadAll(const string path, string* out_data)
 {
 	File file;
 
 	if (TryOpen(path, FileModes.Read, &file))
 	{
-		char* data;
+		string data;
 
 		if (TryReadFile(file, &data))
 		{
@@ -285,11 +283,11 @@ private bool TryReadAll(const char* path, char** out_data)
 	return false;
 }
 
-private bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength)
+private bool TryReadLine(File file, string buffer, size_t offset, size_t* out_lineLength)
 {
 	GuardNotNull(file);
 
-	char* result = fgets(buffer + offset, (int)(bufferLength - offset), file);
+	char* result = fgets(buffer->Values + offset, (int)(buffer->Capacity - offset), file);
 
 	// if eof is encountered before any characters
 	if (result is null || ferror(file))
@@ -318,15 +316,13 @@ private bool TryReadLine(File file, char* buffer, size_t offset, size_t bufferLe
 	return true;
 }
 
-private bool TryGetSequenceCount(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count)
+private bool TryGetSequenceCount(File file, const string targetSequence, const string abortSequence, size_t* out_count)
 {
 	GuardNotNull(targetSequence);
-	GuardNotZero(targetLength);
 	GuardNotNull(abortSequence);
-	GuardNotZero(abortLength);
 
 	// store the position that the file currently is in
-	long previousPosition = ftell(file);
+	const long previousPosition = ftell(file);
 
 	if (previousPosition is - 1L)
 	{
@@ -342,12 +338,12 @@ private bool TryGetSequenceCount(File file, const char* targetSequence, const si
 	while ((c = fgetc(file)) != EOF)
 	{
 		// check to see if we are at the start of the target sequence
-		if (c is abortSequence[abortIndex])
+		if (c is abortSequence->Values[abortIndex])
 		{
 			++abortIndex;
 
 			// check to see if we have found the entire sequence
-			if (abortIndex >= abortLength)
+			if (abortIndex >= abortSequence->Count)
 			{
 				break;
 			}
@@ -359,12 +355,12 @@ private bool TryGetSequenceCount(File file, const char* targetSequence, const si
 		}
 
 		// check to see if we are at the start of the target sequence
-		if (c is targetSequence[targetIndex])
+		if (c is targetSequence->Values[targetIndex])
 		{
 			++targetIndex;
 
 			// check to see if we have found the entire sequence
-			if (targetIndex >= targetLength)
+			if (targetIndex >= targetSequence->Count)
 			{
 				++count;
 				targetIndex = 0;
@@ -395,7 +391,7 @@ private bool TryGetSequenceCount(File file, const char* targetSequence, const si
 
 static bool TryClose(File file)
 {
-	++(FILES_CLOSED);
+	++(Global_Files_Closed);
 	return fclose(file) != EOF;
 }
 
@@ -409,10 +405,10 @@ private void Close(File file)
 
 private bool TryVerifyCleanup(void)
 {
-	if (FILES_OPENED != FILES_CLOSED)
+	if (Global_Files_Opened != Global_Files_Closed)
 	{
-		fprintf(stderr, "The number of the files that were opened did not match the number of file handles that were closed: %lli/%lli"NEWLINE, FILES_OPENED, FILES_CLOSED);
+		fprintf(stderr, "The number of the files that were opened did not match the number of file handles that were closed: %lli/%lli"NEWLINE, Global_Files_Opened, Global_Files_Closed);
 	}
 
-	return FILES_OPENED == FILES_CLOSED;
+	return Global_Files_Opened == Global_Files_Closed;
 }

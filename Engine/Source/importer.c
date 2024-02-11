@@ -86,8 +86,8 @@ struct _fileBuffer {
 #define MAX_OBJECT_NAME_LENGTH 128
 #define MAX_FACES SHRT_MAX
 
-static bool TryImportModel(char* path, FileFormat format, Model* out_model);
-static Model ImportModel(char* path, FileFormat format);
+static bool TryImportModel(string path, FileFormat format, Model* out_model);
+static Model ImportModel(string path, FileFormat format);
 const struct _modelImporterMethods Importers = {
 	.TryImport = &TryImportModel,
 	.Import = &ImportModel
@@ -191,7 +191,7 @@ static void DisposeBufferCollection(struct _bufferCollection* buffers)
 	Memory.Free(buffers->Normals, Memory.GenericMemoryBlock);
 }
 
-static bool TryCountElements(File stream, char* buffer, const size_t bufferLength, struct _elementCounts* out_counts)
+static bool TryCountElements(File stream, array(char) buffer, struct _elementCounts* out_counts)
 {
 	if (out_counts is null || stream is null)
 	{
@@ -204,7 +204,7 @@ static bool TryCountElements(File stream, char* buffer, const size_t bufferLengt
 	// for when we actually process the file
 	size_t lineLength;
 
-	while (Files.TryReadLine(stream, buffer, 0, bufferLength, &lineLength))
+	while (Files.TryReadLine(stream, buffer, 0, &lineLength))
 	{
 		// if for some reason the line is blank ignore it
 		if (lineLength < 1)
@@ -213,14 +213,14 @@ static bool TryCountElements(File stream, char* buffer, const size_t bufferLengt
 		}
 
 		// get the first char so we don't compare entire strings
-		char c = buffer[0];
+		char c = buffer->Values[0];
 
 		// !! these are ordered by frequency count, not in order of occurence !!
 
 		if (c is Tokens.Vertex)
 		{
 			// because multiple sequences share the same starting char do more here
-			c = buffer[1];
+			c = buffer->Values[1];
 
 			if (c is 't')
 			{
@@ -340,8 +340,7 @@ static void VoidMutateVector3(vector3* vector) { /* no action */ }
 
 // this is a monolith, i apologize, but the alternative with additional stack frames was significantly slower and was a bottle neck
 static bool TryParseObjects(File stream,
-	char* buffer,
-	const size_t bufferLength,
+	string buffer,
 	struct _elementCounts* counts,
 	struct _bufferCollection* buffers,
 	void (*MutateVertex)(vector3* vertex),
@@ -366,9 +365,9 @@ static bool TryParseObjects(File stream,
 
 	// iterate the file line by line
 	size_t lineLength;
-	while (Files.TryReadLine(stream, buffer, 0, bufferLength, &lineLength))
+	while (Files.TryReadLine(stream, buffer, 0, &lineLength))
 	{
-		char token = buffer[0];
+		char token = buffer->Values[0];
 
 		// ignore comments
 		if (token is Tokens.Comment)
@@ -382,7 +381,7 @@ static bool TryParseObjects(File stream,
 			Mesh newMesh = Meshes.Create();
 
 			// set the name of the current mesh with the name after the token
-			offset = buffer + Sequences.ObjectSize;
+			offset = buffer->Values + Sequences.ObjectSize;
 			size = min(lineLength - Sequences.ObjectSize, lineLength);
 
 			char* name;
@@ -421,7 +420,7 @@ static bool TryParseObjects(File stream,
 		// since every face references the same global array when we build the faces for any specific object
 		if (token is Tokens.Vertex)
 		{
-			token = buffer[1];
+			token = buffer->Values[1];
 
 			// texture vertex
 			if (token is 't')
@@ -429,7 +428,7 @@ static bool TryParseObjects(File stream,
 				// get a pointer to the current position of the texture buffer we are at
 				// texture vertice are vector 2s
 				vector2* vector = buffers->Textures + buffers->TextureIndex;
-				offset = buffer + Sequences.TextureSize;
+				offset = buffer->Values + Sequences.TextureSize;
 				size = min(lineLength - Sequences.TextureSize, lineLength);
 
 				if (Vector2s.TryDeserialize(offset, size, vector) is false)
@@ -450,7 +449,7 @@ static bool TryParseObjects(File stream,
 				// get a pointer to the current position of the normal buffer we are at
 				// normal vertices are vector 3s
 				vector3* vector = buffers->Normals + buffers->NormalIndex;
-				offset = buffer + Sequences.NormalSize;
+				offset = buffer->Values + Sequences.NormalSize;
 				size = min(lineLength - Sequences.NormalSize, lineLength);
 
 				if (Vector3s.TryDeserialize(offset, size, vector) is false)
@@ -471,7 +470,7 @@ static bool TryParseObjects(File stream,
 				// get a pointer to the current position of the vertex buffer we are at
 				// vertices are vector 3s
 				vector3* vector = buffers->Vertices + buffers->VertexIndex;
-				offset = buffer + Sequences.VertexSize;
+				offset = buffer->Values + Sequences.VertexSize;
 				size = min(lineLength - Sequences.VertexSize, lineLength);
 
 				if (Vector3s.TryDeserialize(offset, size, vector) is false)
@@ -501,7 +500,7 @@ static bool TryParseObjects(File stream,
 			// zero the array
 			Memory.ZeroArray(indices, sizeof(size_t) * 9);
 
-			offset = buffer + Sequences.FaceSize;
+			offset = buffer->Values + Sequences.FaceSize;
 
 			// read the indices
 			if (TryParseFace(offset, indices) is false)
@@ -575,7 +574,7 @@ static bool TryParseObjects(File stream,
 
 		if (token is Tokens.Smoothing && currentMesh isnt null)
 		{
-			offset = buffer + Sequences.SmoothingSize;
+			offset = buffer->Values + Sequences.SmoothingSize;
 			size = min(lineLength - Sequences.SmoothingSize, lineLength);
 
 			bool smoothing;
@@ -591,7 +590,7 @@ static bool TryParseObjects(File stream,
 		if (token is Tokens.Material && currentMesh isnt null)
 		{
 			// copy the name of the material over to the current mesh
-			offset = buffer + Sequences.MaterialSize;
+			offset = buffer->Values + Sequences.MaterialSize;
 
 			// becuase we're not relying on nul terminated we should add 1 to inclde the nul terminator character
 			size = min(lineLength - Sequences.MaterialSize, lineLength) + 1;
@@ -627,7 +626,7 @@ static bool TryImportModelStream(File stream,
 )
 {
 
-	char streamBuffer[BUFFER_SIZE];
+	array(char) streamBuffer = empty_stack_array(char, BUFFER_SIZE);
 
 	// create a place to put the counts of the file
 	struct _elementCounts elementCounts = {
@@ -645,7 +644,6 @@ static bool TryImportModelStream(File stream,
 	// count the occurences of the elements within the file
 	if (TryCountElements(stream,
 		streamBuffer,
-		BUFFER_SIZE,
 		&elementCounts) is false)
 	{
 		Files.TryClose(stream);
@@ -653,7 +651,7 @@ static bool TryImportModelStream(File stream,
 		return false;
 	}
 
-	Memory.RegisterTypeName(nameof(Mesh), &MeshTypeId);
+	REGISTER_TYPE(Mesh);
 
 	Mesh* meshes = Memory.Alloc(sizeof(Mesh) * elementCounts.ObjectCount, MeshTypeId);
 
@@ -669,7 +667,7 @@ static bool TryImportModelStream(File stream,
 		.TextureIndex = 0
 	};
 
-	if (TryParseObjects(stream, streamBuffer, BUFFER_SIZE, &elementCounts, &buffers,
+	if (TryParseObjects(stream, streamBuffer, &elementCounts, &buffers,
 		MutateVertex is null ? &VoidMutateVector3 : MutateVertex,
 		MutateTexture is null ? &VoidMutateVector2 : MutateTexture,
 		MutateNormal is null ? &VoidMutateVector3 : MutateNormal
@@ -697,7 +695,7 @@ static bool TryImportModelStream(File stream,
 	return true;
 }
 
-static bool TryImportModel(char* path, FileFormat format, Model* out_model)
+static bool TryImportModel(string path, FileFormat format, Model* out_model)
 {
 	// make sure the format is supported
 	if (VerifyFormat(format) is false)
@@ -720,7 +718,7 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 	}
 
 	// set the name of the model as the path that was used to load it
-	model->Name = Strings.DuplicateTerminated(path);
+	model->Name = Strings.Duplicate(path->Values, path->Count);
 
 	*out_model = model;
 
@@ -734,7 +732,7 @@ static bool TryImportModel(char* path, FileFormat format, Model* out_model)
 	return true;
 }
 
-static Model ImportModel(char* path, FileFormat format)
+static Model ImportModel(string path, FileFormat format)
 {
 	Model model;
 	if (TryImportModel(path, format, &model) is false)

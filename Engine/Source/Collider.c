@@ -15,7 +15,7 @@
 static Collider Create(Model);
 static void Dispose(Collider);
 static bool Intersects(Collider, Collider);
-static Collider Load(const char* path);
+static Collider Load(const string path);
 
 struct _colliderMethods Colliders = {
 	.DefaultMask = FLAG_ALL,
@@ -138,7 +138,7 @@ TOKENS(2) {
 
 CONFIG(Collider);
 
-static Collider Load(const char* path)
+static Collider Load(const string path)
 {
 	Collider result = null;
 
@@ -151,7 +151,11 @@ static Collider Load(const char* path)
 	if (Configs.TryLoadConfig(path, &ColliderConfigDefinition, &state))
 	{
 		Model model;
-		if (Importers.TryImport(state.ModelPath, FileFormats.Obj, &model) == false)
+		string modelPath = empty_stack_array(char, _MAX_PATH);
+
+		strings.AppendCArray(modelPath, state.ModelPath, strlen(state.ModelPath ? state.ModelPath : ""));
+
+		if (Importers.TryImport(modelPath, FileFormats.Obj, &model) == false)
 		{
 			return result;
 		}

@@ -19,35 +19,35 @@
 
 #define AllModifiedFlag (PositionModifiedFlag | RotationModifiedFlag | ScaleModifiedFlag)
 
-static void Dispose(Transform transform);
-static Transform CreateTransform(void);
-static void TransformCopyTo(Transform source, Transform destination);
-static void SetParent(Transform transform, Transform parent);
-static void SetPosition(Transform transform, vector3 position);
-static void SetPositions(Transform transform, float x, float y, float z);
-static void SetRotation(Transform transform, quaternion rotation);
-static void SetScale(Transform transform, vector3 scale);
-static void SetScales(Transform transform, float x, float y, float z);
-static void AddPosition(Transform transform, vector3 amount);
-static void Translate(Transform, float x, float y, float z);
-static void TranslateX(Transform, float x);
-static void TranslateY(Transform, float y);
-static void TranslateZ(Transform, float z);
-static void Rotate(Transform transform, quaternion amount);
-static void RotateOnAxis(Transform, float amountInRads, vector3 axis);
-static void SetRotationOnAxis(Transform, float amountInRads, vector3 axis);
-static void AddScale(Transform transform, vector3 amount);
-static vector3 GetDirection(Transform transform, Direction direction);
-static matrix4 RefreshTransform(Transform transform);
-static matrix4 ForceRefreshTransform(Transform transform);
-static void ScaleAll(Transform, float scaler);
-static void ClearChildren(Transform);
-static Transform Load(File);
-static void Save(Transform, File);
-static void SetChildCapacity(Transform, size_t count);
-static void LookAt(Transform, vector3 target);
-static void LookAtPositions(Transform, float x, float y, float z);
-static vector3 TransformPoint(Transform, vector3 point);
+private void Dispose(Transform transform);
+private Transform CreateTransform(void);
+private void TransformCopyTo(Transform source, Transform destination);
+private void SetParent(Transform transform, Transform parent);
+private void SetPosition(Transform transform, vector3 position);
+private void SetPositions(Transform transform, float x, float y, float z);
+private void SetRotation(Transform transform, quaternion rotation);
+private void SetScale(Transform transform, vector3 scale);
+private void SetScales(Transform transform, float x, float y, float z);
+private void AddPosition(Transform transform, vector3 amount);
+private void Translate(Transform, float x, float y, float z);
+private void TranslateX(Transform, float x);
+private void TranslateY(Transform, float y);
+private void TranslateZ(Transform, float z);
+private void Rotate(Transform transform, quaternion amount);
+private void RotateOnAxis(Transform, float amountInRads, vector3 axis);
+private void SetRotationOnAxis(Transform, float amountInRads, vector3 axis);
+private void AddScale(Transform transform, vector3 amount);
+private vector3 GetDirection(Transform transform, Direction direction);
+private matrix4 RefreshTransform(Transform transform);
+private matrix4 ForceRefreshTransform(Transform transform);
+private void ScaleAll(Transform, float scaler);
+private void ClearChildren(Transform);
+private Transform Load(File);
+private void Save(Transform, File);
+private void SetChildCapacity(Transform, size_t count);
+private void LookAt(Transform, vector3 target);
+private void LookAtPositions(Transform, float x, float y, float z);
+private vector3 TransformPoint(Transform, vector3 point);
 
 const struct _transformMethods Transforms = {
 	.Dispose = &Dispose,
@@ -83,7 +83,7 @@ const struct _transformMethods Transforms = {
 
 DEFINE_TYPE_ID(Transform);
 
-static void Dispose(Transform transform)
+private void Dispose(Transform transform)
 {
 	if (transform is null)
 	{
@@ -103,7 +103,7 @@ static void Dispose(Transform transform)
 	Memory.Free(transform, TransformTypeId);
 }
 
-static Transform CreateTransform()
+private Transform CreateTransform()
 {
 	Memory.RegisterTypeName(nameof(Transform), &TransformTypeId);
 
@@ -132,7 +132,7 @@ static Transform CreateTransform()
 	return transform;
 }
 
-static void DirectionStatesCopyTo(struct _directionStates* source, struct _directionStates* destination)
+private void DirectionStatesCopyTo(struct _directionStates* source, struct _directionStates* destination)
 {
 	CopyMember(source, destination, Accessed);
 
@@ -142,7 +142,7 @@ static void DirectionStatesCopyTo(struct _directionStates* source, struct _direc
 	}
 }
 
-static void StateCopyTo(struct transformState* source, struct transformState* destination)
+private void StateCopyTo(struct transformState* source, struct transformState* destination)
 {
 	CopyMember(source, destination, Modified);
 
@@ -154,7 +154,7 @@ static void StateCopyTo(struct transformState* source, struct transformState* de
 	DirectionStatesCopyTo(&source->Directions, &destination->Directions);
 }
 
-static void TransformCopyTo(Transform source, Transform destination)
+private void TransformCopyTo(Transform source, Transform destination)
 {
 	CopyMember(source, destination, RotateAroundCenter);
 	CopyMember(source, destination, InvertTransform);
@@ -166,7 +166,7 @@ static void TransformCopyTo(Transform source, Transform destination)
 	StateCopyTo(&source->State, &destination->State);
 }
 
-static Transform DuplicateTransform(Transform transform)
+private Transform DuplicateTransform(Transform transform)
 {
 	Transform newTransform = CreateTransform();
 
@@ -179,7 +179,7 @@ static Transform DuplicateTransform(Transform transform)
 /// notifies all children of this transform that the transform was modified
 /// </summary>
 /// <param name="transform"></param>
-static void NotifyChildren(Transform transform)
+private void NotifyChildren(Transform transform)
 {
 	for (size_t i = 0; i < transform->Count; i++)
 	{
@@ -192,7 +192,7 @@ static void NotifyChildren(Transform transform)
 	}
 }
 
-static vector3 GetPosition(Transform transform)
+private vector3 GetPosition(Transform transform)
 {
 	if (transform->InvertTransform)
 	{
@@ -207,7 +207,7 @@ static vector3 GetPosition(Transform transform)
 	return transform->Position;
 }
 
-static quaternion GetRotation(Transform transform)
+private quaternion GetRotation(Transform transform)
 {
 	if (transform->InvertTransform)
 	{
@@ -217,7 +217,7 @@ static quaternion GetRotation(Transform transform)
 	return transform->Rotation;
 }
 
-static matrix4 RefreshTransform(Transform transform)
+private matrix4 RefreshTransform(Transform transform)
 {
 	unsigned int mask = transform->State.Modified;
 
@@ -278,7 +278,7 @@ static matrix4 RefreshTransform(Transform transform)
 	return transform->State.State;
 }
 
-static matrix4 ForceRefreshTransform(Transform transform)
+private matrix4 ForceRefreshTransform(Transform transform)
 {
 	// becuase this engine is single threaded we perform some extra calculations here to save them in non-forced refresh
 
@@ -330,7 +330,7 @@ static matrix4 ForceRefreshTransform(Transform transform)
 
 // Detaches the provided child from the given transform
 // peforms an O(n) search by reference
-static void DetachChild(Transform transform, Transform child)
+private void DetachChild(Transform transform, Transform child)
 {
 	GuardNotNull(transform);
 
@@ -367,7 +367,7 @@ static void DetachChild(Transform transform, Transform child)
 	}
 }
 
-static void AttachChildAtIndex(Transform transform, Transform child, size_t index)
+private void AttachChildAtIndex(Transform transform, Transform child, size_t index)
 {
 	transform->Children[index] = child;
 
@@ -384,7 +384,7 @@ static void AttachChildAtIndex(Transform transform, Transform child, size_t inde
 	}
 }
 
-static void ReallocChildren(Transform transform, size_t newCount)
+private void ReallocChildren(Transform transform, size_t newCount)
 {
 	// try to realloc the space otherwise manually move it, alloc 25% more space, or + 1
 	size_t previousLength = transform->Length * sizeof(Transform);
@@ -413,7 +413,7 @@ static void ReallocChildren(Transform transform, size_t newCount)
 	transform->Length = newCount;
 }
 
-static void SetChildCapacity(Transform transform, size_t count)
+private void SetChildCapacity(Transform transform, size_t count)
 {
 	GuardNotNull(transform);
 	GuardNotZero(count);
@@ -433,7 +433,7 @@ static void SetChildCapacity(Transform transform, size_t count)
 	}
 }
 
-static void AttachChild(Transform transform, Transform child)
+private void AttachChild(Transform transform, Transform child)
 {
 	if (transform is null or child is null)
 	{
@@ -477,7 +477,7 @@ static void AttachChild(Transform transform, Transform child)
 	++(transform->Count);
 }
 
-static void SetParent(Transform transform, Transform parent)
+private void SetParent(Transform transform, Transform parent)
 {
 	// make sure to detach the previous parent if there is one
 	if (transform->Parent isnt null)
@@ -493,7 +493,7 @@ static void SetParent(Transform transform, Transform parent)
 	SetFlag(transform->State.Modified, ParentModifiedFlag);
 }
 
-static void ClearChildren(Transform transform)
+private void ClearChildren(Transform transform)
 {
 	for (size_t i = 0; i < transform->Count; i++)
 	{
@@ -514,7 +514,7 @@ static void ClearChildren(Transform transform)
 	transform->Count = 0;
 }
 
-static void SetPosition(Transform transform, vector3 position)
+private void SetPosition(Transform transform, vector3 position)
 {
 	if (Vector3s.Equals(position, transform->Position))
 	{
@@ -525,7 +525,7 @@ static void SetPosition(Transform transform, vector3 position)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-static void SetPositions(Transform transform, float x, float y, float z)
+private void SetPositions(Transform transform, float x, float y, float z)
 {
 	vector3 newPos = { x, y, z };
 
@@ -539,7 +539,7 @@ static void SetPositions(Transform transform, float x, float y, float z)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-static void SetRotation(Transform transform, quaternion rotation)
+private void SetRotation(Transform transform, quaternion rotation)
 {
 	if (Quaternions.Equals(rotation, transform->Rotation))
 	{
@@ -551,14 +551,14 @@ static void SetRotation(Transform transform, quaternion rotation)
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
-static void LookAt(Transform transform, vector3 target)
+private void LookAt(Transform transform, vector3 target)
 {
 	transform->Rotation = Quaternions.LookAt(transform->Position, target, Vector3.Up);
 
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
-static void LookAtPositions(Transform transform, float x, float y, float z)
+private void LookAtPositions(Transform transform, float x, float y, float z)
 {
 	vector3 target = { x, y, z };
 
@@ -567,14 +567,14 @@ static void LookAtPositions(Transform transform, float x, float y, float z)
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
-static void ScaleAll(Transform transform, float scalar)
+private void ScaleAll(Transform transform, float scalar)
 {
 	transform->Scale = Vector3s.Scale(transform->Scale, scalar);
 
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-static void SetScale(Transform transform, vector3 scale)
+private void SetScale(Transform transform, vector3 scale)
 {
 	if (Vector3s.Equals(scale, transform->Scale))
 	{
@@ -586,7 +586,7 @@ static void SetScale(Transform transform, vector3 scale)
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-static void SetScales(Transform transform, float x, float y, float z)
+private void SetScales(Transform transform, float x, float y, float z)
 {
 	vector3 newPos = { x, y, z };
 
@@ -600,7 +600,7 @@ static void SetScales(Transform transform, float x, float y, float z)
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-static void AddPosition(Transform transform, vector3 amount)
+private void AddPosition(Transform transform, vector3 amount)
 {
 	if (Vector3s.Equals(amount, Vector3.Zero))
 	{
@@ -612,14 +612,14 @@ static void AddPosition(Transform transform, vector3 amount)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-static void Translate(Transform transform, float x, float y, float z)
+private void Translate(Transform transform, float x, float y, float z)
 {
 	vector3 amount = { x, y, z };
 
 	AddPosition(transform, amount);
 }
 
-static void TranslateX(Transform transform, float x)
+private void TranslateX(Transform transform, float x)
 {
 	if (x is transform->Position.x)
 	{
@@ -631,7 +631,7 @@ static void TranslateX(Transform transform, float x)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-static void TranslateY(Transform transform, float y)
+private void TranslateY(Transform transform, float y)
 {
 	if (y is transform->Position.y)
 	{
@@ -643,7 +643,7 @@ static void TranslateY(Transform transform, float y)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-static void TranslateZ(Transform transform, float z)
+private void TranslateZ(Transform transform, float z)
 {
 	if (z is transform->Position.z)
 	{
@@ -655,7 +655,7 @@ static void TranslateZ(Transform transform, float z)
 	SetFlag(transform->State.Modified, PositionModifiedFlag);
 }
 
-static void Rotate(Transform transform, quaternion amount)
+private void Rotate(Transform transform, quaternion amount)
 {
 	// to add a rotation to a quaterion we multiply, gotta love imaginary number magic
 	transform->Rotation = Quaternions.Add(transform->Rotation, amount);
@@ -663,7 +663,7 @@ static void Rotate(Transform transform, quaternion amount)
 	SetFlag(transform->State.Modified, RotationModifiedFlag);
 }
 
-static void RotateOnAxis(Transform transform, float angleInRads, vector3 axis)
+private void RotateOnAxis(Transform transform, float angleInRads, vector3 axis)
 {
 	quaternion rotation = Quaternions.Create(angleInRads, axis);
 
@@ -671,7 +671,7 @@ static void RotateOnAxis(Transform transform, float angleInRads, vector3 axis)
 	// no need to set flag here since we call the other method that does
 }
 
-static void SetRotationOnAxis(Transform transform, float angleInRads, vector3 axis)
+private void SetRotationOnAxis(Transform transform, float angleInRads, vector3 axis)
 {
 	quaternion rotation = Quaternions.Create(angleInRads, axis);
 
@@ -679,14 +679,14 @@ static void SetRotationOnAxis(Transform transform, float angleInRads, vector3 ax
 	// no need to set flag here since we call the other method that does
 }
 
-static void AddScale(Transform transform, vector3 amount)
+private void AddScale(Transform transform, vector3 amount)
 {
 	transform->Scale = Vector3s.Add(transform->Scale, amount);
 
 	SetFlag(transform->State.Modified, ScaleModifiedFlag);
 }
 
-static vector3 GetDirection(Transform transform, Direction direction)
+private vector3 GetDirection(Transform transform, Direction direction)
 {
 	GuardNotNull(transform);
 
@@ -724,7 +724,7 @@ static vector3 GetDirection(Transform transform, Direction direction)
 	return transform->State.Directions.Directions[direction];
 }
 
-static vector3 TransformPoint(Transform transform, vector3 point)
+private vector3 TransformPoint(Transform transform, vector3 point)
 {
 	RefreshTransform(transform);
 
@@ -804,7 +804,7 @@ struct _configDefinition TransformConfigDefinition = {
 	.Count = sizeof(Tokens) / sizeof(struct _configToken),
 };
 
-static Transform Load(File stream)
+private Transform Load(File stream)
 {
 	Transform transform = null;
 
@@ -831,7 +831,7 @@ static Transform Load(File stream)
 	return transform;
 }
 
-static void Save(Transform transform, File stream)
+private void Save(Transform transform, File stream)
 {
 	GuardNotNull(transform);
 	GuardNotNull(stream);

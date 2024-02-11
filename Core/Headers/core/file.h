@@ -33,8 +33,10 @@ static struct _fileModes {
 typedef FILE* File;
 
 struct _fileMethods {
+	// whether or not to automatically check backup directories if opening a file fails
 	bool UseAssetDirectories;
-	array(array(char)) AssetDirectories;
+	// Directories to automatically check when opening a file fails
+	array(string) AssetDirectories;
 	/// <summary>
 	/// Attemps to open the file at the provided path with the requested file permissions
 	/// </summary>
@@ -42,28 +44,36 @@ struct _fileMethods {
 	/// <param name="fileMode">The FileMode that you want the file opened with see file.h/FileModes for options(standard C options)</param>
 	/// <param name="out_file">OUT PARAMETER: the variable your want to be set with the opened file, or null if it was not opened</param>
 	/// <returns>true if the file was opened successfully, otherwise false</returns>
-	bool (*TryOpen)(const char* path, FileMode fileMode, File* out_file);
+	bool (*TryOpen)(const string path, FileMode fileMode, File* out_file);
 
-	File(*Open)(const char* path, FileMode fileMode);
+	File(*Open)(const string path, FileMode fileMode);
 
 	size_t(*GetFileSize)(const File file);
 
-	char* (*ReadFile)(const File file);
+	string(*ReadFile)(const File file);
 
-	bool (*TryReadFile)(const File file, char** out_data);
+	// reads the provided fle stream into a NEW string and sets the out
+	// values to the string.
+	bool (*TryReadFile)(const File file, string* out_data);
 
-	char* (*ReadAll)(const char* path);
+	string(*ReadAll)(const string path);
 
-	bool (*TryReadAll)(const char* path, char** out_data);
+	// reads the provided path into a NEW string and sets the out value
+	// to the string
+	bool (*TryReadAll)(const string path, string* out_data);
 
-	bool (*TryReadLine)(File file, char* buffer, size_t offset, size_t bufferLength, size_t* out_lineLength);
+	// reads the file into buffer at the given offset
+	// DOES NOT MODIFY buffer count while reading
+	// returns true when successful and outputs line length that was read
+	// (if you want to add to the buffer count manually)
+	bool (*TryReadLine)(File file, string buffer, size_t offset, size_t* out_lineLength);
 
 	/// <summary>
 	/// Attempts to look forwards into the file and count the number of times targetSequence is encountered, counting is stopped when end of file is reached
 	/// or when the abortsequence is encountered
 	/// </summary>
 	/// <returns></returns>
-	bool (*TryGetSequenceCount)(File file, const char* targetSequence, const size_t targetLength, const char* abortSequence, const size_t abortLength, size_t* out_count);
+	bool (*TryGetSequenceCount)(File file, const string targetSequence, const string abortSequence, size_t* out_count);
 
 	bool (*TryClose)(File file);
 

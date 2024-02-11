@@ -37,7 +37,7 @@ GameObject CreateFromRenderMesh(RenderMesh mesh)
 	return parent;
 }
 
-GameObject LoadGameObjectFromModel(char* path, FileFormat format)
+GameObject LoadGameObjectFromModel(const string path, FileFormat format)
 {
 	Model model;
 	if (Importers.TryImport(path, format, &model) is false)

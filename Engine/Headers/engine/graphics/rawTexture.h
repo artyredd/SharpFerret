@@ -66,11 +66,11 @@ struct _rawTextureMethods
 	/// <summary>
 	/// Loads a texture definition(.texture) from the provided path
 	/// </summary>
-	RawTexture(*Load)(const char* path);
+	RawTexture(*Load)(const string path);
 	/// <summary>
 	/// Saves the provided texture to a given path
 	/// </summary>
-	void (*Save)(RawTexture texture, const char* path);
+	void (*Save)(RawTexture texture, const string path);
 };
 
 extern const struct _rawTextureMethods RawTextures;

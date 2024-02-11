@@ -5,4 +5,4 @@
 
 GameObject CreateGameObjectFromMesh(Mesh mesh);
 GameObject CreateFromRenderMesh(RenderMesh mesh);
-GameObject LoadGameObjectFromModel(char* path, FileFormat format);
+GameObject LoadGameObjectFromModel(string path, FileFormat format);

@@ -16,7 +16,13 @@ file(GLOB coreSourceFiles CONFIGURE_DEPENDS
     "Core/Source/*.c"
 )
 
+file(GLOB_RECURSE assets CONFIGURE_DEPENDS
+    "assets/*.*"
+)
+
 add_library(Core ${coreSourceFiles} ${coreHeaderFiles})
+
+set_property(TARGET Core PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
 set_target_properties(Core PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
 
@@ -41,6 +47,9 @@ target_include_directories(Core PUBLIC
 
 # copy glew to build dir so we can debug code from there
 file(COPY "external/glew/bin/Release/x64/glew32.dll" DESTINATION .)
+
+# copy assets to build dir so we dont constantly have failed to find file issues
+file(COPY assets DESTINATION ./)
 
 target_link_libraries(Core PRIVATE
     ../external/glew/lib/Release/x64/glew32
@@ -68,6 +77,8 @@ file(GLOB engineSourceFiles CONFIGURE_DEPENDS
 )
 
 add_executable(Engine ${engineSourceFiles} ${engineHeaderFiles})
+
+set_property(TARGET Engine PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
 set_target_properties(Engine PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
 target_link_options(Engine PUBLIC "/DEBUG")

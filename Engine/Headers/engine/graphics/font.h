@@ -99,7 +99,7 @@ struct _fontMethods {
 	void(*Draw)(Font, unsigned short character, Scene scene);
 	void(*SetMaterial)(Font, Material);
 	Font(*Create)(Model);
-	Font(*Import)(char* path, FileFormat format);
+	Font(*Import)(string path, FileFormat format);
 	void (*Dispose)(Font);
 	Font(*Instance)(Font);
 	FontCharacter(*GetCharacter)(Font, unsigned int character);

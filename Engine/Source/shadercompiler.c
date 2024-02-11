@@ -14,8 +14,8 @@
 #include "core/strings.h"
 
 static Shader CompileShader(const StringArray vertexPaths, const StringArray fragmentPaths, const StringArray geometryPaths);
-static Shader Load(const char* path);
-static bool Save(Shader shader, const char* path);
+static Shader Load(const string path);
+static bool Save(Shader shader, const string path);
 
 const struct _shaderCompilerMethods ShaderCompilers = {
 	.CompileShader = &CompileShader,
@@ -276,14 +276,26 @@ static bool TryCompile(const StringArray paths, ShaderType shaderType, unsigned 
 
 	for (size_t i = 0; i < paths->Count; i++)
 	{
-		const char* path = paths->Strings[i];
+		const char* str = paths->Strings[i];
 
-		if (Files.TryReadAll(path, &dataArray[i]) is false)
+		string path = empty_stack_array(char, _MAX_PATH);
+
+		strings.AppendCArray(path, str, Strings.Length(str));
+
+		string data = null;
+		if (Files.TryReadAll(path, &data) is false)
 		{
-			fprintf(stderr, "Failed to file the shader source file at path %s"NEWLINE, path);
+			fprintf(stderr, "Failed to file the shader source file at path %s"NEWLINE, path->Values);
 
 			return false;
 		}
+
+		// HACK ALERT
+		// steal the underlying backing array
+		dataArray[i] = data->Values;
+
+		// this frees the container but not the underlying array
+		Memory.Free(data, typeid(Array));
 	}
 
 
@@ -292,7 +304,7 @@ static bool TryCompile(const StringArray paths, ShaderType shaderType, unsigned 
 
 	for (size_t i = 0; i < paths->Count; i++)
 	{
-		Memory.Free(dataArray[i], Memory.GenericMemoryBlock);
+		Memory.Free(dataArray[i], typeid(char));
 	}
 
 	return compiled;
@@ -683,19 +695,19 @@ TOKEN_SAVE(fillMode, Shader)
 TOKENS(14)
 {
 	TOKEN(vertexShader, "# The paths to the vertex shader that should be used for this shader"),
-	TOKEN(fragmentShader, "# The paths to the fragment shader that should be used for this shader"),
-	TOKEN(geometryShader, "# the paths to any geometry shaders that should be used for this shader"),
-	TOKEN(culling, "# whether or not backface culling should be enabled for this shader"),
-	TOKEN(useCameraPerspective, "# whether or not this shader should use camera perspective, (GUI elements for example shouldnt)"),
-	TOKEN(enableBlending, "# whether or not blending (transparency) should be enabled"),
-	TOKEN(writeToStencilBuffer, "# whether or not fragments that are drawn are written to the stencil buffer"),
-	TOKEN(depthTest, "# whether or not depth testing should be used when this shader is used to render an object"),
-	TOKEN(useCustomStencilAttributes, "# whether or not this shader should set various stencil function attributes when it's enabled"),
-	TOKEN(customStencilFunction, "# the custom function that should be used for this shader\n# does not do anythig when useComstomStencilAttributes is set to false\n# Valid Values: always, never, equal, notEqual, greaterThan, lessThan, greaterThanOrEqual, lessThanOrEqual"),
-	TOKEN(customStencilValue, "# the value that a fragment's stencil buffer value should be compared to using customStencilFunction"),
-	TOKEN(customStencilMask, "# the mask that should be bitwise AND'd with a fragemnt's stencil buffer value BEFORE it's compared to customStencilValue to determine if a fragment passes"),
-	TOKEN(useStencilBuffer, "# whether or not the stencil buffer should be used to determine if fragments are rendered, if this is false fragments are always rendered and never write to the stencil buffer"),
-	TOKEN(fillMode, "# how polygons should be drawn, fill would be normal, while line would be wireframe")
+		TOKEN(fragmentShader, "# The paths to the fragment shader that should be used for this shader"),
+		TOKEN(geometryShader, "# the paths to any geometry shaders that should be used for this shader"),
+		TOKEN(culling, "# whether or not backface culling should be enabled for this shader"),
+		TOKEN(useCameraPerspective, "# whether or not this shader should use camera perspective, (GUI elements for example shouldnt)"),
+		TOKEN(enableBlending, "# whether or not blending (transparency) should be enabled"),
+		TOKEN(writeToStencilBuffer, "# whether or not fragments that are drawn are written to the stencil buffer"),
+		TOKEN(depthTest, "# whether or not depth testing should be used when this shader is used to render an object"),
+		TOKEN(useCustomStencilAttributes, "# whether or not this shader should set various stencil function attributes when it's enabled"),
+		TOKEN(customStencilFunction, "# the custom function that should be used for this shader\n# does not do anythig when useComstomStencilAttributes is set to false\n# Valid Values: always, never, equal, notEqual, greaterThan, lessThan, greaterThanOrEqual, lessThanOrEqual"),
+		TOKEN(customStencilValue, "# the value that a fragment's stencil buffer value should be compared to using customStencilFunction"),
+		TOKEN(customStencilMask, "# the mask that should be bitwise AND'd with a fragemnt's stencil buffer value BEFORE it's compared to customStencilValue to determine if a fragment passes"),
+		TOKEN(useStencilBuffer, "# whether or not the stencil buffer should be used to determine if fragments are rendered, if this is false fragments are always rendered and never write to the stencil buffer"),
+		TOKEN(fillMode, "# how polygons should be drawn, fill would be normal, while line would be wireframe")
 };
 
 const struct _configDefinition ShaderConfigDefinition = {
@@ -704,7 +716,7 @@ const struct _configDefinition ShaderConfigDefinition = {
 	.Count = sizeof(Tokens) / sizeof(struct _configToken)
 };
 
-static Shader Load(const char* path)
+static Shader Load(const string path)
 {
 	if (path is null)
 	{
@@ -749,7 +761,7 @@ static Shader Load(const char* path)
 		if (shader->Name is null)
 		{
 			// copy the path as the shader name
-			shader->Name = Strings.DuplicateTerminated(path);
+			shader->Name = Strings.DuplicateTerminated(path->Values);
 		}
 
 		shader->Settings = state.Settings;
@@ -770,13 +782,13 @@ static Shader Load(const char* path)
 
 	if (shader is null)
 	{
-		fprintf(stderr, "Failed to load the shader from path: %s"NEWLINE, path);
+		fprintf(stderr, "Failed to load the shader from path: %s"NEWLINE, path->Values);
 	}
 
 	return shader;
 }
 
-static bool Save(Shader shader, const char* path)
+static bool Save(Shader shader, const string path)
 {
 	File file;
 	if (Files.TryOpen(path, FileModes.Create, &file) is false)
@@ -784,7 +796,7 @@ static bool Save(Shader shader, const char* path)
 		return false;
 	}
 
-	Configs.SaveConfigStream(file, (const ConfigDefinition)&ShaderConfigDefinition, shader );
+	Configs.SaveConfigStream(file, (const ConfigDefinition)&ShaderConfigDefinition, shader);
 
 	return Files.TryClose(file);
 }

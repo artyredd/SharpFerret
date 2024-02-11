@@ -7,10 +7,10 @@
 
 #define BUFFER_SIZE 1024
 
-static bool TryLoadConfig(const char* path, const ConfigDefinition, void* state);
+static bool TryLoadConfig(const string path, const ConfigDefinition, void* state);
 static bool TryLoadConfigStream(File stream, const ConfigDefinition, void* state);
 static void SaveConfigStream(File stream, const ConfigDefinition config, void* state);
-static void SaveConfig(const char* path, const ConfigDefinition config, void* state);
+static void SaveConfig(const string path, const ConfigDefinition config, void* state);
 
 const struct _configMethods Configs = {
 	.TryLoadConfig = &TryLoadConfig,
@@ -21,15 +21,17 @@ const struct _configMethods Configs = {
 
 static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void* state)
 {
-	char buffer[BUFFER_SIZE];
+	string buffer = empty_stack_array(char, BUFFER_SIZE);
 
 	size_t bufferLength = BUFFER_SIZE;
 
 	size_t lineLength;
-	while (Files.TryReadLine(stream, buffer, 0, bufferLength, &lineLength))
+	while (buffer->Count = 0, Files.TryReadLine(stream, buffer, 0, &lineLength))
 	{
+		buffer->Count = lineLength;
+
 		// ignore comments
-		if (buffer[0] is config->CommentCharacter)
+		if (buffer->Values[0] is config->CommentCharacter)
 		{
 			continue;
 		}
@@ -39,10 +41,10 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 			const char* token = config->AbortToken.Token;
 			const size_t tokenLength = max(config->AbortToken.Length - 1, 0);
 
-			if (buffer[0] is token[0])
+			if (buffer->Values[0] is token[0])
 			{
 				// compare the whole token, if the abort token was found abort
-				if (memcmp(buffer, token, min(tokenLength, lineLength)) is 0)
+				if (memcmp(buffer->Values, token, min(tokenLength, lineLength)) is 0)
 				{
 					break;
 				}
@@ -54,12 +56,12 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 			// check the first character to avoid comparing whole string
 			const struct _configToken* token = &config->Tokens[i];
 
-			const size_t tokenLength = min(token->Length, max(token->Length - 1, 0));
+			const size_t tokenLength = safe_subtract(token->Length, 1);
 
-			if (buffer[0] is token->Token[0])
+			if (buffer->Values[0] is token->Token[0])
 			{
 				// compare the whole token, if it's valid invoke the callback
-				const int indexOfColon = Strings.IndexOf(buffer, lineLength, ':');
+				const int indexOfColon = Strings.IndexOf(buffer->Values, lineLength, ':');
 
 				// a colon is required
 				if (indexOfColon < 0)
@@ -74,22 +76,20 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 					continue;
 				}
 
-				if (memcmp(buffer, token->Token, min(tokenLength, lineLength)) is 0)
+				if (memcmp(buffer->Values, token->Token, min(tokenLength, lineLength)) is 0)
 				{
 					size_t offset = min(tokenLength + 1, lineLength);
 
-					char* subBuffer = buffer + offset;
-					size_t subBufferLength = max(lineLength - tokenLength - 1, 0);
+					array(char) subBuffer = stack_subarray_end(char, buffer, offset);
 
 					// check if the first character is whitespace, if it is move the subbuffer over
 					// I COULD create a more verstatile solution to this but..
-					if (isspace(subBuffer[0]))
+					if (isspace(subBuffer->Values[0]))
 					{
-						subBuffer = buffer + offset + 1;
-						--(subBufferLength);
+						subBuffer = stack_subarray_end(char, subBuffer, 1);
 					}
 
-					if (token->TokenLoad(subBuffer, subBufferLength, state) is false)
+					if (token->TokenLoad(subBuffer->Values, subBuffer->Count, state) is false)
 					{
 						return false;
 					}
@@ -104,7 +104,7 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 	return true;
 }
 
-static bool TryLoadConfig(const char* path, const ConfigDefinition config, void* state)
+static bool TryLoadConfig(const string path, const ConfigDefinition config, void* state)
 {
 	File file;
 	if (Files.TryOpen(path, FileModes.ReadBinary, &file) is false)
@@ -134,7 +134,7 @@ static void SaveConfigStream(File stream, const ConfigDefinition config, void* s
 	}
 }
 
-static void SaveConfig(const char* path, const ConfigDefinition config, void* state)
+static void SaveConfig(const string path, const ConfigDefinition config, void* state)
 {
 	File file;
 	if (Files.TryOpen(path, FileModes.Create, &file) is false)

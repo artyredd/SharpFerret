@@ -7,7 +7,7 @@
 
 static Font Create(Model);
 static void Dispose(Font);
-static Font Import(char* path, FileFormat format);
+static Font Import(string path, FileFormat format);
 static void Draw(Font font, unsigned short character, Scene scene);
 static void SetMaterial(Font, Material);
 static FontCharacter GetFontCharacter(Font, unsigned int character);
@@ -32,7 +32,7 @@ const struct _fontCharacterMethods FontCharacters = {
 };
 
 DEFINE_TYPE_ID(FontCharacter);
-DEFINE_TYPE_ID(Font)
+DEFINE_TYPE_ID(Font);
 
 static FontCharacter CreateWhiteSpaceCharacter(Font font, size_t width)
 {
@@ -188,7 +188,7 @@ static void Dispose(Font font)
 	Memory.Free(font, FontTypeId);
 }
 
-static Font Import(char* path, FileFormat format)
+static Font Import(string path, FileFormat format)
 {
 	Model model;
 	if (Importers.TryImport(path, format, &model) is false)

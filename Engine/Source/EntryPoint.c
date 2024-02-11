@@ -123,34 +123,34 @@ int main()
 
 
 	// load the default material so we can render gameobjects that have no set material
-	Material defaultMaterial = Materials.Load("assets/materials/default.material");
+	Material defaultMaterial = Materials.Load(stack_string("assets/materials/default.material"));
 	GameObjects.SetDefaultMaterial(defaultMaterial);
 	Drawing.SetDefaultMaterial(defaultMaterial);
 
 
 	// load all the gameobjects we use in the main game loop
-	GameObject skybox = GameObjects.Load("assets/prefabs/skybox.gameobject");
-	GameObject fox = GameObjects.Load("assets/prefabs/fox.gameobject");
-	GameObject cube = GameObjects.Load("assets/prefabs/cube.gameobject");
+	GameObject skybox = GameObjects.Load(stack_string("assets/prefabs/skybox.gameobject"));
+	GameObject fox = GameObjects.Load(stack_string("assets/prefabs/fox.gameobject"));
+	GameObject cube = GameObjects.Load(stack_string("assets/prefabs/cube.gameobject"));
 
 	GameObject otherCube = GameObjects.Duplicate(cube);
 	GameObjects.SetMaterial(otherCube, defaultMaterial);
 	Transforms.ScaleAll(otherCube->Transform, 1.2f);
 	Materials.SetColors(otherCube->Material, 1, 1, 1, 1);
 
-	GameObject ball = GameObjects.Load("assets/prefabs/ball.gameobject");
-	GameObject otherBall = GameObjects.Load("assets/prefabs/ball.gameobject");
+	GameObject ball = GameObjects.Load(stack_string("assets/prefabs/ball.gameobject"));
+	GameObject otherBall = GameObjects.Load(stack_string("assets/prefabs/ball.gameobject"));
 
-	GameObject car = GameObjects.Load("assets/prefabs/proto.gameobject");
+	GameObject car = GameObjects.Load(stack_string("assets/prefabs/proto.gameobject"));
 	Materials.SetColor(car->Material, Colors.Green);
 
-	GameObject statue = GameObjects.Load("assets/prefabs/statue.gameobject");
-	GameObject otherStatue = GameObjects.Load("assets/prefabs/mirrorStatue.gameobject");
+	GameObject statue = GameObjects.Load(stack_string("assets/prefabs/statue.gameobject"));
+	GameObject otherStatue = GameObjects.Load(stack_string("assets/prefabs/mirrorStatue.gameobject"));
 	Transforms.RotateOnAxis(otherStatue->Transform, (float)GLM_PI / 2, Vector3.Up);
 
-	GameObject reflectiveSphere = GameObjects.Load("assets/prefabs/reflectiveSphere.gameobject");
-	GameObject sphere = GameObjects.Load("assets/prefabs/sphere.gameobject");
-	GameObject lightMarker = GameObjects.Load("assets/prefabs/cube.gameobject");
+	GameObject reflectiveSphere = GameObjects.Load(stack_string("assets/prefabs/reflectiveSphere.gameobject"));
+	GameObject sphere = GameObjects.Load(stack_string("assets/prefabs/sphere.gameobject"));
+	GameObject lightMarker = GameObjects.Load(stack_string("assets/prefabs/cube.gameobject"));
 
 	// assign the area textures so reflective materials will reflect the skybox
 	Materials.SetAreaTexture(cube->Material, skybox->Material->MainTexture);
@@ -161,10 +161,10 @@ int main()
 	Materials.SetAreaTexture(otherStatue->Material, skybox->Material->MainTexture);
 
 	// load the font we use in-game
-	Font font = Fonts.Import("assets/fonts/ComicMono.obj", FileFormats.Obj);
+	Font font = Fonts.Import(stack_string("assets/fonts/ComicMono.obj"), FileFormats.Obj);
 
 	// since text-mesh fonts are actual gameobjects like all others, set the material so we can see it
-	Material textMaterial = Materials.Load("assets/materials/textMaterial.material");
+	Material textMaterial = Materials.Load(stack_string("assets/materials/textMaterial.material"));
 
 	Fonts.SetMaterial(font, textMaterial);
 
@@ -185,7 +185,7 @@ int main()
 
 	Transforms.SetPositions(lightMarker->Transform, 0, 0, 0);
 
-	Material outlineMaterial = Materials.Load("assets/materials/outline.material");
+	Material outlineMaterial = Materials.Load(stack_string("assets/materials/outline.material"));
 
 	GameObjects.SetMaterial(lightMarker, outlineMaterial);
 
@@ -220,8 +220,8 @@ int main()
 	Scenes.AddLight(scene, light);
 
 	// collider testing
-	GameObject colliderObject1 = GameObjects.Load("assets/prefabs/cube.gameobject");
-	GameObject colliderObject2 = GameObjects.Load("assets/prefabs/cube.gameobject");
+	GameObject colliderObject1 = GameObjects.Load(stack_string("assets/prefabs/cube.gameobject"));
+	GameObject colliderObject2 = GameObjects.Load(stack_string("assets/prefabs/cube.gameobject"));
 
 	Materials.SetColors(colliderObject1->Material, 1.0, 0.0, 0.0, 0.0);
 
@@ -260,7 +260,7 @@ int main()
 	// and create a camera that should be used to render to the framebuffer for shadows
 	Camera shadowCamera = Cameras.Create();
 
-	Material shadowMapMaterial = Materials.Load("assets/materials/shadow.material");
+	Material shadowMapMaterial = Materials.Load(stack_string("assets/materials/shadow.material"));
 
 	// main game loop
 	bool showNormals = false;

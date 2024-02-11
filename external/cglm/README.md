@@ -5,13 +5,9 @@
 </p>
 <br>
 <p align="center">
-    <a href="https://travis-ci.com/recp/cglm">
-        <img src="https://travis-ci.com/recp/cglm.svg?branch=master"
+    <a href="https://github.com/recp/cglm/actions/workflows/ci.yml">
+        <img src="https://github.com/recp/cglm/actions/workflows/ci.yml/badge.svg"
              alt="Build Status">
-    </a>
-    <a href="https://ci.appveyor.com/project/recp/cglm/branch/master">
-        <img src="https://ci.appveyor.com/api/projects/status/av7l3gc0yhfex8y4/branch/master?svg=true"
-             alt="Windows Build Status">
     </a>
     <a href="http://cglm.readthedocs.io/en/latest/?badge=latest">
         <img src="https://readthedocs.org/projects/cglm/badge/?version=latest"

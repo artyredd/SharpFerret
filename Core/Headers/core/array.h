@@ -3,6 +3,7 @@
 #include "core/csharp.h"
 #include "memory.h"
 #include "pointer.h"
+#include "macros.h"
 
 // TEMPLATE
 
@@ -37,9 +38,9 @@
 }; \
 typedef struct _array_##type* type##_array;
 
-#define stack_array(type,count, ...) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
+#define explicit_stack_array(type,initialArraySize,count, ...) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
-	.Values = (type*)(type[count]){ __VA_ARGS__ },\
+	.Values = (type*)(type[initialArraySize]){ __VA_ARGS__ },\
 	.Size = sizeof(type) * count,\
 	.ElementSize = sizeof(type),\
 	.Capacity = count,\
@@ -47,6 +48,17 @@ typedef struct _array_##type* type##_array;
 	.TypeId = 0,\
 	.StackObject = true\
 }
+
+#define stack_array(type,...) ((array(type))&(struct _EXPAND_STRUCT_NAME(type))\
+{\
+	.Values = (type*)(type[(VAR_COUNT(__VA_ARGS__) - 1)/6]){ __VA_ARGS__ },\
+	.Size = sizeof(type) * (VAR_COUNT(__VA_ARGS__) - 1)/6,\
+	.ElementSize = sizeof(type),\
+	.Capacity = (VAR_COUNT(__VA_ARGS__) - 1)/6,\
+	.Count = (VAR_COUNT(__VA_ARGS__) - 1)/6,\
+	.TypeId = 0,\
+	.StackObject = true\
+})
 
 #define empty_stack_array(type,count)  (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
@@ -59,10 +71,39 @@ typedef struct _array_##type* type##_array;
 	.StackObject = true\
 }
 
-#define stack_string(string) stack_array(char, sizeof(string) - 1, string)
+#define stack_string(string) explicit_stack_array(char,,sizeof(string) - 1, string)
+
+// Creates a stack array that is a subarray of the given array
+// Uses the given arrays pointers so changes to the stack array
+// affect the given array
+// example: 
+// array = { a, b, c, d, e, f, g, h }
+// sub = stack_subarray(array, 4, 2)
+// sub { e, f }
+#define stack_subarray(type, arr, startIndex, count) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
+{\
+	.Values = &arr->Values[startIndex],\
+	.Size = sizeof(type) * count,\
+	.ElementSize = sizeof(type),\
+	.Capacity = count,\
+	.Count = count,\
+	.TypeId = 0,\
+	.StackObject = true\
+}
+
+// Creates a stack array that is a subarray of the given array
+// Returns an array that contains the values inclusive between
+// the given index and the end
+// example: 
+// array = { a, b, c, d, e, f, g, h }
+// sub = stack_subarray_end(array, 4)
+// sub { e, f, g, h }
+#define stack_subarray_end(type, arr, startIndex) stack_subarray(type, arr, startIndex, safe_subtract(arr->Count, startIndex))
 
 _ARRAY_DEFINE_STRUCT(void);
 typedef array(void) Array;
+
+DEFINE_TYPE_ID(Array);
 
 struct _arrayMethods
 {
@@ -115,36 +156,48 @@ private void _EXPAND_METHOD_NAME(type,RemoveIndex)(array(type) array, size_t ind
 {\
 Arrays.RemoveIndex((Array)array, index); \
 }\
-private void _EXPAND_METHOD_NAME(type,Swap)(array(type) array, size_t firstIndex, size_t secondIndex)\
+private bool _EXPAND_METHOD_NAME(type, Empty)(array(type) array)\
+{\
+	if(array is null || array->Values is null)\
+	{\
+		return true;\
+	}\
+	if (array->Capacity is 0 || array->Count is 0)\
+	{\
+		return true;\
+	}\
+	return false; \
+}\
+private void _EXPAND_METHOD_NAME(type, Swap)(array(type) array, size_t firstIndex, size_t secondIndex)\
 {\
 Arrays.Swap((Array)array, firstIndex, secondIndex); \
 }\
-private void _EXPAND_METHOD_NAME(type,InsertionSort)(array(type) array, bool(comparator)(type* leftMemoryBlock, type* rightMemoryBlock))\
+private void _EXPAND_METHOD_NAME(type, InsertionSort)(array(type) array, bool(comparator)(type* leftMemoryBlock, type* rightMemoryBlock))\
 {\
 Arrays.InsertionSort((Array)array, comparator); \
 }\
-private type* _EXPAND_METHOD_NAME(type,At)(array(type) array, size_t index)\
+private type* _EXPAND_METHOD_NAME(type, At)(array(type) array, size_t index)\
 {\
 return (type*)Arrays.At((Array)array, index); \
 }\
-private type _EXPAND_METHOD_NAME(type,ValueAt)(array(type) array, size_t index)\
+private type _EXPAND_METHOD_NAME(type, ValueAt)(array(type) array, size_t index)\
 {\
-	if(index >= array->Count){\
-		throw(IndexOutOfRangeException);\
-	}\
-	return array->Values[index]; \
+if (index >= array->Count) {\
+throw(IndexOutOfRangeException); \
+}\
+return array->Values[index]; \
 }\
 private void _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, array(type) appendedValue)\
 {\
 Arrays.AppendArray((Array)array, (Array)appendedValue); \
 }\
-private void _EXPAND_METHOD_NAME(type,AppendCArray)(array(type) array, const type* carray, const size_t arraySize)\
+private void _EXPAND_METHOD_NAME(type, AppendCArray)(array(type) array, const type* carray, const size_t arraySize)\
 {\
 for (size_t cIndex = 0; cIndex < arraySize; ++cIndex)\
 {\
-	type value = carray[cIndex];\
+type value = carray[cIndex]; \
 \
-_EXPAND_METHOD_NAME(type, Append)(array, value);\
+_EXPAND_METHOD_NAME(type, Append)(array, value); \
 }\
 }\
 private void _EXPAND_METHOD_NAME(type, Clear)(array(type)array)\
@@ -159,6 +212,12 @@ private void _EXPAND_METHOD_NAME(type, ForeachWithContext)(array(type)array, voi
 {\
 Arrays.ForeachWithContext((Array)array, context, method); \
 }\
+private array(type) _EXPAND_METHOD_NAME(type, Clone)(array(type) array)\
+{\
+	array(type) result = _EXPAND_METHOD_NAME(type, Create)(array->Capacity);\
+	_EXPAND_METHOD_NAME(type, AppendArray)(result, array);\
+	return result; \
+}\
 private void _EXPAND_METHOD_NAME(type, Dispose)(array(type)array)\
 {\
 Arrays.Dispose((Array)array); \
@@ -170,15 +229,17 @@ void (*AutoResize)(array(type)); \
 void (*Resize)(array(type), size_t newCount); \
 void (*Append)(array(type), type); \
 void (*RemoveIndex)(array(type), size_t index); \
+bool (*Empty)(array(type)); \
 void (*Swap)(array(type), size_t firstIndex, size_t secondIndex); \
 void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
 type* (*At)(array(type), size_t index); \
-type (*ValueAt)(array(type), size_t index); \
+type(*ValueAt)(array(type), size_t index); \
 void (*AppendArray)(array(type), const array(type) appendedValue); \
-void (*AppendCArray)(array(type), const type* carray, const size_t count);\
+void (*AppendCArray)(array(type), const type* carray, const size_t count); \
 void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
+array(type) (*Clone)(array(type)); \
 void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\
@@ -187,15 +248,17 @@ void (*Dispose)(array(type)); \
 .Resize = _EXPAND_METHOD_NAME(type, Resize), \
 .Append = _EXPAND_METHOD_NAME(type, Append), \
 .RemoveIndex = _EXPAND_METHOD_NAME(type, RemoveIndex), \
+.Empty = _EXPAND_METHOD_NAME(type, Empty), \
 .Swap = _EXPAND_METHOD_NAME(type, Swap), \
 .InsertionSort = _EXPAND_METHOD_NAME(type, InsertionSort), \
 .At = _EXPAND_METHOD_NAME(type, At), \
 .ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
 .AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
-.AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray),\
+.AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray), \
 .Clear = _EXPAND_METHOD_NAME(type, Clear), \
 .Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
 .ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
+.Clone = _EXPAND_METHOD_NAME(type, Clone), \
 .Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
 
@@ -209,7 +272,10 @@ DEFINE_ARRAY(float);
 DEFINE_ARRAY(double);
 DEFINE_ARRAY(size_t);
 
-DEFINE_ARRAY(char_array);
+DEFINE_ARRAY(array(char));
+
+#define string array(char)
+#define strings Arrays(char)
 
 #define _EXPAND_tuple(left,right) tuple_##left##_##right
 #define tuple(left,right) _EXPAND_tuple(left,right)

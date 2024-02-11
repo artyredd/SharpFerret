@@ -5,6 +5,7 @@
 #include "engine/graphics/renderMesh.h"
 #include "engine/graphics/colors.h"
 #include "engine/graphics/scene.h"
+#include "core/array.h"
 
 typedef struct _material* Material;
 
@@ -61,17 +62,17 @@ struct _material {
 	/// <summary>
 	/// The name, or path of this material
 	/// </summary>
-	char* Name;
+	string Name;
 };
 
 struct _materialMethods {
 	Material(*CreateMaterial)(void);
 	Material(*Create)(const Shader, const RawTexture);
 	// Attempts to load the material definition at the given path
-	Material(*Load)(const char* path);
+	Material(*Load)(const string path);
 	// Saves the provided  material to a material definition file at the given path so it can be loaded with Materials.Load, returns true 
 	// when export was successful, otherwise false
-	bool (*Save)(const Material, const char* path);
+	bool (*Save)(const Material, const string path);
 	/// <summary>
 	/// Creates a new instance of the provided material
 	/// </summary>
@@ -105,7 +106,7 @@ struct _materialMethods {
 	/// <summary>
 	/// Sets the name of this material, freeing the previous one if it exists
 	/// </summary>
-	void (*SetName)(Material, const char* name);
+	void (*SetName)(Material, const string name);
 	void (*Dispose)(Material);
 };
 

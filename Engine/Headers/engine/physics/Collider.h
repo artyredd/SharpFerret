@@ -6,6 +6,7 @@
 #include "engine/modeling/model.h"
 #include "core/quickmask.h"
 #include "engine/physics/voxel.h"
+#include "core/array.h"
 
 typedef struct _collision collision;
 
@@ -54,8 +55,8 @@ struct _colliderMethods
 	Collider(*Create)(Model);
 	// determins whether the provided two colliders intersect withh
 	// one another
-	bool (*Intersects)(Collider left,Collider right);
-	Collider(*Load)(const char* path);
+	bool (*Intersects)(Collider left, Collider right);
+	Collider(*Load)(const string path);
 	void (*Dispose)(Collider);
 };
 

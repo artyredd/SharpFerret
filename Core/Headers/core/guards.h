@@ -10,7 +10,7 @@
 
 // throwing guard clauses
 
-#define ThrowGuard(variableName, message) fprintf(GaurdClauseOutputstream,#variableName message); throw(InvalidArgumentException);
+#define ThrowGuard(variableName, message) fprintf(GaurdClauseOutputstream,#variableName message NEWLINE); throw(InvalidArgumentException);
 
 // ensures the variable != 0 and if it's zero throws an exception
 #define GuardGreaterThan(variableName, value) if(variableName <= value){ ThrowGuard(variableName," must be greater than "#value); }

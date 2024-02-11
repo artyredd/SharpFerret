@@ -17,8 +17,8 @@ private bool TryCreateTexture(Image, RawTexture* out_texture);
 private bool TryCreateTextureAdvanced(Image image, RawTexture* out_texture, const TextureType type, TextureFormat format, BufferFormat bufferFormat, void* state, bool (*TryModifyTexture)(void* state));
 private RawTexture InstanceTexture(RawTexture texture);
 private RawTexture Blank(void);
-private void Save(RawTexture texture, const char* path);
-private RawTexture Load(const char* path);
+private void Save(RawTexture texture, const string path);
+private RawTexture Load(const string path);
 private TextureFormat GetFormat(Image image);
 private bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, RawTexture* out_texture);
 
@@ -561,7 +561,7 @@ private void LoadCubemap(struct _textureState state, RawTexture* out_texture)
 	}
 }
 
-private RawTexture Load(const char* path)
+private RawTexture Load(const string path)
 {
 	RawTexture texture = null;
 
@@ -592,7 +592,7 @@ private RawTexture Load(const char* path)
 
 			// since a cubemap has multiple source textures it's path is not set when we create the texture
 			// asign the path name to the texture instead of any one source
-			texture->Path = Strings.DuplicateTerminated(path);
+			texture->Path = Strings.DuplicateTerminated(path->Values);
 		}
 		else
 		{
@@ -618,7 +618,7 @@ private RawTexture Load(const char* path)
 	return texture;
 }
 
-private void Save(RawTexture texture, const char* path)
+private void Save(RawTexture texture, const string path)
 {
 	GuardNotNull(texture);
 	GuardNotNull(path);

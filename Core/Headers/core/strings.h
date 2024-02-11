@@ -1,6 +1,7 @@
 #pragma once
 #include <stdlib.h>
 #include "core/csharp.h"
+#include "core/array.h"
 
 // max number of bytes to alloc for parsing a string from a file buffer
 #define MAX_PARSABLE_STRING_LENGTH 1024
@@ -47,6 +48,8 @@ struct _stringArrayMethods {
 extern const struct _stringArrayMethods StringArrays;
 
 struct _stringMethods {
+	// Length of terminated string, handles null
+	size_t(*Length)(const char* buffer);
 	// Converts all characters in the buffer to lowercase
 	void (*ToLower)(char* buffer, size_t bufferLength, size_t offset);
 	// Converts all characters in the buffer to uppercase

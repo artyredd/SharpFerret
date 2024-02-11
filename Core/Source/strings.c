@@ -28,8 +28,10 @@ static bool Equals(const char* left, size_t leftLength, const char* right, size_
 static bool TrySplit(const char* source, size_t length, int delimiter, StringArray resultStringArray);
 static bool TryParse(const char* buffer, const size_t bufferLength, char** out_string);
 static int IndexOf(const char* buffer, const size_t bufferLength, int character);
+private size_t Length(const char* str);
 
 const struct _stringMethods Strings = {
+	.Length = Length,
 	.ToUpper = &ToUpper,
 	.ToLower = &ToLower,
 	.Trim = &Trim,
@@ -41,6 +43,11 @@ const struct _stringMethods Strings = {
 	.TryParse = &TryParse,
 	.IndexOf = IndexOf
 };
+
+private size_t Length(const char* str)
+{
+	return strlen(str ? str : "");
+}
 
 static void ToLower(char* buffer, size_t bufferLength, size_t offset)
 {
