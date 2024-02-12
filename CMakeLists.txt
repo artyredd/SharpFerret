@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.25) # or whatever is suitable/available for you
-project(Core)
 
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+project(Core)
+
 #set (CMAKE_C_FLAGS "/std:c11")
 
 link_directories(external)
@@ -30,7 +32,7 @@ include(FetchContent)
 
 FetchContent_Populate(
     cglm                             # Recommendation: Stick close to the original name.
-    GIT_REPOSITORY https://github.com/recp/cglm.git
+    #GIT_REPOSITORY https://github.com/recp/cglm.git
     SOURCE_DIR     ../external/cglm              # (Relative) path within in the build directory.
 )
 
@@ -56,6 +58,12 @@ target_link_libraries(Core PRIVATE
     ../external/glfw/lib-vc2022/glfw3
     opengl32.lib
 )
+
+add_subdirectory(Generics)
+
+add_dependencies(Generics Core)
+
+target_link_libraries(Generics Core)
 
 project(Engine)
 
