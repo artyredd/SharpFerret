@@ -13,6 +13,9 @@ project(Generics)
 #file(COPY "../Core/Source/array.c" DESTINATION Source/.)
 #file(COPY "../Core/Source/memory.c" DESTINATION Source/.)
 
+file(GLOB assets CONFIGURE_DEPENDS
+     "assets/*"
+)
 
 file(GLOB headers CONFIGURE_DEPENDS
      "Source/*.h"
@@ -21,6 +24,8 @@ file(GLOB headers CONFIGURE_DEPENDS
 file(GLOB source CONFIGURE_DEPENDS
     "Source/*.c"
 )
+
+file(COPY assets DESTINATION .)
 
 add_executable(Generics ${source} ${headers})
 

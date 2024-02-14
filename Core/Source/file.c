@@ -21,7 +21,10 @@ private bool TryVerifyCleanup(void);
 
 const struct _fileMethods Files = {
 	.UseAssetDirectories = true,
-	.AssetDirectories = stack_array(string,stack_string("..\\..\\Singine\\")),
+	.AssetDirectories = stack_array(string,
+		stack_string("..\\..\\Singine\\"),
+		stack_string("assets\\")
+	),
 	.TryOpen = &TryOpen,
 	.Open = &Open,
 	.GetFileSize = &GetFileSize,
@@ -182,10 +185,12 @@ private string ReadFile(const File file)
 			}
 
 			result->Values[i] = '\0';
+			safe_increment(result->Count);
 			break;
 		}
 
 		result->Values[i] = (char)c;
+		safe_increment(result->Count);
 	}
 
 	return result;
