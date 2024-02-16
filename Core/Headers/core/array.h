@@ -4,6 +4,7 @@
 #include "memory.h"
 #include "pointer.h"
 #include "macros.h"
+#include <string.h>
 
 // TEMPLATE
 
@@ -96,9 +97,18 @@ typedef struct _array_##type* type##_array;
 // the given index and the end
 // example: 
 // array = { a, b, c, d, e, f, g, h }
-// sub = stack_subarray_end(array, 4)
+// sub = stack_subarray_back(array, 4)
 // sub { e, f, g, h }
-#define stack_subarray_end(type, arr, startIndex) stack_subarray(type, arr, startIndex, safe_subtract(arr->Count, startIndex))
+#define stack_subarray_back(type, arr, startIndex) stack_subarray(type, arr, startIndex, safe_subtract(arr->Count, startIndex))
+
+// Creates a stack array that is a subarray of the given array
+// Returns an array that contains the values inclusive between
+// the front and the the given index
+// example: 
+// array = { a, b, c, d, e, f, g, h }
+// sub = stack_subarray_back(array, 3)
+// sub { a, b, c, d }
+#define stack_subarray_front(type, arr, endIndexInclusive) stack_subarray(type, arr, 0, safe_add(endIndexInclusive, 1))
 
 _ARRAY_DEFINE_STRUCT(void);
 typedef array(void) Array;
@@ -222,6 +232,30 @@ private void _EXPAND_METHOD_NAME(type, Dispose)(array(type)array)\
 {\
 Arrays.Dispose((Array)array); \
 }\
+private bool _EXPAND_METHOD_NAME(type, Equals)(array(type) left, array(type) right)\
+{\
+	if(left is right)\
+	{\
+		return true;\
+	}\
+	if((left is null && right isnt null) || (left isnt null && right is null))\
+	{\
+		return false;\
+	}\
+	if((left->Values is null && right->Values isnt null) || (left->Values isnt null && right->Values is null))\
+	{\
+		return false;\
+	}\
+	if(left->Values is right->Values)\
+	{\
+		return true; \
+	}\
+	if (left->Count != right->Count)\
+	{\
+		return false; \
+	}\
+	return memcmp(left->Values, right->Values, left->ElementSize * left->Count) == 0;\
+}\
 const static struct _array_##type##_methods\
 {\
 array(type) (*Create)(size_t count); \
@@ -236,6 +270,7 @@ type* (*At)(array(type), size_t index); \
 type(*ValueAt)(array(type), size_t index); \
 void (*AppendArray)(array(type), const array(type) appendedValue); \
 void (*AppendCArray)(array(type), const type* carray, const size_t count); \
+bool (*Equals)(array(type),array(type));\
 void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
@@ -255,6 +290,7 @@ void (*Dispose)(array(type)); \
 .ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
 .AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
 .AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray), \
+.Equals = _EXPAND_METHOD_NAME(type, Equals),\
 .Clear = _EXPAND_METHOD_NAME(type, Clear), \
 .Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
 .ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
@@ -276,6 +312,9 @@ DEFINE_ARRAY(array(char));
 
 #define string array(char)
 #define strings Arrays(char)
+#define stack_substring(arr, index, count) stack_subarray(char, arr, index, count)
+#define stack_substring_front(arr, endIndexInclusive) stack_subarray_front(char, arr, endIndexInclusive)
+#define stack_substring_back(arr, startIndexInclusive) stack_subarray_back(char, arr, startIndexInclusive)
 
 #define _EXPAND_tuple(left,right) tuple_##left##_##right
 #define tuple(left,right) _EXPAND_tuple(left,right)

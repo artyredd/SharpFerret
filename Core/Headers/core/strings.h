@@ -80,6 +80,11 @@ struct _stringMethods {
 	// returns the index of the found character,
 	// otherwise returns -1
 	int(*IndexOf)(const char* buffer, const size_t bufferLength, int character);
+
+	// Splits str into a stack string using the given selector
+	// can be used in a loop to loop through all the segments of a split string
+	// without using dynamic memory
+	bool (*TryLoopSplitByFunction)(string str, string* out_string, bool(*selector)(char));
 };
 
 extern const struct _stringMethods Strings;

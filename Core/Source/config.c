@@ -80,13 +80,13 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 				{
 					size_t offset = min(tokenLength + 1, lineLength);
 
-					array(char) subBuffer = stack_subarray_end(char, buffer, offset);
+					array(char) subBuffer = stack_subarray_back(char, buffer, offset);
 
 					// check if the first character is whitespace, if it is move the subbuffer over
 					// I COULD create a more verstatile solution to this but..
 					if (isspace(subBuffer->Values[0]))
 					{
-						subBuffer = stack_subarray_end(char, subBuffer, 1);
+						subBuffer = stack_subarray_back(char, subBuffer, 1);
 					}
 
 					if (token->TokenLoad(subBuffer->Values, subBuffer->Count, state) is false)

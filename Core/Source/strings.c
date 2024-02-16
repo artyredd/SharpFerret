@@ -29,6 +29,7 @@ static bool TrySplit(const char* source, size_t length, int delimiter, StringArr
 static bool TryParse(const char* buffer, const size_t bufferLength, char** out_string);
 static int IndexOf(const char* buffer, const size_t bufferLength, int character);
 private size_t Length(const char* str);
+private bool TryLoopSplitByFunction(string str, string* out_string, bool(*selector)(char));
 
 const struct _stringMethods Strings = {
 	.Length = Length,
@@ -41,8 +42,25 @@ const struct _stringMethods Strings = {
 	.Equals = &Equals,
 	.TrySplit = &TrySplit,
 	.TryParse = &TryParse,
-	.IndexOf = IndexOf
+	.IndexOf = IndexOf,
+	.TryLoopSplitByFunction = TryLoopSplitByFunction
 };
+
+private bool TryLoopSplitByFunction(string str, string* out_string, bool(*selector)(char))
+{
+	*out_string = (array(char)){ 0 };
+
+	for (size_t i = 0; i < str->Count; i++)
+	{
+		if (selector(str->Values[i]))
+		{
+			*out_string = stack_subarray_front(char, str, i);
+			return true;
+		}
+	}
+
+	return false;
+}
 
 private size_t Length(const char* str)
 {
