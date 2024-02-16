@@ -758,7 +758,7 @@ private bool IsValidMethodSignature(string data)
 	}
 
 	tuple(int, int) returnTypeInfo;
-	if (TryGetTypeReturnType(stack_substring_front(data, nameInfo.First), &returnTypeInfo) is false)
+	if (TryGetTypeReturnType(stack_substring_front(data, nameInfo.First - 1), &returnTypeInfo) is false)
 	{
 		return false;
 	}
@@ -1036,6 +1036,15 @@ TEST(IsGenericMethodDeclaration)
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T,U,V,W>(int x, int y, int z, struct vector2{int x; int y;} /* co}mment he)re */);");
 	IsTrue(IsGenericMethodDeclaration(data, 0, 39, 0, &dataLocation));
+
+	data = stack_string("int x = MyMethod<int>(14);");
+	IsFalse(IsGenericMethodDeclaration(data, 0, 16, 0, &dataLocation));
+
+	data = stack_string("*MyMethod<T>(12) = 14;");
+	IsFalse(IsGenericMethodDeclaration(data, 0, 9, 0, &dataLocation));
+
+	data = stack_string("float x = MyMethod<float>() + MyMethod<int>(33);");
+	IsFalse(IsGenericMethodDeclaration(data, 0, 18, 0, &dataLocation));
 
 	return true;
 }
