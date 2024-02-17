@@ -23,6 +23,8 @@ T Multiply_##T(T left, T right)\
 }\
 */
 
+bool IsValidNameCharacter(const int c);
+
 typedef struct
 {
 	// Location of the first alligator
@@ -163,25 +165,129 @@ private bool LookAheadIsGenericCall(string data)
 	return foundFinalAlligatorBrace;
 }
 
-private int LastBlockExpressionOrMacroIndex(string data, int start, int lastMacroIndex)
+private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMacroIndex)
 {
-	// walk backwards until we find ; } or enter a macro
-	for (int i = start; i > lastMacroIndex; --i)
-	{
-		const int c = data->Values[i];
+	Guard(start <= data->Count);
 
-		// ignore whitespace
+	bool inString = false;
+	bool inSingleComment = false;
+	bool inMultiComment = false;
+	int depth = 0;
+	int parenDepth = 0;
+	int indexOfFirstBrace = -1;
+
+	for (int i = start; i-- > 0;)
+	{
+		int previousC = data->Values[max(0, i - 1)];
+		int c = data->Values[i];
+		// we can do this since arrays have an invisible \0 at the end so we can't overflow
+		int nextC = data->Values[i + 1];
+
 		if (isspace(c))
 		{
 			continue;
 		}
 
-		if (c is ';')
+		// check to see if we're in a string
+		if (c is '"' and inSingleComment is false and inMultiComment is false)
 		{
-			return i;
+			// look back and check to see if it's delimited
+			if (previousC isnt '\\')
+			{
+				inString = !inString;
+				continue;
+			}
 		}
 
-		if (c is '}')
+		if (inSingleComment and (c is '\n' || (c is '\r' && nextC is '\n')) and inString is false)
+		{
+			inSingleComment = false;
+			continue;
+		}
+
+		if (inMultiComment and c is '*' and nextC is '/' and inString is false)
+		{
+			inMultiComment = false;
+			continue;
+		}
+
+		if (c is '/' and nextC is '/' and inString is false)
+		{
+			inSingleComment = true;
+			continue;
+		}
+
+		if (c is '/' and nextC is '*' and inString is false)
+		{
+			inMultiComment = true;
+			continue;
+		}
+
+		if (inSingleComment || inMultiComment)
+		{
+			continue;
+		}
+
+		// dont read if we're in a string
+		if (inString)
+		{
+			continue;
+		}
+
+		if (c is '}' && parenDepth is 0)
+		{
+			++depth;
+
+			if (indexOfFirstBrace is - 1)
+			{
+				indexOfFirstBrace = i;
+			}
+		}
+		if (c is '{' && parenDepth is 0)
+		{
+			--depth;
+
+			if (depth is 0)
+			{
+				if (PreviousCharacterIgnoringWhiteSpace(stack_substring_front(data, i)) is ')')
+				{
+					return indexOfFirstBrace;
+				}
+
+				return IndexOfLastBlockExpressionOrMacro(data, i, lastMacroIndex);
+			}
+		}
+
+		// if we're in a block inside the params, ignore the contents. We 
+		// wont find the matching paren inside of a block
+		if (depth)
+		{
+			continue;
+		}
+
+		if (c is '(')
+		{
+			++parenDepth;
+		}
+		if (c is ')')
+		{
+			--parenDepth;
+		}
+
+		// ignore contents of parens
+		if (parenDepth)
+		{
+			continue;
+		}
+
+		// skip words like private, static, int, float etc
+		if (IsValidNameCharacter(c))
+		{
+			continue;
+		}
+
+		// always denotes the previous block unless its within a type
+		if (c is ';')
 		{
 			return i;
 		}
@@ -602,7 +708,7 @@ private bool TryGetNameBeforeAlligator(string data, tuple(int, int)* out_name)
 		{
 			if (exitedWhitespace)
 			{
-				nameStart = max(0, i + 1);
+				nameStart = i + 1;
 				break;
 			}
 
@@ -624,6 +730,11 @@ private bool TryGetNameBeforeAlligator(string data, tuple(int, int)* out_name)
 		}
 
 		// contains invalid characters or is improperly formatted
+		return false;
+	}
+
+	if (nameStart is - 1 or nameEnd is - 1)
+	{
 		return false;
 	}
 
@@ -784,7 +895,7 @@ private bool IsGenericStruct(string data, int depth, int openAlligatorIndex, int
 	// typedef struct <T>{ T thing; } name;
 
 	// walk bakwards to the start 
-	const int start = LastBlockExpressionOrMacroIndex(data, openAlligatorIndex, lastMacroEndIndex);
+	const int start = IndexOfLastBlockExpressionOrMacro(data, openAlligatorIndex, lastMacroEndIndex);
 
 	result.StartScopeIndex = start;
 
@@ -848,7 +959,7 @@ private bool IsGenericMethodDeclaration(string data, int depth, int openAlligato
 
 	result.AlligatorStartIndex = openAlligatorIndex;
 
-	const int start = LastBlockExpressionOrMacroIndex(data, openAlligatorIndex, lastMacroEndIndex);
+	const int start = IndexOfLastBlockExpressionOrMacro(data, openAlligatorIndex, lastMacroEndIndex);
 
 	result.StartScopeIndex = start;
 
@@ -1011,6 +1122,17 @@ array(string) ReadTokens(string path)
 	return result;
 }
 
+TEST(IndexOfLastBlockExpressionOrMacro)
+{
+	string data = stack_string("struct thing{int x; int y}; start");
+	IsEqual(26, IndexOfLastBlockExpressionOrMacro(data, data->Count, 0));
+
+	data = stack_string("struct <T>{};");
+	IsEqual(data->Count - 1, (size_t)IndexOfLastBlockExpressionOrMacro(data, data->Count, 0));
+
+	return true;
+}
+
 TEST(IsGenericMethodDeclaration)
 {
 	string data = stack_string("struct <T>{};");
@@ -1113,19 +1235,19 @@ TEST(IndexOfClosingBrace)
 {
 	string data = stack_string("{};");
 
-	IsEqual(1, IndexOfClosingBrace(data), "%d");
+	IsEqual(1, IndexOfClosingBrace(data));
 
 	data = stack_string("{ };");
-	IsEqual(2, IndexOfClosingBrace(data), "%d");
+	IsEqual(2, IndexOfClosingBrace(data));
 
 	data = stack_string("{ int x; };");
-	IsEqual(9, IndexOfClosingBrace(data), "%d");
+	IsEqual(9, IndexOfClosingBrace(data));
 
 	data = stack_string("{ struct sub_struct{ struct subsubstruct { int x; int y; }} }");
-	IsEqual(60, IndexOfClosingBrace(data), "%d");
+	IsEqual(60, IndexOfClosingBrace(data));
 
 	data = stack_string("{ struct sub_struct{ struct subsubstruct { int x; int y; }} myVar; /* }comme}{}}{{{nt{}} */ int Index; // other}}}}}}{{{[[[{{Comment\n\tfloat Value; }");
-	IsEqual(147, IndexOfClosingBrace(data), "%d");
+	IsEqual(147, IndexOfClosingBrace(data));
 
 	return true;
 }
@@ -1190,6 +1312,7 @@ TEST(LookAheadIsGenericCall)
 }
 
 TEST_SUITE(RunUnitTests,
+	APPEND_TEST(IndexOfLastBlockExpressionOrMacro)
 	APPEND_TEST(LookAheadIsGenericCall)
 	APPEND_TEST(IsGenericStruct)
 	APPEND_TEST(IndexOfClosingBrace)

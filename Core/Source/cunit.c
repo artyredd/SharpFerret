@@ -57,7 +57,7 @@ static bool RunSuite(TestSuite suite)
 	Benchmark(
 		while (head != null)
 		{
-			fprintf(suite->OutputStream, "[%s]\n", head->Name);
+			fprintf_yellow(suite->OutputStream, "[%s]\n", head->Name);
 
 			if (RunTest(head, suite->OutputStream))
 			{
@@ -123,8 +123,8 @@ static bool RunTest(Test test, FILE* stream)
 
 	Benchmark(
 
-		pass = test->Method(stream);
-	fprintf(stream, "[%s][%s] ", pass ? "PASS" : "FAIL", test->Name);
+		test->Method(stream);
+	fprintf(stream, "[%s]", test->Name);
 
 	, stream);
 

@@ -268,9 +268,9 @@ private bool Test_Helper_TryParseBoolean(File __test_stream, char* data, bool sh
 {
 	bool actual;
 
-	IsEqual(TryParseBoolean(data, strlen(data), &actual), shouldParse, "%i");
+	IsEqual(TryParseBoolean(data, strlen(data), &actual), shouldParse);
 
-	IsEqual(expected, actual, "%i");
+	IsEqual(expected, actual);
 
 	return true;
 }
@@ -316,42 +316,42 @@ TEST(Test_TryParseStringArray)
 
 	Assert(TryParseStringArray(data, dataLength, &strings, &lengths, &count));
 
-	IsEqual((size_t)5, count, "%lli");
+	IsEqual((size_t)5, count);
 
 	const char* word = "this";
 	size_t index = 0;
 	// "this"
-	IsEqual(strlen(word), strlen(strings[index]), "%lli");
-	IsEqual(strlen(word), lengths[index], "%lli");
-	IsEqual(0, memcmp(word, strings[index], strlen(word)), "%i");
+	IsEqual(strlen(word), strlen(strings[index]));
+	IsEqual(strlen(word), lengths[index]);
+	IsEqual(0, memcmp(word, strings[index], strlen(word)));
 
 	// " should"
 	word = " should";
 	index = 1;
-	IsEqual(strlen(word), strlen(strings[index]), "%lli");
-	IsEqual(strlen(word), lengths[index], "%lli");
-	IsEqual(0, memcmp(word, strings[index], strlen(word)), "%i");
+	IsEqual(strlen(word), strlen(strings[index]));
+	IsEqual(strlen(word), lengths[index]);
+	IsEqual(0, memcmp(word, strings[index], strlen(word)));
 
 	// " be a"
 	word = " be a";
 	index = 2;
-	IsEqual(strlen(word), strlen(strings[index]), "%lli");
-	IsEqual(strlen(word), lengths[index], "%lli");
-	IsEqual(0, memcmp(word, strings[index], strlen(word)), "%i");
+	IsEqual(strlen(word), strlen(strings[index]));
+	IsEqual(strlen(word), lengths[index]);
+	IsEqual(0, memcmp(word, strings[index], strlen(word)));
 
 	// " string"
 	word = " string";
 	index = 3;
-	IsEqual(strlen(word), strlen(strings[index]), "%lli");
-	IsEqual(strlen(word), lengths[index], "%lli");
-	IsEqual(0, memcmp(word, strings[index], strlen(word)), "%i");
+	IsEqual(strlen(word), strlen(strings[index]));
+	IsEqual(strlen(word), lengths[index]);
+	IsEqual(0, memcmp(word, strings[index], strlen(word)));
 
 	// " array"
 	word = " array";
 	index = 4;
-	IsEqual(strlen(word), strlen(strings[index]), "%lli");
-	IsEqual(strlen(word), lengths[index], "%lli");
-	IsEqual(0, memcmp(word, strings[index], strlen(word)), "%i");
+	IsEqual(strlen(word), strlen(strings[index]));
+	IsEqual(strlen(word), lengths[index]);
+	IsEqual(0, memcmp(word, strings[index], strlen(word)));
 
 	// parse string allocs the strings for us free them
 	Memory.Free(lengths, Memory.GenericMemoryBlock);

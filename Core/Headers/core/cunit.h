@@ -42,8 +42,8 @@ static const char* FailExpectedFormat = "\t\tExpected: ";
 static const char* FailActualFormat = "Got: ";
 static const char* BenchmarkStartFormat = "\t[%s] "; // MethodName
 static const char* BenchmarkSpeedFormat = "[%lli ticks] "; // Speed(ticks)
-static const char* BenchmarkEndFormat = " in %s at %s [%li]" NEWLINE; // __func__, __FILE__, __LINE__
-static const char* SuiteStartFormat = "[%s] [STARTING] [COUNT = %lli]" NEWLINE; // SuiteName
+static const char* BenchmarkEndFormat = " in %s at %s [%li]"NEWLINE; // __func__, __FILE__, __LINE__
+static const char* SuiteStartFormat = "[%s] [STARTING] [COUNT = %lli]"NEWLINE; // SuiteName
 static const char* SuiteEndFormat = "[%s] [FINISHED] "; // SuiteName
 static const char* TestFinishedFormat = "[%s]"; // TestName
 
@@ -62,11 +62,11 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 	size_t end = clock() - start; \
 	if (pass)\
 	{\
-		fprintf(stream, PassFormat); \
+		fprintf(stream,_FORMAT_COLOR_GREEN_START"%s"_FORMAT_COLOR_GREEN_END, PassFormat); \
 	}\
 	else\
 	{\
-		fprintf(stream, FailFormat); \
+		fprintf(stream, _FORMAT_COLOR_RED_START"%s"_FORMAT_COLOR_RED_END, FailFormat); \
 	}\
 	fprintf(stream, BenchmarkSpeedFormat, end); \
 	fprintf(stream, BenchmarkEndFormat,__func__,__FILE__,__LINE__); \
@@ -79,20 +79,20 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 	size_t end = clock() - start; \
 	if (pass)\
 	{\
-		fprintf(stream, PassFormat); \
+		fprintf(stream,_FORMAT_COLOR_GREEN_START"%s"_FORMAT_COLOR_GREEN_END, PassFormat); \
 	}\
 	else\
 	{\
-		fprintf(stream, FailFormat); \
+		fprintf(stream, _FORMAT_COLOR_RED_START"%s"_FORMAT_COLOR_RED_END, FailFormat); \
 	}\
 	fprintf(stream, BenchmarkSpeedFormat, end); \
 	fprintf(stream, BenchmarkEndFormat,__func__,__FILE__,__LINE__); \
 	if(!pass)\
 	{\
-		fprintf(stream, FailExpectedFormat);\
+		fprintf(stream, _FORMAT_COLOR_RED_START"%s"_FORMAT_COLOR_RED_END, FailExpectedFormat);\
 		fprintf(stream,format,expected);\
 		fputc(' ',stream);\
-		fprintf(stream, FailActualFormat);\
+		fprintf(stream, _FORMAT_COLOR_RED_START"%s"_FORMAT_COLOR_RED_END, FailActualFormat);\
 		fprintf(stream,format,actual);\
 		fprintf(stream,NEWLINE);\
 	}\
@@ -108,6 +108,25 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 	suite->Dispose(suite);\
 }
 
+#define FormatCType(type) _Generic((type), \
+    char: "%c", \
+    unsigned char: "%hhu", \
+    short: "%hd", \
+    unsigned short: "%hu", \
+    int: "%d", \
+    unsigned int: "%u", \
+    long: "%ld", \
+    unsigned long: "%lu", \
+    long long: "%lld", \
+    unsigned long long: "%llu", \
+    float: "%f", \
+    double: "%lf", \
+    long double: "%Lf", \
+    const char*: "%s", \
+	char*: "%s",\
+    default: "UnsupportedType" \
+)
+
 #define Assert(expr) BenchmarkAssertion(expr,__test_stream);
 #define StandardAssert(expr) Assert(expr,stdout);
 
@@ -117,7 +136,7 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 #define IsNotZero(expr) BenchmarkAssertion(expr != 0,__test_stream);
 #define IsFalse(expr) BenchmarkAssertion(expr != true,__test_stream);
 #define IsTrue(expr) BenchmarkAssertion(expr,__test_stream);
-#define IsEqual(left,right,format) BenchmarkComparison(left,right,==,format,__test_stream);
+#define IsEqual(expected,actual) BenchmarkComparison(expected,actual,==,FormatCType(expected),__test_stream);
 #define IsNotEqual(left,right) BenchmarkAssertion(left != right,__test_stream);
 
-#define IsApproximate(left,right,format) BenchmarkComparison(((left < 0 ? (-left) : (left)) - (right < 0 ? (-right) : (right))),1e-15,<=,format,__test_stream);
+#define IsApproximate(left,right) BenchmarkComparison(((left < 0 ? (-left) : (left)) - (right < 0 ? (-right) : (right))),1e-15,<=,FormatCType(left),__test_stream);

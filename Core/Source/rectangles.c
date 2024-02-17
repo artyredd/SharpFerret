@@ -114,15 +114,15 @@ TEST(xBisectWorks)
 	const irectangle left = result.First;
 	const irectangle right = result.Second;
 
-	IsEqual(left.x, 0, "%d");
-	IsEqual(left.y, 0, "%d");
-	IsEqual(left.Width, 512, "%d");
-	IsEqual(left.Height, 1024, "%d");
+	IsEqual(left.x, 0);
+	IsEqual(left.y, 0);
+	IsEqual(left.Width, 512);
+	IsEqual(left.Height, 1024);
 
-	IsEqual(right.x, 512, "%d");
-	IsEqual(right.y, 0, "%d");
-	IsEqual(right.Width, 512, "%d");
-	IsEqual(right.Height, 1024, "%d");
+	IsEqual(right.x, 512);
+	IsEqual(right.y, 0);
+	IsEqual(right.Width, 512);
+	IsEqual(right.Height, 1024);
 
 	return true;
 }
@@ -141,15 +141,15 @@ TEST(yBisectWorks)
 	const irectangle top = result.First;
 	const irectangle bottom = result.Second;
 
-	IsEqual(top.x, 0, "%d");
-	IsEqual(top.y, 0, "%d");
-	IsEqual(top.Width, 1024, "%d");
-	IsEqual(top.Height, 512, "%d");
+	IsEqual(top.x, 0);
+	IsEqual(top.y, 0);
+	IsEqual(top.Width, 1024);
+	IsEqual(top.Height, 512);
 
-	IsEqual(bottom.x, 0, "%d");
-	IsEqual(bottom.y, 512, "%d");
-	IsEqual(bottom.Width, 1024, "%d");
-	IsEqual(bottom.Height, 512, "%d");
+	IsEqual(bottom.x, 0);
+	IsEqual(bottom.y, 512);
+	IsEqual(bottom.Width, 1024);
+	IsEqual(bottom.Height, 512);
 
 	return true;
 }
@@ -176,15 +176,15 @@ TEST(SubtractWorks)
 	const irectangle right = result.First;
 	const irectangle bottom = result.Second;
 
-	IsEqual(right.x, 64, "%d");
-	IsEqual(right.y, 0, "%d");
-	IsEqual(right.Width, 1024 - 64, "%d");
-	IsEqual(right.Height, 64, "%d");
+	IsEqual(right.x, 64);
+	IsEqual(right.y, 0);
+	IsEqual(right.Width, 1024 - 64);
+	IsEqual(right.Height, 64);
 
-	IsEqual(bottom.x, 0, "%d");
-	IsEqual(bottom.y, 64, "%d");
-	IsEqual(bottom.Width, 1024, "%d");
-	IsEqual(bottom.Height, 1024 - 64, "%d");
+	IsEqual(bottom.x, 0);
+	IsEqual(bottom.y, 64);
+	IsEqual(bottom.Width, 1024);
+	IsEqual(bottom.Height, 1024 - 64);
 
 	return true;
 }

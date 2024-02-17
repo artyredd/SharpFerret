@@ -40,17 +40,44 @@
 
 #ifdef THROW_SHOULD_BREAK 
 #ifdef __INTRIN_H_
-#define ThrowEvent(errorCode) __debugbreak();
+#define ThrowEvent(errorCode) __debugbreak()
 #else
-#define ThrowEvent(errorCode) exit(errorCode);
+#define ThrowEvent(errorCode) exit(errorCode)
 #endif
 #else
-#define ThrowEvent(errorCode) exit(errorCode);
+#define ThrowEvent(errorCode) exit(errorCode)
 #endif
 
-#define throw(errorCode) \
-	fprintf(stdout,"%s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE);\
+#define _FORMAT_COLOR_RED_START "\x1b[31m " // Color Start
+#define _FORMAT_COLOR_RED_END " \x1b[0m" // To flush out prev settings
+#define _FORMAT_COLOR_GREEN_START "\x1b[32m " // Color Start
+#define _FORMAT_COLOR_GREEN_END _FORMAT_COLOR_RED_END // To flush out prev settings
+#define _FORMAT_COLOR_BLUE_START "\x1b[34m "
+#define _FORMAT_COLOR_BLUE_END _FORMAT_COLOR_RED_END
+#define _FORMAT_COLOR_YELLOW_START "\x1b[33m "
+#define _FORMAT_COLOR_YELLOW_END _FORMAT_COLOR_RED_END
+
+
+#define _EXPAND(thing) thing
+// fprintf but it outputs red text
+#define fprintf_red(file, format, ...) fprintf(file,_FORMAT_COLOR_RED_START format _FORMAT_COLOR_RED_END, __VA_ARGS__)
+#define fprintf_blue(file, format, ...) fprintf(file,_FORMAT_COLOR_BLUE_START format _FORMAT_COLOR_BLUE_END, __VA_ARGS__)
+#define fprintf_yellow(file, format, ...) fprintf(file,_FORMAT_COLOR_YELLOW_START format _FORMAT_COLOR_YELLOW_END, __VA_ARGS__)
+
+static int BreakDebugger(int errorCode)
+{
 	ThrowEvent(errorCode);
+	return errorCode;
+}
+
+#define throw(errorCode) \
+	fprintf_red(stdout,"%s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE);\
+	ThrowEvent(errorCode)
+
+// use this when you want to throw an error in the middle of an expression like
+// example: int x = y < 0 ? throw_in_expression(IndexOutOfRangeException) : y;
+#define throw_in_expression(errorCode) \
+	fprintf_red(stdout,"%s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE) + BreakDebugger(errorCode)
 
 #define warn(errorCode) fprintf(stdout,"[WARNING] %s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE);
 

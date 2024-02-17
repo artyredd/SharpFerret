@@ -81,13 +81,14 @@ typedef struct _array_##type* type##_array;
 // array = { a, b, c, d, e, f, g, h }
 // sub = stack_subarray(array, 4, 2)
 // sub { e, f }
+// ! will throw IndexOutOfRangeException if start index or count are out of bounds
 #define stack_subarray(type, arr, startIndex, count) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
-	.Values = &arr->Values[startIndex],\
-	.Size = sizeof(type) * count,\
+	.Values = &arr->Values[(startIndex) >= (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (startIndex)],\
+	.Size = (sizeof(type) * count) > ((arr)->Size) ? throw_in_expression(IndexOutOfRangeException) : (sizeof(type) * count),\
 	.ElementSize = sizeof(type),\
-	.Capacity = count,\
-	.Count = count,\
+	.Capacity = (count) > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (count),\
+	.Count = (count) > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (count),\
 	.TypeId = 0,\
 	.StackObject = true\
 }

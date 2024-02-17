@@ -86,3 +86,4 @@ static Exception FailedToSetSceneException = 0x40000001;
 // thrown when the resolution of one object should match another object's but they do not
 static Exception ResolutionMismatchException = 0x50000004;
 //
+
