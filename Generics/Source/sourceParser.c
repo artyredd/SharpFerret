@@ -249,7 +249,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 
 			if (depth is 0)
 			{
-				if (PreviousCharacterIgnoringWhiteSpace(stack_substring_front(data, i)) is ')')
+				if (PreviousCharacterIgnoringWhiteSpace(stack_substring_front(data, i - 1)) is ')')
 				{
 					return indexOfFirstBrace;
 				}
@@ -1129,6 +1129,12 @@ TEST(IndexOfLastBlockExpressionOrMacro)
 
 	data = stack_string("struct <T>{};");
 	IsEqual(data->Count - 1, (size_t)IndexOfLastBlockExpressionOrMacro(data, data->Count, 0));
+
+	data = stack_string("static inline void start");
+	IsEqual(0, IndexOfLastBlockExpressionOrMacro(data, data->Count, 0));
+
+	data = stack_string("void main(){} T myType<T>();");
+	IsEqual(12, IndexOfLastBlockExpressionOrMacro(data, data->Count - 6, 0));
 
 	return true;
 }
