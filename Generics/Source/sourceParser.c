@@ -43,6 +43,8 @@ typedef struct
 	bool Definition;
 	// T number = add<T>(var1, var2);
 	bool Call;
+	// True when a pragma warning should be inserted 
+	bool InsertFailedToIndentifyWarning;
 } location;
 
 DEFINE_CONTAINERS(location);
@@ -880,26 +882,16 @@ private bool IsValidMethodSignature(string data)
 // checks for 
 // struct name<T>{ T thing; };
 // typedef struct <T>{ T thing; } name;
-private bool IsGenericStruct(string data, int depth, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
+private bool IsGenericStruct(string data, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
 {
 	Guard(data->Count isnt 0);
 	Guard(data->Values[openAlligatorIndex] is '<');
 
-	*out_location = (location){ 0 };
-
-	location result = { 0 };
-
-	result.AlligatorStartIndex = openAlligatorIndex;
-
 	// struct name<T>{ T thing; };
 	// typedef struct <T>{ T thing; } name;
 
-	// walk bakwards to the start 
-	const int start = IndexOfLastBlockExpressionOrMacro(data, openAlligatorIndex, lastMacroEndIndex);
+	string startThroughAlligator = stack_subarray(char, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex);
 
-	result.StartScopeIndex = start;
-
-	string startThroughAlligator = stack_subarray(char, data, start, openAlligatorIndex - start);
 	const bool hasStructKeyword = Strings.Contains(startThroughAlligator->Values, startThroughAlligator->Count, "struct", sizeof("struct") - 1);
 
 	if (hasStructKeyword is false)
@@ -914,9 +906,7 @@ private bool IsGenericStruct(string data, int depth, int openAlligatorIndex, int
 		return false;
 	}
 
-	const int closingIndex = IndexOfClosingAlligator(data, depth, openAlligatorIndex);
-
-	result.AlligatorEndIndex = closingIndex;
+	const int closingIndex = out_location->AlligatorEndIndex;
 
 	if (closingIndex is - 1)
 	{
@@ -937,34 +927,22 @@ private bool IsGenericStruct(string data, int depth, int openAlligatorIndex, int
 
 	const int indexOfBrace = IndexOfClosingBrace(block) + closingIndex + 1;
 
-	result.EndScopeIndex = indexOfBrace;
+	out_location->EndScopeIndex = indexOfBrace;
 
-	result.Struct = true;
-
-	*out_location = result;
+	out_location->Struct = true;
 
 	return true;
 }
 
 // checks for
 // void Method<T>(T value);
-private bool IsGenericMethodDeclaration(string data, int depth, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
+private bool IsGenericMethodDeclaration(string data, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
 {
 	Guard(data->Count isnt 0);
 	Guard(data->Values[openAlligatorIndex] is '<');
 
-	location result = { 0 };
-
-	*out_location = result;
-
-	result.AlligatorStartIndex = openAlligatorIndex;
-
-	const int start = IndexOfLastBlockExpressionOrMacro(data, openAlligatorIndex, lastMacroEndIndex);
-
-	result.StartScopeIndex = start;
-
 	// method declarations have a return type, name, params, and a semicolon at the end
-	string startThroughAlligator = stack_subarray(char, data, start, openAlligatorIndex - start + 1);
+	string startThroughAlligator = stack_subarray(char, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex + 1);
 
 	const bool hasValidMethodSignature = IsValidMethodSignature(startThroughAlligator);
 
@@ -973,9 +951,7 @@ private bool IsGenericMethodDeclaration(string data, int depth, int openAlligato
 		return false;
 	}
 
-	const int closingIndex = IndexOfClosingAlligator(data, depth, openAlligatorIndex);
-
-	result.AlligatorEndIndex = closingIndex;
+	const int closingIndex = out_location->AlligatorEndIndex;
 
 	if (closingIndex is - 1)
 	{
@@ -1002,35 +978,22 @@ private bool IsGenericMethodDeclaration(string data, int depth, int openAlligato
 		return false;
 	}
 
-	result.EndScopeIndex = indexOfBrace + IndexOfNextCharacterIgnoringWhitespace(stack_substring_back(data, indexOfBrace));
+	out_location->EndScopeIndex = indexOfBrace + IndexOfNextCharacterIgnoringWhitespace(stack_substring_back(data, indexOfBrace));
 
-	result.Declaration = true;
-
-	*out_location = result;
+	out_location->Declaration = true;
 
 	return true;
 }
 
 // checks for 
 // void Method<T>(){}
-private bool IsGenericMethodDefinition(string data, int depth, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
+private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
 {
 	Guard(data->Count isnt 0);
 	Guard(data->Values[openAlligatorIndex] is '<');
 
-	location result = { 0 };
-
-	*out_location = result;
-
-	result.AlligatorStartIndex = openAlligatorIndex;
-
-	const int start = IndexOfLastBlockExpressionOrMacro(data, openAlligatorIndex, lastMacroEndIndex);
-
-	result.StartScopeIndex = start;
-
-
 	// method declarations have a return type, name, params, and a semicolon at the end
-	string startThroughAlligator = stack_subarray(char, data, start, openAlligatorIndex - start + 1);
+	string startThroughAlligator = stack_subarray(char, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex + 1);
 
 	const bool hasValidMethodSignature = IsValidMethodSignature(startThroughAlligator);
 
@@ -1039,20 +1002,16 @@ private bool IsGenericMethodDefinition(string data, int depth, int openAlligator
 		return false;
 	}
 
-	const int closingIndex = IndexOfClosingAlligator(data, depth, openAlligatorIndex);
-
-	result.AlligatorEndIndex = closingIndex;
-
-	if (closingIndex is - 1)
+	if (out_location->AlligatorEndIndex is - 1)
 	{
 		// no matching alligator
 		return false;
 	}
 
 	// at this point we know its a struct def
-	string block = stack_substring_back(data, closingIndex + 1);
+	string block = stack_substring_back(data, out_location->AlligatorEndIndex + 1);
 
-	const int indexOfStartBrace = IndexOfClosingParen(block) + closingIndex + 2;
+	const int indexOfStartBrace = IndexOfClosingParen(block) + out_location->AlligatorEndIndex + 2;
 
 	// make sure the signature ends with a brace to define the method body
 	if (NextCharacterIgnoringWhiteSpace(stack_substring_back(data, indexOfStartBrace)) isnt '{')
@@ -1067,23 +1026,50 @@ private bool IsGenericMethodDefinition(string data, int depth, int openAlligator
 		return false;
 	}
 
-	result.EndScopeIndex = indexOfEndBrace;
-	result.Definition = true;
-
-	*out_location = result;
+	out_location->EndScopeIndex = indexOfEndBrace;
+	out_location->Definition = true;
 
 	return true;
 }
+
+private bool IsGenericMethodCall(string data, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
+{
+	Guard(data->Count isnt 0);
+	Guard(data->Values[openAlligatorIndex] is '<');
+
+	// method declarations have a return type, name, params, and a semicolon at the end
+	string startThroughAlligator = stack_subarray(char, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex + 1);
+
+
+}
+
 
 private location IdentifyGenericCall(string data, int depth, int openAlligatorIndex, int lastMacroEndIndex)
 {
 	location result = { 0 };
 
-	const bool isGenericStruct = IsGenericStruct(data, depth, openAlligatorIndex, lastMacroEndIndex, &result);
+	result.AlligatorStartIndex = openAlligatorIndex;
 
-	const bool isGenericMethodDeclaration = IsGenericMethodDeclaration(data, depth, openAlligatorIndex, lastMacroEndIndex, &result);
+	const int start = IndexOfLastBlockExpressionOrMacro(data, openAlligatorIndex, lastMacroEndIndex);
 
-	const bool isGenericMethodDefinition = IsGenericMethodDefinition(data, depth, openAlligatorIndex, lastMacroEndIndex, &result);
+	result.StartScopeIndex = start;
+
+	const int closingIndex = IndexOfClosingAlligator(data, depth, openAlligatorIndex);
+
+	result.AlligatorEndIndex = closingIndex;
+
+	const bool isGenericStruct = IsGenericStruct(data, openAlligatorIndex, lastMacroEndIndex, &result);
+
+	const bool isGenericMethodDeclaration = IsGenericMethodDeclaration(data, openAlligatorIndex, lastMacroEndIndex, &result);
+
+	const bool isGenericMethodDefinition = IsGenericMethodDefinition(data, openAlligatorIndex, lastMacroEndIndex, &result);
+
+	const bool isExpressionCall = IsGenericMethodCall(data, openAlligatorIndex, lastMacroEndIndex, &result);
+
+	if ((isGenericStruct or isGenericMethodDeclaration or isGenericMethodDefinition or isExpressionCall) is false)
+	{
+		result.InsertFailedToIndentifyWarning = true;
+	}
 
 	return result;
 }
@@ -1212,36 +1198,70 @@ TEST(IsGenericMethodDeclaration)
 {
 	string data = stack_string("struct <T>{};");
 
-	location dataLocation;
+	location dataLocation = {
+		.AlligatorStartIndex = 7,
+		.AlligatorEndIndex = 9,
+		.StartScopeIndex = 0
+	};
 
-	IsFalse(IsGenericMethodDeclaration(data, 0, 7, 0, &dataLocation));
+	IsFalse(IsGenericMethodDeclaration(data, 7, 0, &dataLocation));
 
 	data = stack_string("void MyMethod<T>();");
-	IsTrue(IsGenericMethodDeclaration(data, 0, 13, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 13,
+		.AlligatorEndIndex = 15,
+		.StartScopeIndex = 0
+	};
+	IsTrue(IsGenericMethodDeclaration(data, 13, 0, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T>();");
-	IsTrue(IsGenericMethodDeclaration(data, 0, 39, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 39,
+		.AlligatorEndIndex = 41,
+		.StartScopeIndex = 0
+	};
+	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T,U,V,W>();");
-	IsTrue(IsGenericMethodDeclaration(data, 0, 39, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 39,
+		.AlligatorEndIndex = 47,
+		.StartScopeIndex = 0
+	};
+	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T,U,V,W>(int x, int y, int z);");
-	IsTrue(IsGenericMethodDeclaration(data, 0, 39, 0, &dataLocation));
+	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T,U,V,W>(int x, int y, int z, struct vector2{int x; int y;});");
-	IsTrue(IsGenericMethodDeclaration(data, 0, 39, 0, &dataLocation));
+	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T,U,V,W>(int x, int y, int z, struct vector2{int x; int y;} /* co}mment he)re */);");
-	IsTrue(IsGenericMethodDeclaration(data, 0, 39, 0, &dataLocation));
+	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
 
 	data = stack_string("int x = MyMethod<int>(14);");
-	IsFalse(IsGenericMethodDeclaration(data, 0, 16, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 16,
+		.AlligatorEndIndex = 20,
+		.StartScopeIndex = 0
+	};
+	IsFalse(IsGenericMethodDeclaration(data, 16, 0, &dataLocation));
 
 	data = stack_string("*MyMethod<T>(12) = 14;");
-	IsFalse(IsGenericMethodDeclaration(data, 0, 9, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 9,
+		.AlligatorEndIndex = 11,
+		.StartScopeIndex = 0
+	};
+	IsFalse(IsGenericMethodDeclaration(data, 9, 0, &dataLocation));
 
 	data = stack_string("float x = MyMethod<float>() + MyMethod<int>(33);");
-	IsFalse(IsGenericMethodDeclaration(data, 0, 18, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 18,
+		.AlligatorEndIndex = 24,
+		.StartScopeIndex = 0
+	};
+	IsFalse(IsGenericMethodDeclaration(data, 18, 0, &dataLocation));
 
 	return true;
 }
@@ -1331,33 +1351,67 @@ TEST(IsGenericStruct)
 {
 	string data = stack_string("struct <T>{};");
 
-	location dataLocation;
+	location dataLocation = {
+		.AlligatorStartIndex = 7,
+		.AlligatorEndIndex = 9,
+		.StartScopeIndex = 0
+	};
 
-	IsTrue(IsGenericStruct(data, 0, 7, 0, &dataLocation));
+	IsTrue(IsGenericStruct(data, 7, 0, &dataLocation));
 
 	data = stack_string("struct<T>{};");
-	IsTrue(IsGenericStruct(data, 0, 6, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 6,
+		.AlligatorEndIndex = 8,
+		.StartScopeIndex = 0
+	};
+	IsTrue(IsGenericStruct(data, 6, 0, &dataLocation));
 
 	data = stack_string("struct	<T> { } ;");
-	IsTrue(IsGenericStruct(data, 0, 7, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 7,
+		.AlligatorEndIndex = 9,
+		.StartScopeIndex = 0
+	};
+	IsTrue(IsGenericStruct(data, 7, 0, &dataLocation));
 
 	data = stack_string("struct mystruct<T>{};");
-	IsTrue(IsGenericStruct(data, 0, 15, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 15,
+		.AlligatorEndIndex = 17,
+		.StartScopeIndex = 0
+	};
+	IsTrue(IsGenericStruct(data, 15, 0, &dataLocation));
 
 	data = stack_string("typedef struct <T>{int x; int y;} vector2;");
-	IsTrue(IsGenericStruct(data, 0, 15, 0, &dataLocation));
+	IsTrue(IsGenericStruct(data, 15, 0, &dataLocation));
 
 	data = stack_string("array<T> myVar = { 0 };");
-	IsFalse(IsGenericStruct(data, 0, 5, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 5,
+		.AlligatorEndIndex = 7,
+		.StartScopeIndex = 0
+	};
+	IsFalse(IsGenericStruct(data, 5, 0, &dataLocation));
 
 	data = stack_string("int x = Arrays<int>.Sum(myArray)");
-	IsFalse(IsGenericStruct(data, 0, 14, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 14,
+		.AlligatorEndIndex = 16,
+		.StartScopeIndex = 0
+	};
+	IsFalse(IsGenericStruct(data, 14, 0, &dataLocation));
 
 	data = stack_string("struct vector2 MyMethod<T>();");
-	IsFalse(IsGenericStruct(data, 0, 23, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 23,
+		.AlligatorEndIndex = 25,
+		.StartScopeIndex = 0
+	};
+	IsFalse(IsGenericStruct(data, 23, 0, &dataLocation));
 
 	data = stack_string("struct vector2 MyMethod<T>(){ return (struct vector2){ 0,0 };}");
-	IsFalse(IsGenericStruct(data, 0, 23, 0, &dataLocation));
+	IsFalse(IsGenericStruct(data, 23, 0, &dataLocation));
 
 	return true;
 }
@@ -1366,21 +1420,35 @@ TEST(IsGenericMethodDefinition)
 {
 	string data = stack_string("struct <T>{};");
 
-	location dataLocation;
+	location dataLocation = {
+		.AlligatorStartIndex = 7,
+		.AlligatorEndIndex = 9,
+		.StartScopeIndex = 0
+	};
 
-	IsFalse(IsGenericMethodDefinition(data, 0, 7, 0, &dataLocation));
+	IsFalse(IsGenericMethodDefinition(data, 7, 0, &dataLocation));
 
 	data = stack_string("void Method<T>();");
-	IsFalse(IsGenericMethodDefinition(data, 0, 11, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 11,
+		.AlligatorEndIndex = 13,
+		.StartScopeIndex = 0
+	};
+	IsFalse(IsGenericMethodDefinition(data, 11, 0, &dataLocation));
 
 	data = stack_string("void Method<T>(int x, int y, /*comment)*/ float y);");
-	IsFalse(IsGenericMethodDefinition(data, 0, 11, 0, &dataLocation));
+	IsFalse(IsGenericMethodDefinition(data, 11, 0, &dataLocation));
 
 	data = stack_string("void Method<T>(){}");
-	IsTrue(IsGenericMethodDefinition(data, 0, 11, 0, &dataLocation));
+	IsTrue(IsGenericMethodDefinition(data, 11, 0, &dataLocation));
 
 	data = stack_string("int Method<T>(int left, int right){ struct result{int x; const char* s = \"thi)}g\"}; if(left && right){ return left; } return right + Method(); }");
-	IsTrue(IsGenericMethodDefinition(data, 0, 10, 0, &dataLocation));
+	dataLocation = (location){
+		.AlligatorStartIndex = 10,
+		.AlligatorEndIndex = 12,
+		.StartScopeIndex = 0
+	};
+	IsTrue(IsGenericMethodDefinition(data, 10, 0, &dataLocation));
 
 	return true;
 }
