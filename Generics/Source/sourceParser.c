@@ -1073,6 +1073,8 @@ private array(location) GetGenericLocations(string data)
 
 	bool inMacro = false;
 	bool inString = false;
+	bool inComment = false;
+	bool inMultiLineComment = false;
 	int depth = 0;
 
 	int macroStart = 0;
@@ -1085,9 +1087,9 @@ private array(location) GetGenericLocations(string data)
 		int nextC = data->Values[i + 1];
 
 		// check to see if we're in a string
-		if (c is '"')
+		if (c is '"' or c is '\'')
 		{
-			// look back and check to see if it's delimited
+			// look back and check to see if it's escaped
 			if (previousC isnt '\\')
 			{
 				inString = !inString;
@@ -1095,8 +1097,44 @@ private array(location) GetGenericLocations(string data)
 			}
 		}
 
+		// ignore everything inside of strings, we dont care
+		if (inString)
+		{
+			continue;
+		}
+
+		if (c is '/' and nextC is '/')
+		{
+			inComment = true;
+			// skip past next char since we know what it is
+			i++;
+			continue;
+		}
+
+		if (c is '/' and nextC is '*')
+		{
+			inMultiLineComment = true;
+			// skip past next char since we know what it is
+			i++;
+			continue;
+		}
+
+		if (c is '*' and nextC is '/')
+		{
+			inMultiLineComment = false;
+			// skip past next char since we know what it is
+			i++;
+			continue;
+		}
+
+		// skip everything if we're in a big comment
+		if (inMultiLineComment)
+		{
+			continue;
+		}
+
 		// check for macros
-		if (c is '#' && !inMacro and inString is false)
+		if (c is '#' && !inMacro)
 		{
 			inMacro = true;
 			macroStart = i;
@@ -1104,15 +1142,23 @@ private array(location) GetGenericLocations(string data)
 		}
 
 		// check to see if we're at a newline
-		if (c is '\n' || (c is '\r' && nextC is '\n' && previousC != '\\') and inString is false)
+		if ((c is '\n' || (c is '\r' && nextC is '\n' && previousC != '\\')))
 		{
-			inMacro = false;
-			macroEnd = i;
+			if (inMacro)
+			{
+				inMacro = false;
+				macroEnd = i;
 
-			Arrays(tuple(int, int)).Append(macroLocations, (tuple(int, int)) { macroStart, macroEnd });
+				Arrays(tuple(int, int)).Append(macroLocations, (tuple(int, int)) { macroStart, macroEnd });
 
-			macroStart = 0;
-			// keep last macro position
+				macroStart = 0;
+				// keep last macro position
+			}
+
+			if (inComment)
+			{
+				inComment = false;
+			}
 
 			continue;
 		}
@@ -1122,13 +1168,6 @@ private array(location) GetGenericLocations(string data)
 		{
 			continue;
 		}
-
-		// dont read if we're in a string
-		if (inString)
-		{
-			continue;
-		}
-
 
 		// check to see if this is the start of a generic definition
 		if (c is '<')
@@ -1467,6 +1506,17 @@ TEST(LookAheadIsGenericCall)
 	return true;
 }
 
+TEST(GetGenericLocations)
+{
+	string data = stack_string("#include <stdio.h> // comment int Create<int>(); here\nint i = 0; struct<T>{/* <C,O,M,M,E,N,T> */ T Value;}; int main(){return 0;} int GreaterThan(int left, int right){ return left < right; }");
+
+	array(location) locations = GetGenericLocations(data);
+
+	IsEqual((size_t)1, locations->Count);
+
+	return true;
+}
+
 TEST_SUITE(RunUnitTests,
 	APPEND_TEST(IndexOfLastBlockExpressionOrMacro)
 	APPEND_TEST(LookAheadIsGenericCall)
@@ -1476,6 +1526,7 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(TryGetTypeReturnType)
 	APPEND_TEST(IsGenericMethodDeclaration)
 	APPEND_TEST(IsGenericMethodDefinition)
+	APPEND_TEST(GetGenericLocations)
 );
 
 void RunTests()
