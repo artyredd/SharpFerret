@@ -882,7 +882,7 @@ private bool IsValidMethodSignature(string data)
 // checks for 
 // struct name<T>{ T thing; };
 // typedef struct <T>{ T thing; } name;
-private bool IsGenericStruct(string data, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
+private bool IsGenericStruct(string data, int openAlligatorIndex, location* out_location)
 {
 	Guard(data->Count isnt 0);
 	Guard(data->Values[openAlligatorIndex] is '<');
@@ -936,7 +936,7 @@ private bool IsGenericStruct(string data, int openAlligatorIndex, int lastMacroE
 
 // checks for
 // void Method<T>(T value);
-private bool IsGenericMethodDeclaration(string data, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
+private bool IsGenericMethodDeclaration(string data, int openAlligatorIndex, location* out_location)
 {
 	Guard(data->Count isnt 0);
 	Guard(data->Values[openAlligatorIndex] is '<');
@@ -987,7 +987,7 @@ private bool IsGenericMethodDeclaration(string data, int openAlligatorIndex, int
 
 // checks for 
 // void Method<T>(){}
-private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
+private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, location* out_location)
 {
 	Guard(data->Count isnt 0);
 	Guard(data->Values[openAlligatorIndex] is '<');
@@ -1032,7 +1032,7 @@ private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, int 
 	return true;
 }
 
-private bool IsGenericMethodCall(string data, int openAlligatorIndex, int lastMacroEndIndex, location* out_location)
+private bool IsGenericMethodCall(string data, int openAlligatorIndex, location* out_location)
 {
 	Guard(data->Count isnt 0);
 	Guard(data->Values[openAlligatorIndex] is '<');
@@ -1058,13 +1058,13 @@ private location IdentifyGenericCall(string data, int depth, int openAlligatorIn
 
 	result.AlligatorEndIndex = closingIndex;
 
-	const bool isGenericStruct = IsGenericStruct(data, openAlligatorIndex, lastMacroEndIndex, &result);
+	const bool isGenericStruct = IsGenericStruct(data, openAlligatorIndex, &result);
 
-	const bool isGenericMethodDeclaration = IsGenericMethodDeclaration(data, openAlligatorIndex, lastMacroEndIndex, &result);
+	const bool isGenericMethodDeclaration = IsGenericMethodDeclaration(data, openAlligatorIndex, &result);
 
-	const bool isGenericMethodDefinition = IsGenericMethodDefinition(data, openAlligatorIndex, lastMacroEndIndex, &result);
+	const bool isGenericMethodDefinition = IsGenericMethodDefinition(data, openAlligatorIndex, &result);
 
-	const bool isExpressionCall = IsGenericMethodCall(data, openAlligatorIndex, lastMacroEndIndex, &result);
+	const bool isExpressionCall = IsGenericMethodCall(data, openAlligatorIndex, &result);
 
 	if ((isGenericStruct or isGenericMethodDeclaration or isGenericMethodDefinition or isExpressionCall) is false)
 	{
@@ -1204,7 +1204,7 @@ TEST(IsGenericMethodDeclaration)
 		.StartScopeIndex = 0
 	};
 
-	IsFalse(IsGenericMethodDeclaration(data, 7, 0, &dataLocation));
+	IsFalse(IsGenericMethodDeclaration(data, 7, &dataLocation));
 
 	data = stack_string("void MyMethod<T>();");
 	dataLocation = (location){
@@ -1212,7 +1212,7 @@ TEST(IsGenericMethodDeclaration)
 		.AlligatorEndIndex = 15,
 		.StartScopeIndex = 0
 	};
-	IsTrue(IsGenericMethodDeclaration(data, 13, 0, &dataLocation));
+	IsTrue(IsGenericMethodDeclaration(data, 13, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T>();");
 	dataLocation = (location){
@@ -1220,7 +1220,7 @@ TEST(IsGenericMethodDeclaration)
 		.AlligatorEndIndex = 41,
 		.StartScopeIndex = 0
 	};
-	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
+	IsTrue(IsGenericMethodDeclaration(data, 39, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T,U,V,W>();");
 	dataLocation = (location){
@@ -1228,16 +1228,16 @@ TEST(IsGenericMethodDeclaration)
 		.AlligatorEndIndex = 47,
 		.StartScopeIndex = 0
 	};
-	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
+	IsTrue(IsGenericMethodDeclaration(data, 39, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T,U,V,W>(int x, int y, int z);");
-	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
+	IsTrue(IsGenericMethodDeclaration(data, 39, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T,U,V,W>(int x, int y, int z, struct vector2{int x; int y;});");
-	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
+	IsTrue(IsGenericMethodDeclaration(data, 39, &dataLocation));
 
 	data = stack_string("struct myStruct{int x; int y;} MyMethod<T,U,V,W>(int x, int y, int z, struct vector2{int x; int y;} /* co}mment he)re */);");
-	IsTrue(IsGenericMethodDeclaration(data, 39, 0, &dataLocation));
+	IsTrue(IsGenericMethodDeclaration(data, 39, &dataLocation));
 
 	data = stack_string("int x = MyMethod<int>(14);");
 	dataLocation = (location){
@@ -1245,7 +1245,7 @@ TEST(IsGenericMethodDeclaration)
 		.AlligatorEndIndex = 20,
 		.StartScopeIndex = 0
 	};
-	IsFalse(IsGenericMethodDeclaration(data, 16, 0, &dataLocation));
+	IsFalse(IsGenericMethodDeclaration(data, 16, &dataLocation));
 
 	data = stack_string("*MyMethod<T>(12) = 14;");
 	dataLocation = (location){
@@ -1253,7 +1253,7 @@ TEST(IsGenericMethodDeclaration)
 		.AlligatorEndIndex = 11,
 		.StartScopeIndex = 0
 	};
-	IsFalse(IsGenericMethodDeclaration(data, 9, 0, &dataLocation));
+	IsFalse(IsGenericMethodDeclaration(data, 9, &dataLocation));
 
 	data = stack_string("float x = MyMethod<float>() + MyMethod<int>(33);");
 	dataLocation = (location){
@@ -1261,7 +1261,7 @@ TEST(IsGenericMethodDeclaration)
 		.AlligatorEndIndex = 24,
 		.StartScopeIndex = 0
 	};
-	IsFalse(IsGenericMethodDeclaration(data, 18, 0, &dataLocation));
+	IsFalse(IsGenericMethodDeclaration(data, 18, &dataLocation));
 
 	return true;
 }
@@ -1357,7 +1357,7 @@ TEST(IsGenericStruct)
 		.StartScopeIndex = 0
 	};
 
-	IsTrue(IsGenericStruct(data, 7, 0, &dataLocation));
+	IsTrue(IsGenericStruct(data, 7, &dataLocation));
 
 	data = stack_string("struct<T>{};");
 	dataLocation = (location){
@@ -1365,7 +1365,7 @@ TEST(IsGenericStruct)
 		.AlligatorEndIndex = 8,
 		.StartScopeIndex = 0
 	};
-	IsTrue(IsGenericStruct(data, 6, 0, &dataLocation));
+	IsTrue(IsGenericStruct(data, 6, &dataLocation));
 
 	data = stack_string("struct	<T> { } ;");
 	dataLocation = (location){
@@ -1373,7 +1373,7 @@ TEST(IsGenericStruct)
 		.AlligatorEndIndex = 9,
 		.StartScopeIndex = 0
 	};
-	IsTrue(IsGenericStruct(data, 7, 0, &dataLocation));
+	IsTrue(IsGenericStruct(data, 7, &dataLocation));
 
 	data = stack_string("struct mystruct<T>{};");
 	dataLocation = (location){
@@ -1381,10 +1381,10 @@ TEST(IsGenericStruct)
 		.AlligatorEndIndex = 17,
 		.StartScopeIndex = 0
 	};
-	IsTrue(IsGenericStruct(data, 15, 0, &dataLocation));
+	IsTrue(IsGenericStruct(data, 15, &dataLocation));
 
 	data = stack_string("typedef struct <T>{int x; int y;} vector2;");
-	IsTrue(IsGenericStruct(data, 15, 0, &dataLocation));
+	IsTrue(IsGenericStruct(data, 15, &dataLocation));
 
 	data = stack_string("array<T> myVar = { 0 };");
 	dataLocation = (location){
@@ -1392,7 +1392,7 @@ TEST(IsGenericStruct)
 		.AlligatorEndIndex = 7,
 		.StartScopeIndex = 0
 	};
-	IsFalse(IsGenericStruct(data, 5, 0, &dataLocation));
+	IsFalse(IsGenericStruct(data, 5, &dataLocation));
 
 	data = stack_string("int x = Arrays<int>.Sum(myArray)");
 	dataLocation = (location){
@@ -1400,7 +1400,7 @@ TEST(IsGenericStruct)
 		.AlligatorEndIndex = 16,
 		.StartScopeIndex = 0
 	};
-	IsFalse(IsGenericStruct(data, 14, 0, &dataLocation));
+	IsFalse(IsGenericStruct(data, 14, &dataLocation));
 
 	data = stack_string("struct vector2 MyMethod<T>();");
 	dataLocation = (location){
@@ -1408,10 +1408,10 @@ TEST(IsGenericStruct)
 		.AlligatorEndIndex = 25,
 		.StartScopeIndex = 0
 	};
-	IsFalse(IsGenericStruct(data, 23, 0, &dataLocation));
+	IsFalse(IsGenericStruct(data, 23, &dataLocation));
 
 	data = stack_string("struct vector2 MyMethod<T>(){ return (struct vector2){ 0,0 };}");
-	IsFalse(IsGenericStruct(data, 23, 0, &dataLocation));
+	IsFalse(IsGenericStruct(data, 23, &dataLocation));
 
 	return true;
 }
@@ -1426,7 +1426,7 @@ TEST(IsGenericMethodDefinition)
 		.StartScopeIndex = 0
 	};
 
-	IsFalse(IsGenericMethodDefinition(data, 7, 0, &dataLocation));
+	IsFalse(IsGenericMethodDefinition(data, 7, &dataLocation));
 
 	data = stack_string("void Method<T>();");
 	dataLocation = (location){
@@ -1434,13 +1434,13 @@ TEST(IsGenericMethodDefinition)
 		.AlligatorEndIndex = 13,
 		.StartScopeIndex = 0
 	};
-	IsFalse(IsGenericMethodDefinition(data, 11, 0, &dataLocation));
+	IsFalse(IsGenericMethodDefinition(data, 11, &dataLocation));
 
 	data = stack_string("void Method<T>(int x, int y, /*comment)*/ float y);");
-	IsFalse(IsGenericMethodDefinition(data, 11, 0, &dataLocation));
+	IsFalse(IsGenericMethodDefinition(data, 11, &dataLocation));
 
 	data = stack_string("void Method<T>(){}");
-	IsTrue(IsGenericMethodDefinition(data, 11, 0, &dataLocation));
+	IsTrue(IsGenericMethodDefinition(data, 11, &dataLocation));
 
 	data = stack_string("int Method<T>(int left, int right){ struct result{int x; const char* s = \"thi)}g\"}; if(left && right){ return left; } return right + Method(); }");
 	dataLocation = (location){
@@ -1448,7 +1448,7 @@ TEST(IsGenericMethodDefinition)
 		.AlligatorEndIndex = 12,
 		.StartScopeIndex = 0
 	};
-	IsTrue(IsGenericMethodDefinition(data, 10, 0, &dataLocation));
+	IsTrue(IsGenericMethodDefinition(data, 10, &dataLocation));
 
 	return true;
 }
