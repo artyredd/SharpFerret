@@ -1032,18 +1032,6 @@ private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, loca
 	return true;
 }
 
-private bool IsGenericMethodCall(string data, int openAlligatorIndex, location* out_location)
-{
-	Guard(data->Count isnt 0);
-	Guard(data->Values[openAlligatorIndex] is '<');
-
-	// method declarations have a return type, name, params, and a semicolon at the end
-	string startThroughAlligator = stack_subarray(char, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex + 1);
-
-
-}
-
-
 private location IdentifyGenericCall(string data, int depth, int openAlligatorIndex, int lastMacroEndIndex)
 {
 	location result = { 0 };
@@ -1064,11 +1052,13 @@ private location IdentifyGenericCall(string data, int depth, int openAlligatorIn
 
 	const bool isGenericMethodDefinition = IsGenericMethodDefinition(data, openAlligatorIndex, &result);
 
-	const bool isExpressionCall = IsGenericMethodCall(data, openAlligatorIndex, &result);
-
-	if ((isGenericStruct or isGenericMethodDeclaration or isGenericMethodDefinition or isExpressionCall) is false)
+	// cover things like
+	// myStruct<int> myStruct = { 0 };
+	// callMyMethod<int>();
+	// int result = (int)(MACRO()OtherCall().MyGeneric<float>() * 10);
+	if ((isGenericStruct and isGenericMethodDeclaration and isGenericMethodDefinition) is false)
 	{
-		result.InsertFailedToIndentifyWarning = true;
+		result.Call = true;
 	}
 
 	return result;
