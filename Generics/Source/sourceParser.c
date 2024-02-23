@@ -1508,11 +1508,18 @@ TEST(LookAheadIsGenericCall)
 
 TEST(GetGenericLocations)
 {
-	string data = stack_string("#include <stdio.h> // comment int Create<int>(); here\nint i = 0; struct<T>{/* <C,O,M,M,E,N,T> */ T Value;}; int main(){return 0;} int GreaterThan(int left, int right){ return left < right; }");
+	string data = stack_string("#include <stdio.h> // comment int Create<int>(); here\nint i = 0; struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;}; int main(){return 0;} int GreaterThan(int left, int right){ return left < right; }");
 
 	array(location) locations = GetGenericLocations(data);
 
+	location result = locations->Values[0];
+
 	IsEqual((size_t)1, locations->Count);
+	IsEqual(75, result.AlligatorStartIndex);
+	IsEqual(77, result.AlligatorEndIndex);
+	IsEqual(65, result.StartScopeIndex);
+	IsEqual(110, result.EndScopeIndex);
+	IsTrue(result.Struct);
 
 	return true;
 }
