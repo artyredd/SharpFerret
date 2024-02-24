@@ -853,7 +853,15 @@ private bool TryGetTypeReturnType(string data, tuple(int, int)* out_returnType)
 		return false;
 	}
 
-	*out_returnType = (tuple(int, int)){ typeStart, typeEnd - typeStart + 1 };
+	const int nameLength = typeEnd - typeStart + 1;
+
+	*out_returnType = (tuple(int, int)){ typeStart, nameLength };
+
+	// make sure the name isnt just struct
+	if (nameLength is sizeof("struct") - 1)
+	{
+		return strings.Equals(stack_substring(data, typeStart, nameLength), stack_string("struct")) is false;
+	}
 
 	return true;
 }
@@ -1010,7 +1018,7 @@ private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, loca
 		return false;
 	}
 
-	// at this point we know its a struct def
+	// make sure we have parens
 	string block = stack_substring_back(data, out_location->AlligatorEndIndex + 1);
 
 	const int indexOfStartBrace = IndexOfClosingParen(block) + out_location->AlligatorEndIndex + 2;
@@ -1028,7 +1036,7 @@ private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, loca
 		return false;
 	}
 
-	out_location->EndScopeIndex = indexOfEndBrace;
+	out_location->EndScopeIndex = indexOfStartBrace + indexOfEndBrace;
 	out_location->Definition = true;
 
 	return true;
@@ -1490,6 +1498,43 @@ TEST(IsGenericMethodDefinition)
 	};
 	IsTrue(IsGenericMethodDefinition(data, 10, &dataLocation));
 
+	data = stack_string("struct Method<T>{}");
+	dataLocation = (location){
+		.AlligatorStartIndex = 13,
+		.AlligatorEndIndex = 15,
+		.StartScopeIndex = 0
+	};
+	IsFalse(IsGenericMethodDefinition(data, 13, &dataLocation));
+
+	data = stack_string("stract Method<T>(){}");
+	dataLocation = (location){
+		.AlligatorStartIndex = 13,
+		.AlligatorEndIndex = 15,
+		.StartScopeIndex = 0
+	};
+	IsTrue(IsGenericMethodDefinition(data, 13, &dataLocation));
+
+	data = stack_string("stract Method<T>(){}");
+	dataLocation = (location){
+		.AlligatorStartIndex = 13,
+		.AlligatorEndIndex = 15,
+		.StartScopeIndex = 0
+	};
+	IsTrue(IsGenericMethodDefinition(data, 13, &dataLocation));
+
+	data = stack_string("stract Method<T>..{}");
+	IsFalse(IsGenericMethodDefinition(data, 13, &dataLocation));
+
+	data = stack_string("stract Method<T>(.{}");
+	IsFalse(IsGenericMethodDefinition(data, 13, &dataLocation));
+
+	data = stack_string("stract Method<T>(({}");
+	IsFalse(IsGenericMethodDefinition(data, 13, &dataLocation));
+
+	data = stack_string("stract Method<T>(({});");
+	IsFalse(IsGenericMethodDefinition(data, 13, &dataLocation));
+
+
 	return true;
 }
 
@@ -1531,6 +1576,9 @@ TEST(GetGenericLocations)
 	IsEqual(65, result.StartScopeIndex);
 	IsEqual(110, result.EndScopeIndex);
 	IsTrue(result.Struct);
+	IsFalse(result.Definition);
+	IsFalse(result.Call);
+	IsFalse(result.Declaration);
 
 	return true;
 }
