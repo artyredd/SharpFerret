@@ -53,6 +53,8 @@ static Exception NoAvailableObjectInPoolException = 0x70000009;
 static Exception ItemNotFoundInCollectionException = 0x7000000A;
 // Attempted to free, modify or change a stack variable inaparopriately
 static Exception StackObjectModifiedException = 0x7000000B;
+// Attempted to perform an operation with two objects that are incompatible sizes in bytes
+static Exception TypeMismatchException = 0x7000000C;
 
 // The logic path or branching that lead to this error needs to be evaluated or tested more thoroughly.
 // This error denotes and exception that may or may not be dangerous but is unexpected and clearly unintended.

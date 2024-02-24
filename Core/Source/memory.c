@@ -39,7 +39,7 @@ struct _memoryMethods Memory = {
 };
 
 #define MAX_TYPENAME_LENGTH 1024
-#define MAX_REGISTERED_TYPENAMES 128
+#define MAX_REGISTERED_TYPENAMES 1024
 
 struct _typeName {
 	size_t Id;
@@ -383,25 +383,25 @@ static char GetByteGrouping(size_t value)
 #pragma warning(default: 4127)
 #if _WIN32
 	// < 1Kb return b
-	if (value < (1 * 1024)) return 0;
+	if (value < ((size_t)1 * (size_t)1024)) return 0;
 	// < 1Mb return Kb
-	if (value < (1 * 1024 * 1024)) return 1;
+	if (value < ((size_t)1 * (size_t)1024 * (size_t)1024)) return 1;
 	// < 1Gb return Mb
-	if (value < (1 * 1024 * 1024 * 1024)) return 2;
+	if (value < ((size_t)1 * (size_t)1024 * (size_t)1024 * (size_t)1024)) return 2;
 	// < 1Tb return Gb
-	if (value < ((size_t)1 * 1024 * 1024 * 1024 * 1024)) return 3;
+	if (value < ((size_t)1 * (size_t)1024 * (size_t)1024 * (size_t)1024 * (size_t)1024)) return 3;
 
 	// if >= TB return TB
 	return 4;
 #else
 	// < 1KB return B
-	if (value < 1 * 1000) return 0;
+	if (value < (size_t)1 * (size_t)1000) return 0;
 	// < 1MB return KB
-	if (value < 1 * 1000 * 1000) return 1;
+	if (value < (size_t)1 * (size_t)1000 * (size_t)1000) return 1;
 	// < 1GB return MB
-	if (value < 1 * 1000 * 1000 * 1000) return 2;
+	if (value < (size_t)1 * (size_t)1000 * (size_t)1000 * 1000) return 2;
 	// < 1TB return GB
-	if (value < (size_t)1 * 1000 * 1000 * 1000 * 1000) return 3;
+	if (value < (size_t)1 * (size_t)1000 * (size_t)1000 * (size_t)1000 * (size_t)1000) return 3;
 
 	// if >= TB return TB
 	return 4;

@@ -5,6 +5,7 @@
 #include "pointer.h"
 #include "macros.h"
 #include <string.h>
+#include <core/memory.h>
 
 // TEMPLATE
 
@@ -15,6 +16,14 @@
 #define array(type) _EXPAND_array(type)
 // Convenience methods that can be used with an array(type)
 #define Arrays(type) _EXPAND_Arrays(type)
+
+// Represents an array that has no data and only offsets, combine with
+// a base pointer from a parent array to create and array
+// Useful for when you want to return a stack_array but can't because it wont
+// live long enough
+// Great for using as a sliding view for a larger array without having
+// to create new stack_subarrays
+#define partial_array(type) partial_##type##_##array
 
 #define _EXPAND_STRUCT_NAME(type) _array_##type
 
@@ -37,6 +46,7 @@
 	/* Whether or not this object was constructed on the stack */\
 	bool StackObject;\
 }; \
+typedef struct _array_##type partial_##type##_##array;\
 typedef struct _array_##type* type##_array;
 
 #define explicit_stack_array(type,initialArraySize,count, ...) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
@@ -110,6 +120,57 @@ typedef struct _array_##type* type##_array;
 // sub = stack_subarray_back(array, 3)
 // sub { a, b, c, d }
 #define stack_subarray_front(type, arr, endIndexInclusive) stack_subarray(type, arr, 0, safe_add(endIndexInclusive, 1))
+
+// VALUE TYPE; Creates a persistent array that is a subarray of the given array
+// This array represents only offsets and contains no data and must be
+// combined with a pointer to provide an actual array.
+// USE THIS FOR: when you want to return a stack_array, but the stack_array
+// can't live past the current stack frame. Useful for avoiding memory
+// allocations.
+#define partial_subarray(type, arr, startIndex, count) (struct _EXPAND_STRUCT_NAME(type))\
+{\
+	.Values = arr->Count >= startIndex ? (type*)(void*)(size_t)startIndex : (type*)(void*)(size_t)throw_in_expression(IndexOutOfRangeException),\
+	.Size = (sizeof(type) * count) > ((arr)->Size) ? throw_in_expression(IndexOutOfRangeException) : (sizeof(type) * count),\
+	.ElementSize = sizeof(type),\
+	.Capacity = (count) > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (count),\
+	.Count = (count) > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (count),\
+	.TypeId = 0,\
+	/* This is a value type object that isn't a stack object */\
+	/* But we want to avoid trying to free an offset */\
+	.StackObject = true\
+}
+
+// Creates a stack array that is a subarray of the given array
+// Returns an array that contains the values inclusive between
+// the given index and the end
+// example: 
+// array = { a, b, c, d, e, f, g, h }
+// sub = stack_subarray_back(array, 4)
+// sub { e, f, g, h }
+#define partial_subarray_back(type, arr, startIndex) partial_subarray(type, arr, startIndex, safe_subtract(arr->Count, startIndex))
+
+// Creates a stack array that is a subarray of the given array
+// Returns an array that contains the values inclusive between
+// the front and the the given index
+// example: 
+// array = { a, b, c, d, e, f, g, h }
+// sub = stack_subarray_back(array, 3)
+// sub { a, b, c, d }
+#define partial_subarray_front(type, arr, endIndexInclusive) partial_subarray(type, arr, 0, safe_add(endIndexInclusive, 1))
+
+
+// creates a stack_array by combining a partial array with a regular array
+// STACK OBJECT!
+#define combine_partial_array(type, arr, partial) (array(type))&(partial_array(type))\
+{\
+	.Values = arr->Count >= (size_t)partial.Values ? (arr->Values + (size_t)partial.Values) : (char*)(size_t)throw_in_expression(IndexOutOfRangeException),\
+	.Size = partial.Size <= arr->Size ? partial.Size : throw_in_expression(IndexOutOfRangeException),\
+	.ElementSize = partial.ElementSize is arr->ElementSize ? partial.ElementSize : throw_in_expression(TypeMismatchException),\
+	.Capacity = partial.Capacity > arr->Capacity ? throw_in_expression(IndexOutOfRangeException) : partial.Capacity,\
+	.Count = (partial).Count > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : partial.Count,\
+	.TypeId = partial.TypeId != arr->TypeId ? throw_in_expression(TypeMismatchException) : partial.TypeId,\
+	.StackObject = true\
+}
 
 _ARRAY_DEFINE_STRUCT(void);
 typedef array(void) Array;
@@ -316,6 +377,12 @@ DEFINE_ARRAY(array(char));
 #define stack_substring(arr, index, count) stack_subarray(char, arr, index, count)
 #define stack_substring_front(arr, endIndexInclusive) stack_subarray_front(char, arr, endIndexInclusive)
 #define stack_substring_back(arr, startIndexInclusive) stack_subarray_back(char, arr, startIndexInclusive)
+#define partial_string partial_array(char)
+#define partial_substring(arr,index,count) partial_subarray(char,arr,index,count)
+#define partial_substring_front(arr, endIndexInclusive) partial_subarray_front(char, arr, endIndexInclusive)
+#define partial_substring_back(arr, startIndexInclusive) partial_subarray_back(char, arr, startIndexInclusive)
+#define combine_partial_string(arr, partial) combine_partial_array(char, arr, partial)
+
 
 #define _EXPAND_tuple(left,right) tuple_##left##_##right
 #define tuple(left,right) _EXPAND_tuple(left,right)
