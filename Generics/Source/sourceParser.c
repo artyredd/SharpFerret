@@ -1066,7 +1066,7 @@ private location IdentifyGenericCall(string data, int depth, int openAlligatorIn
 	// myStruct<int> myStruct = { 0 };
 	// callMyMethod<int>();
 	// int result = (int)(MACRO()OtherCall().MyGeneric<float>() * 10);
-	if ((isGenericStruct and isGenericMethodDeclaration and isGenericMethodDefinition) is false)
+	if ((isGenericStruct or isGenericMethodDeclaration or isGenericMethodDefinition) is false)
 	{
 		result.Call = true;
 	}
@@ -1574,7 +1574,7 @@ TEST(GetGenericLocations)
 	IsEqual(74, result.AlligatorStartIndex);
 	IsEqual(76, result.AlligatorEndIndex);
 	IsEqual(65, result.StartScopeIndex);
-	IsEqual(110, result.EndScopeIndex);
+	IsEqual(108, result.EndScopeIndex);
 	IsTrue(result.Struct);
 	IsFalse(result.Definition);
 	IsFalse(result.Call);
