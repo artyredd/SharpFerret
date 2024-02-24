@@ -89,6 +89,7 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 	fprintf(stream, BenchmarkEndFormat,__func__,__FILE__,__LINE__); \
 	if(!pass)\
 	{\
+		fprintf(stream,"\t\t"#expected" "#comparison" "#actual NEWLINE);\
 		fprintf(stream, _FORMAT_COLOR_RED_START"%s"_FORMAT_COLOR_RED_END, FailExpectedFormat);\
 		fprintf(stream,format,expected);\
 		fputc(' ',stream);\

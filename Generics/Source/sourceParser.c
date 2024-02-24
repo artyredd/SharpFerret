@@ -342,7 +342,7 @@ private int IndexOfClosingAlligator(string data, int startDepth, int openAlligat
 	int braceDepth = startDepth;
 	bool foundFinalAlligatorBrace = false;
 
-	for (size_t i = 0; i < data->Count; i++)
+	for (size_t i = openAlligatorIndex; i < data->Count; i++)
 	{
 		int c = data->Values[i];
 
@@ -1376,6 +1376,15 @@ TEST(IndexOfClosingBrace)
 	return true;
 }
 
+TEST(IndexOfClosingAlligator)
+{
+	string data = stack_string("#include <stdio.h> // comment int Create<int>(); here\nint i = 0; struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;}; int main(){return 0;} int GreaterThan(int left, int right){ return left < right; }");
+	const int endAlligatorIndex = IndexOfClosingAlligator(data, 0, 74);
+	IsEqual(76, endAlligatorIndex);
+
+	return true;
+}
+
 TEST(IsGenericStruct)
 {
 	string data = stack_string("struct <T>{};");
@@ -1515,8 +1524,8 @@ TEST(GetGenericLocations)
 	location result = locations->Values[0];
 
 	IsEqual((size_t)1, locations->Count);
-	IsEqual(75, result.AlligatorStartIndex);
-	IsEqual(77, result.AlligatorEndIndex);
+	IsEqual(74, result.AlligatorStartIndex);
+	IsEqual(76, result.AlligatorEndIndex);
 	IsEqual(65, result.StartScopeIndex);
 	IsEqual(110, result.EndScopeIndex);
 	IsTrue(result.Struct);
@@ -1529,6 +1538,7 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(LookAheadIsGenericCall)
 	APPEND_TEST(IsGenericStruct)
 	APPEND_TEST(IndexOfClosingBrace)
+	APPEND_TEST(IndexOfClosingAlligator)
 	APPEND_TEST(TryGetNameBeforeAlligator)
 	APPEND_TEST(TryGetTypeReturnType)
 	APPEND_TEST(IsGenericMethodDeclaration)
