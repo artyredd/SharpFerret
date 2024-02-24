@@ -174,6 +174,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 	bool inString = false;
 	bool inSingleComment = false;
 	bool inMultiComment = false;
+	int indexOfLastValidChar = -1;
 	int depth = 0;
 	int parenDepth = 0;
 	int indexOfFirstBrace = -1;
@@ -251,7 +252,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 
 			if (depth is 0)
 			{
-				if (PreviousCharacterIgnoringWhiteSpace(stack_substring_front(data, i - 1)) is ')')
+				if (indexOfFirstBrace > 0 and PreviousCharacterIgnoringWhiteSpace(stack_substring_front(data, i - 1)) is ')')
 				{
 					return indexOfFirstBrace;
 				}
@@ -285,13 +286,14 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 		// skip words like private, static, int, float etc
 		if (IsValidNameCharacter(c))
 		{
+			indexOfLastValidChar = i;
 			continue;
 		}
 
 		// always denotes the previous block unless its within a type
-		if (c is ';')
+		if (c is ';' and depth is 0)
 		{
-			return i;
+			return indexOfLastValidChar > 0 ? indexOfLastValidChar : i;
 		}
 	}
 
@@ -1206,7 +1208,7 @@ array(string) ReadTokens(string path)
 TEST(IndexOfLastBlockExpressionOrMacro)
 {
 	string data = stack_string("struct thing{int x; int y}; start");
-	IsEqual(26, IndexOfLastBlockExpressionOrMacro(data, data->Count, 0));
+	IsEqual(28, IndexOfLastBlockExpressionOrMacro(data, data->Count, 0));
 
 	data = stack_string("struct <T>{};");
 	IsEqual(data->Count - 1, (size_t)IndexOfLastBlockExpressionOrMacro(data, data->Count, 0));
@@ -1218,7 +1220,7 @@ TEST(IndexOfLastBlockExpressionOrMacro)
 	IsEqual(12, IndexOfLastBlockExpressionOrMacro(data, data->Count - 6, 0));
 
 	data = stack_string("void main(){  int x = 13; T myType<T>(); }");
-	IsEqual(24, IndexOfLastBlockExpressionOrMacro(data, data->Count - 8, 0));
+	IsEqual(26, IndexOfLastBlockExpressionOrMacro(data, data->Count - 8, 0));
 
 	return true;
 }
