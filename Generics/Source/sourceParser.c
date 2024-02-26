@@ -25,30 +25,6 @@ T Multiply_##T(T left, T right)\
 
 bool IsValidNameCharacter(const int c);
 
-typedef struct
-{
-	// Location of the first alligator
-	int AlligatorStartIndex;
-	// Index of last alligator
-	int AlligatorEndIndex;
-	// index of the begining of the scope of the generics
-	int StartScopeIndex;
-	// index of the end of the scope of the generics
-	int EndScopeIndex;
-	// struct name<T>{ T thing; };
-	bool Struct;
-	// T name<T>(T left, T right);
-	bool Declaration;
-	// T name<T>(T left, T right) { return left + right; }
-	bool Definition;
-	// T number = add<T>(var1, var2);
-	bool Call;
-	// True when a pragma warning should be inserted 
-	bool InsertFailedToIndentifyWarning;
-} location;
-
-DEFINE_CONTAINERS(location);
-
 // Returns -1 if the left is found first
 // Returns 0 if neither are found
 // returns 1 if right is found first
@@ -1074,7 +1050,7 @@ private location IdentifyGenericCall(string data, int depth, int openAlligatorIn
 	return result;
 }
 
-private array(location) GetGenericLocations(string data)
+array(location) GetGenericLocations(string data)
 {
 	// the start and end index of macro locations we can ignore when
 	// walking backwards
@@ -1564,6 +1540,7 @@ TEST(LookAheadIsGenericCall)
 
 TEST(GetGenericLocations)
 {
+	// struct definition
 	string data = stack_string("#include <stdio.h> // comment int Create<int>(); here\nint i = 0; struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;}; int main(){return 0;} int GreaterThan(int left, int right){ return left < right; }");
 
 	array(location) locations = GetGenericLocations(data);
@@ -1579,6 +1556,24 @@ TEST(GetGenericLocations)
 	IsFalse(result.Definition);
 	IsFalse(result.Call);
 	IsFalse(result.Declaration);
+
+	// Method definiton
+	data = stack_string("#include <stdio.h> // comment int Create<int>(); here\nint i = 0; struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;}; int main(){return 0;} int GreaterThan(int left, int right){ return left < right; }");
+
+	locations = GetGenericLocations(data);
+
+	result = locations->Values[0];
+
+	IsEqual((size_t)1, locations->Count);
+	IsEqual(74, result.AlligatorStartIndex);
+	IsEqual(76, result.AlligatorEndIndex);
+	IsEqual(65, result.StartScopeIndex);
+	IsEqual(108, result.EndScopeIndex);
+	IsFalse(result.Struct);
+	IsTrue(result.Definition);
+	IsFalse(result.Call);
+	IsFalse(result.Declaration);
+
 
 	return true;
 }

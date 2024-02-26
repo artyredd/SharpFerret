@@ -27,7 +27,7 @@ void main(int argc, char* argv[])
 	for (size_t i = 1; i < paths->Count; i++)
 	{
 		fprintf(stdout, "%s\n\r", paths->Values[i]->Values);
-		array(string) tokens = ReadTokens(paths->Values[i]);
+		array(location) tokens = GetGenericLocations(paths->Values[i]);
 	}
 
 
