@@ -1045,6 +1045,9 @@ private location IdentifyGenericCall(string data, int depth, int openAlligatorIn
 	if ((isGenericStruct or isGenericMethodDeclaration or isGenericMethodDefinition) is false)
 	{
 		result.Call = true;
+		// end scope not needed, since calls are simple compression and replacement
+		// of the alligator args and nothing more
+		result.EndScopeIndex = -1;
 	}
 
 	return result;
@@ -1594,6 +1597,23 @@ TEST(GetGenericLocations)
 	IsFalse(result.Struct);
 	IsTrue(result.Definition);
 	IsFalse(result.Call);
+	IsFalse(result.Declaration);
+
+	// call
+	data = stack_string("#include <stdio.h>\n/*int Create<int>();*/ int i = GetNum<int>(\"12\"); /*struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;};*/nt main(){return 0;} int GreaterThan<(int left, int right) { return left < right; }");
+
+	locations = GetGenericLocations(data);
+
+	result = locations->Values[0];
+
+	IsEqual((size_t)1, locations->Count);
+	IsEqual(56, result.AlligatorStartIndex);
+	IsEqual(60, result.AlligatorEndIndex);
+	IsEqual(42, result.StartScopeIndex);
+	IsEqual(-1, result.EndScopeIndex);
+	IsFalse(result.Struct);
+	IsFalse(result.Definition);
+	IsTrue(result.Call);
 	IsFalse(result.Declaration);
 
 	return true;
