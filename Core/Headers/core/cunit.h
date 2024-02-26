@@ -110,8 +110,8 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 }
 
 #define FormatCType(type) _Generic((type), \
-    char: "%s", \
-    unsigned char: "%hhu", \
+    char: "%c", \
+    unsigned char: "%c", \
     short: "%hd", \
     unsigned short: "%hu", \
     int: "%d", \

@@ -244,13 +244,20 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 			continue;
 		}
 
+		//                 \/     \/
+		// int x = myCall((array<T>)pointer);
 		if (c is '(')
 		{
-			++parenDepth;
+			--parenDepth;
+
+			if (parenDepth is - 1)
+			{
+				return indexOfLastValidChar >= 0 ? indexOfLastValidChar : indexOfFirstBrace;
+			}
 		}
 		if (c is ')')
 		{
-			--parenDepth;
+			++parenDepth;
 		}
 
 		// ignore contents of parens
@@ -267,7 +274,9 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 		}
 
 		// always denotes the previous block unless its within a type
-		if (c is ';' and depth is 0 && parenDepth is 0)
+		// int x = 12; DoThing<float>();
+		// MyMethod(13,24,GetNumber<int>(23));
+		if ((c is ';' or c is ',') and depth is 0 && parenDepth is 0)
 		{
 			return indexOfLastValidChar >= 0 ? indexOfLastValidChar : i;
 		}
@@ -1643,6 +1652,27 @@ TEST(GetGenericLocations)
 	IsEqual(29, result.AlligatorEndIndex);
 	IsEqual(20, result.StartScopeIndex);
 	IsEqual('a', data->Values[20]);
+	IsEqual(-1, result.EndScopeIndex);
+	IsFalse(result.Struct);
+	IsFalse(result.Definition);
+	IsTrue(result.Call);
+	IsFalse(result.Declaration);
+
+	// make sure generics can be used in method calls without being considered a method call
+	data = stack_string("#include <stdio.h>\n\r\tT GetSum<T>(array<int> arr){return (T)arr->Data[0];}");
+
+	locations = GetGenericLocations(data);
+
+	// first result should be the method
+	// but second should be the call within the method
+	IsEqual((size_t)2, locations->Count);
+
+	result = locations->Values[1];
+
+	IsEqual(38, result.AlligatorStartIndex);
+	IsEqual((char)'y', data->Values[37]);
+	IsEqual(42, result.AlligatorEndIndex);
+	IsEqual(33, result.StartScopeIndex);
 	IsEqual(-1, result.EndScopeIndex);
 	IsFalse(result.Struct);
 	IsFalse(result.Definition);
