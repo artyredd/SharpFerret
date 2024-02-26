@@ -273,7 +273,21 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 		}
 	}
 
-	return lastMacroIndex;
+	Guard(lastMacroIndex <= start);
+
+	// trim whitespace
+	int index = lastMacroIndex;
+	for (int i = lastMacroIndex; i < start; i++)
+	{
+		if (isspace(data->Values[i]) or iscntrl(data->Values[i]) or isblank(data->Values[i]))
+		{
+			continue;
+		}
+
+		return i;
+	}
+
+	return index;
 }
 
 // returns whether or not the character is a valid c name character that could be used
@@ -1574,7 +1588,8 @@ TEST(GetGenericLocations)
 	IsEqual((size_t)1, locations->Count);
 	IsEqual(30, result.AlligatorStartIndex);
 	IsEqual(34, result.AlligatorEndIndex);
-	IsEqual(18, result.StartScopeIndex);
+	IsEqual(20, result.StartScopeIndex);
+	IsEqual('i', data->Values[20]);
 	IsEqual(37, result.EndScopeIndex);
 	IsFalse(result.Struct);
 	IsFalse(result.Definition);
@@ -1610,6 +1625,24 @@ TEST(GetGenericLocations)
 	IsEqual(56, result.AlligatorStartIndex);
 	IsEqual(60, result.AlligatorEndIndex);
 	IsEqual(42, result.StartScopeIndex);
+	IsEqual(-1, result.EndScopeIndex);
+	IsFalse(result.Struct);
+	IsFalse(result.Definition);
+	IsTrue(result.Call);
+	IsFalse(result.Declaration);
+
+	// make sure generics can be used as a>return type
+	data = stack_string("#define Thing(x)\\x\n\tarray<int> GetArray(struct myThing{14,15});/*int Create<int>();*/ int i = GetNum<int>(\"12\"); /*struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;};*/nt main(){return 0;} int GreaterThan<(int left, int right) { return left < right; }");
+
+	locations = GetGenericLocations(data);
+
+	result = locations->Values[0];
+
+	IsEqual((size_t)2, locations->Count);
+	IsEqual(25, result.AlligatorStartIndex);
+	IsEqual(29, result.AlligatorEndIndex);
+	IsEqual(20, result.StartScopeIndex);
+	IsEqual('a', data->Values[20]);
 	IsEqual(-1, result.EndScopeIndex);
 	IsFalse(result.Struct);
 	IsFalse(result.Definition);
