@@ -964,7 +964,7 @@ private bool IsGenericMethodDeclaration(string data, int openAlligatorIndex, loc
 		return false;
 	}
 
-	out_location->EndScopeIndex = indexOfBrace + IndexOfNextCharacterIgnoringWhitespace(stack_substring_back(data, indexOfBrace));
+	out_location->EndScopeIndex = 1 + indexOfBrace + IndexOfNextCharacterIgnoringWhitespace(stack_substring_back(data, indexOfBrace));
 
 	out_location->Declaration = true;
 
@@ -1558,21 +1558,21 @@ TEST(GetGenericLocations)
 	IsFalse(result.Declaration);
 
 	// Method definiton
-	data = stack_string("#include <stdio.h> // comment int Create<int>(); here\nint i = 0; struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;}; int main(){return 0;} int GreaterThan(int left, int right){ return left < right; }");
+	data = stack_string("#include <stdio.h>\n int Create<int>(); here int i = 0; /*struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;};*/nt main(){return 0;} int GreaterThan(int left, int right){ return left < right; }");
 
 	locations = GetGenericLocations(data);
 
 	result = locations->Values[0];
 
 	IsEqual((size_t)1, locations->Count);
-	IsEqual(74, result.AlligatorStartIndex);
-	IsEqual(76, result.AlligatorEndIndex);
-	IsEqual(65, result.StartScopeIndex);
-	IsEqual(108, result.EndScopeIndex);
+	IsEqual(30, result.AlligatorStartIndex);
+	IsEqual(34, result.AlligatorEndIndex);
+	IsEqual(18, result.StartScopeIndex);
+	IsEqual(37, result.EndScopeIndex);
 	IsFalse(result.Struct);
-	IsTrue(result.Definition);
+	IsFalse(result.Definition);
 	IsFalse(result.Call);
-	IsFalse(result.Declaration);
+	IsTrue(result.Declaration);
 
 
 	return true;
