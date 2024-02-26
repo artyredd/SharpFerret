@@ -230,7 +230,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 			{
 				if (indexOfFirstBrace > 0 and PreviousCharacterIgnoringWhiteSpace(stack_substring_front(data, i - 1)) is ')')
 				{
-					return indexOfFirstBrace;
+					return indexOfLastValidChar >= 0 ? indexOfLastValidChar : indexOfFirstBrace;
 				}
 
 				return IndexOfLastBlockExpressionOrMacro(data, i, lastMacroIndex);
@@ -260,16 +260,16 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 		}
 
 		// skip words like private, static, int, float etc
-		if (IsValidNameCharacter(c))
+		if (IsValidNameCharacter(c) && depth is 0 && parenDepth is 0)
 		{
 			indexOfLastValidChar = i;
 			continue;
 		}
 
 		// always denotes the previous block unless its within a type
-		if (c is ';' and depth is 0)
+		if (c is ';' and depth is 0 && parenDepth is 0)
 		{
-			return indexOfLastValidChar > 0 ? indexOfLastValidChar : i;
+			return indexOfLastValidChar >= 0 ? indexOfLastValidChar : i;
 		}
 	}
 
@@ -1201,10 +1201,14 @@ TEST(IndexOfLastBlockExpressionOrMacro)
 	IsEqual(0, IndexOfLastBlockExpressionOrMacro(data, data->Count, 0));
 
 	data = stack_string("void main(){} T myType<T>();");
-	IsEqual(12, IndexOfLastBlockExpressionOrMacro(data, data->Count - 6, 0));
+	IsEqual(14, IndexOfLastBlockExpressionOrMacro(data, data->Count - 6, 0));
 
 	data = stack_string("void main(){  int x = 13; T myType<T>(); }");
 	IsEqual(26, IndexOfLastBlockExpressionOrMacro(data, data->Count - 8, 0));
+
+	data = stack_string("void main(){} tuple(T,T) Type<T>();");
+	IsEqual(14, IndexOfLastBlockExpressionOrMacro(data, data->Count - 6, 0));
+
 
 	return true;
 }
@@ -1557,7 +1561,7 @@ TEST(GetGenericLocations)
 	IsFalse(result.Call);
 	IsFalse(result.Declaration);
 
-	// Method definiton
+	// Method declaration
 	data = stack_string("#include <stdio.h>\n int Create<int>(); here int i = 0; /*struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;};*/nt main(){return 0;} int GreaterThan(int left, int right){ return left < right; }");
 
 	locations = GetGenericLocations(data);
@@ -1574,6 +1578,23 @@ TEST(GetGenericLocations)
 	IsFalse(result.Call);
 	IsTrue(result.Declaration);
 
+	// Method definiton
+	data = stack_string("#include <stdio.h>\n/*int Create<int>();*/ here int i = 0; /*struct my<T>{/* <C,O,M,M,E,N,T> */ T Value;};*/nt main(){return 0;} int GreaterThan<int>(int left, int right) { return left < right; }");
+
+	locations = GetGenericLocations(data);
+
+	result = locations->Values[0];
+
+	IsEqual((size_t)1, locations->Count);
+	IsEqual(143, result.AlligatorStartIndex);
+	IsEqual(147, result.AlligatorEndIndex);
+	IsEqual(128, result.StartScopeIndex);
+	IsEqual('}', data->Values[126]);
+	IsEqual(193, result.EndScopeIndex);
+	IsFalse(result.Struct);
+	IsTrue(result.Definition);
+	IsFalse(result.Call);
+	IsFalse(result.Declaration);
 
 	return true;
 }
