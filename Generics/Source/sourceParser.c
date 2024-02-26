@@ -1198,23 +1198,6 @@ array(location) GetGenericLocations(string data)
 	return locations;
 }
 
-private array(string) ReadTokensFromString(string data)
-{
-	array(string) result = Arrays(string).Create(0);
-
-	return result;
-}
-
-// Reads the tokens from the provided file
-array(string) ReadTokens(string path)
-{
-	string data = Files.ReadAll(path);
-
-	array(string) result = ReadTokensFromString(data);
-
-	return result;
-}
-
 TEST(IndexOfLastBlockExpressionOrMacro)
 {
 	string data = stack_string("struct thing{int x; int y}; start");
