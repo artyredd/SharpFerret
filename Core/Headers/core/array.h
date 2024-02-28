@@ -207,6 +207,7 @@ struct _arrayMethods
 	void* (*At)(Array, size_t index);
 	// Appends the given value array to the end of the given array
 	void (*AppendArray)(Array array, Array appendedValue);
+	Array(*InsertArray)(Array dest, Array src, size_t index);
 	void (*Clear)(Array array);
 	void (*Foreach)(Array, void(*method)(void*));
 	void (*ForeachWithContext)(Array, void* context, void(*method)(void* context, void* item));
@@ -288,6 +289,10 @@ private void _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, array(typ
 {\
 Arrays.AppendArray((Array)array, (Array)appendedValue); \
 }\
+private array(type) _EXPAND_METHOD_NAME(type, InsertArray)(array(type) destination, array(type) source, size_t index)\
+{\
+	return (array(type))Arrays.InsertArray((Array)destination, (Array)source, index);\
+}\
 private void _EXPAND_METHOD_NAME(type, AppendCArray)(array(type) array, const type* carray, const size_t arraySize)\
 {\
 for (size_t cIndex = 0; cIndex < arraySize; ++cIndex)\
@@ -357,6 +362,7 @@ void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
 type* (*At)(array(type), size_t index); \
 type(*ValueAt)(array(type), size_t index); \
 void (*AppendArray)(array(type), const array(type) appendedValue); \
+array(type) (*InsertArray)(array(type) destination, array(type) values, size_t index); \
 void (*AppendCArray)(array(type), const type* carray, const size_t count); \
 bool (*Equals)(array(type), array(type)); \
 void (*Clear)(array(type)); \
@@ -378,6 +384,7 @@ void (*Dispose)(array(type)); \
 .At = _EXPAND_METHOD_NAME(type, At), \
 .ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
 .AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
+.InsertArray = _EXPAND_METHOD_NAME(type, InsertArray), \
 .AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray), \
 .Equals = _EXPAND_METHOD_NAME(type, Equals), \
 .Clear = _EXPAND_METHOD_NAME(type, Clear), \

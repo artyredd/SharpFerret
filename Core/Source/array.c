@@ -17,6 +17,7 @@ private void* At(Array array, size_t index);
 private void Clear(Array array);
 private void Foreach(Array array, void(*method)(void* item));
 private void ForeachWithContext(Array array, void* context, void(*method)(void* context, void* item));
+private Array InsertArray(Array dest, Array src, size_t index);
 
 const struct _arrayMethods Arrays = {
 	.Create = Create,
@@ -28,6 +29,7 @@ const struct _arrayMethods Arrays = {
 	.Swap = Swap,
 	.Dispose = Dispose,
 	.AppendArray = AppendArray,
+	.InsertArray = InsertArray,
 	.At = At,
 	.Clear = Clear,
 	.Foreach = Foreach,
@@ -76,7 +78,7 @@ private void Append(Array array, void* value)
 private void AutoResize(Array array)
 {
 	// if a user allocs a array on the stack they can't modify past the given
-		// memory block without overwriting stack stuff
+	// memory block without overwriting stack stuff
 	if (array->StackObject)
 	{
 		throw(StackObjectModifiedException);
@@ -203,6 +205,28 @@ private void AppendArray(Array destinationArray, Array values)
 	{
 		Arrays.Append(destinationArray, At(values, i));
 	}
+}
+
+private Array InsertArray(Array destination, Array source, size_t index)
+{
+	guard_array_count(destination, index);
+
+	if (destination->Capacity >= (destination->Count + source->Count))
+	{
+		char* sourcePtr = At(destination, index);
+		char* destinationPtr = At(destination, index + source->Count);
+		if (memmove(destinationPtr, sourcePtr, destination->Count - index) isnt 0)
+		{
+			throw(FailedToMoveMemoryException);
+		}
+
+		destination->Count = safe_add(destination->Count, source->Count);
+
+		return destination;
+	}
+
+	AutoResize(destination);
+	return InsertArray(destination, source, index);
 }
 
 private void Clear(Array array)

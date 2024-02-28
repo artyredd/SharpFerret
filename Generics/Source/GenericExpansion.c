@@ -53,6 +53,8 @@ string FlattenArgumentToCName(string arg, string stack_buffer)
 
 void ExpandCall(string data, location location)
 {
+	// calls just get replaced with a valid C name
+	// and the preprocessor and compiler will do lookup
 
 }
 
