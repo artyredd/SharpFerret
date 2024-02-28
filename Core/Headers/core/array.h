@@ -84,6 +84,18 @@ typedef struct _array_##type* type##_array;
 
 #define stack_string(string) explicit_stack_array(char,,sizeof(string) - 1, string)
 
+// checks the corresponding attribute against the provided value
+// throws if the value is out of bounds, otherwise returns value
+#define guard_array_attribute(arr,attribute,value) ((value) >= (arr)->attribute ? throw_in_expression(IndexOutOfRangeException) : (value))
+
+// checks and throws if the value is out of bounds for the array
+// returns the value so it can be used in expressions
+#define guard_array_count(arr, value) guard_array_attribute(arr,Count,value) 
+// checks and throws if the value is out of bounds for the array
+// returns the value so it can be used in expressions
+#define guard_array_size(arr, value) guard_array_attribute(arr,Size,value) 
+
+
 // Creates a stack array that is a subarray of the given array
 // Uses the given arrays pointers so changes to the stack array
 // affect the given array
@@ -94,11 +106,11 @@ typedef struct _array_##type* type##_array;
 // ! will throw IndexOutOfRangeException if start index or count are out of bounds
 #define stack_subarray(type, arr, startIndex, count) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
-	.Values = &arr->Values[(startIndex) >= (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (startIndex)],\
-	.Size = (sizeof(type) * count) > ((arr)->Size) ? throw_in_expression(IndexOutOfRangeException) : (sizeof(type) * count),\
+	.Values = &arr->Values[guard_array_count(arr, startIndex)],\
+	.Size = guard_array_size(arr, sizeof(type) * count),\
 	.ElementSize = sizeof(type),\
-	.Capacity = (count) > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (count),\
-	.Count = (count) > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (count),\
+	.Capacity = guard_array_count(arr, count),\
+	.Count = guard_array_count(arr, count),\
 	.TypeId = 0,\
 	.StackObject = true\
 }
@@ -130,10 +142,10 @@ typedef struct _array_##type* type##_array;
 #define partial_subarray(type, arr, startIndex, count) (struct _EXPAND_STRUCT_NAME(type))\
 {\
 	.Values = arr->Count >= startIndex ? (type*)(void*)(size_t)startIndex : (type*)(void*)(size_t)throw_in_expression(IndexOutOfRangeException),\
-	.Size = (sizeof(type) * count) > ((arr)->Size) ? throw_in_expression(IndexOutOfRangeException) : (sizeof(type) * count),\
+	.Size = guard_array_size(arr, sizeof(type) * count),\
 	.ElementSize = sizeof(type),\
-	.Capacity = (count) > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (count),\
-	.Count = (count) > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : (count),\
+	.Capacity = guard_array_count(arr, count),\
+	.Count = guard_array_count(arr, count),\
 	.TypeId = 0,\
 	/* This is a value type object that isn't a stack object */\
 	/* But we want to avoid trying to free an offset */\
@@ -164,10 +176,10 @@ typedef struct _array_##type* type##_array;
 #define combine_partial_array(type, arr, partial) (array(type))&(partial_array(type))\
 {\
 	.Values = arr->Count >= (size_t)partial.Values ? (arr->Values + (size_t)partial.Values) : (char*)(size_t)throw_in_expression(IndexOutOfRangeException),\
-	.Size = partial.Size <= arr->Size ? partial.Size : throw_in_expression(IndexOutOfRangeException),\
-	.ElementSize = partial.ElementSize is arr->ElementSize ? partial.ElementSize : throw_in_expression(TypeMismatchException),\
-	.Capacity = partial.Capacity > arr->Capacity ? throw_in_expression(IndexOutOfRangeException) : partial.Capacity,\
-	.Count = (partial).Count > (arr->Count) ? throw_in_expression(IndexOutOfRangeException) : partial.Count,\
+	.Size = guard_array_size(arr, partial.Size),\
+	.ElementSize = guard_array_attribute(arr,ElementSize,partial.ElementSize),\
+	.Capacity = guard_array_attribute(arr, Capacity, partial.Capacity),\
+	.Count = guard_array_count(arr,(partial).Count),\
 	.TypeId = partial.TypeId != arr->TypeId ? throw_in_expression(TypeMismatchException) : partial.TypeId,\
 	.StackObject = true\
 }
@@ -203,6 +215,7 @@ struct _arrayMethods
 
 extern const struct _arrayMethods Arrays;
 
+
 // TEMPLATE FOR METHODS
 #define _EXPAND_METHOD_NAME(type, method) _array_##type##_##method
 #define _EXPAND_DEFINE_ARRAY(type) _ARRAY_DEFINE_STRUCT(type)\
@@ -228,17 +241,32 @@ private void _EXPAND_METHOD_NAME(type,RemoveIndex)(array(type) array, size_t ind
 {\
 Arrays.RemoveIndex((Array)array, index); \
 }\
+private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, size_t index, size_t count)\
+{\
+	/* { a, b, c, d, e } */\
+	/* RemoveRange(2,2) */\
+	/* { a, b, e } */\
+	const size_t safeIndex = guard_array_count(array, index);\
+	const size_t safeCount = guard_array_count(array, count);\
+	type* destination = &array->Values[safeIndex];\
+	array(type) source = stack_subarray_back(type, array, safeIndex + safeCount);\
+	if(memmove(destination,source->Values,source->Size ) isnt null)\
+	{\
+		throw(FailedToMoveMemoryException);\
+	}\
+	return array; \
+}\
 private bool _EXPAND_METHOD_NAME(type, Empty)(array(type) array)\
 {\
-	if(array is null || array->Values is null)\
-	{\
-		return true;\
-	}\
-	if (array->Capacity is 0 || array->Count is 0)\
-	{\
-		return true;\
-	}\
-	return false; \
+if (array is null || array->Values is null)\
+{\
+return true; \
+}\
+if (array->Capacity is 0 || array->Count is 0)\
+{\
+return true; \
+}\
+return false; \
 }\
 private void _EXPAND_METHOD_NAME(type, Swap)(array(type) array, size_t firstIndex, size_t secondIndex)\
 {\
@@ -254,10 +282,7 @@ return (type*)Arrays.At((Array)array, index); \
 }\
 private type _EXPAND_METHOD_NAME(type, ValueAt)(array(type) array, size_t index)\
 {\
-if (index >= array->Count) {\
-throw(IndexOutOfRangeException); \
-}\
-return array->Values[index]; \
+return array->Values[guard_array_count(array,index)]; \
 }\
 private void _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, array(type) appendedValue)\
 {\
@@ -286,9 +311,9 @@ Arrays.ForeachWithContext((Array)array, context, method); \
 }\
 private array(type) _EXPAND_METHOD_NAME(type, Clone)(array(type) array)\
 {\
-	array(type) result = _EXPAND_METHOD_NAME(type, Create)(array->Capacity);\
-	_EXPAND_METHOD_NAME(type, AppendArray)(result, array);\
-	return result; \
+array(type) result = _EXPAND_METHOD_NAME(type, Create)(array->Capacity); \
+_EXPAND_METHOD_NAME(type, AppendArray)(result, array); \
+return result; \
 }\
 private void _EXPAND_METHOD_NAME(type, Dispose)(array(type)array)\
 {\
@@ -296,27 +321,27 @@ Arrays.Dispose((Array)array); \
 }\
 private bool _EXPAND_METHOD_NAME(type, Equals)(array(type) left, array(type) right)\
 {\
-	if(left is right)\
-	{\
-		return true;\
-	}\
-	if((left is null && right isnt null) || (left isnt null && right is null))\
-	{\
-		return false;\
-	}\
-	if((left->Values is null && right->Values isnt null) || (left->Values isnt null && right->Values is null))\
-	{\
-		return false;\
-	}\
-	if(left->Values is right->Values)\
-	{\
-		return true; \
-	}\
-	if (left->Count != right->Count)\
-	{\
-		return false; \
-	}\
-	return memcmp(left->Values, right->Values, left->ElementSize * left->Count) == 0;\
+if (left is right)\
+{\
+return true; \
+}\
+if ((left is null && right isnt null) || (left isnt null && right is null))\
+{\
+return false; \
+}\
+if ((left->Values is null && right->Values isnt null) || (left->Values isnt null && right->Values is null))\
+{\
+return false; \
+}\
+if (left->Values is right->Values)\
+{\
+return true; \
+}\
+if (left->Count != right->Count)\
+{\
+return false; \
+}\
+return memcmp(left->Values, right->Values, left->ElementSize * left->Count) == 0; \
 }\
 const static struct _array_##type##_methods\
 {\
@@ -325,6 +350,7 @@ void (*AutoResize)(array(type)); \
 void (*Resize)(array(type), size_t newCount); \
 void (*Append)(array(type), type); \
 void (*RemoveIndex)(array(type), size_t index); \
+array(type) (*RemoveRange)(array(type), size_t startIndex, size_t count); \
 bool (*Empty)(array(type)); \
 void (*Swap)(array(type), size_t firstIndex, size_t secondIndex); \
 void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
@@ -332,7 +358,7 @@ type* (*At)(array(type), size_t index); \
 type(*ValueAt)(array(type), size_t index); \
 void (*AppendArray)(array(type), const array(type) appendedValue); \
 void (*AppendCArray)(array(type), const type* carray, const size_t count); \
-bool (*Equals)(array(type),array(type));\
+bool (*Equals)(array(type), array(type)); \
 void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
@@ -345,6 +371,7 @@ void (*Dispose)(array(type)); \
 .Resize = _EXPAND_METHOD_NAME(type, Resize), \
 .Append = _EXPAND_METHOD_NAME(type, Append), \
 .RemoveIndex = _EXPAND_METHOD_NAME(type, RemoveIndex), \
+.RemoveRange = _EXPAND_METHOD_NAME(type, RemoveRange), \
 .Empty = _EXPAND_METHOD_NAME(type, Empty), \
 .Swap = _EXPAND_METHOD_NAME(type, Swap), \
 .InsertionSort = _EXPAND_METHOD_NAME(type, InsertionSort), \
@@ -352,7 +379,7 @@ void (*Dispose)(array(type)); \
 .ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
 .AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
 .AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray), \
-.Equals = _EXPAND_METHOD_NAME(type, Equals),\
+.Equals = _EXPAND_METHOD_NAME(type, Equals), \
 .Clear = _EXPAND_METHOD_NAME(type, Clear), \
 .Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
 .ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
