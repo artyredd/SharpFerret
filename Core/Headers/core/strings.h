@@ -85,6 +85,9 @@ struct _stringMethods {
 	// can be used in a loop to loop through all the segments of a split string
 	// without using dynamic memory
 	bool (*TryLoopSplitByFunction)(string str, string* out_string, bool(*selector)(char));
+	// Trims leading and trailing whitespace
+	// by returning a partial string
+	partial_string(*TrimAll)(string str);
 };
 
 extern const struct _stringMethods Strings;

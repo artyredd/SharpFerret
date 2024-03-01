@@ -30,6 +30,7 @@ static bool TryParse(const char* buffer, const size_t bufferLength, char** out_s
 static int IndexOf(const char* buffer, const size_t bufferLength, int character);
 private size_t Length(const char* str);
 private bool TryLoopSplitByFunction(string str, string* out_string, bool(*selector)(char));
+private partial_string TrimAll(string str);
 
 const struct _stringMethods Strings = {
 	.Length = Length,
@@ -43,8 +44,44 @@ const struct _stringMethods Strings = {
 	.TrySplit = &TrySplit,
 	.TryParse = &TryParse,
 	.IndexOf = IndexOf,
-	.TryLoopSplitByFunction = TryLoopSplitByFunction
+	.TryLoopSplitByFunction = TryLoopSplitByFunction,
+	.TrimAll = TrimAll
 };
+
+partial_string TrimAll(string str)
+{
+	int start = 0;
+	int end = str->Count - 1;
+
+	for (int i = 0; i < str->Count; i++)
+	{
+		const int c = str->Values[i];
+
+		if (isspace(c))
+		{
+			continue;
+		}
+
+		start = i;
+		break;
+	}
+
+	int i = str->Count;
+	while (i-- > 0)
+	{
+		const int c = str->Values[i];
+
+		if (isspace(c))
+		{
+			continue;
+		}
+
+		end = i;
+		break;
+	}
+
+	return partial_substring(str, start, end - start + 1);
+}
 
 private bool TryLoopSplitByFunction(string str, string* out_string, bool(*selector)(char))
 {

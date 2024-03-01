@@ -187,6 +187,7 @@ array(string) GetGenericArguments(string data, location location)
 		if (c is ',')
 		{
 			string stackName = stack_substring(subdata, nameStartIndex, i - nameStartIndex);
+			stackName = combine_partial_string(stackName, Strings.TrimAll(stackName));
 			string name = empty_dynamic_string(stackName->Count);
 			strings.AppendArray(name, stackName);
 			Arrays(string).Append(result, name);
@@ -197,6 +198,7 @@ array(string) GetGenericArguments(string data, location location)
 		if (i is subdata->Count - 1 and nameStartIndex > -1)
 		{
 			string stackName = stack_substring(subdata, nameStartIndex, i - nameStartIndex);
+			stackName = combine_partial_string(stackName, Strings.TrimAll(stackName));
 			string name = empty_dynamic_string(stackName->Count);
 			strings.AppendArray(name, stackName);
 			Arrays(string).Append(result, name);
@@ -215,6 +217,7 @@ array(string) GetGenericArguments(string data, location location)
 
 		// assume a single argument
 		string stackName = stack_substring(subdata, 1, subdata->Count - 2);
+		stackName = combine_partial_string(stackName, Strings.TrimAll(stackName));
 		string name = empty_dynamic_string(stackName->Count);
 		strings.AppendArray(name, stackName);
 		Arrays(string).Append(result, name);
@@ -359,6 +362,54 @@ TEST(GetGenericArguments)
 	};
 
 	expected = stack_array(string, stack_string("T"), stack_string("U"), stack_string("V"));
+	actual = GetGenericArguments(data, genericLocation);
+
+	IsEqual(expected->Count, actual->Count);
+
+	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
+	IsTrue(strings.Equals(actual->Values[1], expected->Values[1]));
+	IsTrue(strings.Equals(actual->Values[2], expected->Values[2]));
+
+	data = stack_string("<T,struct tuple_int{int x; int y;},V>");
+	genericLocation = (location){
+		.AlligatorStartIndex = 0,
+		.AlligatorEndIndex = data->Count - 1
+	};
+
+	expected = stack_array(string, stack_string("T"), stack_string("struct tuple_int{int x; int y;}"), stack_string("V"));
+	actual = GetGenericArguments(data, genericLocation);
+
+	IsEqual(expected->Count, actual->Count);
+
+	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
+	IsTrue(strings.Equals(actual->Values[1], expected->Values[1]));
+	IsTrue(strings.Equals(actual->Values[2], expected->Values[2]));
+
+	data = stack_string("<\nT,\nU,\nV\n>");
+	genericLocation = (location){
+		.AlligatorStartIndex = 0,
+		.AlligatorEndIndex = data->Count - 1
+	};
+
+	expected = stack_array(string, stack_string("T"), stack_string("U"), stack_string("V"));
+	actual = GetGenericArguments(data, genericLocation);
+
+	IsEqual(expected->Count, actual->Count);
+
+	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
+	IsTrue(strings.Equals(actual->Values[1], expected->Values[1]));
+	IsTrue(strings.Equals(actual->Values[2], expected->Values[2]));
+
+	data = stack_string("<T,\nstruct triplet_int{/* comment here */int x;// other comment\n int y;},\nV\n>");
+	genericLocation = (location){
+		.AlligatorStartIndex = 0,
+		.AlligatorEndIndex = data->Count - 1
+	};
+
+	expected = stack_array(string,
+		stack_string("T"),
+		stack_string("struct triplet_int{/* comment here */int x;// other comment\n int y;}"),
+		stack_string("V"));
 	actual = GetGenericArguments(data, genericLocation);
 
 	IsEqual(expected->Count, actual->Count);
