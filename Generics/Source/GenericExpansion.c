@@ -193,6 +193,14 @@ array(string) GetGenericArguments(string data, location location)
 			// the next index is the start of the next type name
 			nameStartIndex = i + 1;
 		}
+
+		if (i is subdata->Count - 1 and nameStartIndex > -1)
+		{
+			string stackName = stack_substring(subdata, nameStartIndex, i - nameStartIndex);
+			string name = empty_dynamic_string(stackName->Count);
+			strings.AppendArray(name, stackName);
+			Arrays(string).Append(result, name);
+		}
 	}
 
 	// check for single argument
@@ -333,16 +341,32 @@ TEST(ExpandCall)
 TEST(GetGenericArguments)
 {
 	string data = stack_string("<T>");
-	location location = {
+	location genericLocation = {
 		.AlligatorStartIndex = 0,
 		.AlligatorEndIndex = data->Count - 1
 	};
 
 	array(string) expected = stack_array(string, stack_string("T"));
-	array(string) actual = GetGenericArguments(data, location);
+	array(string) actual = GetGenericArguments(data, genericLocation);
 
 	IsEqual(expected->Count, actual->Count);
 	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
+
+	data = stack_string("<T,U,V>");
+	genericLocation = (location){
+		.AlligatorStartIndex = 0,
+		.AlligatorEndIndex = data->Count - 1
+	};
+
+	expected = stack_array(string, stack_string("T"), stack_string("U"), stack_string("V"));
+	actual = GetGenericArguments(data, genericLocation);
+
+	IsEqual(expected->Count, actual->Count);
+
+	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
+	IsTrue(strings.Equals(actual->Values[1], expected->Values[1]));
+	IsTrue(strings.Equals(actual->Values[2], expected->Values[2]));
+
 
 	return true;
 }
