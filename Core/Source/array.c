@@ -12,7 +12,7 @@ private void Append(Array, void*);
 private void RemoveIndex(Array, size_t index);
 private void InsertionSort(Array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
 private void Swap(Array, size_t firstIndex, size_t secondIndex);
-private void AppendArray(Array array, Array appendedValue);
+private Array AppendArray(Array array, Array appendedValue);
 private void* At(Array array, size_t index);
 private void Clear(Array array);
 private void Foreach(Array array, void(*method)(void* item));
@@ -199,12 +199,14 @@ private void* At(Array array, size_t index)
 	return (char*)array->Values + (index * array->ElementSize);
 }
 
-private void AppendArray(Array destinationArray, Array values)
+private Array AppendArray(Array destinationArray, Array values)
 {
 	for (size_t i = 0; i < values->Count; i++)
 	{
 		Arrays.Append(destinationArray, At(values, i));
 	}
+
+	return destinationArray;
 }
 
 private Array InsertArray(Array destination, Array source, size_t index)
@@ -213,12 +215,13 @@ private Array InsertArray(Array destination, Array source, size_t index)
 
 	if (destination->Capacity >= (destination->Count + source->Count))
 	{
+		// make space for the new array
 		char* sourcePtr = At(destination, index);
 		char* destinationPtr = At(destination, index + source->Count);
-		if (memmove(destinationPtr, sourcePtr, destination->Count - index) isnt 0)
-		{
-			throw(FailedToMoveMemoryException);
-		}
+
+		memmove(destinationPtr, sourcePtr, destination->Count - index);
+
+		memcpy(sourcePtr, source->Values, source->Count * source->ElementSize);
 
 		destination->Count = safe_add(destination->Count, source->Count);
 

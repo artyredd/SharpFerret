@@ -206,7 +206,7 @@ struct _arrayMethods
 	// Gets a pointer to the value contained at index
 	void* (*At)(Array, size_t index);
 	// Appends the given value array to the end of the given array
-	void (*AppendArray)(Array array, Array appendedValue);
+	Array(*AppendArray)(Array array, Array appendedValue);
 	Array(*InsertArray)(Array dest, Array src, size_t index);
 	void (*Clear)(Array array);
 	void (*Foreach)(Array, void(*method)(void*));
@@ -251,10 +251,8 @@ private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, si
 	const size_t safeCount = guard_array_count(array, count);\
 	type* destination = &array->Values[safeIndex];\
 	array(type) source = stack_subarray_back(type, array, safeIndex + safeCount);\
-	if(memmove(destination,source->Values,source->Size ) isnt null)\
-	{\
-		throw(FailedToMoveMemoryException);\
-	}\
+	memmove(destination,source->Values,source->Count * source->ElementSize );\
+	array->Count = safe_subtract(array->Count, safeCount);\
 	return array; \
 }\
 private bool _EXPAND_METHOD_NAME(type, Empty)(array(type) array)\
@@ -285,9 +283,9 @@ private type _EXPAND_METHOD_NAME(type, ValueAt)(array(type) array, size_t index)
 {\
 return array->Values[guard_array_count(array,index)]; \
 }\
-private void _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, array(type) appendedValue)\
+private array(type) _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, array(type) appendedValue)\
 {\
-Arrays.AppendArray((Array)array, (Array)appendedValue); \
+return (array(type))Arrays.AppendArray((Array)array, (Array)appendedValue); \
 }\
 private array(type) _EXPAND_METHOD_NAME(type, InsertArray)(array(type) destination, array(type) source, size_t index)\
 {\
@@ -361,7 +359,7 @@ void (*Swap)(array(type), size_t firstIndex, size_t secondIndex); \
 void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
 type* (*At)(array(type), size_t index); \
 type(*ValueAt)(array(type), size_t index); \
-void (*AppendArray)(array(type), const array(type) appendedValue); \
+array(type) (*AppendArray)(array(type), const array(type) appendedValue); \
 array(type) (*InsertArray)(array(type) destination, array(type) values, size_t index); \
 void (*AppendCArray)(array(type), const type* carray, const size_t count); \
 bool (*Equals)(array(type), array(type)); \
@@ -416,7 +414,7 @@ DEFINE_ARRAY(array(char));
 #define partial_substring_front(arr, endIndexInclusive) partial_subarray_front(char, arr, endIndexInclusive)
 #define partial_substring_back(arr, startIndexInclusive) partial_subarray_back(char, arr, startIndexInclusive)
 #define combine_partial_string(arr, partial) combine_partial_array(char, arr, partial)
-
+#define dynamic_string(cString) strings.AppendArray(strings.Create(sizeof(cString)-1), stack_string(cString));
 
 #define _EXPAND_tuple(left,right) tuple_##left##_##right
 #define tuple(left,right) _EXPAND_tuple(left,right)

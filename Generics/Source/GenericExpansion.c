@@ -8,6 +8,8 @@
 #include "core/guards.h"
 #include "helpers.c"
 
+#define MAX_ARG_LENGTH 4096
+
 // Reduces any arument to a CName
 // buffer should be 4 times len of arg
 // ex.                        int* | int_ptr
@@ -55,7 +57,19 @@ void ExpandCall(string data, location location)
 {
 	// calls just get replaced with a valid C name
 	// and the preprocessor and compiler will do lookup
+	const size_t start = location.AlligatorStartIndex;
+	const size_t count = location.AlligatorEndIndex - start + 1;
 
+	string buffer = empty_stack_array(char, MAX_ARG_LENGTH);
+
+	string arguments = stack_substring(data, start, count);
+
+	string flattened = FlattenArgumentToCName(arguments, buffer);
+
+	// we dont know for sure the flattend name is the same length
+	// it may be shorter or longer, shift old text left over it
+	strings.RemoveRange(data, start, count);
+	strings.InsertArray(data, flattened, start);
 }
 
 void ExpandGeneric(string data, location location)
@@ -128,8 +142,25 @@ TEST(FlattenArgumentToCName)
 	return true;
 }
 
+TEST(ExpandCall)
+{
+	string data = dynamic_string("int x = MyMethod<int>(24);");
+	array(location) locations = GetGenericLocations(data);
+
+	IsEqual((size_t)1, locations->Count);
+
+	ExpandGeneric(data, locations->Values[0]);
+
+	string expected = stack_string("int x = MyMethod_int_(24);");
+
+	IsTrue(strings.Equals(expected, data));
+
+	return true;
+}
+
 TEST_SUITE(RunUnitTests,
 	APPEND_TEST(FlattenArgumentToCName)
+	APPEND_TEST(ExpandCall)
 );
 
 void RunExpansionTests()
