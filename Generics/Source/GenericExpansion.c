@@ -10,6 +10,15 @@
 
 #define MAX_ARG_LENGTH 4096
 
+
+typedef struct {
+	// list of type names within the 
+	array(string) TypeNames;
+	// First is the typeName, Second is the index its located at
+	array(tuple(int, int)) TypeLocations;
+} genericTokens;
+
+
 // Reduces any arument to a CName
 // buffer should be 4 times len of arg
 // ex.                        int* | int_ptr
@@ -53,6 +62,142 @@ string FlattenArgumentToCName(string arg, string stack_buffer)
 	return stack_buffer;
 }
 
+array(string) GetGenericArguments(string data, location location)
+{
+	array(string) result = dynamic_array(string, 0);
+
+	bool inMacro = false;
+	bool inString = false;
+	bool inSingleComment = false;
+	bool inMultiComment = false;
+	int depth = 0;
+	int parenDepth = 0;
+
+	int nameStartIndex = location.AlligatorEndIndex;
+	int nameEndIndex = -1;
+
+	for (int i = location.AlligatorStartIndex; i < location.AlligatorEndIndex; i++)
+	{
+		int previousC = data->Values[max(0, i - 1)];
+		int c = data->Values[i];
+		// we can do this since arrays have an invisible \0 at the end so we can't overflow
+		int nextC = data->Values[i + 1];
+
+		// check to see if we're in a string
+		if (c is '"' and inSingleComment is false and inMultiComment is false)
+		{
+			// look back and check to see if it's delimited
+			if (previousC isnt '\\')
+			{
+				inString = !inString;
+				continue;
+			}
+		}
+
+		// check for macros
+		if (c is '#' && !inMacro and inString is false and inSingleComment is false and inMultiComment is false)
+		{
+			inMacro = true;
+
+			continue;
+		}
+
+		if (inSingleComment and (c is '\n' || (c is '\r' && nextC is '\n')) and inString is false)
+		{
+			inSingleComment = false;
+			continue;
+		}
+
+		if (inMultiComment and c is '*' and nextC is '/' and inString is false)
+		{
+			inMultiComment = false;
+			continue;
+		}
+
+		// check to see if we're at a newline
+		if (c is '\n' || (c is '\r' && nextC is '\n' && previousC != '\\') and inString is false)
+		{
+			inMacro = false;
+
+			continue;
+		}
+
+		if (c is '/' and nextC is '/' and inString is false)
+		{
+			inSingleComment = true;
+			continue;
+		}
+
+		if (c is '/' and nextC is '*' and inString is false)
+		{
+			inMultiComment = true;
+			continue;
+		}
+
+		// dont bother reading if we're in a macro
+		if (inMacro)
+		{
+			continue;
+		}
+
+		if (inSingleComment || inMultiComment)
+		{
+			continue;
+		}
+
+		// dont read if we're in a string
+		if (inString)
+		{
+			continue;
+		}
+
+		if (c is '{')
+		{
+			++depth;
+			continue;
+		}
+		if (c is '}')
+		{
+			--depth;
+			continue;
+		}
+		if (c is '(')
+		{
+			parenDepth++;
+			continue;
+		}
+		if (c is ')')
+		{
+			parenDepth--;
+			continue;
+		}
+
+		// if we're in the middle of defining a struct
+		// or calling a macro skip
+		//          \/
+		// <struct { }>
+		// <MACRO(13 )>
+		if (depth or parenDepth)
+		{
+			continue;
+		}
+
+		// end of 
+		if (c is ',')
+		{
+			string name = stack_substring(data, nameStartIndex, i - nameStartIndex);
+
+			// the next index is the start of the next type name
+			nameStartIndex = i + 1;
+		}
+	}
+}
+
+genericTokens GetGenericTokens(string data, location location)
+{
+
+}
+
 void ExpandCall(string data, location location)
 {
 	// calls just get replaced with a valid C name
@@ -70,6 +215,11 @@ void ExpandCall(string data, location location)
 	// it may be shorter or longer, shift old text left over it
 	strings.RemoveRange(data, start, count);
 	strings.InsertArray(data, flattened, start);
+}
+
+void ExpandMethodDeclaration(string data, location location)
+{
+	// T MyMethod<T>(T, T);
 }
 
 void ExpandGeneric(string data, location location)

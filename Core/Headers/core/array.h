@@ -26,6 +26,7 @@
 #define partial_array(type) partial_##type##_##array
 
 #define _EXPAND_STRUCT_NAME(type) _array_##type
+#define _EXPAND_METHOD_NAME(type, method) _array_##type##_##method
 
 #define _ARRAY_DEFINE_STRUCT(type) struct _EXPAND_STRUCT_NAME(type)\
 {\
@@ -83,6 +84,8 @@ typedef struct _array_##type* type##_array;
 }
 
 #define stack_string(string) explicit_stack_array(char,,sizeof(string) - 1, string)
+
+#define dynamic_array(type, initialCount) _EXPAND_METHOD_NAME(type,Create)(initialCount);
 
 // checks the corresponding attribute against the provided value
 // throws if the value is out of bounds, otherwise returns value
@@ -218,7 +221,6 @@ extern const struct _arrayMethods Arrays;
 
 
 // TEMPLATE FOR METHODS
-#define _EXPAND_METHOD_NAME(type, method) _array_##type##_##method
 #define _EXPAND_DEFINE_ARRAY(type) _ARRAY_DEFINE_STRUCT(type)\
 DEFINE_TYPE_ID(type##_array); \
 private array(type) _EXPAND_METHOD_NAME(type,Create)(size_t count)\
