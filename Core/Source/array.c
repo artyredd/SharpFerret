@@ -211,7 +211,7 @@ private Array AppendArray(Array destinationArray, Array values)
 
 private Array InsertArray(Array destination, Array source, size_t index)
 {
-	guard_array_count(destination, index);
+	guard_array_count_index(destination, index);
 
 	if (destination->Capacity >= (destination->Count + source->Count))
 	{

@@ -73,15 +73,16 @@ array(string) GetGenericArguments(string data, location location)
 	int depth = 0;
 	int parenDepth = 0;
 
-	int nameStartIndex = location.AlligatorEndIndex;
-	int nameEndIndex = -1;
+	int nameStartIndex = 1;
 
-	for (int i = location.AlligatorStartIndex; i < location.AlligatorEndIndex; i++)
+	string subdata = stack_substring(data, location.AlligatorStartIndex, location.AlligatorEndIndex - location.AlligatorStartIndex + 1);
+
+	for (int i = 1; i < subdata->Count; i++)
 	{
-		int previousC = data->Values[max(0, i - 1)];
-		int c = data->Values[i];
+		int previousC = subdata->Values[max(0, i - 1)];
+		int c = subdata->Values[i];
 		// we can do this since arrays have an invisible \0 at the end so we can't overflow
-		int nextC = data->Values[i + 1];
+		int nextC = subdata->Values[i + 1];
 
 		// check to see if we're in a string
 		if (c is '"' and inSingleComment is false and inMultiComment is false)
@@ -140,7 +141,7 @@ array(string) GetGenericArguments(string data, location location)
 			continue;
 		}
 
-		if (inSingleComment || inMultiComment)
+		if (inSingleComment or inMultiComment)
 		{
 			continue;
 		}
@@ -185,17 +186,38 @@ array(string) GetGenericArguments(string data, location location)
 		// end of 
 		if (c is ',')
 		{
-			string name = stack_substring(data, nameStartIndex, i - nameStartIndex);
-
+			string stackName = stack_substring(subdata, nameStartIndex, i - nameStartIndex);
+			string name = empty_dynamic_string(stackName->Count);
+			strings.AppendArray(name, stackName);
+			Arrays(string).Append(result, name);
 			// the next index is the start of the next type name
 			nameStartIndex = i + 1;
 		}
 	}
+
+	// check for single argument
+	// or no argument
+	if (result->Count is 0)
+	{
+		if (subdata->Count is 2)
+		{
+			fprintf_red(stderr, "A minium of one type argument is required when using generics.", "");
+			throw(MissingGenericArgumentException);
+		}
+
+		// assume a single argument
+		string stackName = stack_substring(subdata, 1, subdata->Count - 2);
+		string name = empty_dynamic_string(stackName->Count);
+		strings.AppendArray(name, stackName);
+		Arrays(string).Append(result, name);
+	}
+
+	return result;
 }
 
 genericTokens GetGenericTokens(string data, location location)
 {
-
+	return (genericTokens) { 0 };
 }
 
 void ExpandCall(string data, location location)
@@ -308,9 +330,27 @@ TEST(ExpandCall)
 	return true;
 }
 
+TEST(GetGenericArguments)
+{
+	string data = stack_string("<T>");
+	location location = {
+		.AlligatorStartIndex = 0,
+		.AlligatorEndIndex = data->Count - 1
+	};
+
+	array(string) expected = stack_array(string, stack_string("T"));
+	array(string) actual = GetGenericArguments(data, location);
+
+	IsEqual(expected->Count, actual->Count);
+	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
+
+	return true;
+}
+
 TEST_SUITE(RunUnitTests,
 	APPEND_TEST(FlattenArgumentToCName)
 	APPEND_TEST(ExpandCall)
+	APPEND_TEST(GetGenericArguments)
 );
 
 void RunExpansionTests()

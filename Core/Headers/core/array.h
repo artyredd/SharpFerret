@@ -89,11 +89,13 @@ typedef struct _array_##type* type##_array;
 
 // checks the corresponding attribute against the provided value
 // throws if the value is out of bounds, otherwise returns value
-#define guard_array_attribute(arr,attribute,value) ((value) >= (arr)->attribute ? throw_in_expression(IndexOutOfRangeException) : (value))
+#define guard_array_attribute(arr,attribute,value) ((value) > (arr)->attribute ? throw_in_expression(IndexOutOfRangeException) : (value))
+#define guard_array_attribute_index(arr,attribute,value) ((value) >= (arr)->attribute ? throw_in_expression(IndexOutOfRangeException) : (value))
 
 // checks and throws if the value is out of bounds for the array
 // returns the value so it can be used in expressions
-#define guard_array_count(arr, value) guard_array_attribute(arr,Count,value) 
+#define guard_array_count_index(arr, value) guard_array_attribute_index(arr,Count,value) 
+#define guard_array_count(arr,value) guard_array_attribute(arr,Count,value)
 // checks and throws if the value is out of bounds for the array
 // returns the value so it can be used in expressions
 #define guard_array_size(arr, value) guard_array_attribute(arr,Size,value) 
@@ -109,7 +111,7 @@ typedef struct _array_##type* type##_array;
 // ! will throw IndexOutOfRangeException if start index or count are out of bounds
 #define stack_subarray(type, arr, startIndex, count) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
-	.Values = &arr->Values[guard_array_count(arr, startIndex)],\
+	.Values = &arr->Values[guard_array_count_index(arr, startIndex)],\
 	.Size = guard_array_size(arr, sizeof(type) * count),\
 	.ElementSize = sizeof(type),\
 	.Capacity = guard_array_count(arr, count),\
@@ -249,7 +251,7 @@ private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, si
 	/* { a, b, c, d, e } */\
 	/* RemoveRange(2,2) */\
 	/* { a, b, e } */\
-	const size_t safeIndex = guard_array_count(array, index);\
+	const size_t safeIndex = guard_array_count_index(array, index);\
 	const size_t safeCount = guard_array_count(array, count);\
 	type* destination = &array->Values[safeIndex];\
 	array(type) source = stack_subarray_back(type, array, safeIndex + safeCount);\
@@ -283,7 +285,7 @@ return (type*)Arrays.At((Array)array, index); \
 }\
 private type _EXPAND_METHOD_NAME(type, ValueAt)(array(type) array, size_t index)\
 {\
-return array->Values[guard_array_count(array,index)]; \
+return array->Values[guard_array_count_index(array,index)]; \
 }\
 private array(type) _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, array(type) appendedValue)\
 {\
@@ -416,7 +418,8 @@ DEFINE_ARRAY(array(char));
 #define partial_substring_front(arr, endIndexInclusive) partial_subarray_front(char, arr, endIndexInclusive)
 #define partial_substring_back(arr, startIndexInclusive) partial_subarray_back(char, arr, startIndexInclusive)
 #define combine_partial_string(arr, partial) combine_partial_array(char, arr, partial)
-#define dynamic_string(cString) strings.AppendArray(strings.Create(sizeof(cString)-1), stack_string(cString));
+#define dynamic_string(cString) strings.AppendArray(strings.Create(sizeof(cString)-1), stack_string(cString))
+#define empty_dynamic_string(count) strings.Create(count)
 
 #define _EXPAND_tuple(left,right) tuple_##left##_##right
 #define tuple(left,right) _EXPAND_tuple(left,right)
