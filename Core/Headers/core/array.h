@@ -366,6 +366,12 @@ private bool _EXPAND_METHOD_NAME(type, Equals)(array(type) left, array(type) rig
 {\
 return Arrays.Equals((Array)left,(Array)right);\
 }\
+private bool _EXPAND_METHOD_NAME(type, BeginsWith)(array(type) array, array(type) value)\
+{\
+size_t safeCount = min(value->Count,array->Count);\
+array(type) sub = stack_subarray_front(type, safeCount);\
+return Arrays.Equals((Array)sub, (Array)value); \
+}\
 const static struct _array_##type##_methods\
 {\
 array(type) (*Create)(size_t count); \
@@ -383,11 +389,12 @@ array(type) (*AppendArray)(array(type), const array(type) appendedValue); \
 array(type) (*InsertArray)(array(type) destination, array(type) values, size_t index); \
 void (*AppendCArray)(array(type), const type* carray, const size_t count); \
 bool (*Equals)(array(type), array(type)); \
+bool (*BeginsWith)(array(type), array(type)); \
 void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
 array(type) (*Clone)(array(type)); \
-size_t (*Hash)(array(type)); \
+size_t(*Hash)(array(type)); \
 void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\
@@ -411,6 +418,7 @@ void (*Dispose)(array(type)); \
 .ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
 .Clone = _EXPAND_METHOD_NAME(type, Clone), \
 .Hash = _EXPAND_METHOD_NAME(type, Hash), \
+.BeginsWith = _EXPAND_METHOD_NAME(type, BeginsWith), \
 .Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
 

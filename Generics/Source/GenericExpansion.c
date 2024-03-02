@@ -16,6 +16,7 @@ typedef struct {
 	// list of type names within the 
 	array(string) TypeNames;
 	// First is the typeName, Second is the index its located at
+	// second is an offset from the beginning of the scope of the locations
 	array(tuple(int, int)) TypeLocations;
 } genericTokens;
 
@@ -227,9 +228,96 @@ array(string) GetGenericArguments(string data, location location)
 	return result;
 }
 
-array(tuple(int, int)) GetGenericArgumentsWithinBody(string data, array(string) typeNames, location location)
+array(tuple(int, int)) GetGenericArgumentsWithinBody(string data, location location, array(string) typeNames)
 {
-	return (array(tuple(int, int))) { 0 };
+	array(tuple(int, int)) result = dynamic_array(tuple(int, int), typeNames->Count);
+
+	bool inMacro = false;
+	bool inString = false;
+	bool inSingleComment = false;
+	bool inMultiComment = false;
+
+	string subdata = stack_substring(data,
+		location.StartScopeIndex,
+		location.EndScopeIndex - location.StartScopeIndex + 1
+	);
+
+	bool nextCharMayBeType = true;
+
+	for (int i = 0; i < subdata->Count; i++)
+	{
+		int previousC = subdata->Values[max(0, i - 1)];
+		int c = subdata->Values[i];
+		// we can do this since arrays have an invisible \0 at the end so we can't overflow
+		int nextC = subdata->Values[i + 1];
+
+		if (c is '"' and inSingleComment is false and inMultiComment is false)
+		{
+			// look back and check to see if it's delimited
+			if (previousC isnt '\\')
+			{
+				inString = !inString;
+				continue;
+			}
+		}
+
+		if (c is '#' && !inMacro and inString is false and inSingleComment is false and inMultiComment is false)
+		{
+			inMacro = true;
+
+			continue;
+		}
+
+		if (inSingleComment and (c is '\n' || (c is '\r' && nextC is '\n')) and inString is false)
+		{
+			inSingleComment = false;
+			continue;
+		}
+
+		if (inMultiComment and c is '*' and nextC is '/' and inString is false)
+		{
+			inMultiComment = false;
+			continue;
+		}
+
+		if (c is '\n' || (c is '\r' && nextC is '\n' && previousC != '\\') and inString is false)
+		{
+			inMacro = false;
+
+			continue;
+		}
+
+		if (c is '/' and nextC is '/' and inString is false)
+		{
+			inSingleComment = true;
+			continue;
+		}
+
+		if (c is '/' and nextC is '*' and inString is false)
+		{
+			inMultiComment = true;
+			continue;
+		}
+
+		if (inMacro or inSingleComment or inMultiComment or inString)
+		{
+			continue;
+		}
+
+		// ignore non name characters, NO type can start with one
+		if (IsValidNameCharacter(c) is false)
+		{
+			nextCharMayBeType = true;
+			continue;
+		}
+
+		if (nextCharMayBeType)
+		{
+
+		}
+	}
+
+	return result;
 }
 
 genericTokens GetGenericTokens(string data, location location)
@@ -428,10 +516,16 @@ TEST(GetGenericArguments)
 	return true;
 }
 
+TEST(GetGenericArgumentsWithinBody)
+{
+	return true;
+}
+
 TEST_SUITE(RunUnitTests,
 	APPEND_TEST(FlattenArgumentToCName)
 	APPEND_TEST(ExpandCall)
 	APPEND_TEST(GetGenericArguments)
+	APPEND_TEST(GetGenericArgumentsWithinBody)
 );
 
 OnStart(2,
