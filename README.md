@@ -1,5 +1,5 @@
-# SingeEngine
-toy game engine written in standard C
+# Sharp Ferret
+A better c derivative than c++, that focuses on code style and is similar to C#.
 
 ## Features
 - Arbitrary per-object material, texture and shader support
