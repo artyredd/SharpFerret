@@ -73,11 +73,11 @@ typedef struct _array_##type* type##_array;
 
 #define stack_array(type,...) ((array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
-	.Values = (type*)(type[(VAR_COUNT(__VA_ARGS__) - 1)/6]){ __VA_ARGS__ },\
-	.Size = sizeof(type) * (VAR_COUNT(__VA_ARGS__) - 1)/6,\
+	.Values = (type*)(type[(VAR_COUNT(__VA_ARGS__) - 1)/9]){ __VA_ARGS__ },\
+	.Size = sizeof(type) * (VAR_COUNT(__VA_ARGS__) - 1)/9,\
 	.ElementSize = sizeof(type),\
-	.Capacity = (VAR_COUNT(__VA_ARGS__) - 1)/6,\
-	.Count = (VAR_COUNT(__VA_ARGS__) - 1)/6,\
+	.Capacity = (VAR_COUNT(__VA_ARGS__) - 1)/9,\
+	.Count = (VAR_COUNT(__VA_ARGS__) - 1)/9,\
 	.TypeId = 0,\
 	.StackObject = true,\
 	.Dirty = true,\
