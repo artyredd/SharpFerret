@@ -9,7 +9,7 @@
 #include <ctype.h>
 #include "core/guards.h"
 #include "helpers.c"
-#include "runtime.h"
+#include "core/runtime.h"
 
 /*
 #pragma section("mysec",discard)

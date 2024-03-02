@@ -20,6 +20,8 @@ static bool ReallocOrCopy(void** address, const size_t previousLength, const siz
 static void RegisterTypeName(const char* name, size_t* out_typeId);
 private void PrintAlloc(FILE* stream);
 private void PrintFree(FILE* stream);
+private int CompareMemoryAndHash(const char* left, size_t leftSize, const char* right, size_t rightSize, size_t* out_leftHash, size_t* out_rightHash);
+
 
 struct _memoryMethods Memory = {
 	.AllocSize = 0,
@@ -35,7 +37,8 @@ struct _memoryMethods Memory = {
 	.ReallocOrCopy = &ReallocOrCopy,
 	.RegisterTypeName = &RegisterTypeName,
 	.PrintAlloc = PrintAlloc,
-	.PrintFree = PrintFree
+	.PrintFree = PrintFree,
+	.CompareMemoryAndHash = CompareMemoryAndHash
 };
 
 #define MAX_TYPENAME_LENGTH 1024
@@ -69,6 +72,36 @@ struct _typeName RegisteredTypeNames[MAX_REGISTERED_TYPENAMES] =
 		.Used = true
 	}
 };
+
+private int CompareMemoryAndHash(const char* left, size_t leftSize, const char* right, size_t rightSize, size_t* out_leftHash, size_t* out_rightHash)
+{
+	size_t leftHash = 0;
+	size_t rightHash = 0;
+
+	const int length = min(leftSize, rightSize);
+
+	for (size_t i = 0; i < length; i++)
+	{
+		const char leftByte = left[i];
+		const char rightByte = right[i];
+
+		leftHash = Hashing.ChainHashSingle(leftByte, leftHash);
+		rightHash = Hashing.ChainHashSingle(rightByte, rightHash);
+
+		if (leftByte != rightByte)
+		{
+			*out_leftHash = leftHash;
+			*out_rightHash = rightHash;
+
+			return leftByte > rightByte ? 1 : -1;
+		}
+	}
+
+	*out_leftHash = leftHash;
+	*out_rightHash = rightHash;
+
+	return 0;
+}
 
 /// <summary>
 /// Prints the current allocation statistics to the provided stream

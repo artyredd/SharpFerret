@@ -20,6 +20,8 @@ struct _hashingMethods {
 	/// of char*
 	/// </summary>
 	size_t(*ChainHashSafe)(const char* bytes, const size_t size, const size_t previousHash);
+	// Chain hashes a single byte
+	size_t(*ChainHashSingle)(const char byte, const size_t previousHash);
 };
 
 extern const struct _hashingMethods Hashing;

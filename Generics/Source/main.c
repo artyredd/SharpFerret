@@ -2,7 +2,7 @@
 #include "core/array.h"
 #include "sourceParser.h"
 #include "GenericExpansion.h"
-#include "runtime.h"
+#include "core/runtime.h"
 
 private array(string) GetFiles(char* strs[], int count)
 {

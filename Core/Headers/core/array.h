@@ -239,6 +239,7 @@ struct _arrayMethods
 	Array(*AppendArray)(Array array, Array appendedValue);
 	Array(*InsertArray)(Array dest, Array src, size_t index);
 	void (*Clear)(Array array);
+	bool (*Equals)(Array left, Array right);
 	void (*Foreach)(Array, void(*method)(void*));
 	void (*ForeachWithContext)(Array, void* context, void(*method)(void* context, void* item));
 	void (*Dispose)(Array);
@@ -282,6 +283,7 @@ private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, si
 	array(type) source = stack_subarray_back(type, array, safeIndex + safeCount);\
 	memmove(destination,source->Values,source->Count * source->ElementSize );\
 	array->Count = safe_subtract(array->Count, safeCount);\
+	array->Dirty = true;\
 	return array; \
 }\
 private bool _EXPAND_METHOD_NAME(type, Empty)(array(type) array)\
@@ -351,7 +353,7 @@ private void _EXPAND_METHOD_NAME(type, Dispose)(array(type)array)\
 {\
 Arrays.Dispose((Array)array); \
 }\
-private int _EXPAND_METHOD_NAME(type, Hash)(array(type) array)\
+private size_t _EXPAND_METHOD_NAME(type, Hash)(array(type) array)\
 {\
 if(array->Dirty)\
 {\
@@ -362,27 +364,7 @@ return array->Hash; \
 }\
 private bool _EXPAND_METHOD_NAME(type, Equals)(array(type) left, array(type) right)\
 {\
-if (left is right)\
-{\
-return true; \
-}\
-if ((left is null && right isnt null) || (left isnt null && right is null))\
-{\
-return false; \
-}\
-if ((left->Values is null && right->Values isnt null) || (left->Values isnt null && right->Values is null))\
-{\
-return false; \
-}\
-if (left->Values is right->Values)\
-{\
-return true; \
-}\
-if (left->Count != right->Count)\
-{\
-return false; \
-}\
-return memcmp(left->Values, right->Values, left->ElementSize * left->Count) == 0; \
+return Arrays.Equals((Array)left,(Array)right);\
 }\
 const static struct _array_##type##_methods\
 {\
@@ -405,7 +387,7 @@ void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
 array(type) (*Clone)(array(type)); \
-int (*Hash)(array(type)); \
+size_t (*Hash)(array(type)); \
 void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\

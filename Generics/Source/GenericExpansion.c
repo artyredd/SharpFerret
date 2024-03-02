@@ -7,7 +7,7 @@
 #include <ctype.h>
 #include "core/guards.h"
 #include "helpers.c"
-#include "runtime.h"
+#include "core/runtime.h"
 
 #define MAX_ARG_LENGTH 4096
 

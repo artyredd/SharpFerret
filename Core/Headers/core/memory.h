@@ -48,6 +48,8 @@ struct _memoryMethods {
 
 	// registers the provided typename and returns the id that should be passed into the Alloc() method
 	void(*RegisterTypeName)(const char* name, size_t* out_typeId);
+	// performs memcmp while also performing a hash at the same time
+	int (*CompareMemoryAndHash)(const char* left, size_t leftSize, const char* right, size_t rightSize, size_t* out_leftHash, size_t* out_rightHash);
 };
 
 extern struct _memoryMethods Memory;
