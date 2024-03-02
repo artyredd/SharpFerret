@@ -9,6 +9,7 @@
 #include <ctype.h>
 #include "core/guards.h"
 #include "helpers.c"
+#include "runtime.h"
 
 /*
 #pragma section("mysec",discard)
@@ -1015,7 +1016,6 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(GetGenericLocations)
 );
 
-void RunTests()
-{
+OnStart(1,
 	RunUnitTests();
-}
+);

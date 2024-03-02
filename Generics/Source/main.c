@@ -2,6 +2,7 @@
 #include "core/array.h"
 #include "sourceParser.h"
 #include "GenericExpansion.h"
+#include "runtime.h"
 
 private array(string) GetFiles(char* strs[], int count)
 {
@@ -20,8 +21,7 @@ private array(string) GetFiles(char* strs[], int count)
 
 void main(int argc, char* argv[])
 {
-	RunTests();
-	RunExpansionTests();
+	RunOnStartMethods();
 	return;
 
 	array(string) paths = GetFiles(argv, argc);

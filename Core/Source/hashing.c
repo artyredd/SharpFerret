@@ -1,32 +1,59 @@
 #include "core/hashing.h"
 #include "core/csharp.h"
 
-static size_t Hash(const char* bytes);
-static size_t ChainHash(const char* bytes, const size_t previousHash);
+private size_t Hash(const char* bytes);
+private size_t ChainHash(const char* bytes, const size_t previousHash);
+private size_t HashSafe(const char* bytes, size_t size);
+private size_t ChainHashSafe(const char* bytes, const size_t size, const size_t previousHash);
 
 const struct _hashingMethods Hashing = {
 	.Hash = &Hash,
-    .ChainHash = &ChainHash
+	.ChainHash = &ChainHash,
+	.HashSafe = HashSafe,
+	.ChainHashSafe = ChainHashSafe
 };
 
-static size_t ChainHash(const char* bytes, const size_t previousHash)
+private size_t ChainHashSafe(const char* bytes, const size_t size, const size_t previousHash)
 {
-    // modified djb2 hash
-    /*http://www.cse.yorku.ca/~oz/hash.html*/
+	// modified djb2 hash
+	/*http://www.cse.yorku.ca/~oz/hash.html*/
 
-    size_t hash = previousHash is 0 ? 5381 : previousHash;
+	size_t hash = previousHash is 0 ? 5381 : previousHash;
 
-    int c;
+	for (size_t i = 0; i < size; i++)
+	{
+		const int c = bytes[i];
 
-#pragma warning (disable : 4706)
-    while (c = *bytes++)
-        hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
-#pragma warning (default : 4706)
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+	}
 
-    return hash;
+	return hash;
 }
 
-static size_t Hash(const char* bytes)
+
+private size_t HashSafe(const char* bytes, size_t size)
 {
-    return ChainHash(bytes, 0);
+	return ChainHashSafe(bytes, size, 0);
+}
+
+private size_t ChainHash(const char* bytes, const size_t previousHash)
+{
+	// modified djb2 hash
+	/*http://www.cse.yorku.ca/~oz/hash.html*/
+
+	size_t hash = previousHash is 0 ? 5381 : previousHash;
+
+	int c;
+
+#pragma warning (disable : 4706)
+	while (c = *bytes++)
+		hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+#pragma warning (default : 4706)
+
+	return hash;
+}
+
+private size_t Hash(const char* bytes)
+{
+	return ChainHash(bytes, 0);
 }

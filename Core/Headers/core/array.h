@@ -6,6 +6,7 @@
 #include "macros.h"
 #include <string.h>
 #include <core/memory.h>
+#include <core/hashing.h>
 
 // TEMPLATE
 
@@ -46,6 +47,12 @@
 	size_t TypeId;\
 	/* Whether or not this object was constructed on the stack */\
 	bool StackObject;\
+	/* Whether or not the array needs to recalculate the hash */\
+	bool Dirty;\
+	/* The Hash of this array */\
+	size_t Hash;\
+	/* Whether or not this array is auto hashed, default is true */\
+	bool AutoHash;\
 }; \
 typedef struct _array_##type partial_##type##_##array;\
 typedef struct _array_##type* type##_array;
@@ -58,7 +65,10 @@ typedef struct _array_##type* type##_array;
 	.Capacity = count,\
 	.Count = count,\
 	.TypeId = 0,\
-	.StackObject = true\
+	.StackObject = true,\
+	.Dirty = true,\
+	.Hash = 0,\
+	.AutoHash = true\
 }
 
 #define stack_array(type,...) ((array(type))&(struct _EXPAND_STRUCT_NAME(type))\
@@ -69,7 +79,10 @@ typedef struct _array_##type* type##_array;
 	.Capacity = (VAR_COUNT(__VA_ARGS__) - 1)/6,\
 	.Count = (VAR_COUNT(__VA_ARGS__) - 1)/6,\
 	.TypeId = 0,\
-	.StackObject = true\
+	.StackObject = true,\
+	.Dirty = true,\
+	.Hash = 0,\
+	.AutoHash = true\
 })
 
 #define empty_stack_array(type,count)  (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
@@ -80,7 +93,10 @@ typedef struct _array_##type* type##_array;
 	.Capacity = count,\
 	.Count = 0,\
 	.TypeId = 0,\
-	.StackObject = true\
+	.StackObject = true,\
+	.Dirty = true,\
+	.Hash = 0,\
+	.AutoHash = true\
 }
 
 #define stack_string(string) explicit_stack_array(char,,sizeof(string) - 1, string)
@@ -117,7 +133,10 @@ typedef struct _array_##type* type##_array;
 	.Capacity = guard_array_count(arr, count),\
 	.Count = guard_array_count(arr, count),\
 	.TypeId = 0,\
-	.StackObject = true\
+	.StackObject = true,\
+	.Dirty = true,\
+	.Hash = 0,\
+	.AutoHash = true\
 }
 
 // Creates a stack array that is a subarray of the given array
@@ -154,7 +173,10 @@ typedef struct _array_##type* type##_array;
 	.TypeId = 0,\
 	/* This is a value type object that isn't a stack object */\
 	/* But we want to avoid trying to free an offset */\
-	.StackObject = true\
+	.StackObject = true,\
+	.Dirty = true,\
+	.Hash = 0,\
+	.AutoHash = true\
 }
 
 // Creates a stack array that is a subarray of the given array
@@ -186,7 +208,10 @@ typedef struct _array_##type* type##_array;
 	.Capacity = guard_array_attribute(arr, Capacity, partial.Capacity),\
 	.Count = guard_array_count(arr,(partial).Count),\
 	.TypeId = partial.TypeId != arr->TypeId ? throw_in_expression(TypeMismatchException) : partial.TypeId,\
-	.StackObject = true\
+	.StackObject = true,\
+	.Dirty = true,\
+	.Hash = 0,\
+	.AutoHash = true\
 }
 
 _ARRAY_DEFINE_STRUCT(void);
@@ -326,6 +351,15 @@ private void _EXPAND_METHOD_NAME(type, Dispose)(array(type)array)\
 {\
 Arrays.Dispose((Array)array); \
 }\
+private int _EXPAND_METHOD_NAME(type, Hash)(array(type) array)\
+{\
+if(array->Dirty)\
+{\
+	array->Dirty = false;\
+	array->Hash = Hashing.HashSafe((char*)array->Values, array->Count * array->ElementSize);\
+}\
+return array->Hash; \
+}\
 private bool _EXPAND_METHOD_NAME(type, Equals)(array(type) left, array(type) right)\
 {\
 if (left is right)\
@@ -371,6 +405,7 @@ void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
 array(type) (*Clone)(array(type)); \
+int (*Hash)(array(type)); \
 void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\
@@ -393,6 +428,7 @@ void (*Dispose)(array(type)); \
 .Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
 .ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
 .Clone = _EXPAND_METHOD_NAME(type, Clone), \
+.Hash = _EXPAND_METHOD_NAME(type, Hash), \
 .Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
 
@@ -448,6 +484,8 @@ DEFINE_TUPLE_BOTH_WAYS(type,float);\
 DEFINE_TUPLE_BOTH_WAYS(type,double);\
 
 #define DEFINE_CONTAINERS(type) __pragma(warning(disable:4113)); DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type); DEFINE_POINTER(type); __pragma(warning(default:4113))
+
+DEFINE_TUPLE_INTRINSIC(string);
 
 #pragma warning(disable:4113)
 DEFINE_POINTER(_Bool);

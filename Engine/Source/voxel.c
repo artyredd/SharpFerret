@@ -249,40 +249,40 @@ TEST(GetQuadrantWorks)
 	const vector3 origin = { 0,0,0 };
 	vector3 vertex = { 0,0,0 };
 
-	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ 0,-1,0 };
-	IsEqual(Octants.Lower.North.East, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Lower.North.East, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ 0,1,0 };
-	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ 1,0,0 };
-	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ -1,0,0 };
-	IsEqual(Octants.Upper.North.West, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Upper.North.West, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ 1,1,0 };
-	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ -1,1,0 };
-	IsEqual(Octants.Upper.North.West, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Upper.North.West, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ 0,0,0 };
-	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Upper.North.East, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ 0,1,-1 };
-	IsEqual(Octants.Upper.South.East, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Upper.South.East, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ 0,-1,1 };
-	IsEqual(Octants.Lower.North.East, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Lower.North.East, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ 1, 1,-1 };
-	IsEqual(Octants.Upper.South.East, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Upper.South.East, GetQuadrant(origin, vertex));
 
 	vertex = (vector3){ -1, -1,-1 };
-	IsEqual(Octants.Lower.South.West, GetQuadrant(origin, vertex), "%i");
+	IsEqual(Octants.Lower.South.West, GetQuadrant(origin, vertex));
 
 	return true;
 }

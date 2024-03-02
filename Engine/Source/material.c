@@ -791,7 +791,7 @@ static Material Load(const string path)
 
 				if (texture is null)
 				{
-					throw(FailedToLoadTextureException)
+					throw(FailedToLoadTextureException);
 				}
 
 				Materials.SetMainTexture(material, texture);
@@ -808,7 +808,7 @@ static Material Load(const string path)
 
 				if (texture is null)
 				{
-					throw(FailedToLoadTextureException)
+					throw(FailedToLoadTextureException);
 				}
 
 				Materials.SetSpecularTexture(material, texture);
@@ -824,7 +824,7 @@ static Material Load(const string path)
 
 				if (texture is null)
 				{
-					throw(FailedToLoadTextureException)
+					throw(FailedToLoadTextureException);
 				}
 
 				Materials.SetReflectionTexture(material, texture);

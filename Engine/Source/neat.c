@@ -1096,10 +1096,10 @@ TEST(ArrayWorks)
 
 	Arrays(int).RemoveIndex(ints, 1);
 
-	IsEqual(3ull, ints->Count, "%lli");
-	IsEqual(0, ints->Values[0], "%d");
-	IsEqual(2, ints->Values[1], "%d");
-	IsEqual(3, ints->Values[2], "%d");
+	IsEqual(3ull, ints->Count);
+	IsEqual(0, ints->Values[0]);
+	IsEqual(2, ints->Values[1]);
+	IsEqual(3, ints->Values[2]);
 
 	return true;
 }
@@ -1112,7 +1112,7 @@ TEST(GetExcessGeneCount)
 
 	size_t expected = 2;
 
-	IsEqual(expected, GetExcessGeneCount(left, right), "%lli");
+	IsEqual(expected, GetExcessGeneCount(left, right));
 
 	Arrays(gene).Dispose(left);
 	Arrays(gene).Dispose(right);
@@ -1128,7 +1128,7 @@ TEST(GetBothDisjointGeneCount)
 
 	size_t expected = 2;
 
-	IsEqual(expected, GetBothDisjointGeneCount(left, right), "%lli");
+	IsEqual(expected, GetBothDisjointGeneCount(left, right));
 
 	Arrays(gene).Dispose(left);
 	Arrays(gene).Dispose(right);
@@ -1144,7 +1144,7 @@ TEST(GetAverageDifferenceBetweenWeights)
 
 	ai_number expected = 0;
 
-	IsApproximate(expected, GetAverageDifferenceBetweenWeights(left, right), "%lf");
+	IsApproximate(expected, GetAverageDifferenceBetweenWeights(left, right));
 
 	Arrays(gene).Dispose(left);
 	Arrays(gene).Dispose(right);
@@ -1172,7 +1172,7 @@ TEST(GetSimilarity)
 
 	ai_number actual = GetSimilarity(&population, &left, &right);
 
-	IsApproximate(expected, actual, "%lf");
+	IsApproximate(expected, actual);
 
 	return true;
 }
@@ -1197,7 +1197,7 @@ TEST(BreedOrganisms)
 
 	array(gene) actualGenes = offspring->Genes;
 
-	IsEqual(expectedGenes->Count, actualGenes->Count, "%lli");
+	IsEqual(expectedGenes->Count, actualGenes->Count);
 
 	for (size_t i = 0; i < expectedGenes->Count; i++)
 	{
@@ -1206,13 +1206,13 @@ TEST(BreedOrganisms)
 		Gene actualGene = &actualGenes->Values[i];
 
 		// NON RANDOM TESTS
-		IsEqual(expectedGene->Id, actualGene->Id, "%lli");
-		IsEqual(expectedGene->StartNodeIndex, actualGene->StartNodeIndex, "%lli");
-		IsEqual(expectedGene->EndNodeIndex, actualGene->EndNodeIndex, "%lli");
+		IsEqual(expectedGene->Id, actualGene->Id);
+		IsEqual(expectedGene->StartNodeIndex, actualGene->StartNodeIndex);
+		IsEqual(expectedGene->EndNodeIndex, actualGene->EndNodeIndex);
 
 		// RANDOM TESTS
-		IsEqual(expectedGene->Enabled, actualGene->Enabled, "%x");
-		IsApproximate(expectedGene->Weight, actualGene->Weight, "%f");
+		IsEqual(expectedGene->Enabled, actualGene->Enabled);
+		IsApproximate(expectedGene->Weight, actualGene->Weight);
 	}
 
 	Arrays(gene).Dispose(expectedGenes);

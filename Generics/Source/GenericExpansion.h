@@ -3,4 +3,4 @@
 #include "sourceParser.h"
 
 void ExpandGenerics(string data, array(location) locations);
-void RunExpansionTests();
+//void RunExpansionTests();

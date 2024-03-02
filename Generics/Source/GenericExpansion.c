@@ -7,6 +7,7 @@
 #include <ctype.h>
 #include "core/guards.h"
 #include "helpers.c"
+#include "runtime.h"
 
 #define MAX_ARG_LENGTH 4096
 
@@ -226,6 +227,11 @@ array(string) GetGenericArguments(string data, location location)
 	return result;
 }
 
+array(tuple(int, int)) GetGenericArgumentsWithinBody(string data, array(string) typeNames, location location)
+{
+	return (array(tuple(int, int))) { 0 };
+}
+
 genericTokens GetGenericTokens(string data, location location)
 {
 	return (genericTokens) { 0 };
@@ -428,7 +434,6 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(GetGenericArguments)
 );
 
-void RunExpansionTests()
-{
+OnStart(2,
 	RunUnitTests();
-}
+);
