@@ -10,8 +10,8 @@
 #include "cglm/affine.h"
 #include <math.h>
 
-private bool TryParseVector3(const char* buffer, const size_t length, vector3* out_vector3);
-private bool TrySerializeVec3(char* buffer, const size_t length, const vector3 vector);
+private bool TryParseVector3(const char* buffer, const ulong length, vector3* out_vector3);
+private bool TrySerializeVec3(char* buffer, const ulong length, const vector3 vector);
 private bool TrySerializeVec3Stream(File stream, const vector3 vector);
 private vector3 Cross(const vector3 left, const vector3 right);
 private vector3 Multiply(const vector3 left, const vector3 right);
@@ -22,7 +22,7 @@ private bool Equals(const vector3 left, const vector3 right);
 private bool Close(const vector3 left, const vector3 right, float epsilon);
 private float Distance(const vector3 left, const vector3 right);
 private vector3 Mean(const vector3 left, const vector3 right);
-private vector3 MeanArray(const vector3* array, const size_t count);
+private vector3 MeanArray(const vector3* array, const ulong count);
 
 const struct _vector3Methods Vector3s = {
 	.TryDeserialize = &TryParseVector3,
@@ -40,8 +40,8 @@ const struct _vector3Methods Vector3s = {
 	.MeanArray = MeanArray
 };
 
-static bool TryParseVector2(const char* buffer, const size_t length, vector2* out_vector2);
-static bool TrySerializeVec2(char* buffer, const size_t length, const vector2 vector);
+static bool TryParseVector2(const char* buffer, const ulong length, vector2* out_vector2);
+static bool TrySerializeVec2(char* buffer, const ulong length, const vector2 vector);
 static bool EqualsVec2(const vector2 left, const vector2 right);
 static bool CloseVec2(const vector2 left, const vector2 right, float epsilon);
 
@@ -52,8 +52,8 @@ const struct _vector2Methods Vector2s = {
 	.Close = CloseVec2
 };
 
-static bool TryDeserializeVec4(const char* buffer, const size_t length, vector4* out_vector2);
-static bool TrySerializeVec4(char* buffer, const size_t length, const vector4 vector);
+static bool TryDeserializeVec4(const char* buffer, const ulong length, vector4* out_vector2);
+static bool TrySerializeVec4(char* buffer, const ulong length, const vector4 vector);
 static bool TrySerializeVec4Stream(File stream, const vector4 vector);
 
 const struct _vector4Methods Vector4s = {
@@ -103,7 +103,7 @@ private bool CloseVec2(const vector2 left, const vector2 right, float epsilon)
 		(fabs(left.y - right.y) < epsilon);
 }
 
-private bool TryParseVector3(const char* buffer, size_t length, vector3* out_vector3)
+private bool TryParseVector3(const char* buffer, ulong length, vector3* out_vector3)
 {
 	if (length is 0)
 	{
@@ -118,7 +118,7 @@ private bool TryParseVector3(const char* buffer, size_t length, vector3* out_vec
 	return count == 3;
 }
 
-private bool TryParseVector2(const char* buffer, size_t length, vector2* out_vector2)
+private bool TryParseVector2(const char* buffer, ulong length, vector2* out_vector2)
 {
 	if (length is 0)
 	{
@@ -163,13 +163,13 @@ private vector3 Mean(const vector3 left, const vector3 right)
 	};
 }
 
-private vector3 MeanArray(const vector3* array, const size_t count)
+private vector3 MeanArray(const vector3* array, const ulong count)
 {
 	float x = 0;
 	float y = 0;
 	float z = 0;
 
-	for (size_t i = 0; i < count; i++)
+	for (ulong i = 0; i < count; i++)
 	{
 		const vector3 vector = array[i];
 
@@ -226,7 +226,7 @@ private bool TrySerializeVec3Stream(File stream, const vector3 vector)
 	return result > 0;
 }
 
-private bool TrySerializeVec3(char* buffer, const size_t length, const vector3 vector)
+private bool TrySerializeVec3(char* buffer, const ulong length, const vector3 vector)
 {
 	if (length is 0)
 	{
@@ -239,7 +239,7 @@ private bool TrySerializeVec3(char* buffer, const size_t length, const vector3 v
 	return result > 0;
 }
 
-private bool TrySerializeVec2(char* buffer, const size_t length, const vector2 vector)
+private bool TrySerializeVec2(char* buffer, const ulong length, const vector2 vector)
 {
 	if (length is 0)
 	{
@@ -252,7 +252,7 @@ private bool TrySerializeVec2(char* buffer, const size_t length, const vector2 v
 	return result > 0;
 }
 
-private bool TryDeserializeVec4(const char* buffer, const size_t length, vector4* out_vector4)
+private bool TryDeserializeVec4(const char* buffer, const ulong length, vector4* out_vector4)
 {
 	if (length is 0)
 	{
@@ -284,7 +284,7 @@ private bool TrySerializeVec4Stream(File stream, const vector4 vector)
 	return result > 0;
 }
 
-private bool TrySerializeVec4(char* buffer, const size_t length, const vector4 vector)
+private bool TrySerializeVec4(char* buffer, const ulong length, const vector4 vector)
 {
 	if (length is 0)
 	{

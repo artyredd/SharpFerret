@@ -6,21 +6,21 @@
 #include "core/csharp.h"
 #include "core/hashing.h"
 
-static char GetByteGrouping(size_t value);
-static void PrintGroupedNumber(FILE* stream, size_t value);
+static char GetByteGrouping(ulong value);
+static void PrintGroupedNumber(FILE* stream, ulong value);
 
-static void* SafeAlloc(size_t size, size_t typeID);
-static void* SafeCalloc(size_t nitems, size_t size, size_t typeID);
-static void* SafeAllocAligned(size_t alignment, size_t size, size_t typeID);
-static void SafeFree(void* address, size_t typeID);
-static bool TryRealloc(void* address, const size_t previousSize, const size_t newSize, void** out_address);
-static void ZeroArray(void* address, const size_t size);
-static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength, size_t typeID);
-static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength, size_t typeID);
-static void RegisterTypeName(const char* name, size_t* out_typeId);
+static void* SafeAlloc(ulong size, ulong typeID);
+static void* SafeCalloc(ulong nitems, ulong size, ulong typeID);
+static void* SafeAllocAligned(ulong alignment, ulong size, ulong typeID);
+static void SafeFree(void* address, ulong typeID);
+static bool TryRealloc(void* address, const ulong previousSize, const ulong newSize, void** out_address);
+static void ZeroArray(void* address, const ulong size);
+static void* DuplicateAddress(const void* address, const  ulong length, const  ulong newLength, ulong typeID);
+static bool ReallocOrCopy(void** address, const ulong previousLength, const ulong newLength, ulong typeID);
+static void RegisterTypeName(const char* name, ulong* out_typeId);
 private void PrintAlloc(FILE* stream);
 private void PrintFree(FILE* stream);
-private int CompareMemoryAndHash(const char* left, size_t leftSize, const char* right, size_t rightSize, size_t* out_leftHash, size_t* out_rightHash);
+private int CompareMemoryAndHash(const char* left, ulong leftSize, const char* right, ulong rightSize, ulong* out_leftHash, ulong* out_rightHash);
 
 
 struct _memoryMethods Memory = {
@@ -45,12 +45,12 @@ struct _memoryMethods Memory = {
 #define MAX_REGISTERED_TYPENAMES 1024
 
 struct _typeName {
-	size_t Id;
+	ulong Id;
 	const char Name[MAX_TYPENAME_LENGTH];
 	// the amount of active instances 
-	size_t Active;
+	ulong Active;
 	// the amount of freed instances
-	size_t Freed;
+	ulong Freed;
 	// Whether or not this block of the hash table is used
 	bool Used;
 };
@@ -73,14 +73,14 @@ struct _typeName RegisteredTypeNames[MAX_REGISTERED_TYPENAMES] =
 	}
 };
 
-private int CompareMemoryAndHash(const char* left, size_t leftSize, const char* right, size_t rightSize, size_t* out_leftHash, size_t* out_rightHash)
+private int CompareMemoryAndHash(const char* left, ulong leftSize, const char* right, ulong rightSize, ulong* out_leftHash, ulong* out_rightHash)
 {
-	size_t leftHash = 0;
-	size_t rightHash = 0;
+	ulong leftHash = 0;
+	ulong rightHash = 0;
 
 	const int length = min(leftSize, rightSize);
 
-	for (size_t i = 0; i < length; i++)
+	for (ulong i = 0; i < length; i++)
 	{
 		const char leftByte = left[i];
 		const char rightByte = right[i];
@@ -115,7 +115,7 @@ private void PrintAlloc(FILE* stream)
 	fprintf(stream, " (%lli)\n", Memory.AllocCount);
 
 	// manually register typename for generic memory
-	for (size_t i = 0; i < MAX_REGISTERED_TYPENAMES; i++)
+	for (ulong i = 0; i < MAX_REGISTERED_TYPENAMES; i++)
 	{
 		const struct _typeName* typeName = &RegisteredTypeNames[i];
 
@@ -141,7 +141,7 @@ private void PrintFree(FILE* stream)
 /// <param name="nitems">This is the number of elements to be allocated.</param>
 /// <param name="size">This is the size of elements.</param>
 /// <returns>This function returns a pointer to the allocated memory, or NULL if the request fails.</returns>
-static void* SafeCalloc(size_t nitems, size_t size, size_t typeID)
+static void* SafeCalloc(ulong nitems, ulong size, ulong typeID)
 {
 	void* ptr = calloc(nitems, size);
 
@@ -154,26 +154,26 @@ static void* SafeCalloc(size_t nitems, size_t size, size_t typeID)
 
 	++Memory.AllocCount;
 
-	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
+	const ulong index = typeID % MAX_REGISTERED_TYPENAMES;
 
 	++(RegisteredTypeNames[index].Active);
 
 	return ptr;
 }
 
-static void RegisterTypeName(const char* name, size_t* out_typeId)
+static void RegisterTypeName(const char* name, ulong* out_typeId)
 {
 	if (*out_typeId != 0)
 	{
 		return;
 	}
 
-	size_t hash = Hashing.Hash(name);
+	ulong hash = Hashing.Hash(name);
 
-	size_t index = hash % MAX_REGISTERED_TYPENAMES;
+	ulong index = hash % MAX_REGISTERED_TYPENAMES;
 
-	size_t previousFreed = 0;
-	size_t previousActive = 0;
+	ulong previousFreed = 0;
+	ulong previousActive = 0;
 
 	// make sure we have an unused piece of the hash table
 	while (RegisteredTypeNames[index].Used)
@@ -202,7 +202,7 @@ static void RegisterTypeName(const char* name, size_t* out_typeId)
 	RegisteredTypeNames[index].Active = previousActive;
 	RegisteredTypeNames[index].Used = true;
 
-	size_t length = min(strlen(name), MAX_TYPENAME_LENGTH);
+	ulong length = min(strlen(name), MAX_TYPENAME_LENGTH);
 
 #pragma warning (disable : 4090)
 	char* ptr = RegisteredTypeNames[index].Name;
@@ -214,7 +214,7 @@ static void RegisterTypeName(const char* name, size_t* out_typeId)
 	*out_typeId = hash;
 }
 
-static void* SafeAlloc(size_t size, size_t typeID)
+static void* SafeAlloc(ulong size, ulong typeID)
 {
 	if (size is 0)
 	{
@@ -232,14 +232,14 @@ static void* SafeAlloc(size_t size, size_t typeID)
 
 	++Memory.AllocCount;
 
-	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
+	const ulong index = typeID % MAX_REGISTERED_TYPENAMES;
 
 	++(RegisteredTypeNames[index].Active);
 
 	return ptr;
 }
 
-static void* SafeAllocAligned(size_t alignment, size_t size, size_t typeID)
+static void* SafeAllocAligned(ulong alignment, ulong size, ulong typeID)
 {
 	void* ptr = _aligned_malloc(alignment, size);
 
@@ -252,14 +252,14 @@ static void* SafeAllocAligned(size_t alignment, size_t size, size_t typeID)
 
 	++Memory.AllocCount;
 
-	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
+	const ulong index = typeID % MAX_REGISTERED_TYPENAMES;
 
 	++(RegisteredTypeNames[index].Active);
 
 	return ptr;
 }
 
-static void SafeFree(void* address, size_t typeID)
+static void SafeFree(void* address, ulong typeID)
 {
 	if (address is null)
 	{
@@ -270,12 +270,12 @@ static void SafeFree(void* address, size_t typeID)
 
 	++Memory.FreeCount;
 
-	const size_t index = typeID % MAX_REGISTERED_TYPENAMES;
+	const ulong index = typeID % MAX_REGISTERED_TYPENAMES;
 
 	++(RegisteredTypeNames[index].Freed);
 }
 
-static bool TryRealloc(void* address, const size_t previousSize, const size_t newSize, void** out_address)
+static bool TryRealloc(void* address, const ulong previousSize, const ulong newSize, void** out_address)
 {
 	void* newAddress = realloc(address, newSize);
 
@@ -297,12 +297,12 @@ static bool TryRealloc(void* address, const size_t previousSize, const size_t ne
 	return false;
 }
 
-static void ZeroArray(void* address, const size_t size)
+static void ZeroArray(void* address, const ulong size)
 {
 	memset(address, 0, size);
 }
 
-static void* DuplicateAddress(const void* address, const  size_t length, const  size_t newLength, size_t typeID)
+static void* DuplicateAddress(const void* address, const  ulong length, const  ulong newLength, ulong typeID)
 {
 	if (address is null)
 	{
@@ -322,7 +322,7 @@ static void* DuplicateAddress(const void* address, const  size_t length, const  
 	return newAddress;
 }
 
-static bool ReallocOrCopy(void** address, const size_t previousLength, const size_t newLength, const size_t typeID)
+static bool ReallocOrCopy(void** address, const ulong previousLength, const ulong newLength, const ulong typeID)
 {
 	if (*address is null)
 	{
@@ -347,24 +347,24 @@ static bool ReallocOrCopy(void** address, const size_t previousLength, const siz
 	return false;
 }
 
-static void PrintGroupedNumber(FILE* stream, size_t value)
+static void PrintGroupedNumber(FILE* stream, ulong value)
 {
 
 
-	static size_t ByteGroupingDivisors[5] =
+	static ulong ByteGroupingDivisors[5] =
 	{
 	#if _WIN32
 		1,
 		1024,
 		1024 * 1024,
 		1024 * 1024 * 1024,
-		(size_t)1024 * 1024 * 1024 * 1024,
+		(ulong)1024 * 1024 * 1024 * 1024,
 	#else
 		1,
 		1000,
 		1000 * 1000,
 		1000 * 1000 * 1000,
-		(size_t)1000 * 1000 * 1000 * 1000,
+		(ulong)1000 * 1000 * 1000 * 1000,
 	#endif
 	};
 
@@ -384,13 +384,13 @@ static void PrintGroupedNumber(FILE* stream, size_t value)
 
 #if _WIN32
 
-	size_t groupedValue = value / ByteGroupingDivisors[2];
+	ulong groupedValue = value / ByteGroupingDivisors[2];
 
 #else
 
-	size_t divisor = ByteGroupingDivisors[grouping];
+	ulong divisor = ByteGroupingDivisors[grouping];
 
-	size_t groupedValue = value / divisor;
+	ulong groupedValue = value / divisor;
 
 #endif
 
@@ -405,36 +405,36 @@ static void PrintGroupedNumber(FILE* stream, size_t value)
 /// <para>&lt; 1TB -&gt; 3</para>
 /// <para>&gt;= 1TB -&gt; 4</para>
 /// </summary>
-static char GetByteGrouping(size_t value)
+static char GetByteGrouping(ulong value)
 {
 #pragma warning(disable: 4127)
-	if (sizeof(size_t) != 8)
+	if (sizeof(ulong) != 8)
 	{
-		fprintf(stderr, "Failed to get the grouping of value, size_t assumed to be 64 bit unsigned long long int");
+		fprintf(stderr, "Failed to get the grouping of value, ulong assumed to be 64 bit unsigned long long int");
 		throw(InvalidArgumentException);
 	}
 #pragma warning(default: 4127)
 #if _WIN32
 	// < 1Kb return b
-	if (value < ((size_t)1 * (size_t)1024)) return 0;
+	if (value < ((ulong)1 * (ulong)1024)) return 0;
 	// < 1Mb return Kb
-	if (value < ((size_t)1 * (size_t)1024 * (size_t)1024)) return 1;
+	if (value < ((ulong)1 * (ulong)1024 * (ulong)1024)) return 1;
 	// < 1Gb return Mb
-	if (value < ((size_t)1 * (size_t)1024 * (size_t)1024 * (size_t)1024)) return 2;
+	if (value < ((ulong)1 * (ulong)1024 * (ulong)1024 * (ulong)1024)) return 2;
 	// < 1Tb return Gb
-	if (value < ((size_t)1 * (size_t)1024 * (size_t)1024 * (size_t)1024 * (size_t)1024)) return 3;
+	if (value < ((ulong)1 * (ulong)1024 * (ulong)1024 * (ulong)1024 * (ulong)1024)) return 3;
 
 	// if >= TB return TB
 	return 4;
 #else
 	// < 1KB return B
-	if (value < (size_t)1 * (size_t)1000) return 0;
+	if (value < (ulong)1 * (ulong)1000) return 0;
 	// < 1MB return KB
-	if (value < (size_t)1 * (size_t)1000 * (size_t)1000) return 1;
+	if (value < (ulong)1 * (ulong)1000 * (ulong)1000) return 1;
 	// < 1GB return MB
-	if (value < (size_t)1 * (size_t)1000 * (size_t)1000 * 1000) return 2;
+	if (value < (ulong)1 * (ulong)1000 * (ulong)1000 * 1000) return 2;
 	// < 1TB return GB
-	if (value < (size_t)1 * (size_t)1000 * (size_t)1000 * (size_t)1000 * (size_t)1000) return 3;
+	if (value < (ulong)1 * (ulong)1000 * (ulong)1000 * (ulong)1000 * (ulong)1000) return 3;
 
 	// if >= TB return TB
 	return 4;

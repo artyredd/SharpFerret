@@ -1,7 +1,7 @@
 #include "core/math/ints.h"
 
-static bool TryDeserialize(const char* buffer, size_t bufferLength, size_t* out_value);
-static void Serialize(File stream, size_t value);
+static bool TryDeserialize(const char* buffer, ulong bufferLength, ulong* out_value);
+static void Serialize(File stream, ulong value);
 
 const struct _intMethods Ints = {
 	.TryDeserialize = &TryDeserialize,
@@ -9,7 +9,7 @@ const struct _intMethods Ints = {
 };
 
 #pragma warning(disable: 4100) // disable warning for unused bufferLength
-static bool TryDeserialize(const char* buffer, size_t bufferLength, size_t* out_value)
+static bool TryDeserialize(const char* buffer, ulong bufferLength, ulong* out_value)
 {
 	int count = sscanf_s(buffer, "%lli", out_value);
 
@@ -17,7 +17,7 @@ static bool TryDeserialize(const char* buffer, size_t bufferLength, size_t* out_
 }
 #pragma warning(default: 4100)
 
-static void Serialize(File stream, size_t value)
+static void Serialize(File stream, ulong value)
 {
 	fprintf(stream, "%lli", value);
 }

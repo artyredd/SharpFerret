@@ -6,13 +6,13 @@
 struct _configToken
 {
 	const char* Token;
-	const size_t Length;
-	bool (*TokenLoad)(const char* buffer, size_t length, void* state);
+	const ulong Length;
+	bool (*TokenLoad)(const char* buffer, ulong length, void* state);
 	void (*TokenSave)(File stream, void* state);
 	const char* Description;
 };
 
-static bool __AbortTokenReturnTrue(const char* buffer, const size_t length, void* state)
+static bool __AbortTokenReturnTrue(const char* buffer, const ulong length, void* state)
 {
 	ignore_unused(buffer);
 	ignore_unused(length);
@@ -27,7 +27,7 @@ static bool __AbortTokenReturnTrue(const char* buffer, const size_t length, void
 
 #define TOKENS( count ) static const struct _configToken Tokens[count] = 
 
-#define TOKEN_LOAD( token, stateType ) static bool Token##token##Load(const char* buffer, const size_t length, stateType state)
+#define TOKEN_LOAD( token, stateType ) static bool Token##token##Load(const char* buffer, const ulong length, stateType state)
 
 #define TOKEN_SAVE( token, stateType ) static void Token##token##Save(File stream, stateType state)
 
@@ -39,7 +39,7 @@ struct _configDefinition {
 	/// <summary>
 	/// The number of tokens within the token array
 	/// </summary>
-	const size_t Count;
+	const ulong Count;
 	/// <summary>
 	/// The character that delineates that a line of the config can be discarded(ie. comment lines that start with # for example)
 	/// </summary>

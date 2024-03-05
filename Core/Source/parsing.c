@@ -8,10 +8,10 @@
 #include "core/file.h"
 #include "core/csharp.h"
 
-private bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool* out_bool);
-private bool TryParseLine(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string);
-private bool TryParseString(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string);
-private bool TryParseStringArray(const char* buffer, const size_t bufferLength, char*** out_array, size_t** out_lengths, size_t* out_count);
+private bool TryParseBoolean(const char* buffer, const ulong bufferLength, bool* out_bool);
+private bool TryParseLine(const char* buffer, const ulong bufferLength, const ulong maxStringLength, char** out_string);
+private bool TryParseString(const char* buffer, const ulong bufferLength, const ulong maxStringLength, char** out_string);
+private bool TryParseStringArray(const char* buffer, const ulong bufferLength, char*** out_array, ulong** out_lengths, ulong* out_count);
 private void RunParsingUnitTests();
 
 const struct _parsing Parsing = {
@@ -42,7 +42,7 @@ static char* ValidFalseBooleans[] = {
 	"DISABLED"
 };
 
-private bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool* out_bool)
+private bool TryParseBoolean(const char* buffer, const ulong bufferLength, bool* out_bool)
 {
 	*out_bool = false;
 
@@ -52,16 +52,16 @@ private bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool
 
 	sscanf_s(buffer, "%10s", &copiedString, 10);
 
-	size_t length = strlen(copiedString) - 1;
+	ulong length = strlen(copiedString) - 1;
 
 	bool parsed = false;
 
 	Strings.ToUpper(copiedString, strlen(copiedString), 0);
 
 	// this is probably platform dependent, 
-	// this assumes the size of a pointer address is the same size as size_t
+	// this assumes the size of a pointer address is the same size as ulong
 	// on this architexture (amdx64) ptrs are x64 and so is the size of the DWORD
-	for (size_t i = 0; i < (sizeof(ValidTrueBooleans) / sizeof(size_t)); i++)
+	for (ulong i = 0; i < (sizeof(ValidTrueBooleans) / sizeof(ulong)); i++)
 	{
 		if (memcmp(copiedString, ValidTrueBooleans[i], min(length, bufferLength)) is 0)
 		{
@@ -73,7 +73,7 @@ private bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool
 
 	if (parsed is false)
 	{
-		for (size_t i = 0; i < (sizeof(ValidFalseBooleans) / sizeof(size_t)); i++)
+		for (ulong i = 0; i < (sizeof(ValidFalseBooleans) / sizeof(ulong)); i++)
 		{
 			if (memcmp(copiedString, ValidFalseBooleans[i], min(length, bufferLength)) is 0)
 			{
@@ -87,12 +87,12 @@ private bool TryParseBoolean(const char* buffer, const size_t bufferLength, bool
 	return parsed;
 }
 
-private bool TryParseLine(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string)
+private bool TryParseLine(const char* buffer, const ulong bufferLength, const ulong maxStringLength, char** out_string)
 {
 	*out_string = null;
 
 	// skip until we encounter non-whitespace or end of buffer
-	size_t index = 0;
+	ulong index = 0;
 	while (index < bufferLength && isspace(buffer[index]) && buffer[index++] != '\0');
 
 	// if the entire string was whitespace return false
@@ -104,7 +104,7 @@ private bool TryParseLine(const char* buffer, const size_t bufferLength, const s
 	// get the next string after any whitespace
 	// determine how much we should alloc for the string
 	// this is O(2n)
-	size_t size = index;
+	ulong size = index;
 	while (size < bufferLength && buffer[size++] != '\0');
 
 	// convert size from index into length
@@ -132,12 +132,12 @@ private bool TryParseLine(const char* buffer, const size_t bufferLength, const s
 	return true;
 }
 
-private bool TryParseString(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string)
+private bool TryParseString(const char* buffer, const ulong bufferLength, const ulong maxStringLength, char** out_string)
 {
 	*out_string = null;
 
 	// skip until we encounter non-whitespace or end of buffer
-	size_t index = 0;
+	ulong index = 0;
 	while (index < bufferLength && isspace(buffer[index]) && buffer[index++] != '\0');
 
 	// if the entire string was whitespace return false
@@ -149,7 +149,7 @@ private bool TryParseString(const char* buffer, const size_t bufferLength, const
 	// get the next string after any whitespace
 	// determine how much we should alloc for the string
 	// this is O(2n)
-	size_t size = index;
+	ulong size = index;
 	while (size < bufferLength && isspace(buffer[size]) is false && buffer[size++] != '\0');
 
 	// convert size from index into length
@@ -177,7 +177,7 @@ private bool TryParseString(const char* buffer, const size_t bufferLength, const
 	return true;
 }
 
-private bool TryParseStringArray(const char* buffer, const size_t bufferLength, char*** out_array, size_t** out_lengths, size_t* out_count)
+private bool TryParseStringArray(const char* buffer, const ulong bufferLength, char*** out_array, ulong** out_lengths, ulong* out_count)
 {
 	*out_lengths = null;
 	*out_count = 0;
@@ -185,17 +185,17 @@ private bool TryParseStringArray(const char* buffer, const size_t bufferLength, 
 
 	// every i'th index is the position within the buffer of the start of a string
 	// every i'th+1 index is the length of that string
-	size_t stringPositions[1024];
+	ulong stringPositions[1024];
 
-	memset(stringPositions, 0, sizeof(size_t) * 1024);
+	memset(stringPositions, 0, sizeof(ulong) * 1024);
 
 	// traverse the buffer and save the indexes of of the start of every string
 	// the first index is always 0
-	size_t count = 0;
+	ulong count = 0;
 
 	int c = 0;
-	size_t index = 0;
-	size_t length = 0;
+	ulong index = 0;
+	ulong length = 0;
 
 	// loop until we either found the end of the buffer, exceed the buffer length or we move to the next line
 	do
@@ -233,16 +233,16 @@ private bool TryParseStringArray(const char* buffer, const size_t bufferLength, 
 	// now we have all the indexes of the start of each string and the lengths of each of them
 	// (with a max of bufferSize/2 strings(512 magic number for laziness)
 
-	// alloc string array and size_t array to store the destination strings and lengths
-	size_t* lengths = Memory.Alloc(sizeof(size_t) * count, Memory.GenericMemoryBlock);
+	// alloc string array and ulong array to store the destination strings and lengths
+	ulong* lengths = Memory.Alloc(sizeof(ulong) * count, Memory.GenericMemoryBlock);
 	char** strings = Memory.Alloc(sizeof(char*) * count, Memory.String);
 
-	for (size_t i = 0; i < count; i++)
+	for (ulong i = 0; i < count; i++)
 	{
 		// the index of the start of the buffer is i * 2
 		// the length of the buffer is (i * 2) +1
 		const char* subBuffer = buffer + stringPositions[(i << 1)];
-		size_t subLength = stringPositions[(i << 1) + 1];
+		ulong subLength = stringPositions[(i << 1) + 1];
 
 		// alloc one more byte for nul terminator
 		char* string = Memory.Alloc((sizeof(char) * subLength) + 1, Memory.String);
@@ -308,18 +308,18 @@ TEST(Test_TryParseStringArray)
 	Memory.AllocSize = 0;
 
 	char* data = "this, should, be a, string, array";
-	size_t dataLength = strlen(data);
+	ulong dataLength = strlen(data);
 
 	char** strings;
-	size_t* lengths;
-	size_t count;
+	ulong* lengths;
+	ulong count;
 
 	Assert(TryParseStringArray(data, dataLength, &strings, &lengths, &count));
 
-	IsEqual((size_t)5, count);
+	IsEqual((ulong)5, count);
 
 	const char* word = "this";
-	size_t index = 0;
+	ulong index = 0;
 	// "this"
 	IsEqual(strlen(word), strlen(strings[index]));
 	IsEqual(strlen(word), lengths[index]);
@@ -355,7 +355,7 @@ TEST(Test_TryParseStringArray)
 
 	// parse string allocs the strings for us free them
 	Memory.Free(lengths, Memory.GenericMemoryBlock);
-	for (size_t i = 0; i < count; i++)
+	for (ulong i = 0; i < count; i++)
 	{
 		Memory.Free(strings[i], Memory.String);
 	}

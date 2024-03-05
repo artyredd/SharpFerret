@@ -28,21 +28,21 @@ struct _parsableValueMethods {
 	/// <summary>
 	/// Attempts to find the name of the member of a _parsableValue* using the provided value
 	/// </summary>
-	bool (*TryGetName)(void* values, const size_t count, const int value, const char** out_name);
+	bool (*TryGetName)(void* values, const ulong count, const int value, const char** out_name);
 	/// <summary>
 	/// Attempts to find the value of the provided name within the provided _parsableValue* array
 	/// </summary>
-	bool (*TryGetInt)(void* values, const size_t count, const char* buffer, const size_t bufferLength, int* out_int);
+	bool (*TryGetInt)(void* values, const ulong count, const char* buffer, const ulong bufferLength, int* out_int);
 	/// <summary>
 	/// Attempts to find the name of the member of a _parsableValue* using the provided value
 	/// </summary>
-	bool (*TryGetNameUInt)(void* values, const size_t count, const unsigned int value, const char** out_name);
+	bool (*TryGetNameUInt)(void* values, const ulong count, const unsigned int value, const char** out_name);
 	/// <summary>
 	/// Attempts to find the value of the provided name within the provided _parsableValue* array
 	/// </summary>
-	bool (*TryGetUInt)(void* values, const size_t count, const char* buffer, const size_t bufferLength, unsigned int* out_int);
-	bool (*TryGetMemberByName)(void* values, const size_t count, const char* buffer, const size_t bufferLength, parsableValue* out_value);
-	bool (*TryGetMemberByValue)(void* values, const size_t count, const void* value, const size_t typeSize, parsableValue* out_value);
+	bool (*TryGetUInt)(void* values, const ulong count, const char* buffer, const ulong bufferLength, unsigned int* out_int);
+	bool (*TryGetMemberByName)(void* values, const ulong count, const char* buffer, const ulong bufferLength, parsableValue* out_value);
+	bool (*TryGetMemberByValue)(void* values, const ulong count, const void* value, const ulong typeSize, parsableValue* out_value);
 
 
 };

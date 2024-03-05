@@ -3,10 +3,10 @@
 #include "core/csharp.h"
 
 struct _parsing {
-	bool (*TryGetBool)(const char* buffer, const size_t bufferLength, bool* out_bool);
-	bool (*TryGetLine)(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string);
-	bool (*TryGetString)(const char* buffer, const size_t bufferLength, const size_t maxStringLength, char** out_string);
-	bool (*TryGetStrings)(const char* buffer, const size_t bufferLength, char*** out_array, size_t** out_lengths, size_t* out_count);
+	bool (*TryGetBool)(const char* buffer, const ulong bufferLength, bool* out_bool);
+	bool (*TryGetLine)(const char* buffer, const ulong bufferLength, const ulong maxStringLength, char** out_string);
+	bool (*TryGetString)(const char* buffer, const ulong bufferLength, const ulong maxStringLength, char** out_string);
+	bool (*TryGetStrings)(const char* buffer, const ulong bufferLength, char*** out_array, ulong** out_lengths, ulong* out_count);
 	void(*RunParsingUnitTests)();
 };
 

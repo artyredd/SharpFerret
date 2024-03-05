@@ -59,11 +59,11 @@ private Pointer(void) Instance(Pointer(void) resource)
 		throw(NullReferenceException);
 	}
 
-	size_t newCount = max(resource->Instances + 1, resource->Instances);
+	ulong newCount = max(resource->Instances + 1, resource->Instances);
 
 	if (newCount == resource->Instances)
 	{
-		fprintf(stderr, "Too many instances of resource at address: %llx (integer overflow)", (size_t)resource->Resource);
+		fprintf(stderr, "Too many instances of resource at address: %llx (integer overflow)", (ulong)resource->Resource);
 	}
 
 	resource->Instances = newCount;

@@ -48,7 +48,7 @@ struct _fileMethods {
 
 	File(*Open)(const string path, FileMode fileMode);
 
-	size_t(*GetFileSize)(const File file);
+	ulong(*GetFileSize)(const File file);
 
 	string(*ReadFile)(const File file);
 
@@ -66,14 +66,14 @@ struct _fileMethods {
 	// DOES NOT MODIFY buffer count while reading
 	// returns true when successful and outputs line length that was read
 	// (if you want to add to the buffer count manually)
-	bool (*TryReadLine)(File file, string buffer, size_t offset, size_t* out_lineLength);
+	bool (*TryReadLine)(File file, string buffer, ulong offset, ulong* out_lineLength);
 
 	/// <summary>
 	/// Attempts to look forwards into the file and count the number of times targetSequence is encountered, counting is stopped when end of file is reached
 	/// or when the abortsequence is encountered
 	/// </summary>
 	/// <returns></returns>
-	bool (*TryGetSequenceCount)(File file, const string targetSequence, const string abortSequence, size_t* out_count);
+	bool (*TryGetSequenceCount)(File file, const string targetSequence, const string abortSequence, ulong* out_count);
 
 	bool (*TryClose)(File file);
 

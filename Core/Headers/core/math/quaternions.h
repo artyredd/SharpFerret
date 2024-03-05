@@ -19,8 +19,8 @@ struct _quaternionMethods {
 	matrix4 (*RotateMatrix)(quaternion, matrix4);
 	quaternion (*LookAt)(vector3 origin, vector3 target, vector3 upAxis);
 	bool (*Equals)(quaternion, quaternion);
-	bool (*TryDeserialize)(const char* buffer, const size_t length, quaternion* out_vector4);
-	bool (*TrySerialize)(char* buffer, const size_t length, const quaternion vector);
+	bool (*TryDeserialize)(const char* buffer, const ulong length, quaternion* out_vector4);
+	bool (*TrySerialize)(char* buffer, const ulong length, const quaternion vector);
 	bool (*TrySerializeStream)(File stream, const quaternion vector);
 };
 

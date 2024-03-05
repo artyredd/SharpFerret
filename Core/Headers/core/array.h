@@ -34,23 +34,23 @@
 	/* The pointer to the backing array */\
 	type* Values;\
 	/* The size, in bytes, of the backing array*/\
-	size_t Size;\
+	ulong Size;\
 	/* The size in bytes between elements of the array\
 	// This would typically be the size of the element stored */\
-	size_t ElementSize;\
+	ulong ElementSize;\
 	/* the size in elements that this array can store\
 	this is the same as Size/ElementSize */\
-	size_t Capacity;\
+	ulong Capacity;\
 	/* The number of elements stored in the array */\
-	size_t Count;\
+	ulong Count;\
 	/* The typeid of the element stored in the array */\
-	size_t TypeId;\
+	ulong TypeId;\
 	/* Whether or not this object was constructed on the stack */\
 	bool StackObject;\
 	/* Whether or not the array needs to recalculate the hash */\
 	bool Dirty;\
 	/* The Hash of this array */\
-	size_t Hash;\
+	ulong Hash;\
 	/* Whether or not this array is auto hashed, default is true */\
 	bool AutoHash;\
 }; \
@@ -165,7 +165,7 @@ typedef struct _array_##type* type##_array;
 // allocations.
 #define partial_subarray(type, arr, startIndex, count) (struct _EXPAND_STRUCT_NAME(type))\
 {\
-	.Values = arr->Count >= startIndex ? (type*)(void*)(size_t)startIndex : (type*)(void*)(size_t)throw_in_expression(IndexOutOfRangeException),\
+	.Values = arr->Count >= startIndex ? (type*)(void*)(ulong)startIndex : (type*)(void*)(ulong)throw_in_expression(IndexOutOfRangeException),\
 	.Size = guard_array_size(arr, sizeof(type) * count),\
 	.ElementSize = sizeof(type),\
 	.Capacity = guard_array_count(arr, count),\
@@ -202,7 +202,7 @@ typedef struct _array_##type* type##_array;
 // STACK OBJECT!
 #define combine_partial_array(type, arr, partial) (array(type))&(partial_array(type))\
 {\
-	.Values = arr->Count >= (size_t)partial.Values ? (arr->Values + (size_t)partial.Values) : (char*)(size_t)throw_in_expression(IndexOutOfRangeException),\
+	.Values = arr->Count >= (ulong)partial.Values ? (arr->Values + (ulong)partial.Values) : (char*)(ulong)throw_in_expression(IndexOutOfRangeException),\
 	.Size = guard_array_size(arr, partial.Size),\
 	.ElementSize = guard_array_attribute(arr,ElementSize,partial.ElementSize),\
 	.Capacity = guard_array_attribute(arr, Capacity, partial.Capacity),\
@@ -221,23 +221,23 @@ DEFINE_TYPE_ID(Array);
 
 struct _arrayMethods
 {
-	Array(*Create)(size_t elementSize, size_t count, size_t typeId);
+	Array(*Create)(ulong elementSize, ulong count, ulong typeId);
 	void (*AutoResize)(Array);
-	void (*Resize)(Array, size_t newCount);
+	void (*Resize)(Array, ulong newCount);
 	// Appends the given item to the end of the array
 	void (*Append)(Array, void*);
 	// Removes the given index, moving all contents to the left
 	// in its place
-	void (*RemoveIndex)(Array, size_t index);
+	void (*RemoveIndex)(Array, ulong index);
 	// Swaps the positions of two elements
-	void (*Swap)(Array, size_t firstIndex, size_t secondIndex);
+	void (*Swap)(Array, ulong firstIndex, ulong secondIndex);
 	// Insertion sorts given the provided comparator Func
 	void (*InsertionSort)(Array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
 	// Gets a pointer to the value contained at index
-	void* (*At)(Array, size_t index);
+	void* (*At)(Array, ulong index);
 	// Appends the given value array to the end of the given array
 	Array(*AppendArray)(Array array, Array appendedValue);
-	Array(*InsertArray)(Array dest, Array src, size_t index);
+	Array(*InsertArray)(Array dest, Array src, ulong index);
 	void (*Clear)(Array array);
 	bool (*Equals)(Array left, Array right);
 	void (*Foreach)(Array, void(*method)(void*));
@@ -251,7 +251,7 @@ extern const struct _arrayMethods Arrays;
 // TEMPLATE FOR METHODS
 #define _EXPAND_DEFINE_ARRAY(type) _ARRAY_DEFINE_STRUCT(type)\
 DEFINE_TYPE_ID(type##_array); \
-private array(type) _EXPAND_METHOD_NAME(type,Create)(size_t count)\
+private array(type) _EXPAND_METHOD_NAME(type,Create)(ulong count)\
 {\
 REGISTER_TYPE(type##_array); \
 return (array(type))Arrays.Create(sizeof(type), count, type##_arrayTypeId); \
@@ -260,7 +260,7 @@ private void _EXPAND_METHOD_NAME(type,AutoResize)(array(type) array)\
 {\
 Arrays.AutoResize((Array)array); \
 }\
-private void _EXPAND_METHOD_NAME(type,Resize)(array(type) array, size_t newCount)\
+private void _EXPAND_METHOD_NAME(type,Resize)(array(type) array, ulong newCount)\
 {\
 Arrays.Resize((Array)array, newCount); \
 }\
@@ -268,17 +268,17 @@ private void _EXPAND_METHOD_NAME(type,Append)(array(type)array, type value)\
 {\
 Arrays.Append((Array)array, &value); \
 }\
-private void _EXPAND_METHOD_NAME(type,RemoveIndex)(array(type) array, size_t index)\
+private void _EXPAND_METHOD_NAME(type,RemoveIndex)(array(type) array, ulong index)\
 {\
 Arrays.RemoveIndex((Array)array, index); \
 }\
-private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, size_t index, size_t count)\
+private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, ulong index, ulong count)\
 {\
 	/* { a, b, c, d, e } */\
 	/* RemoveRange(2,2) */\
 	/* { a, b, e } */\
-	const size_t safeIndex = guard_array_count_index(array, index);\
-	const size_t safeCount = guard_array_count(array, count);\
+	const ulong safeIndex = guard_array_count_index(array, index);\
+	const ulong safeCount = guard_array_count(array, count);\
 	type* destination = &array->Values[safeIndex];\
 	array(type) source = stack_subarray_back(type, array, safeIndex + safeCount);\
 	memmove(destination,source->Values,source->Count * source->ElementSize );\
@@ -298,7 +298,7 @@ return true; \
 }\
 return false; \
 }\
-private void _EXPAND_METHOD_NAME(type, Swap)(array(type) array, size_t firstIndex, size_t secondIndex)\
+private void _EXPAND_METHOD_NAME(type, Swap)(array(type) array, ulong firstIndex, ulong secondIndex)\
 {\
 Arrays.Swap((Array)array, firstIndex, secondIndex); \
 }\
@@ -306,11 +306,11 @@ private void _EXPAND_METHOD_NAME(type, InsertionSort)(array(type) array, bool(co
 {\
 Arrays.InsertionSort((Array)array, comparator); \
 }\
-private type* _EXPAND_METHOD_NAME(type, At)(array(type) array, size_t index)\
+private type* _EXPAND_METHOD_NAME(type, At)(array(type) array, ulong index)\
 {\
 return (type*)Arrays.At((Array)array, index); \
 }\
-private type _EXPAND_METHOD_NAME(type, ValueAt)(array(type) array, size_t index)\
+private type _EXPAND_METHOD_NAME(type, ValueAt)(array(type) array, ulong index)\
 {\
 return array->Values[guard_array_count_index(array,index)]; \
 }\
@@ -318,13 +318,13 @@ private array(type) _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, ar
 {\
 return (array(type))Arrays.AppendArray((Array)array, (Array)appendedValue); \
 }\
-private array(type) _EXPAND_METHOD_NAME(type, InsertArray)(array(type) destination, array(type) source, size_t index)\
+private array(type) _EXPAND_METHOD_NAME(type, InsertArray)(array(type) destination, array(type) source, ulong index)\
 {\
 	return (array(type))Arrays.InsertArray((Array)destination, (Array)source, index);\
 }\
-private void _EXPAND_METHOD_NAME(type, AppendCArray)(array(type) array, const type* carray, const size_t arraySize)\
+private void _EXPAND_METHOD_NAME(type, AppendCArray)(array(type) array, const type* carray, const ulong arraySize)\
 {\
-for (size_t cIndex = 0; cIndex < arraySize; ++cIndex)\
+for (ulong cIndex = 0; cIndex < arraySize; ++cIndex)\
 {\
 type value = carray[cIndex]; \
 \
@@ -353,7 +353,7 @@ private void _EXPAND_METHOD_NAME(type, Dispose)(array(type)array)\
 {\
 Arrays.Dispose((Array)array); \
 }\
-private size_t _EXPAND_METHOD_NAME(type, Hash)(array(type) array)\
+private ulong _EXPAND_METHOD_NAME(type, Hash)(array(type) array)\
 {\
 if(array->Dirty)\
 {\
@@ -368,33 +368,33 @@ return Arrays.Equals((Array)left,(Array)right);\
 }\
 private bool _EXPAND_METHOD_NAME(type, BeginsWith)(array(type) array, array(type) value)\
 {\
-size_t safeCount = min(value->Count,array->Count);\
+ulong safeCount = min(value->Count,array->Count);\
 array(type) sub = stack_subarray_front(type, array, safeCount);\
 return Arrays.Equals((Array)sub, (Array)value); \
 }\
 const static struct _array_##type##_methods\
 {\
-array(type) (*Create)(size_t count); \
+array(type) (*Create)(ulong count); \
 void (*AutoResize)(array(type)); \
-void (*Resize)(array(type), size_t newCount); \
+void (*Resize)(array(type), ulong newCount); \
 void (*Append)(array(type), type); \
-void (*RemoveIndex)(array(type), size_t index); \
-array(type) (*RemoveRange)(array(type), size_t startIndex, size_t count); \
+void (*RemoveIndex)(array(type), ulong index); \
+array(type) (*RemoveRange)(array(type), ulong startIndex, ulong count); \
 bool (*Empty)(array(type)); \
-void (*Swap)(array(type), size_t firstIndex, size_t secondIndex); \
+void (*Swap)(array(type), ulong firstIndex, ulong secondIndex); \
 void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
-type* (*At)(array(type), size_t index); \
-type(*ValueAt)(array(type), size_t index); \
+type* (*At)(array(type), ulong index); \
+type(*ValueAt)(array(type), ulong index); \
 array(type) (*AppendArray)(array(type), const array(type) appendedValue); \
-array(type) (*InsertArray)(array(type) destination, array(type) values, size_t index); \
-void (*AppendCArray)(array(type), const type* carray, const size_t count); \
+array(type) (*InsertArray)(array(type) destination, array(type) values, ulong index); \
+void (*AppendCArray)(array(type), const type* carray, const ulong count); \
 bool (*Equals)(array(type), array(type)); \
 bool (*BeginsWith)(array(type), array(type)); \
 void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
 array(type) (*Clone)(array(type)); \
-size_t(*Hash)(array(type)); \
+ulong(*Hash)(array(type)); \
 void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\
@@ -430,7 +430,7 @@ DEFINE_ARRAY(char);
 DEFINE_ARRAY(int);
 DEFINE_ARRAY(float);
 DEFINE_ARRAY(double);
-DEFINE_ARRAY(size_t);
+DEFINE_ARRAY(ulong);
 
 DEFINE_ARRAY(array(char));
 
@@ -456,20 +456,20 @@ DEFINE_ARRAY(array(char));
 #define DEFINE_TUPLE_BOTH_WAYS(T1,T2) DEFINE_TUPLE(T1,T2); DEFINE_TUPLE(T2,T1);
 #define DEFINE_TUPLE_ALL(major,T1,T2,T3,T4,T5,T6) DEFINE_TUPLE(major,major);DEFINE_TUPLE(major, T1);DEFINE_TUPLE(major, T2);DEFINE_TUPLE(major, T3);DEFINE_TUPLE(major, T4);DEFINE_TUPLE(major, T5);DEFINE_TUPLE(major, T6);
 
-DEFINE_TUPLE_ALL(bool, char, int, long, size_t, float, double)
-DEFINE_TUPLE_ALL(char, bool, int, long, size_t, float, double)
-DEFINE_TUPLE_ALL(int, bool, char, long, size_t, float, double)
-DEFINE_TUPLE_ALL(long, bool, char, int, size_t, float, double)
-DEFINE_TUPLE_ALL(size_t, bool, char, int, long, float, double)
-DEFINE_TUPLE_ALL(float, bool, char, int, long, size_t, double)
-DEFINE_TUPLE_ALL(double, bool, char, int, long, size_t, float)
+DEFINE_TUPLE_ALL(bool, char, int, long, ulong, float, double)
+DEFINE_TUPLE_ALL(char, bool, int, long, ulong, float, double)
+DEFINE_TUPLE_ALL(int, bool, char, long, ulong, float, double)
+DEFINE_TUPLE_ALL(long, bool, char, int, ulong, float, double)
+DEFINE_TUPLE_ALL(ulong, bool, char, int, long, float, double)
+DEFINE_TUPLE_ALL(float, bool, char, int, long, ulong, double)
+DEFINE_TUPLE_ALL(double, bool, char, int, long, ulong, float)
 
 #define DEFINE_TUPLE_ALL_INTRINSIC(type)\
 DEFINE_TUPLE_BOTH_WAYS(type,bool);\
 DEFINE_TUPLE_BOTH_WAYS(type,char);\
 DEFINE_TUPLE_BOTH_WAYS(type,int);\
 DEFINE_TUPLE_BOTH_WAYS(type,long);\
-DEFINE_TUPLE_BOTH_WAYS(type,size_t);\
+DEFINE_TUPLE_BOTH_WAYS(type,ulong);\
 DEFINE_TUPLE_BOTH_WAYS(type,float);\
 DEFINE_TUPLE_BOTH_WAYS(type,double);\
 
@@ -483,7 +483,7 @@ DEFINE_POINTER(char);
 DEFINE_POINTER(int);
 DEFINE_POINTER(short);
 DEFINE_POINTER(long);
-DEFINE_POINTER(size_t);
+DEFINE_POINTER(ulong);
 DEFINE_POINTER(float);
 DEFINE_POINTER(double);
 #pragma warning(default: 4113)

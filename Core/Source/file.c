@@ -8,13 +8,13 @@
 
 private bool TryOpen(const string, FileMode fileMode, File* out_file);
 private File Open(const string path, FileMode fileMode);
-private size_t GetFileSize(const File file);
+private ulong GetFileSize(const File file);
 private array(char) ReadFile(const File file);
 private bool TryReadFile(const File file, string* out_data);
 private array(char) ReadAll(const string path);
 private bool TryReadAll(const string path, string* out_data);
-private bool TryReadLine(File file, string buffer, size_t offset, size_t* out_lineLength);
-private bool TryGetSequenceCount(File file, const string targetSequence, const string abortSequence, size_t* out_count);
+private bool TryReadLine(File file, string buffer, ulong offset, ulong* out_lineLength);
+private bool TryGetSequenceCount(File file, const string targetSequence, const string abortSequence, ulong* out_count);
 private bool TryClose(File file);
 private void Close(File file);
 private bool TryVerifyCleanup(void);
@@ -40,9 +40,9 @@ const struct _fileMethods Files = {
 };
 
 // the number of file handles opened using this file
-size_t Global_Files_Opened;
+ulong Global_Files_Opened;
 // the number of file handles closed using this file
-size_t Global_Files_Closed;
+ulong Global_Files_Closed;
 
 private bool TryOpenInteral(const string path, FileMode fileMode, File* out_file)
 {
@@ -125,11 +125,11 @@ private File Open(const string path, FileMode fileMode)
 	return file;
 }
 
-private size_t GetFileSize(const File file)
+private ulong GetFileSize(const File file)
 {
 	GuardNotNull(file);
 
-	size_t currentPosition = _ftelli64(file);
+	ulong currentPosition = _ftelli64(file);
 
 	// this isn't the most portable solution but I wrapped this in an abstraction incase I need to diversify the portability later
 
@@ -139,7 +139,7 @@ private size_t GetFileSize(const File file)
 		throw(FailedToReadFileException);
 	}
 
-	size_t count = _ftelli64(file);
+	ulong count = _ftelli64(file);
 
 	// if we did not start at the beginning of the file we should return to the original position inside of the file
 	if (currentPosition != 0)
@@ -157,7 +157,7 @@ private size_t GetFileSize(const File file)
 
 private string ReadFile(const File file)
 {
-	size_t length = GetFileSize(file);
+	ulong length = GetFileSize(file);
 
 	string result = strings.Create(length + 1);
 
@@ -165,7 +165,7 @@ private string ReadFile(const File file)
 
 	rewind(file);
 
-	for (size_t i = 0; i < length; i++)
+	for (ulong i = 0; i < length; i++)
 	{
 		int c = fgetc(file);
 
@@ -180,7 +180,7 @@ private string ReadFile(const File file)
 			if (error != 0)
 			{
 				strings.Dispose(result);
-				fprintf(stderr, "An error occurred while reading the file at ptr: %llix, Error Code %i", (size_t)file, ferror(file));
+				fprintf(stderr, "An error occurred while reading the file at ptr: %llix, Error Code %i", (ulong)file, ferror(file));
 				throw(FailedToReadFileException);
 			}
 
@@ -200,7 +200,7 @@ private bool TryReadFile(const File file, string* out_data)
 {
 	*out_data = null;
 
-	const size_t length = GetFileSize(file);
+	const ulong length = GetFileSize(file);
 
 	string result = strings.Create(length + 1);
 
@@ -208,7 +208,7 @@ private bool TryReadFile(const File file, string* out_data)
 
 	rewind(file);
 
-	for (size_t i = 0; i < length; i++)
+	for (ulong i = 0; i < length; i++)
 	{
 		int c = fgetc(file);
 
@@ -288,7 +288,7 @@ private bool TryReadAll(const string path, string* out_data)
 	return false;
 }
 
-private bool TryReadLine(File file, string buffer, size_t offset, size_t* out_lineLength)
+private bool TryReadLine(File file, string buffer, ulong offset, ulong* out_lineLength)
 {
 	GuardNotNull(file);
 
@@ -300,7 +300,7 @@ private bool TryReadLine(File file, string buffer, size_t offset, size_t* out_li
 		return false;
 	}
 
-	size_t length = strlen(result);
+	ulong length = strlen(result);
 
 	if (result[length - 1] is '\n' || result[length - 1] is '\r')
 	{
@@ -321,7 +321,7 @@ private bool TryReadLine(File file, string buffer, size_t offset, size_t* out_li
 	return true;
 }
 
-private bool TryGetSequenceCount(File file, const string targetSequence, const string abortSequence, size_t* out_count)
+private bool TryGetSequenceCount(File file, const string targetSequence, const string abortSequence, ulong* out_count)
 {
 	GuardNotNull(targetSequence);
 	GuardNotNull(abortSequence);
@@ -335,9 +335,9 @@ private bool TryGetSequenceCount(File file, const string targetSequence, const s
 	}
 
 	// read until either we encounter abortSequence or EOF
-	size_t count = 0;
-	size_t abortIndex = 0;
-	size_t targetIndex = 0;
+	ulong count = 0;
+	ulong abortIndex = 0;
+	ulong targetIndex = 0;
 
 	int c;
 	while ((c = fgetc(file)) != EOF)

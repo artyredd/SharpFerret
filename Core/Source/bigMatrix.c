@@ -2,13 +2,13 @@
 
 #include "core/math/bigMatrix.h"
 
-private BigMatrix Create(size_t rows, size_t columns);
+private BigMatrix Create(ulong rows, ulong columns);
 // Multiplies the big matrix with the given vector and appends the results to the destinationVector
 private void MultiplyVector(BigMatrix, array(float) vector, array(float) destinationVector);
 private void Dispose(BigMatrix);
-private void Resize(BigMatrix, size_t rows, size_t columns);
+private void Resize(BigMatrix, ulong rows, ulong columns);
 private void Clear(BigMatrix);
-private float* At(BigMatrix, size_t row, size_t column);
+private float* At(BigMatrix, ulong row, ulong column);
 
 const struct _arbitraryMatrixMethods BigMatrices =
 {
@@ -22,7 +22,7 @@ const struct _arbitraryMatrixMethods BigMatrices =
 
 DEFINE_TYPE_ID(BigMatrix);
 
-private BigMatrix Create(size_t rows, size_t columns)
+private BigMatrix Create(ulong rows, ulong columns)
 {
 	REGISTER_TYPE(BigMatrix);
 	BigMatrix result = Memory.Alloc(sizeof(struct _bigMatrix), BigMatrixTypeId);
@@ -43,10 +43,10 @@ private void MultiplyVector(BigMatrix matrix, array(float) vector, array(float) 
 		throw(InvalidArgumentException);
 	}
 
-	for (size_t row = 0; row < matrix->Rows; row++)
+	for (ulong row = 0; row < matrix->Rows; row++)
 	{
 		float value = 0.0f;
-		for (size_t i = 0; i < vector->Count; i++)
+		for (ulong i = 0; i < vector->Count; i++)
 		{
 			value += matrix->Values->Values[(row * matrix->Columns) + i] * vector->Values[i];
 		}
@@ -62,7 +62,7 @@ private void Dispose(BigMatrix matrix)
 	Memory.Free(matrix, BigMatrixTypeId);
 }
 
-private void Resize(BigMatrix matrix, size_t rows, size_t columns)
+private void Resize(BigMatrix matrix, ulong rows, ulong columns)
 {
 	matrix->Rows = rows;
 	matrix->Columns = columns;
@@ -74,7 +74,7 @@ private void Clear(BigMatrix matrix)
 	Arrays(float).Clear(matrix->Values);
 }
 
-private float* At(BigMatrix matrix, size_t row, size_t column)
+private float* At(BigMatrix matrix, ulong row, ulong column)
 {
 	return Arrays(float).At(matrix->Values, (row * matrix->Columns) + column);
 }

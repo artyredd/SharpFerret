@@ -4,8 +4,8 @@
 #include "core/csharp.h"
 
 struct _intMethods {
-	bool (*TryDeserialize)(const char* buffer, size_t bufferLength, size_t* out_value);
-	void (*Serialize)(File, size_t value);
+	bool (*TryDeserialize)(const char* buffer, ulong bufferLength, ulong* out_value);
+	void (*Serialize)(File, ulong value);
 };
 
 extern const struct _intMethods Ints;

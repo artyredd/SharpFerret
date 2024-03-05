@@ -4,21 +4,21 @@
 #include <string.h>
 #include "core/cunit.h"
 
-private Array Create(size_t elementSize, size_t count, size_t typeId);
-private size_t GetNextAvailableIndex(Array);
+private Array Create(ulong elementSize, ulong count, ulong typeId);
+private ulong GetNextAvailableIndex(Array);
 private void AutoResize(Array);
-private void Resize(Array, size_t newCount);
+private void Resize(Array, ulong newCount);
 private void Dispose(Array);
 private void Append(Array, void*);
-private void RemoveIndex(Array, size_t index);
+private void RemoveIndex(Array, ulong index);
 private void InsertionSort(Array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock));
-private void Swap(Array, size_t firstIndex, size_t secondIndex);
+private void Swap(Array, ulong firstIndex, ulong secondIndex);
 private Array AppendArray(Array array, Array appendedValue);
-private void* At(Array array, size_t index);
+private void* At(Array array, ulong index);
 private void Clear(Array array);
 private void Foreach(Array array, void(*method)(void* item));
 private void ForeachWithContext(Array array, void* context, void(*method)(void* context, void* item));
-private Array InsertArray(Array dest, Array src, size_t index);
+private Array InsertArray(Array dest, Array src, ulong index);
 private bool Equals(Array left, Array right);
 
 const struct _arrayMethods Arrays = {
@@ -39,7 +39,7 @@ const struct _arrayMethods Arrays = {
 	.Equals = Equals
 };
 
-private Array Create(size_t elementSize, size_t count, size_t typeId)
+private Array Create(ulong elementSize, ulong count, ulong typeId)
 {
 	REGISTER_TYPE(Array);
 
@@ -66,7 +66,7 @@ private Array Create(size_t elementSize, size_t count, size_t typeId)
 	return array;
 }
 
-private size_t HashArray(Array array)
+private ulong HashArray(Array array)
 {
 	array->Hash = Hashing.HashSafe(array->Values, array->Count * array->ElementSize);
 	array->Dirty = false;
@@ -113,7 +113,7 @@ private void AutoResize(Array array)
 		throw(StackObjectModifiedException);
 	}
 
-	size_t newSize = max(array->Size << 1, 1);
+	ulong newSize = max(array->Size << 1, 1);
 
 	if ((newSize % array->ElementSize) isnt 0)
 	{
@@ -135,7 +135,7 @@ private void AutoResize(Array array)
 	array->Size = newSize + 1;
 }
 
-private void Resize(Array array, size_t newCount)
+private void Resize(Array array, ulong newCount)
 {
 	// if a user allocs a array on the stack they can't modify past the given
 		// memory block without overwriting stack stuff
@@ -153,7 +153,7 @@ private void Resize(Array array, size_t newCount)
 		return;
 	}
 
-	size_t newSize = array->ElementSize * newCount;
+	ulong newSize = array->ElementSize * newCount;
 
 	Memory.ReallocOrCopy(&array->Values, array->Size, newSize + 1, array->TypeId);
 
@@ -161,14 +161,14 @@ private void Resize(Array array, size_t newCount)
 	array->Count = newCount;
 }
 
-private void RemoveIndex(Array array, size_t index)
+private void RemoveIndex(Array array, ulong index)
 {
 	if (index >= array->Count)
 	{
 		throw(IndexOutOfRangeException);
 	}
 
-	size_t size = safe_subtract(array->Size, safe_add(index, 1) * array->ElementSize);
+	ulong size = safe_subtract(array->Size, safe_add(index, 1) * array->ElementSize);
 
 	memmove(At(array, index), At(array, safe_add(index, 1)), size);
 
@@ -177,14 +177,14 @@ private void RemoveIndex(Array array, size_t index)
 	array->Dirty = true;
 }
 
-private void Swap(Array array, size_t firstIndex, size_t secondIndex)
+private void Swap(Array array, ulong firstIndex, ulong secondIndex)
 {
 	char* firstSourcePointer = At(array, firstIndex);
 	char* secondSourcePointer = At(array, secondIndex);
 
-	for (size_t i = 0; i < array->ElementSize / sizeof(char); i++)
+	for (ulong i = 0; i < array->ElementSize / sizeof(char); i++)
 	{
-		size_t offset = (sizeof(char) * i);
+		ulong offset = (sizeof(char) * i);
 
 		char* firstPointer = firstSourcePointer + offset;
 		char* secondPointer = secondSourcePointer + offset;
@@ -200,11 +200,11 @@ private void Swap(Array array, size_t firstIndex, size_t secondIndex)
 private void InsertionSort(Array array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock))
 {
 	// chat gpt generated insertion sort cuz im lazy
-	size_t j = 0;
+	ulong j = 0;
 
 	char* temporaryMemoryBlock = Memory.Alloc(array->ElementSize, Memory.GenericMemoryBlock);
 
-	for (size_t i = 1; i < array->Count; i++) {
+	for (ulong i = 1; i < array->Count; i++) {
 
 		memcpy(temporaryMemoryBlock, At(array, i), array->ElementSize);
 
@@ -229,14 +229,14 @@ private void InsertionSort(Array array, bool(comparator)(void* leftMemoryBlock, 
 }
 
 // Gets a pointer to the value contained at index
-private void* At(Array array, size_t index)
+private void* At(Array array, ulong index)
 {
 	return (char*)array->Values + (index * array->ElementSize);
 }
 
 private Array AppendArray(Array destinationArray, Array values)
 {
-	for (size_t i = 0; i < values->Count; i++)
+	for (ulong i = 0; i < values->Count; i++)
 	{
 		Arrays.Append(destinationArray, At(values, i));
 	}
@@ -244,7 +244,7 @@ private Array AppendArray(Array destinationArray, Array values)
 	return destinationArray;
 }
 
-private Array InsertArray(Array destination, Array source, size_t index)
+private Array InsertArray(Array destination, Array source, ulong index)
 {
 	guard_array_count_index(destination, index);
 
@@ -278,7 +278,7 @@ private void Clear(Array array)
 
 private void Foreach(Array array, void(*method)(void* item))
 {
-	for (size_t i = 0; i < array->Count; i++)
+	for (ulong i = 0; i < array->Count; i++)
 	{
 		method(At(array, i));
 	}
@@ -286,7 +286,7 @@ private void Foreach(Array array, void(*method)(void* item))
 
 private void ForeachWithContext(Array array, void* context, void(*method)(void* context, void* item))
 {
-	for (size_t i = 0; i < array->Count; i++)
+	for (ulong i = 0; i < array->Count; i++)
 	{
 		method(context, At(array, i));
 	}
@@ -341,8 +341,8 @@ private bool Equals(Array left, Array right)
 		else if (left->Dirty ^ right->Dirty)
 		{
 			// only one needs to be hashed
-			size_t rightOrLeft = left->Dirty ? right->Hash : left->Hash;
-			size_t leftOrRight = left->Dirty ? HashArray(left) : HashArray(right);
+			ulong rightOrLeft = left->Dirty ? right->Hash : left->Hash;
+			ulong leftOrRight = left->Dirty ? HashArray(left) : HashArray(right);
 
 			return rightOrLeft is leftOrRight;
 		}

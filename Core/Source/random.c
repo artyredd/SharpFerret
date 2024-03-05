@@ -12,8 +12,8 @@ private float NextFloat(void);
 private float BetweenFloat(float lower, float upper);
 private int NextInt(void);
 private int BetweenInt(int lower, int upper);
-private size_t NextSize_t(void);
-private size_t BetweenSize_t(size_t lower, size_t upper);
+private ulong Nextulong(void);
+private ulong Betweenulong(ulong lower, ulong upper);
 private unsigned int NextUInt(void);
 private bool Chance(float chance);
 
@@ -25,16 +25,16 @@ struct _randomMethods Random =
 	.NextFloat = NextFloat,
 	.NextInt = NextInt,
 	.NextUInt = NextUInt,
-	.NextSize_t = NextSize_t,
+	.Nextulong = Nextulong,
 	.BetweenFloat = BetweenFloat,
 	.BetweenInt = BetweenInt,
-	.BetweenSize_t = BetweenSize_t,
+	.Betweenulong = Betweenulong,
 	.Chance = Chance
 };
 
 bool GLOBAL_HasInitializedRandomNumberGenerator = false;
 
-size_t GLOBAL_PreviousRandSeed = 0;
+ulong GLOBAL_PreviousRandSeed = 0;
 
 private bool NextBool(void)
 {
@@ -59,7 +59,7 @@ private unsigned int NextUInt(void)
 	{
 		if (Random.RandomSeedOnStart && GLOBAL_HasInitializedRandomNumberGenerator is false)
 		{
-			Random.Seed = (size_t)(1.0 / /*Time.Time()*/ 42.0 * DBL_MAX);
+			Random.Seed = (ulong)(1.0 / /*Time.Time()*/ 42.0 * DBL_MAX);
 		}
 
 		srand(Random.Seed % UINT_MAX);
@@ -86,20 +86,20 @@ private int BetweenInt(int lower, int upper)
 	return lower + offset;
 }
 
-private size_t NextSize_t(void)
+private ulong Nextulong(void)
 {
 	int result = NextInt();
 
-	result |= (size_t)NextInt() << ((sizeof(size_t) / sizeof(int)) * sizeof(char));
+	result |= (ulong)NextInt() << ((sizeof(ulong) / sizeof(int)) * sizeof(char));
 
 	return result;
 }
 
-private size_t BetweenSize_t(size_t lower, size_t upper)
+private ulong Betweenulong(ulong lower, ulong upper)
 {
-	size_t range = safe_subtract(upper, lower);
+	ulong range = safe_subtract(upper, lower);
 
-	size_t offset = NextSize_t() % range;
+	ulong offset = Nextulong() % range;
 
 	return lower + offset;
 }

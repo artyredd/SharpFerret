@@ -13,15 +13,15 @@ struct _rectangle {
 };
 
 /// <summary>
-/// A rectangle who's fields are size_t
+/// A rectangle who's fields are ulong
 /// </summary>
 typedef struct _size_rectangle size_rect;
 
 struct _size_rectangle {
-	size_t x;
-	size_t y;
-	size_t Width;
-	size_t Height;
+	ulong x;
+	ulong y;
+	ulong Width;
+	ulong Height;
 };
 
 /// <summary>

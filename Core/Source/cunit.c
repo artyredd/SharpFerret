@@ -52,7 +52,7 @@ static bool RunSuite(TestSuite suite)
 
 	Test head = suite->Head;
 
-	size_t passCount = 0;
+	ulong passCount = 0;
 
 	Benchmark(
 		while (head != null)

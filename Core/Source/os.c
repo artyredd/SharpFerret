@@ -22,7 +22,7 @@ array(char) ExecutableDirectory(void)
 
 	array(char) result = Arrays(char).Create(length);
 
-	for (size_t i = 0; i < safe_add(length, 1); i++)
+	for (ulong i = 0; i < safe_add(length, 1); i++)
 	{
 		*Arrays(char).At(result, i) = buffer[i];
 	}

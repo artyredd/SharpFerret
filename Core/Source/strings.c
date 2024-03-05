@@ -18,17 +18,17 @@ const struct _stringArrayMethods StringArrays = {
 	.Trim = &TrimArray
 };
 
-static void ToLower(char* buffer, size_t bufferLength, size_t offset);
-static void ToUpper(char* buffer, size_t bufferLength, size_t offset);
-static size_t Trim(char* buffer, const size_t bufferLength);
-static char* Duplicate(const char* source, size_t length);
+static void ToLower(char* buffer, ulong bufferLength, ulong offset);
+static void ToUpper(char* buffer, ulong bufferLength, ulong offset);
+static ulong Trim(char* buffer, const ulong bufferLength);
+static char* Duplicate(const char* source, ulong length);
 static char* DuplicateTerminated(const char* source);
-static bool Contains(const char* source, size_t length, const char* target, const size_t targetLength);
-static bool Equals(const char* left, size_t leftLength, const char* right, size_t rightLength);
-static bool TrySplit(const char* source, size_t length, int delimiter, StringArray resultStringArray);
-static bool TryParse(const char* buffer, const size_t bufferLength, char** out_string);
-static int IndexOf(const char* buffer, const size_t bufferLength, int character);
-private size_t Length(const char* str);
+static bool Contains(const char* source, ulong length, const char* target, const ulong targetLength);
+static bool Equals(const char* left, ulong leftLength, const char* right, ulong rightLength);
+static bool TrySplit(const char* source, ulong length, int delimiter, StringArray resultStringArray);
+static bool TryParse(const char* buffer, const ulong bufferLength, char** out_string);
+static int IndexOf(const char* buffer, const ulong bufferLength, int character);
+private ulong Length(const char* str);
 private bool TryLoopSplitByFunction(string str, string* out_string, bool(*selector)(char));
 private partial_string TrimAll(string str);
 
@@ -87,7 +87,7 @@ private bool TryLoopSplitByFunction(string str, string* out_string, bool(*select
 {
 	*out_string = (array(char)){ 0 };
 
-	for (size_t i = 0; i < str->Count; i++)
+	for (ulong i = 0; i < str->Count; i++)
 	{
 		if (selector(str->Values[i]))
 		{
@@ -99,39 +99,39 @@ private bool TryLoopSplitByFunction(string str, string* out_string, bool(*select
 	return false;
 }
 
-private size_t Length(const char* str)
+private ulong Length(const char* str)
 {
 	return strlen(str ? str : "");
 }
 
-static void ToLower(char* buffer, size_t bufferLength, size_t offset)
+static void ToLower(char* buffer, ulong bufferLength, ulong offset)
 {
 	GuardNotNull(buffer);
 	GuardNotZero(bufferLength);
 	GuardLessThan(offset, bufferLength);
 
-	for (size_t i = offset; i < bufferLength; i++)
+	for (ulong i = offset; i < bufferLength; i++)
 	{
 		buffer[i] = (char)tolower(buffer[i]);
 	}
 }
 
-static void ToUpper(char* buffer, size_t bufferLength, size_t offset)
+static void ToUpper(char* buffer, ulong bufferLength, ulong offset)
 {
 	GuardNotNull(buffer);
 
-	for (size_t i = offset; i < bufferLength; i++)
+	for (ulong i = offset; i < bufferLength; i++)
 	{
 		buffer[i] = (char)toupper(buffer[i]);
 	}
 }
 
-static size_t Trim(char* buffer, const size_t bufferLength)
+static ulong Trim(char* buffer, const ulong bufferLength)
 {
-	size_t startIndex = 0;
-	size_t endIndex = bufferLength - 1;
+	ulong startIndex = 0;
+	ulong endIndex = bufferLength - 1;
 
-	size_t index = 0;
+	ulong index = 0;
 	// traverse the string the first non-whitespace char we hit is the start of the string
 	while (index < bufferLength and buffer[index] isnt '\0' and isspace(buffer[index])) index++;
 
@@ -144,7 +144,7 @@ static size_t Trim(char* buffer, const size_t bufferLength)
 		return 0;
 	}
 
-	for (size_t i = startIndex; i < bufferLength; i++)
+	for (ulong i = startIndex; i < bufferLength; i++)
 	{
 		int c = buffer[i];
 		if (isspace(c) is false)
@@ -160,7 +160,7 @@ static size_t Trim(char* buffer, const size_t bufferLength)
 	}
 
 	// now we have the start and end indexes we should move the entire string to the beginning of the buffer
-	size_t length = max(endIndex - startIndex, 0) + 1;
+	ulong length = max(endIndex - startIndex, 0) + 1;
 	memmove(buffer, buffer + startIndex, length);
 
 	// null terminate
@@ -169,7 +169,7 @@ static size_t Trim(char* buffer, const size_t bufferLength)
 	return length;
 }
 
-static char* Duplicate(const char* source, size_t length)
+static char* Duplicate(const char* source, ulong length)
 {
 	return Memory.DuplicateAddress(source, length, length, Memory.String);
 }
@@ -180,7 +180,7 @@ static char* DuplicateTerminated(const char* source)
 	// i would vote the latter
 	if (source is null) { return null; }
 
-	size_t length = strlen(source) + 1;
+	ulong length = strlen(source) + 1;
 
 	char* result = Memory.DuplicateAddress(source, length, length, Memory.String);
 
@@ -191,14 +191,14 @@ static char* DuplicateTerminated(const char* source)
 	return result;
 }
 
-static bool Contains(const char* source, size_t length, const char* target, const size_t targetLength)
+static bool Contains(const char* source, ulong length, const char* target, const ulong targetLength)
 {
 	if (source is null || target is null)
 	{
 		return false;
 	}
 
-	for (size_t start = 0; start < length; start++)
+	for (ulong start = 0; start < length; start++)
 	{
 		const char* buffer = source + start;
 
@@ -222,7 +222,7 @@ static bool Contains(const char* source, size_t length, const char* target, cons
 	return false;
 }
 
-static int IndexOf(const char* buffer, const size_t bufferLength, int character)
+static int IndexOf(const char* buffer, const ulong bufferLength, int character)
 {
 	int position = 0;
 
@@ -239,7 +239,7 @@ static int IndexOf(const char* buffer, const size_t bufferLength, int character)
 	return -1;
 }
 
-static bool Equals(const char* left, size_t leftLength, const char* right, size_t rightLength)
+static bool Equals(const char* left, ulong leftLength, const char* right, ulong rightLength)
 {
 	// if both strings have different lengths they can not be the same
 	if (leftLength isnt rightLength)
@@ -266,12 +266,12 @@ static bool Equals(const char* left, size_t leftLength, const char* right, size_
 	return memcmp(left, right, leftLength) is 0;
 }
 
-static bool TryParse(const char* buffer, const size_t bufferLength, char** out_string)
+static bool TryParse(const char* buffer, const ulong bufferLength, char** out_string)
 {
 	*out_string = null;
 
 	// skip until we encounter non-whitespace or end of buffer
-	size_t index = 0;
+	ulong index = 0;
 	while (index < bufferLength && isspace(buffer[index]) && buffer[index++] != '\0');
 
 	// if the entire string was whitespace return false
@@ -283,7 +283,7 @@ static bool TryParse(const char* buffer, const size_t bufferLength, char** out_s
 	// get the next string after any whitespace
 	// determine how much we should alloc for the string
 	// this is O(2n)
-	size_t size = index;
+	ulong size = index;
 	while (size < bufferLength && isspace(buffer[size]) is false && buffer[size++] != '\0');
 
 	// convert size from index into length
@@ -323,7 +323,7 @@ static void DisposeMembers(StringArray array)
 		return;
 	}
 
-	for (size_t i = 0; i < array->Count; i++)
+	for (ulong i = 0; i < array->Count; i++)
 	{
 		Memory.Free(array->Strings[i], Memory.String);
 	}
@@ -339,7 +339,7 @@ static void DisposeStringArray(StringArray array)
 	Memory.Free(array, Memory.String);
 }
 
-static bool TrySplit(const char* buffer, size_t bufferLength, int delimiter, StringArray result)
+static bool TrySplit(const char* buffer, ulong bufferLength, int delimiter, StringArray result)
 {
 	result->Count = 0;
 	result->StringLengths = null;
@@ -347,17 +347,17 @@ static bool TrySplit(const char* buffer, size_t bufferLength, int delimiter, Str
 
 	// every i'th index is the position within the buffer of the start of a string
 	// every i'th+1 index is the length of that string
-	size_t stringPositions[1024];
+	ulong stringPositions[1024];
 
-	memset(stringPositions, 0, sizeof(size_t) * 1024);
+	memset(stringPositions, 0, sizeof(ulong) * 1024);
 
 	// traverse the buffer and save the indexes of of the start of every string
 	// the first index is always 0
-	size_t count = 0;
+	ulong count = 0;
 
 	int c = 0;
-	size_t index = 0;
-	size_t length = 0;
+	ulong index = 0;
+	ulong length = 0;
 
 	// loop until we either found the end of the buffer, exceed the buffer length or we move to the next line
 	do
@@ -395,16 +395,16 @@ static bool TrySplit(const char* buffer, size_t bufferLength, int delimiter, Str
 	// now we have all the indexes of the start of each string and the lengths of each of them
 	// (with a max of bufferSize/2 strings(512 magic number for laziness)
 
-	// alloc string array and size_t array to store the destination strings and lengths
-	size_t* lengths = Memory.Alloc(sizeof(size_t) * count, Memory.String);
+	// alloc string array and ulong array to store the destination strings and lengths
+	ulong* lengths = Memory.Alloc(sizeof(ulong) * count, Memory.String);
 	char** strings = Memory.Alloc(sizeof(char*) * count, Memory.String);
 
-	for (size_t i = 0; i < count; i++)
+	for (ulong i = 0; i < count; i++)
 	{
 		// the index of the start of the buffer is i * 2
 		// the length of the buffer is (i * 2) +1
 		const char* subBuffer = buffer + stringPositions[(i << 1)];
-		size_t subLength = stringPositions[(i << 1) + 1];
+		ulong subLength = stringPositions[(i << 1) + 1];
 
 		// alloc one more byte for nul terminator
 		char* string = Memory.Alloc((sizeof(char) * subLength) + 1, Memory.String);
@@ -435,7 +435,7 @@ static void TrimArray(StringArray array)
 		return;
 	}
 
-	for (size_t i = 0; i < array->Count; i++)
+	for (ulong i = 0; i < array->Count; i++)
 	{
 		array->StringLengths[i] = Trim(array->Strings[i], array->StringLengths[i]);
 	}

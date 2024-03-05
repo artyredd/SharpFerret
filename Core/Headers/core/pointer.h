@@ -1,10 +1,11 @@
 #pragma once
 #include <stdlib.h>
+#include "core/csharp.h"
 
 #define DEFINE_POINTER_STRUCT(type)\
 struct _pointer_##type {\
 type* Resource; \
-size_t Instances; \
+ulong Instances; \
 };\
 typedef struct _pointer_##type* type##Pointer;
 

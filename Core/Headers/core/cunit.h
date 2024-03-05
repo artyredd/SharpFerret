@@ -27,7 +27,7 @@ struct testSuite {
 	char* Name;
 	Test Head;
 	Test Tail;
-	size_t Count;
+	ulong Count;
 	FILE* OutputStream;
 	void(*Append)(TestSuite suite, char* name, bool(*method)(FILE*));
 	void(*Dispose)(TestSuite suite);
@@ -49,17 +49,17 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 
 #define Benchmark(expression,stream) do\
 {\
-	size_t start = clock(); \
+	ulong start = clock(); \
 	expression;\
-	size_t end = clock() - start; \
+	ulong end = clock() - start; \
 	fprintf(stream, BenchmarkSpeedFormat, end); \
 } while (false);
 
 #define BenchmarkAssertion(expression,stream) do\
 {\
-	size_t start = clock(); \
+	ulong start = clock(); \
 	bool pass = (expression); \
-	size_t end = clock() - start; \
+	ulong end = clock() - start; \
 	if (pass)\
 	{\
 		fprintf(stream,_FORMAT_COLOR_GREEN_START"%s"_FORMAT_COLOR_GREEN_END, PassFormat); \
@@ -74,9 +74,9 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 
 #define BenchmarkComparison(expected,actual,comparison,format,stream)do\
 {\
-	size_t start = clock(); \
+	ulong start = clock(); \
 	bool pass = (expected comparison actual); \
-	size_t end = clock() - start; \
+	ulong end = clock() - start; \
 	if (pass)\
 	{\
 		fprintf(stream,_FORMAT_COLOR_GREEN_START"%s"_FORMAT_COLOR_GREEN_END, PassFormat); \

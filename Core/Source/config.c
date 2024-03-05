@@ -23,9 +23,9 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 {
 	string buffer = empty_stack_array(char, BUFFER_SIZE);
 
-	size_t bufferLength = BUFFER_SIZE;
+	ulong bufferLength = BUFFER_SIZE;
 
-	size_t lineLength;
+	ulong lineLength;
 	while (buffer->Count = 0, Files.TryReadLine(stream, buffer, 0, &lineLength))
 	{
 		buffer->Count = lineLength;
@@ -39,7 +39,7 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 		if (config->AbortToken.Token isnt null)
 		{
 			const char* token = config->AbortToken.Token;
-			const size_t tokenLength = max(config->AbortToken.Length - 1, 0);
+			const ulong tokenLength = max(config->AbortToken.Length - 1, 0);
 
 			if (buffer->Values[0] is token[0])
 			{
@@ -51,12 +51,12 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 			}
 		}
 
-		for (size_t i = 0; i < config->Count; i++)
+		for (ulong i = 0; i < config->Count; i++)
 		{
 			// check the first character to avoid comparing whole string
 			const struct _configToken* token = &config->Tokens[i];
 
-			const size_t tokenLength = safe_subtract(token->Length, 1);
+			const ulong tokenLength = safe_subtract(token->Length, 1);
 
 			if (buffer->Values[0] is token->Token[0])
 			{
@@ -78,7 +78,7 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 
 				if (memcmp(buffer->Values, token->Token, min(tokenLength, lineLength)) is 0)
 				{
-					size_t offset = min(tokenLength + 1, lineLength);
+					ulong offset = min(tokenLength + 1, lineLength);
 
 					array(char) subBuffer = stack_subarray_back(char, buffer, offset);
 
@@ -122,7 +122,7 @@ static bool TryLoadConfig(const string path, const ConfigDefinition config, void
 
 static void SaveConfigStream(File stream, const ConfigDefinition config, void* state)
 {
-	for (size_t i = 0; i < config->Count; i++)
+	for (ulong i = 0; i < config->Count; i++)
 	{
 		const struct _configToken token = config->Tokens[i];
 

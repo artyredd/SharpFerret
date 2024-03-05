@@ -101,8 +101,8 @@ static const struct _vectorDirections {
 };
 
 struct _vector2Methods {
-	bool (*TryDeserialize)(const char* buffer, const size_t length, vector2* out_vector2);
-	bool (*TrySerialize)(char* buffer, const size_t length, const vector2 vector);
+	bool (*TryDeserialize)(const char* buffer, const ulong length, vector2* out_vector2);
+	bool (*TrySerialize)(char* buffer, const ulong length, const vector2 vector);
 	bool (*Equals)(const vector2 left, const vector2 right);
 	bool (*Close)(const vector2 left, const vector2 right, float epsilon);
 };
@@ -110,8 +110,8 @@ struct _vector2Methods {
 extern const struct _vector2Methods Vector2s;
 
 struct _vector3Methods {
-	bool (*TryDeserialize)(const char* buffer, const size_t length, vector3* out_vector3);
-	bool (*TrySerialize)(char* buffer, const size_t length, const vector3 vector);
+	bool (*TryDeserialize)(const char* buffer, const ulong length, vector3* out_vector3);
+	bool (*TrySerialize)(char* buffer, const ulong length, const vector3 vector);
 	bool (*TrySerializeStream)(File stream, const vector3 vector);
 	vector3(*Cross)(vector3 left, vector3 right);
 	vector3(*Multiply)(const vector3 left, const vector3 right);
@@ -119,7 +119,7 @@ struct _vector3Methods {
 	vector3(*Add)(const vector3 left, const vector3 right);
 	vector3(*Subtract)(const vector3 left, const vector3 right);
 	vector3(*Mean)(const vector3 left, const vector3 right);
-	vector3(*MeanArray)(const vector3* array, const size_t count);
+	vector3(*MeanArray)(const vector3* array, const ulong count);
 	float (*Distance)(const vector3 left, const vector3 right);
 	bool (*Equals)(const vector3 left, const vector3 right);
 	bool (*Close)(const vector3 left, const vector3 right, float epsilon);
@@ -128,8 +128,8 @@ struct _vector3Methods {
 extern const struct _vector3Methods Vector3s;
 
 struct _vector4Methods {
-	bool (*TryDeserialize)(const char* buffer, const size_t length, vector4* out_vector4);
-	bool (*TrySerialize)(char* buffer, const size_t length, const vector4 vector);
+	bool (*TryDeserialize)(const char* buffer, const ulong length, vector4* out_vector4);
+	bool (*TrySerialize)(char* buffer, const ulong length, const vector4 vector);
 	bool (*TrySerializeStream)(File stream, const vector4 vector);
 	bool (*Equals)(const vector4 left, const vector4 right);
 	bool (*Close)(const vector4 left, const vector4 right, float epsilon);

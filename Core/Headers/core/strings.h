@@ -19,11 +19,11 @@ struct _stringArray {
 	/// <summary>
 	/// The lengths for each string
 	/// </summary>
-	size_t* StringLengths;
+	ulong* StringLengths;
 	/// <summary>
 	/// The total number of strings within the string array and length array
 	/// </summary>
-	size_t Count;
+	ulong Count;
 };
 
 struct _stringArrayMethods {
@@ -49,17 +49,17 @@ extern const struct _stringArrayMethods StringArrays;
 
 struct _stringMethods {
 	// Length of terminated string, handles null
-	size_t(*Length)(const char* buffer);
+	ulong(*Length)(const char* buffer);
 	// Converts all characters in the buffer to lowercase
-	void (*ToLower)(char* buffer, size_t bufferLength, size_t offset);
+	void (*ToLower)(char* buffer, ulong bufferLength, ulong offset);
 	// Converts all characters in the buffer to uppercase
-	void (*ToUpper)(char* buffer, size_t bufferLength, size_t offset);
+	void (*ToUpper)(char* buffer, ulong bufferLength, ulong offset);
 	// Trims the leading and trailing whitespace from a string and ending the string with a nul terminator, returning the new size of the string within the buffer
-	size_t(*Trim)(char* buffer, const size_t bufferLength);
+	ulong(*Trim)(char* buffer, const ulong bufferLength);
 	/// <summary>
 	/// Allocs new string and copies 'length' bytes of the provided source string
 	/// </summary>
-	char* (*Duplicate)(const char* source, size_t length);
+	char* (*Duplicate)(const char* source, ulong length);
 	/// <summary>
 	/// POTENTIALLY INSECURE; Allocs a new string and copies all bytes INCLUDING nul terminator to new string
 	/// </summary>
@@ -67,19 +67,19 @@ struct _stringMethods {
 	/// <summary>
 	/// Returns true(1) if the target string was found within the source string 
 	/// </summary>
-	bool(*Contains)(const char* source, size_t length, const char* target, const size_t targetLength);
+	bool(*Contains)(const char* source, ulong length, const char* target, const ulong targetLength);
 	/// <summary>
 	/// Returns true if both strings contain the same bytes, supports null and same reference strings
 	/// </summary>
-	bool (*Equals)(const char* left, size_t leftLength, const char* right, size_t rightLength);
+	bool (*Equals)(const char* left, ulong leftLength, const char* right, ulong rightLength);
 	/// <summary>
 	/// Attempts to split the provided string using the provided delimiter, sets the members of the provided string array
 	/// </summary>
-	bool (*TrySplit)(const char* source, size_t length, int delimiter, StringArray resultStringArray);
-	bool (*TryParse)(const char* buffer, const size_t bufferLength, char** out_string);
+	bool (*TrySplit)(const char* source, ulong length, int delimiter, StringArray resultStringArray);
+	bool (*TryParse)(const char* buffer, const ulong bufferLength, char** out_string);
 	// returns the index of the found character,
 	// otherwise returns -1
-	int(*IndexOf)(const char* buffer, const size_t bufferLength, int character);
+	int(*IndexOf)(const char* buffer, const ulong bufferLength, int character);
 
 	// Splits str into a stack string using the given selector
 	// can be used in a loop to loop through all the segments of a split string

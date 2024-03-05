@@ -81,9 +81,9 @@ static bool TryGetImageInfo(const char* path, Image* out_info)
 
 	bool result = stbi_load(path, &width, &height, &channels, 0);
 
-	image->Width = (size_t)width;
-	image->Height = (size_t)height;
-	image->Channels = (size_t)channels;
+	image->Width = (ulong)width;
+	image->Height = (ulong)height;
+	image->Channels = (ulong)channels;
 
 	*out_info = image;
 

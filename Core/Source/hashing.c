@@ -1,11 +1,11 @@
 #include "core/hashing.h"
 #include "core/csharp.h"
 
-private size_t Hash(const char* bytes);
-private size_t ChainHash(const char* bytes, const size_t previousHash);
-private size_t HashSafe(const char* bytes, size_t size);
-private size_t ChainHashSafe(const char* bytes, const size_t size, const size_t previousHash);
-private size_t ChainHashSingle(const char byte, const size_t previousHash);
+private ulong Hash(const char* bytes);
+private ulong ChainHash(const char* bytes, const ulong previousHash);
+private ulong HashSafe(const char* bytes, ulong size);
+private ulong ChainHashSafe(const char* bytes, const ulong size, const ulong previousHash);
+private ulong ChainHashSingle(const char byte, const ulong previousHash);
 
 const struct _hashingMethods Hashing = {
 	.Hash = &Hash,
@@ -15,23 +15,23 @@ const struct _hashingMethods Hashing = {
 	.ChainHashSingle = ChainHashSingle
 };
 
-private size_t ChainHashSingle(const char byte, const size_t previousHash)
+private ulong ChainHashSingle(const char byte, const ulong previousHash)
 {
-	size_t hash = previousHash is 0 ? 5381 : previousHash;
+	ulong hash = previousHash is 0 ? 5381 : previousHash;
 
 	hash = ((hash << 5) + hash) + byte; /* hash * 33 + c */
 
 	return hash;
 }
 
-private size_t ChainHashSafe(const char* bytes, const size_t size, const size_t previousHash)
+private ulong ChainHashSafe(const char* bytes, const ulong size, const ulong previousHash)
 {
 	// modified djb2 hash
 	/*http://www.cse.yorku.ca/~oz/hash.html*/
 
-	size_t hash = previousHash is 0 ? 5381 : previousHash;
+	ulong hash = previousHash is 0 ? 5381 : previousHash;
 
-	for (size_t i = 0; i < size; i++)
+	for (ulong i = 0; i < size; i++)
 	{
 		const int c = bytes[i];
 
@@ -42,17 +42,17 @@ private size_t ChainHashSafe(const char* bytes, const size_t size, const size_t 
 }
 
 
-private size_t HashSafe(const char* bytes, size_t size)
+private ulong HashSafe(const char* bytes, ulong size)
 {
 	return ChainHashSafe(bytes, size, 0);
 }
 
-private size_t ChainHash(const char* bytes, const size_t previousHash)
+private ulong ChainHash(const char* bytes, const ulong previousHash)
 {
 	// modified djb2 hash
 	/*http://www.cse.yorku.ca/~oz/hash.html*/
 
-	size_t hash = previousHash is 0 ? 5381 : previousHash;
+	ulong hash = previousHash is 0 ? 5381 : previousHash;
 
 	int c;
 
@@ -64,7 +64,7 @@ private size_t ChainHash(const char* bytes, const size_t previousHash)
 	return hash;
 }
 
-private size_t Hash(const char* bytes)
+private ulong Hash(const char* bytes)
 {
 	return ChainHash(bytes, 0);
 }

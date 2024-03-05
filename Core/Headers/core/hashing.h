@@ -1,27 +1,28 @@
 #pragma once
 #include <stdlib.h>
+#include "core/csharp.h"
 
 struct _hashingMethods {
 	/// <summary>
 	/// NON-CRYPTOGRAPHIC; Hashes the provided bytes
 	/// </summary>
-	size_t(*Hash)(const char* bytes);
+	ulong(*Hash)(const char* bytes);
 	/// <summary>
 	/// NON-CRYPTOGRAPHIC; Hashes the provided bytes
 	/// </summary>
-	size_t(*HashSafe)(const char* bytes, size_t size);
+	ulong(*HashSafe)(const char* bytes, ulong size);
 	/// <summary>
 	/// NON-CRYPTOGRAPHIC; Used to chain multiple hashes in a row to produce deterministic hashing using multiple sets
 	/// of char*
 	/// </summary>
-	size_t(*ChainHash)(const char* bytes, const size_t previousHash);
+	ulong(*ChainHash)(const char* bytes, const ulong previousHash);
 	/// <summary>
 	/// NON-CRYPTOGRAPHIC; Used to chain multiple hashes in a row to produce deterministic hashing using multiple sets
 	/// of char*
 	/// </summary>
-	size_t(*ChainHashSafe)(const char* bytes, const size_t size, const size_t previousHash);
+	ulong(*ChainHashSafe)(const char* bytes, const ulong size, const ulong previousHash);
 	// Chain hashes a single byte
-	size_t(*ChainHashSingle)(const char byte, const size_t previousHash);
+	ulong(*ChainHashSingle)(const char byte, const ulong previousHash);
 };
 
 extern const struct _hashingMethods Hashing;
