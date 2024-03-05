@@ -418,8 +418,8 @@ array(location) GetGenericLocations(string data)
 {
 	// the start and end index of macro locations we can ignore when
 	// walking backwards
-	array(tuple(int, int)) macroLocations = Arrays(tuple(int, int)).Create(0);
-	array(location) locations = Arrays(location).Create(0);
+	array(tuple(int, int)) macroLocations = arrays(tuple(int, int)).Create(0);
+	array(location) locations = arrays(location).Create(0);
 
 	bool inMacro = false;
 	bool inString = false;
@@ -499,7 +499,7 @@ array(location) GetGenericLocations(string data)
 				inMacro = false;
 				macroEnd = i;
 
-				Arrays(tuple(int, int)).Append(macroLocations, (tuple(int, int)) { macroStart, macroEnd });
+				arrays(tuple(int, int)).Append(macroLocations, (tuple(int, int)) { macroStart, macroEnd });
 
 				macroStart = 0;
 				// keep last macro position
@@ -528,7 +528,7 @@ array(location) GetGenericLocations(string data)
 			{
 				location callLocation = IdentifyGenericCall(data, depth, i, macroEnd);
 
-				Arrays(location).Append(locations, callLocation);
+				arrays(location).Append(locations, callLocation);
 			}
 		}
 	}

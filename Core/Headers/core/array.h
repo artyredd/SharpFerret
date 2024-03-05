@@ -16,7 +16,7 @@
 // Creates an array of the given type, remember to define the type if this fails to compile
 #define array(type) _EXPAND_array(type)
 // Convenience methods that can be used with an array(type)
-#define Arrays(type) _EXPAND_Arrays(type)
+#define arrays(type) _EXPAND_Arrays(type)
 
 // Represents an array that has no data and only offsets, combine with
 // a base pointer from a parent array to create and array
@@ -71,19 +71,11 @@ typedef struct _array_##type* type##_array;
 	.AutoHash = true\
 }
 
-#define stack_array(type,...) ((array(type))&(struct _EXPAND_STRUCT_NAME(type))\
-{\
-	.Values = (type*)(type[(VAR_COUNT(__VA_ARGS__) - 1)/9]){ __VA_ARGS__ },\
-	.Size = sizeof(type) * (VAR_COUNT(__VA_ARGS__) - 1)/9,\
-	.ElementSize = sizeof(type),\
-	.Capacity = (VAR_COUNT(__VA_ARGS__) - 1)/9,\
-	.Count = (VAR_COUNT(__VA_ARGS__) - 1)/9,\
-	.TypeId = 0,\
-	.StackObject = true,\
-	.Dirty = true,\
-	.Hash = 0,\
-	.AutoHash = true\
-})
+#define stack_array(type,count,...) explicit_stack_array(type,count,count,__VA_ARGS__)
+
+#define auto_stack_array(type,...) stack_array(type,VAR_COUNT(__VA_ARGS__),__VA_ARGS__)
+#define _stack_array_comma_count(...) (VAR_COUNT(__VA_ARGS__) - 1)/9
+#define nested_stack_array(type,...) stack_array(type,_stack_array_comma_count(__VA_ARGS__),__VA_ARGS__)
 
 #define empty_stack_array(type,count)  (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
@@ -99,7 +91,8 @@ typedef struct _array_##type* type##_array;
 	.AutoHash = true\
 }
 
-#define stack_string(string) explicit_stack_array(char,,sizeof(string) - 1, string)
+#define _stack_string(string) explicit_stack_array(char,,sizeof(string) - 1, string) 
+#define stack_string(string) _stack_string(string) 
 
 #define dynamic_array(type, initialCount) _EXPAND_METHOD_NAME(type,Create)(initialCount);
 
@@ -435,7 +428,7 @@ DEFINE_ARRAY(ulong);
 DEFINE_ARRAY(array(char));
 
 #define string array(char)
-#define strings Arrays(char)
+#define strings arrays(char)
 #define stack_substring(arr, index, count) stack_subarray(char, arr, index, count)
 #define stack_substring_front(arr, endIndexInclusive) stack_subarray_front(char, arr, endIndexInclusive)
 #define stack_substring_back(arr, startIndexInclusive) stack_subarray_back(char, arr, startIndexInclusive)

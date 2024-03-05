@@ -671,3 +671,19 @@ private int IndexOfPreviousCharacterIgnoringWhitespace(string data)
 
 	return -1;
 }
+
+// checks to see if the provided data begins with any of the provided values
+// returns the index within the values array that data begins with
+// otherwise returns -1
+private int BeginsWithAny(string data, array(string) values)
+{
+	for (int i = 0; i < values->Count; i++)
+	{
+		string value = values->Values[i];
+		if (strings.BeginsWith(data, value))
+		{
+			return i;
+		}
+	}
+	return -1;
+}

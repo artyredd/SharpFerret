@@ -74,7 +74,7 @@ private ulong AddGlobalGeneToPopulation(Population population, gene gene)
 
 	gene.Id = newId;
 
-	Arrays(gene).Append(population->Genes, gene);
+	arrays(gene).Append(population->Genes, gene);
 
 	return newId;
 }
@@ -128,7 +128,7 @@ private void MutateAddNode(Organism organism)
 
 	gene newGene = CreateGene(organism->Parent->Parent, startNode, endNode);
 
-	Arrays(gene).Append(organism->Genes, newGene);
+	arrays(gene).Append(organism->Genes, newGene);
 }
 
 private void MutateAddConnection(Organism organism)
@@ -145,7 +145,7 @@ private void MutateAddConnection(Organism organism)
 
 	gene gene = CreateGene(organism->Parent->Parent, startIndex, endIndex);
 
-	Arrays(gene).Append(organism->Genes, gene);
+	arrays(gene).Append(organism->Genes, gene);
 }
 
 private void MutateWeights(Organism organism)
@@ -180,7 +180,7 @@ private void CreateDefaultGenome(Population population, array(gene) genes, ulong
 		{
 			gene newGene = CreateGene(population, input, output);
 
-			Arrays(gene).Append(genes, newGene);
+			arrays(gene).Append(genes, newGene);
 		}
 	}
 }
@@ -189,11 +189,11 @@ private Organism CreateOrganism(ulong inputNodeCount, ulong outputNodeCount)
 {
 	Organism result = Memory.Alloc(sizeof(organism), OrganismTypeId);
 
-	result->Genes = Arrays(gene).Create(0);
+	result->Genes = arrays(gene).Create(0);
 	result->Id = 0;
 	result->InputNodeCount = inputNodeCount;
 	result->WeightMatrix = BigMatrices.Create((inputNodeCount + outputNodeCount), (inputNodeCount + outputNodeCount));
-	result->Outputs = Arrays(ai_number).Create(outputNodeCount);
+	result->Outputs = arrays(ai_number).Create(outputNodeCount);
 	result->NodeCount = (inputNodeCount + outputNodeCount);
 	result->OutputNodeCount = outputNodeCount;
 	result->Parent = null;
@@ -207,9 +207,9 @@ private Organism CloneOrganism(Organism organism)
 {
 	Organism result = CreateOrganism(organism->InputNodeCount, organism->OutputNodeCount);
 
-	Arrays(gene).AppendArray(result->Genes, organism->Genes);
-	Arrays(ai_number).AppendArray(result->Outputs, organism->Outputs);
-	Arrays(float).AppendArray(result->WeightMatrix->Values, organism->WeightMatrix->Values);
+	arrays(gene).AppendArray(result->Genes, organism->Genes);
+	arrays(ai_number).AppendArray(result->Outputs, organism->Outputs);
+	arrays(float).AppendArray(result->WeightMatrix->Values, organism->WeightMatrix->Values);
 
 	result->Fitness = organism->Fitness;
 	result->Generation = organism->Generation;
@@ -230,7 +230,7 @@ private Species CreateSpecies(Population population, ulong organismCount)
 	result->MaximumFitness = 0.0;
 	result->InputNodeCount = population->InputNodeCount;
 	result->OutputNodeCount = population->OutputNodeCount;
-	result->Organisms = Arrays(Organism).Create(organismCount);
+	result->Organisms = arrays(Organism).Create(organismCount);
 	result->Parent = population;
 
 	for (ulong i = 0; i < result->Organisms->Count; i++)
@@ -258,8 +258,8 @@ private Population CreatePopulation(ulong populationSize, ulong inputNodeCount, 
 	population population = {
 		.NextId = 0,
 		.SummedAverageFitness = 0,
-		.Genes = Arrays(gene).Create(Neat.DefaultGenePoolSize),
-		.Species = Arrays(Species).Create(1),
+		.Genes = arrays(gene).Create(Neat.DefaultGenePoolSize),
+		.Species = arrays(Species).Create(1),
 		.InputNodeCount = inputNodeCount,
 		.OutputNodeCount = outputNodeCount,
 		.AddConnectionMutationChance = Neat.DefaultAddConnectionMutationChance,
@@ -316,7 +316,7 @@ private void SerializeOrganism(File stream, Organism* organismPointer)
 	{
 		fprintf_s(stream, "      Id: %lli\n      Generation: %lli\n      Fitness: %f\n      Genes(%lli):\n", organism->Id, organism->Generation, organism->Fitness, organism->Genes->Count);
 
-		Arrays(gene).ForeachWithContext(organism->Genes, stream, SerializeGene);
+		arrays(gene).ForeachWithContext(organism->Genes, stream, SerializeGene);
 	}
 }
 
@@ -330,17 +330,17 @@ private void SerializeSpecies(File stream, Species* speciesPointer)
 
 	fprintf_s(stream, "    Organisms(%lli):\n", species->Organisms->Count);
 
-	Arrays(Organism).ForeachWithContext(species->Organisms, stream, SerializeOrganism);
+	arrays(Organism).ForeachWithContext(species->Organisms, stream, SerializeOrganism);
 }
 
 private void SerializePopulation(File stream, Population population)
 {
 	fprintf_s(stream, "Population(%lli):\n  Generation: %lli\n  Summed Average Fitness: %f\n  Genes(%lli):\n", population->Count, population->Generation, population->SummedAverageFitness, population->Genes->Count);
 
-	Arrays(gene).ForeachWithContext(population->Genes, stream, SerializeGene);
+	arrays(gene).ForeachWithContext(population->Genes, stream, SerializeGene);
 
 	fprintf_s(stream, "  Species(%lli):\n", population->Species->Count);
-	Arrays(Species).ForeachWithContext(population->Species, stream, SerializeSpecies);
+	arrays(Species).ForeachWithContext(population->Species, stream, SerializeSpecies);
 }
 
 private ulong GetHighestGeneId(const array(gene) genes)
@@ -384,7 +384,7 @@ private void LoadWeightsFromGenomeIntoMatrix(array(gene) genes, BigMatrix matrix
 
 	for (ulong geneIndex = 0; geneIndex < genes->Count; geneIndex++)
 	{
-		Gene gene = Arrays(gene).At(genes, geneIndex);
+		Gene gene = arrays(gene).At(genes, geneIndex);
 
 		if (gene->Enabled)
 		{
@@ -496,10 +496,10 @@ private void RemoveDisimilarOrganismsFromSpecies(Population population, Species 
 		if (SimilarOrganisms(population, referenceOrganism, organism) is false)
 		{
 			// add to the array to get sorted
-			Arrays(Organism).Append(destinationArray, organism);
+			arrays(Organism).Append(destinationArray, organism);
 
 			// remove it from this array
-			Arrays(Organism).RemoveIndex(species->Organisms, organismIndex);
+			arrays(Organism).RemoveIndex(species->Organisms, organismIndex);
 		}
 	}
 }
@@ -524,7 +524,7 @@ private void SortOrganismsIntoSpecies(Population population, array(Organism) org
 
 			if (SimilarOrganisms(population, organism, species->ReferenceOrganism))
 			{
-				Arrays(Organism).Append(species->Organisms, organism);
+				arrays(Organism).Append(species->Organisms, organism);
 				sorted = true;
 				break;
 			}
@@ -538,13 +538,13 @@ private void SortOrganismsIntoSpecies(Population population, array(Organism) org
 		// create a new species
 		Species newSpecies = CreateSpecies(population, 0);
 
-		Arrays(Organism).Append(newSpecies->Organisms, organism);
+		arrays(Organism).Append(newSpecies->Organisms, organism);
 
 		organism->Parent = newSpecies;
 
 		AssignReferenceOrganism(newSpecies);
 
-		Arrays(Species).Append(population->Species, newSpecies);
+		arrays(Species).Append(population->Species, newSpecies);
 	}
 }
 
@@ -554,7 +554,7 @@ private void SortOrganismsIntoSpecies(Population population, array(Organism) org
 private void SpeciatePopulation(Population population)
 {
 	// create a spot to store the organisms needing sorting
-	array(Organism) organismsNeedingSorting = Arrays(Organism).Create(0);
+	array(Organism) organismsNeedingSorting = arrays(Organism).Create(0);
 
 	ulong speciesIndex = population->Species->Count;
 	while (speciesIndex-- > 0)
@@ -565,7 +565,7 @@ private void SpeciatePopulation(Population population)
 		if (species->Organisms->Count is 0)
 		{
 			DisposeSpecies(species);
-			Arrays(Species).RemoveIndex(population->Species, speciesIndex);
+			arrays(Species).RemoveIndex(population->Species, speciesIndex);
 
 			continue;
 		}
@@ -627,11 +627,11 @@ private Organism BreedOrganisms(const Organism left, const Organism right)
 				throw(InvalidLogicException);
 			}
 
-			Arrays(gene).Append(newOrganism->Genes, *lessFitGene);
+			arrays(gene).Append(newOrganism->Genes, *lessFitGene);
 		}
 		else
 		{
-			Arrays(gene).Append(newOrganism->Genes, *moreFitGene);
+			arrays(gene).Append(newOrganism->Genes, *moreFitGene);
 		}
 	}
 
@@ -640,8 +640,8 @@ private Organism BreedOrganisms(const Organism left, const Organism right)
 
 private void DisposeOrganism(Organism organism)
 {
-	Arrays(gene).Dispose(organism->Genes);
-	Arrays(ai_number).Dispose(organism->Outputs);
+	arrays(gene).Dispose(organism->Genes);
+	arrays(ai_number).Dispose(organism->Outputs);
 	BigMatrices.Dispose(organism->WeightMatrix);
 
 	Memory.Free(organism, OrganismTypeId);
@@ -656,7 +656,7 @@ private void DisposeSpecies(Species species)
 
 	DisposeOrganism(species->ReferenceOrganism);
 
-	Arrays(Organism).Dispose(species->Organisms);
+	arrays(Organism).Dispose(species->Organisms);
 
 	Memory.Free(species, SpeciesTypeId);
 }
@@ -675,8 +675,8 @@ private void DisposePopulation(Population population)
 		DisposeSpecies(species);
 	}
 
-	Arrays(Species).Dispose(population->Species);
-	Arrays(gene).Dispose(population->Genes);
+	arrays(Species).Dispose(population->Species);
+	arrays(gene).Dispose(population->Genes);
 
 	Memory.Free(population, SpeciesTypeId);
 }
@@ -685,11 +685,11 @@ private void PropogateOrganism(Population population, Organism organism, array(a
 {
 	LoadWeightsFromGenomeIntoMatrix(organism->Genes, organism->WeightMatrix);
 
-	Arrays(ai_number).Clear(organism->Outputs);
+	arrays(ai_number).Clear(organism->Outputs);
 
 	BigMatrices.MultiplyVector(organism->WeightMatrix, (array(float))inputData, (array(float))organism->Outputs);
 
-	Arrays(ai_number).Foreach(organism->Outputs, population->TransferFunction);
+	arrays(ai_number).Foreach(organism->Outputs, population->TransferFunction);
 }
 
 private void Propogate(Population population, array(ai_number) inputData)
@@ -756,7 +756,7 @@ private void AssignReferenceOrganism(Species species)
 private ulong RemovePoorFitnessOrganisms(Population population, Species species)
 {
 	// sort by fitness
-	Arrays(Organism).InsertionSort(species->Organisms, OrganismFitnessComparator);
+	arrays(Organism).InsertionSort(species->Organisms, OrganismFitnessComparator);
 
 	// determine how many to remove
 	const ulong count = (ulong)((ai_number)species->Organisms->Count * population->OrganismCullingRate);
@@ -766,7 +766,7 @@ private ulong RemovePoorFitnessOrganisms(Population population, Species species)
 	while (index-- > stopIndex)
 	{
 		DisposeOrganism(species->Organisms->Values[index]);
-		Arrays(Organism).RemoveIndex(species->Organisms, index);
+		arrays(Organism).RemoveIndex(species->Organisms, index);
 	}
 
 	AssignReferenceOrganism(species);
@@ -820,7 +820,7 @@ private void RemoveStagnatingSpecies(Population population)
 			// cull the whole species
 			DisposeSpecies(species);
 
-			Arrays(Species).RemoveIndex(population->Species, speciesIndex);
+			arrays(Species).RemoveIndex(population->Species, speciesIndex);
 		}
 	}
 }
@@ -873,7 +873,7 @@ private void ReplenishSpecies(Population population, Species species, ulong coun
 
 		MutateOrganism(population, child);
 
-		Arrays(Organism).Append(species->Organisms, child);
+		arrays(Organism).Append(species->Organisms, child);
 	} while (safe_increment(organismsCreated) < count);
 }
 
@@ -911,7 +911,7 @@ private void CrossMutateAndSpeciate(Population population)
 // Tests
 private array(gene) ExampleGenome_0()
 {
-	array(gene) genome = Arrays(gene).Create(5);
+	array(gene) genome = arrays(gene).Create(5);
 
 	genome->Values[0] = (gene)
 	{
@@ -959,7 +959,7 @@ private array(gene) ExampleGenome_0()
 
 private array(gene) ExampleGenome_1()
 {
-	array(gene) genome = Arrays(gene).Create(7);
+	array(gene) genome = arrays(gene).Create(7);
 
 	genome->Values[0] = (gene)
 	{
@@ -1023,7 +1023,7 @@ private array(gene) ExampleGenome_1()
 
 private array(gene) ExampleGenome_2()
 {
-	array(gene) genome = Arrays(gene).Create(7);
+	array(gene) genome = arrays(gene).Create(7);
 
 	genome->Values[0] = (gene)
 	{
@@ -1087,14 +1087,14 @@ private array(gene) ExampleGenome_2()
 
 TEST(ArrayWorks)
 {
-	array(int) ints = Arrays(int).Create(4);
+	array(int) ints = arrays(int).Create(4);
 
 	ints->Values[0] = 0;
 	ints->Values[1] = 1;
 	ints->Values[2] = 2;
 	ints->Values[3] = 3;
 
-	Arrays(int).RemoveIndex(ints, 1);
+	arrays(int).RemoveIndex(ints, 1);
 
 	IsEqual(3ull, ints->Count);
 	IsEqual(0, ints->Values[0]);
@@ -1114,8 +1114,8 @@ TEST(GetExcessGeneCount)
 
 	IsEqual(expected, GetExcessGeneCount(left, right));
 
-	Arrays(gene).Dispose(left);
-	Arrays(gene).Dispose(right);
+	arrays(gene).Dispose(left);
+	arrays(gene).Dispose(right);
 
 	return true;
 }
@@ -1130,8 +1130,8 @@ TEST(GetBothDisjointGeneCount)
 
 	IsEqual(expected, GetBothDisjointGeneCount(left, right));
 
-	Arrays(gene).Dispose(left);
-	Arrays(gene).Dispose(right);
+	arrays(gene).Dispose(left);
+	arrays(gene).Dispose(right);
 
 	return true;
 }
@@ -1146,8 +1146,8 @@ TEST(GetAverageDifferenceBetweenWeights)
 
 	IsApproximate(expected, GetAverageDifferenceBetweenWeights(left, right));
 
-	Arrays(gene).Dispose(left);
-	Arrays(gene).Dispose(right);
+	arrays(gene).Dispose(left);
+	arrays(gene).Dispose(right);
 
 	return true;
 }
@@ -1215,8 +1215,8 @@ TEST(BreedOrganisms)
 		IsApproximate(expectedGene->Weight, actualGene->Weight);
 	}
 
-	Arrays(gene).Dispose(expectedGenes);
-	Arrays(gene).Dispose(actualGenes);
+	arrays(gene).Dispose(expectedGenes);
+	arrays(gene).Dispose(actualGenes);
 
 	return true;
 }
@@ -1304,7 +1304,7 @@ TEST(XOR_Works)
 	}
 
 	Neat.Dispose(ai);
-	Arrays(ai_number_array).Dispose(inputDataArrays);
+	arrays(ai_number_array).Dispose(inputDataArrays);
 
 	Memory.PrintAlloc(stdout);
 	Memory.PrintFree(stdout);

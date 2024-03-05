@@ -6,14 +6,14 @@
 
 private array(string) GetFiles(char* strs[], int count)
 {
-	array(string) result = Arrays(string).Create(count);
+	array(string) result = arrays(string).Create(count);
 
 	for (size_t i = 0; i < count; i++)
 	{
 		string path = strings.Create(strlen(strs[i]));
 		strings.AppendCArray(path, strs[i], path->Capacity);
 
-		Arrays(string).Append(result, path);
+		arrays(string).Append(result, path);
 	}
 
 	return result;

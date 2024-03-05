@@ -20,11 +20,11 @@ array(char) ExecutableDirectory(void)
 	char buffer[MAX_PATH];
 	DWORD length = GetModuleFileNameA(NULL, buffer, MAX_PATH);
 
-	array(char) result = Arrays(char).Create(length);
+	array(char) result = arrays(char).Create(length);
 
 	for (ulong i = 0; i < safe_add(length, 1); i++)
 	{
-		*Arrays(char).At(result, i) = buffer[i];
+		*arrays(char).At(result, i) = buffer[i];
 	}
 
 	return result;

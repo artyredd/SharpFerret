@@ -27,7 +27,7 @@ private BigMatrix Create(ulong rows, ulong columns)
 	REGISTER_TYPE(BigMatrix);
 	BigMatrix result = Memory.Alloc(sizeof(struct _bigMatrix), BigMatrixTypeId);
 
-	result->Values = Arrays(float).Create(rows * columns);
+	result->Values = arrays(float).Create(rows * columns);
 	result->Rows = rows;
 	result->Columns = columns;
 
@@ -51,13 +51,13 @@ private void MultiplyVector(BigMatrix matrix, array(float) vector, array(float) 
 			value += matrix->Values->Values[(row * matrix->Columns) + i] * vector->Values[i];
 		}
 
-		Arrays(float).Append(destinationVector, value);
+		arrays(float).Append(destinationVector, value);
 	}
 }
 
 private void Dispose(BigMatrix matrix)
 {
-	Arrays(float).Dispose(matrix->Values);
+	arrays(float).Dispose(matrix->Values);
 
 	Memory.Free(matrix, BigMatrixTypeId);
 }
@@ -66,15 +66,15 @@ private void Resize(BigMatrix matrix, ulong rows, ulong columns)
 {
 	matrix->Rows = rows;
 	matrix->Columns = columns;
-	Arrays(float).Resize(matrix->Values, rows * columns);
+	arrays(float).Resize(matrix->Values, rows * columns);
 }
 
 private void Clear(BigMatrix matrix)
 {
-	Arrays(float).Clear(matrix->Values);
+	arrays(float).Clear(matrix->Values);
 }
 
 private float* At(BigMatrix matrix, ulong row, ulong column)
 {
-	return Arrays(float).At(matrix->Values, (row * matrix->Columns) + column);
+	return arrays(float).At(matrix->Values, (row * matrix->Columns) + column);
 }

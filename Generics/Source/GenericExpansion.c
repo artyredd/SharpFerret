@@ -192,7 +192,7 @@ array(string) GetGenericArguments(string data, location location)
 			stackName = combine_partial_string(stackName, Strings.TrimAll(stackName));
 			string name = empty_dynamic_string(stackName->Count);
 			strings.AppendArray(name, stackName);
-			Arrays(string).Append(result, name);
+			arrays(string).Append(result, name);
 			// the next index is the start of the next type name
 			nameStartIndex = i + 1;
 		}
@@ -203,7 +203,7 @@ array(string) GetGenericArguments(string data, location location)
 			stackName = combine_partial_string(stackName, Strings.TrimAll(stackName));
 			string name = empty_dynamic_string(stackName->Count);
 			strings.AppendArray(name, stackName);
-			Arrays(string).Append(result, name);
+			arrays(string).Append(result, name);
 		}
 	}
 
@@ -222,15 +222,26 @@ array(string) GetGenericArguments(string data, location location)
 		stackName = combine_partial_string(stackName, Strings.TrimAll(stackName));
 		string name = empty_dynamic_string(stackName->Count);
 		strings.AppendArray(name, stackName);
-		Arrays(string).Append(result, name);
+		arrays(string).Append(result, name);
 	}
 
 	return result;
 }
 
-array(tuple(int, int)) GetGenericArgumentsWithinBody(string data, location location, array(string) typeNames)
+void InstantiateIntArray(array(int)* arr)
 {
-	array(tuple(int, int)) result = dynamic_array(tuple(int, int), typeNames->Count);
+	*arr = dynamic_array(int, 0);
+}
+
+// returns a list of arrays of indices
+// each index of the returned array matches the index of the provided typeNames
+// each array represents a list of indices where that typename is used
+//  
+array(array(int)) GetGenericArgumentsWithinBody(string data, location location, array(string) typeNames)
+{
+	array(array(int)) result = dynamic_array(array(int), typeNames->Count);
+	result->Count = typeNames->Count;
+	arrays(array(int)).Foreach(result, InstantiateIntArray);
 
 	bool inMacro = false;
 	bool inString = false;
@@ -242,7 +253,7 @@ array(tuple(int, int)) GetGenericArgumentsWithinBody(string data, location locat
 		location.EndScopeIndex - location.StartScopeIndex + 1
 	);
 
-	bool nextCharMayBeType = true;
+	bool previousCharWasPuncutation = true;
 
 	for (int i = 0; i < subdata->Count; i++)
 	{
@@ -307,13 +318,21 @@ array(tuple(int, int)) GetGenericArgumentsWithinBody(string data, location locat
 		// ignore non name characters, NO type can start with one
 		if (IsValidNameCharacter(c) is false)
 		{
-			nextCharMayBeType = true;
+			previousCharWasPuncutation = true;
 			continue;
 		}
 
-		if (nextCharMayBeType)
-		{
+		previousCharWasPuncutation = false;
 
+		if (previousCharWasPuncutation)
+		{
+			// check to see if this is the start
+			// of one of our arguments
+			const int indexOfFoundArg = BeginsWithAny(stack_substring_back(subdata, i), typeNames);
+			if (indexOfFoundArg isnt - 1)
+			{
+				arrays(int).Append(result->Values[indexOfFoundArg], i);
+			}
 		}
 	}
 
@@ -443,7 +462,7 @@ TEST(GetGenericArguments)
 		.AlligatorEndIndex = data->Count - 1
 	};
 
-	array(string) expected = stack_array(string, stack_string("T"));
+	array(string) expected = nested_stack_array(string, stack_string("T"));
 	array(string) actual = GetGenericArguments(data, genericLocation);
 
 	IsEqual(expected->Count, actual->Count);
@@ -455,7 +474,7 @@ TEST(GetGenericArguments)
 		.AlligatorEndIndex = data->Count - 1
 	};
 
-	expected = stack_array(string, stack_string("T"), stack_string("U"), stack_string("V"));
+	expected = nested_stack_array(string, stack_string("T"), stack_string("U"), stack_string("V"));
 	actual = GetGenericArguments(data, genericLocation);
 
 	IsEqual(expected->Count, actual->Count);
@@ -470,7 +489,7 @@ TEST(GetGenericArguments)
 		.AlligatorEndIndex = data->Count - 1
 	};
 
-	expected = stack_array(string, stack_string("T"), stack_string("struct tuple_int{int x; int y;}"), stack_string("V"));
+	expected = nested_stack_array(string, stack_string("T"), stack_string("struct tuple_int{int x; int y;}"), stack_string("V"));
 	actual = GetGenericArguments(data, genericLocation);
 
 	IsEqual(expected->Count, actual->Count);
@@ -485,7 +504,7 @@ TEST(GetGenericArguments)
 		.AlligatorEndIndex = data->Count - 1
 	};
 
-	expected = stack_array(string, stack_string("T"), stack_string("U"), stack_string("V"));
+	expected = nested_stack_array(string, stack_string("T"), stack_string("U"), stack_string("V"));
 	actual = GetGenericArguments(data, genericLocation);
 
 	IsEqual(expected->Count, actual->Count);
@@ -500,7 +519,7 @@ TEST(GetGenericArguments)
 		.AlligatorEndIndex = data->Count - 1
 	};
 
-	expected = stack_array(string,
+	expected = nested_stack_array(string,
 		stack_string("T"),
 		stack_string("struct triplet_int{/* comment here */int x;// other comment\n int y;}"),
 		stack_string("V"));
@@ -518,6 +537,28 @@ TEST(GetGenericArguments)
 
 TEST(GetGenericArgumentsWithinBody)
 {
+	string data = stack_string("V Method<T,U,V>(T left,U right){ if(((T)right).Thing && ((U)left).Thing){V result = (V)left + (V)right; return result; }}");
+	location dataLocation = (location){
+		.AlligatorStartIndex = 8,
+		.AlligatorEndIndex = 14,
+		.StartScopeIndex = 0,
+		.EndScopeIndex = 120
+	};
+
+	array(string) typeNames = nested_stack_array(string,
+		stack_string("T"),
+		stack_string("U"),
+		stack_string("V")
+	);
+
+	array(array(int)) expected = nested_stack_array(array(int),
+		auto_stack_array(int, 1, 2, 3),
+		auto_stack_array(int, 1, 2, 3),
+		auto_stack_array(int, 1, 2, 3)
+	);
+
+	array(array(int)) actual = GetGenericArgumentsWithinBody(data, dataLocation, typeNames);
+
 	return true;
 }
 

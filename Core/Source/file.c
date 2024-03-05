@@ -21,7 +21,7 @@ private bool TryVerifyCleanup(void);
 
 const struct _fileMethods Files = {
 	.UseAssetDirectories = true,
-	.AssetDirectories = stack_array(string,
+	.AssetDirectories = nested_stack_array(string,
 		stack_string("..\\..\\Singine\\"),
 		stack_string("assets\\")
 	),
@@ -91,7 +91,7 @@ private bool TryOpen(const string path, FileMode fileMode, File* out_file)
 	{
 		for (int i = 0; i < Files.AssetDirectories->Count; i++)
 		{
-			const string directory = Arrays(string).ValueAt(Files.AssetDirectories, i);
+			const string directory = arrays(string).ValueAt(Files.AssetDirectories, i);
 
 			string newPath = empty_stack_array(char, _MAX_PATH);
 
