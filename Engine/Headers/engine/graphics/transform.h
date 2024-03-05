@@ -63,15 +63,15 @@ struct _transform {
 	/// <summary>
 	/// The length of the children array, should always be >= count
 	/// </summary>
-	size_t Length;
+	ulong Length;
 	/// <summary>
 	/// The number of children in this transform
 	/// </summary>
-	size_t Count;
+	ulong Count;
 	/// <summary>
 	/// The index of an open child spot within the children array, this is 0 when there is no known spot
 	/// </summary>
-	size_t FreeIndex;
+	ulong FreeIndex;
 	// transform members
 	/// <summary>
 	/// The position of this transform in world space
@@ -141,7 +141,7 @@ struct _transformMethods {
 	void (*SetParent)(Transform, Transform parent);
 
 	// Resizes the child array to fit count elements
-	void (*SetChildCapacity)(Transform, size_t count);
+	void (*SetChildCapacity)(Transform, ulong count);
 
 	vector3 (*GetDirection)(Transform transform, Direction directions);
 	void (*ClearChildren)(Transform transform);

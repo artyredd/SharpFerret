@@ -19,8 +19,8 @@ struct _colors {
 	color Blue;
 	color White;
 	color Black;
-	bool (*TryDeserialize)(const char* buffer, const size_t length, color* out_vector3);
-	bool (*TrySerialize)(char* buffer, const size_t length, const color vector);
+	bool (*TryDeserialize)(const char* buffer, const ulong length, color* out_vector3);
+	bool (*TrySerialize)(char* buffer, const ulong length, const color vector);
 	bool (*TrySerializeStream)(File stream, const color vector);
 };
 

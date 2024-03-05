@@ -1,12 +1,13 @@
 #pragma once
+#include "core/csharp.h"
 
 typedef struct _sharedHandle* SharedHandle;
 
 struct _sharedHandle {
 	// The opengl handle for this handle
-	unsigned int Handle;
+	uint Handle;
 	// The number of objects that reference this struct with pointers, when this reaches 0 this handle can be disposed and freed
-	size_t ActiveInstances;
+	ulong ActiveInstances;
 };
 
 struct _sharedHandleMethods

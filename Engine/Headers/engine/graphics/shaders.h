@@ -166,8 +166,8 @@ struct _shaderMethods {
 	/// </summary>
 	Shader(*Instance)(Shader);
 	bool (*TryGetUniform)(Shader, Uniform, int* out_handle);
-	bool (*TryGetUniformArray)(Shader, Uniform, size_t index, int* out_handle);
-	bool (*TryGetUniformArrayField)(Shader, Uniform, size_t index, Uniform field, int* out_handle);
+	bool (*TryGetUniformArray)(Shader, Uniform, ulong index, int* out_handle);
+	bool (*TryGetUniformArrayField)(Shader, Uniform, ulong index, Uniform field, int* out_handle);
 	void (*DisableSetting)(Shader, const ShaderSetting);
 	void (*EnableSetting)(Shader, const ShaderSetting);
 	void (*SetSetting)(Shader, const ShaderSetting, const bool enabled);
@@ -191,13 +191,13 @@ struct _shaderMethods {
 	bool (*SetMatrix)(Shader, Uniform, matrix4 value);
 	bool (*SetFloat)(Shader, Uniform, float value);
 	bool (*SetInt)(Shader, Uniform, int value);
-	bool (*SetArrayFieldInt)(Shader shader, Uniform uniform, size_t index, Uniform field, int value);
-	bool (*SetArrayFieldFloat)(Shader shader, Uniform uniform, size_t index, Uniform field, float value);
-	bool (*SetArrayFieldVector2)(Shader shader, Uniform uniform, size_t index, Uniform field, vector2 value);
-	bool (*SetArrayFieldVector3)(Shader shader, Uniform uniform, size_t index, Uniform field, vector3 value);
-	bool (*SetArrayFieldVector4)(Shader shader, Uniform uniform, size_t index, Uniform field, vector4 value);
-	bool (*SetArrayFieldColor)(Shader shader, Uniform uniform, size_t index, Uniform field, color value);
-	bool (*SetArrayFieldMatrix)(Shader shader, Uniform uniform, size_t index, Uniform field, matrix4 value);
+	bool (*SetArrayFieldInt)(Shader shader, Uniform uniform, ulong index, Uniform field, int value);
+	bool (*SetArrayFieldFloat)(Shader shader, Uniform uniform, ulong index, Uniform field, float value);
+	bool (*SetArrayFieldVector2)(Shader shader, Uniform uniform, ulong index, Uniform field, vector2 value);
+	bool (*SetArrayFieldVector3)(Shader shader, Uniform uniform, ulong index, Uniform field, vector3 value);
+	bool (*SetArrayFieldVector4)(Shader shader, Uniform uniform, ulong index, Uniform field, vector4 value);
+	bool (*SetArrayFieldColor)(Shader shader, Uniform uniform, ulong index, Uniform field, color value);
+	bool (*SetArrayFieldMatrix)(Shader shader, Uniform uniform, ulong index, Uniform field, matrix4 value);
 	bool(*SetTexture)(Shader shader, Uniform uniform, RawTexture texture, unsigned int slot);
 };
 

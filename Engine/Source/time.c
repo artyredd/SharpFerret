@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <float.h>
 
-size_t totalFrames;
+ulong totalFrames;
 double totalTime;
 
 double previousTime;
@@ -12,7 +12,7 @@ double deltaTime;
 double frameTime;
 double frameTimeTimer;
 double frameTimeLength = 1.0;
-size_t frameTimeFrames;
+ulong frameTimeFrames;
 
 double lowestFrameTime = DBL_MAX;
 double highestFrameTime = DBL_MIN;
@@ -24,7 +24,7 @@ static double HighestFrameTime();
 static double AverageFrameTime();
 static void UpdateTime();
 static void SetFrameTimePollingLength(double length);
-static size_t FrameCount();
+static ulong FrameCount();
 static double DeltaTime();
 static double FrameTime();
 
@@ -49,7 +49,7 @@ static double TotalTime()
 	return totalTime;
 }
 
-static size_t FrameCount()
+static ulong FrameCount()
 {
 	return totalFrames;
 }

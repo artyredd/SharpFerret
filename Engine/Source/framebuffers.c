@@ -113,7 +113,7 @@ static void Use(FrameBuffer buffer)
 	UseFrameBufferMacro();
 }
 
-static void StoreDimensions(FrameBuffer buffer, size_t width, size_t height)
+static void StoreDimensions(FrameBuffer buffer, ulong width, ulong height)
 {
 	// only store the width and height if there values are 0
 	if (buffer->Width is 0 || buffer->Height is 0)

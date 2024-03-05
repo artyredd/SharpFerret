@@ -1,4 +1,5 @@
 #pragma once
+#include "core/csharp.h"
 
 /// when this is defined the frame time is calculated, otherwise it's not
 #define CALCULATE_FRAME_TIME
@@ -11,7 +12,7 @@ struct _Time {
 	double MaxDeltaTime;
 	// The smallest value DeltaTime can be, generally no purpose to this
 	double MinDeltaTime;
-	size_t FrameCount;
+	ulong FrameCount;
 
 	// Returns the total time since the start of the program in seconds
 	double (*Time)();

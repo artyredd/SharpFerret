@@ -15,8 +15,8 @@
 #define DEFAULT_LIGHT_EDGE_SOFTNESS 0.057f;
 
 struct _shadowMapSettings {
-	size_t ResolutionX;
-	size_t ResolutionY;
+	ulong ResolutionX;
+	ulong ResolutionY;
 };
 
 extern struct _shadowMapSettings ShadowMaps;

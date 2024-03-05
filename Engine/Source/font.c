@@ -34,7 +34,7 @@ const struct _fontCharacterMethods FontCharacters = {
 DEFINE_TYPE_ID(FontCharacter);
 DEFINE_TYPE_ID(Font);
 
-static FontCharacter CreateWhiteSpaceCharacter(Font font, size_t width)
+static FontCharacter CreateWhiteSpaceCharacter(Font font, ulong width)
 {
 	Memory.RegisterTypeName(nameof(FontCharacter), &FontCharacterTypeId);
 
@@ -99,7 +99,7 @@ static void CalculateAndAssignFontSizes(Font font)
 static void CreateCharactersFromModel(Font font, Model model)
 {
 	bool assignedStart = false;
-	for (size_t i = 0; i < model->Count; i++)
+	for (ulong i = 0; i < model->Count; i++)
 	{
 		Mesh mesh = model->Meshes[i];
 
@@ -180,7 +180,7 @@ static void Dispose(Font font)
 
 	Materials.Dispose(font->Material);
 
-	for (size_t i = font->StartCharacter; i < font->EndCharacter + 1; i++)
+	for (ulong i = font->StartCharacter; i < font->EndCharacter + 1; i++)
 	{
 		FontCharacters.Dispose(font->Characters[i]);
 	}
@@ -229,7 +229,7 @@ static bool TryLoadCharacterSize(Mesh mesh, FontCharacter character)
 	// example:
 	// o symbol U+0021 glyph 4 xadv 0.545 lsb 0.192 rsb 0.189  ymin -0.025 ymax 0.790
 	// %*s      U+%x   %*s %*i xadv %lf    lsb %lf    rsb %lf  ymin %f     ymax %f
-	size_t count = sscanf_s(mesh->Name, "%*s U+%hx %*s %*i xadv %f lsb %f rsb %f ymin %f ymax %f",
+	ulong count = sscanf_s(mesh->Name, "%*s U+%hx %*s %*i xadv %f lsb %f rsb %f ymin %f ymax %f",
 		&character->Id,
 		&character->Advance,
 		&character->LeftBearing,

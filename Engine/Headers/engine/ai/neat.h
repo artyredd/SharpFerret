@@ -16,10 +16,10 @@ typedef gene* Gene;
 
 struct gene
 {
-	size_t Id;
+	ulong Id;
 	bool Enabled;
-	size_t StartNodeIndex;
-	size_t EndNodeIndex;
+	ulong StartNodeIndex;
+	ulong EndNodeIndex;
 	ai_number Weight;
 };
 
@@ -41,20 +41,20 @@ DEFINE_CONTAINERS(ai_number);
 struct organism
 {
 	// Id of the organism
-	size_t Id;
+	ulong Id;
 	// The generation this organism was born
-	size_t Generation;
+	ulong Generation;
 	Species Parent;
 	array(gene) Genes;
 	// Big matrix containing all the weights
 	BigMatrix WeightMatrix;
 	// Contains the results of the organism after propogation
 	array(ai_number) Outputs;
-	size_t NodeCount;
+	ulong NodeCount;
 	// The last calculated fitness
 	ai_number Fitness;
-	size_t InputNodeCount;
-	size_t OutputNodeCount;
+	ulong InputNodeCount;
+	ulong OutputNodeCount;
 };
 
 typedef struct population population;
@@ -63,36 +63,36 @@ typedef population* Population;
 
 struct species
 {
-	size_t Id;
+	ulong Id;
 	// The average fitness for all the organisms within the species
 	ai_number AverageFitness;
 	// The highest fitness this species has achieved
 	ai_number MaximumFitness;
 	// The Generation this species was created
-	size_t StartGeneration;
+	ulong StartGeneration;
 	// The current highest generation of an organism within this species
-	size_t Generation;
+	ulong Generation;
 	// The generation where the maximum fitness of this species went up
-	size_t LastGenerationWhereFitnessImproved;
+	ulong LastGenerationWhereFitnessImproved;
 	Population Parent;
 	array(Organism) Organisms;
 	// This is an organism from the previous generation that is used
 	// for speciation
 	Organism ReferenceOrganism;
-	size_t InputNodeCount;
-	size_t OutputNodeCount;
+	ulong InputNodeCount;
+	ulong OutputNodeCount;
 };
 
 struct population
 {
 	// The next available organism Id for this population
-	size_t NextId;
+	ulong NextId;
 	// The current generation this population is on
-	size_t Generation;
+	ulong Generation;
 	// The number of organisms alloted to this population
-	size_t Count;
-	size_t InputNodeCount;
-	size_t OutputNodeCount;
+	ulong Count;
+	ulong InputNodeCount;
+	ulong OutputNodeCount;
 	// The sum of all the average fitnesses within the population
 	// used to determine how many organisms get alloted to species
 	ai_number SummedAverageFitness;
@@ -122,7 +122,7 @@ struct population
 	// The percentage of organisms that should be culled from each species to produce new offspring
 	ai_number OrganismCullingRate;
 	// The number of generations a species can exist while not improving it's maximum fitness
-	size_t GenerationsBeforeStagnation;
+	ulong GenerationsBeforeStagnation;
 	// The default ratio represented as a percentage [0-1], of how much of the new organisms in a generation
 	// should be created using crossover or just mutations with no crossover
 	ai_number MatingWithCrossoverChance;
@@ -135,7 +135,7 @@ struct population
 extern struct _neatMethods
 {
 	// How big the backing array of the gene pool should be
-	size_t DefaultGenePoolSize;
+	ulong DefaultGenePoolSize;
 	// the chance, checked once per fitness eval, of a node mutation 
 	// range: [0f - 1f]
 	ai_number DefaultAddNodeMutationChance;
@@ -163,14 +163,14 @@ extern struct _neatMethods
 	// The percentage of organisms that should be culled from each species to produce new offspring
 	ai_number DefaultOrganismCullingRate;
 	// The number of generations a species can exist while not improving it's maximum fitness
-	size_t DefaultGenerationsBeforeStagnation;
+	ulong DefaultGenerationsBeforeStagnation;
 	// The default ratio represented as a percentage [0-1], of how much of the new organisms in a generation
 	// should be created using crossover or just mutations with no crossover
 	ai_number DefaultMatingWithCrossoverRatio;
 	// the transfer function that should be used between all nodes in the network
 	// Takes in a reference to a number, should mutate it
 	void(*DefaultTransferFunction)(ai_number* input);
-	Population(*Create)(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount);
+	Population(*Create)(ulong populationSize, ulong inputNodeCount, ulong outputNodeCount);
 	// Propogates inputdata forward through all the organisms within a population
 	void (*Propogate)(Population, array(ai_number) inputData);
 	void (*CalculateFitness)(Population);

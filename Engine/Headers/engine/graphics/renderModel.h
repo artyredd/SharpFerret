@@ -8,5 +8,5 @@ struct _renderModel {
 	// An array of render meshes that this model controls
 	RenderMesh* Meshes;
 	// The number of meshes this model controls
-	size_t Count;
+	ulong Count;
 };

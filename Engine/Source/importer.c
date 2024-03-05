@@ -32,19 +32,19 @@ static struct _tokens {
 
 static struct _sequences {
 	Sequence Object;
-	size_t ObjectSize;
+	ulong ObjectSize;
 	Sequence Vertex;
-	size_t VertexSize;
+	ulong VertexSize;
 	Sequence TextureVertex;
-	size_t TextureSize;
+	ulong TextureSize;
 	Sequence NormalVertex;
-	size_t NormalSize;
+	ulong NormalSize;
 	Sequence Smoothing;
-	size_t SmoothingSize;
+	ulong SmoothingSize;
 	Sequence Face;
-	size_t FaceSize;
+	ulong FaceSize;
 	Sequence Material;
-	size_t MaterialSize;
+	ulong MaterialSize;
 } Sequences = {
 	.Object = "o ",
 	.ObjectSize = sizeof("o ") - 1,
@@ -66,16 +66,16 @@ typedef struct _fileBuffer* FileBuffer;
 
 struct _fileBuffer {
 	char* StreamBuffer;
-	size_t StreamLength;
+	ulong StreamLength;
 	float* VertexBuffer;
-	size_t VerticesCount;
-	size_t VerticesLength;
+	ulong VerticesCount;
+	ulong VerticesLength;
 	float* TextureBuffer;
-	size_t TexturesCount;
-	size_t TexturesLength;
+	ulong TexturesCount;
+	ulong TexturesLength;
 	float* NormalBuffer;
-	size_t NormalsCount;
-	size_t NormalsLength;
+	ulong NormalsCount;
+	ulong NormalsLength;
 	void(*Dispose)(FileBuffer);
 };
 
@@ -104,7 +104,7 @@ static void DisposeFileBuffer(FileBuffer buffer)
 
 static bool VerifyFormat(FileFormat format)
 {
-	for (size_t i = 0; i < sizeof(SupportedFormats) / sizeof(FileFormat); i++)
+	for (ulong i = 0; i < sizeof(SupportedFormats) / sizeof(FileFormat); i++)
 	{
 		if (strcmp(format, SupportedFormats[i]) is 0)
 		{
@@ -121,31 +121,31 @@ struct _elementCounts {
 	/// <summary>
 	/// The number of vertices in the entire file
 	/// </summary>
-	size_t VertexCount;
+	ulong VertexCount;
 	/// <summary>
 	/// the number of normals in the entire file
 	/// </summary>
-	size_t NormalCount;
+	ulong NormalCount;
 	/// <summary>
 	/// the number of texture in the entire file
 	/// </summary>
-	size_t TextureCount;
+	ulong TextureCount;
 	/// <summary>
 	/// The number of objects within the file
 	/// </summary>
-	size_t ObjectCount;
+	ulong ObjectCount;
 	/// <summary>
 	/// The number of materials in the entire file
 	/// </summary>
-	size_t MaterialCount;
+	ulong MaterialCount;
 	/// <summary>
 	/// the number of faces in the entire file
 	/// </summary>
-	size_t FaceCount;
+	ulong FaceCount;
 	/// <summary>
 	/// An array of the number of faces for each object encountered, the number of faces for the nth object is FaceCounts[n]
 	/// </summary>
-	size_t* FaceCounts;
+	ulong* FaceCounts;
 };
 
 struct _bufferCollection {
@@ -156,7 +156,7 @@ struct _bufferCollection {
 	/// <summary>
 	/// The index of the next empty mesh within the Meshes array
 	/// </summary>
-	size_t MeshIndex;
+	ulong MeshIndex;
 	/// <summary>
 	/// The vertex buffer that is shared for the entire model
 	/// </summary>
@@ -164,7 +164,7 @@ struct _bufferCollection {
 	/// <summary>
 	/// The current index that  is empty within the vertices buffer
 	/// </summary>
-	size_t VertexIndex;
+	ulong VertexIndex;
 	/// <summary>
 	/// The texture buffer that is shared for the entire model
 	/// </summary>
@@ -172,7 +172,7 @@ struct _bufferCollection {
 	/// <summary>
 	/// The current index that  is empty within the texture buffer
 	/// </summary>
-	size_t TextureIndex;
+	ulong TextureIndex;
 	/// <summary>
 	/// The normals buffer that is shared for the entire model
 	/// </summary>
@@ -180,7 +180,7 @@ struct _bufferCollection {
 	/// <summary>
 	/// The current index that  is empty within the normals buffer
 	/// </summary>
-	size_t NormalIndex;
+	ulong NormalIndex;
 };
 
 static void DisposeBufferCollection(struct _bufferCollection* buffers)
@@ -202,7 +202,7 @@ static bool TryCountElements(File stream, array(char) buffer, struct _elementCou
 
 	// iterate through the file and count various element types so we can alloc the correct amount of space
 	// for when we actually process the file
-	size_t lineLength;
+	ulong lineLength;
 
 	while (Files.TryReadLine(stream, buffer, 0, &lineLength))
 	{
@@ -271,7 +271,7 @@ static bool TryCountElements(File stream, array(char) buffer, struct _elementCou
 	return ferror(stream) is 0;
 }
 
-static bool TryParseFace(const char* buffer, size_t* out_attributes)
+static bool TryParseFace(const char* buffer, ulong* out_attributes)
 {
 	// base case assume the file includes normals, uv and vertices
 	int count = sscanf_s(buffer, "%lli/%lli/%lli %lli/%lli/%lli %lli/%lli/%lli",
@@ -351,20 +351,20 @@ static bool TryParseObjects(File stream,
 	Mesh currentMesh = null;
 
 	char* offset;
-	size_t size;
+	ulong size;
 
 	// create tmp variables to store the current meshes counts so when we start adding faces
 	// we can alloc the space for the final objects
-	size_t vertexCount = 0;
-	size_t textureCount = 0;
-	size_t normalCount = 0;
+	ulong vertexCount = 0;
+	ulong textureCount = 0;
+	ulong normalCount = 0;
 
 	// create some variables to ensure we read the file correctly and encounter no errors
-	size_t materialCount = 0;
-	size_t objectCount = 0;
+	ulong materialCount = 0;
+	ulong objectCount = 0;
 
 	// iterate the file line by line
-	size_t lineLength;
+	ulong lineLength;
 	while (Files.TryReadLine(stream, buffer, 0, &lineLength))
 	{
 		char token = buffer->Values[0];
@@ -495,10 +495,10 @@ static bool TryParseObjects(File stream,
 			// a line with a face definition holds UP TO 9 entries
 			// 3 vertices(Garunteed), 3 textures (optional), 3 normals (optional)
 			// where each entry is the INDEX of the actual thing within their respective global array
-			size_t indices[9];
+			ulong indices[9];
 
 			// zero the array
-			Memory.ZeroArray(indices, sizeof(size_t) * 9);
+			Memory.ZeroArray(indices, sizeof(ulong) * 9);
 
 			offset = buffer->Values + Sequences.FaceSize;
 
@@ -509,7 +509,7 @@ static bool TryParseObjects(File stream,
 				return false;
 			}
 
-			size_t faceCount = counts->FaceCounts[objectCount - 1] * 3;
+			ulong faceCount = counts->FaceCounts[objectCount - 1] * 3;
 
 			// make sure we have arrays to write values to
 			if (currentMesh->Vertices is null && vertexCount > 0)
@@ -526,14 +526,14 @@ static bool TryParseObjects(File stream,
 			}
 
 			// since there are 3 triplets loop
-			for (size_t i = 0; i < 3; i++)
+			for (ulong i = 0; i < 3; i++)
 			{
-				const size_t* face = indices + (i * 3);
+				const ulong* face = indices + (i * 3);
 
 				if (vertexCount > 0)
 				{
 					// .obj files are 1 indexed subtract one to get 0 indexed
-					size_t vertexIndex = safe_subtract(face[0], 1);
+					ulong vertexIndex = safe_subtract(face[0], 1);
 
 					// there are 3 floats per vertex so the address of the nth vector3 is index * 3
 					const vector3 subVertices = buffers->Vertices[vertexIndex];
@@ -547,7 +547,7 @@ static bool TryParseObjects(File stream,
 				if (textureCount > 0)
 				{
 					// .obj files are 1 indexed subtract one to get 0 indexed
-					size_t uvIndex = safe_subtract(face[1], 1);
+					ulong uvIndex = safe_subtract(face[1], 1);
 
 					// there are 2 floats per uv
 					const vector2 subUVs = buffers->Textures[uvIndex];
@@ -560,7 +560,7 @@ static bool TryParseObjects(File stream,
 				if (normalCount > 0)
 				{
 					// .obj files are 1 indexed subtract one to get 0 indexed
-					size_t normalIndex = safe_subtract(face[2], 1);
+					ulong normalIndex = safe_subtract(face[2], 1);
 
 					// there are 3 floats per normal
 					const vector3 subNormals = buffers->Normals[normalIndex];
@@ -614,7 +614,7 @@ static bool TryParseObjects(File stream,
 }
 
 // buffer to keep the face counts
-size_t FaceCounts[MAX_FACES];
+ulong FaceCounts[MAX_FACES];
 
 DEFINE_TYPE_ID(Mesh);
 
@@ -639,7 +639,7 @@ static bool TryImportModelStream(File stream,
 		.FaceCounts = FaceCounts
 	};
 
-	Memory.ZeroArray(FaceCounts, MAX_FACES * sizeof(size_t));
+	Memory.ZeroArray(FaceCounts, MAX_FACES * sizeof(ulong));
 
 	// count the occurences of the elements within the file
 	if (TryCountElements(stream,

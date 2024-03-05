@@ -4,15 +4,15 @@
 #include "core/quickmask.h"
 
 static Text Create(void);
-static Text CreateText(Font font, char* string, size_t size);
+static Text CreateText(Font font, char* string, ulong size);
 static void Dispose(Text);
 static void Draw(Text, Scene);
 static void SetDefaultFont(Font);
 static Font GetDefaultFont(void);
-static void SetCharacter(Text, size_t index, unsigned int newCharacter);
-static void SetText(Text, char* string, size_t size);
+static void SetCharacter(Text, ulong index, unsigned int newCharacter);
+static void SetText(Text, char* string, ulong size);
 static void SetFont(Text, Font font);
-static Text CreateEmpty(Font font, size_t size);
+static Text CreateEmpty(Font font, ulong size);
 
 const struct _textMethods Texts = {
 	.Create = &Create,
@@ -57,11 +57,11 @@ static Text Create(void)
 	return text;
 }
 
-static char* DuplicateString(char* string, size_t size)
+static char* DuplicateString(char* string, ulong size)
 {
 	char* result = Memory.Alloc(size + 1, Memory.String);
 
-	for (size_t i = 0; i < size + 1; i++)
+	for (ulong i = 0; i < size + 1; i++)
 	{
 		result[i] = string[i];
 	}
@@ -71,7 +71,7 @@ static char* DuplicateString(char* string, size_t size)
 	return result;
 }
 
-static Text CreateEmpty(Font font, size_t size)
+static Text CreateEmpty(Font font, ulong size)
 {
 	Text text = Create();
 
@@ -91,7 +91,7 @@ static Text CreateEmpty(Font font, size_t size)
 	return text;
 }
 
-static Text CreateText(Font font, char* string, size_t size)
+static Text CreateText(Font font, char* string, ulong size)
 {
 	Text text = Create();
 
@@ -155,9 +155,9 @@ static void GenerateCharacters(Text text)
 
 	float newLineAmount = text->AlignTop ? -text->Font->LineHeight : text->Font->LineHeight;
 
-	size_t line = 0;
+	ulong line = 0;
 
-	for (size_t i = 0; i < text->Count; i++)
+	for (ulong i = 0; i < text->Count; i++)
 	{
 		unsigned int c = buffer[i];
 
@@ -213,8 +213,8 @@ static void RefreshCharacters(Text text)
 
 	// abc
 	// agc
-	size_t line = 0;
-	for (size_t i = 0; i < text->Count; i++)
+	ulong line = 0;
+	for (ulong i = 0; i < text->Count; i++)
 	{
 		unsigned int c = buffer[i];
 
@@ -304,7 +304,7 @@ static void RefreshCharacters(Text text)
 
 	// if the string we are refreshing to is smaller than our old string that's still in the same buffer we should
 	// get rid of the old orphaned ones
-	for (size_t i = text->Count; i < text->Length; i++)
+	for (ulong i = text->Count; i < text->Length; i++)
 	{
 		buffer[i] = '\0';
 
@@ -385,7 +385,7 @@ static void Draw(Text text, Scene scene)
 	GameObjects.Draw(text->GameObject, scene);
 }
 
-static void SetCharacter(Text text, size_t index, unsigned int newCharacter)
+static void SetCharacter(Text text, ulong index, unsigned int newCharacter)
 {
 	SetFlag(text->State.Modified, CharactersModifiedFlag);
 
@@ -393,7 +393,7 @@ static void SetCharacter(Text text, size_t index, unsigned int newCharacter)
 }
 
 
-static void SetText(Text text, char* string, size_t size)
+static void SetText(Text text, char* string, ulong size)
 {
 	// check if the pointer were getting is the same as the stored one
 	if (string == text->Text)

@@ -56,15 +56,15 @@ struct _font {
 	/// <summary>
 	/// The index of the first character of the font
 	/// </summary>
-	size_t StartCharacter;
+	ulong StartCharacter;
 	/// <summary>
 	/// The index of the last character of the font
 	/// </summary>
-	size_t EndCharacter;
+	ulong EndCharacter;
 	/// <summary>
 	/// The number of characters this font supports
 	/// </summary>
-	size_t Count;
+	ulong Count;
 	/// <summary>
 	/// The lowest point in the font
 	/// </summary>
@@ -92,7 +92,7 @@ struct _font {
 	/// <summary>
 	/// The number of instances of this font, when this reaches 1 or less any following calls to dispose actually disposes the object itself
 	/// </summary>
-	size_t ActiveInstances;
+	ulong ActiveInstances;
 };
 
 struct _fontMethods {

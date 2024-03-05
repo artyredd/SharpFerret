@@ -88,7 +88,7 @@ struct voxelTree
 	Voxel Voxels;
 	
 	// The number of voxels in this tree
-	size_t Count;
+	ulong Count;
 
 	// The transform referenced by this tree
 	Transform Transform;

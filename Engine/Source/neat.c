@@ -14,7 +14,7 @@
 
 #define RANDOM_NUMBER_GEN() Random.NextFloat()
 
-private Population CreatePopulation(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount);
+private Population CreatePopulation(ulong populationSize, ulong inputNodeCount, ulong outputNodeCount);
 private void DisposePopulation(Population);
 private void SigmoidalTransferFunction(ai_number* number);
 private void RunUnitTests();
@@ -53,9 +53,9 @@ DEFINE_TYPE_ID(Species);
 DEFINE_TYPE_ID(Organism);
 DEFINE_TYPE_ID(Population);
 
-private bool TryFindGene(Population population, gene gene, size_t* out_geneIndex)
+private bool TryFindGene(Population population, gene gene, ulong* out_geneIndex)
 {
-	for (size_t i = 0; i < population->Genes->Count; i++)
+	for (ulong i = 0; i < population->Genes->Count; i++)
 	{
 		Gene globalGene = &population->Genes->Values[i];
 		if (gene.StartNodeIndex is globalGene->StartNodeIndex && gene.EndNodeIndex is globalGene->EndNodeIndex)
@@ -68,9 +68,9 @@ private bool TryFindGene(Population population, gene gene, size_t* out_geneIndex
 	return false;
 }
 
-private size_t AddGlobalGeneToPopulation(Population population, gene gene)
+private ulong AddGlobalGeneToPopulation(Population population, gene gene)
 {
-	size_t newId = population->Genes->Count;
+	ulong newId = population->Genes->Count;
 
 	gene.Id = newId;
 
@@ -79,7 +79,7 @@ private size_t AddGlobalGeneToPopulation(Population population, gene gene)
 	return newId;
 }
 
-private gene CreateGene(Population population, size_t startNodeIndex, size_t endNodeIndex)
+private gene CreateGene(Population population, ulong startNodeIndex, ulong endNodeIndex)
 {
 	// a node shouldn't point to itself
 	if (startNodeIndex is endNodeIndex)
@@ -95,7 +95,7 @@ private gene CreateGene(Population population, size_t startNodeIndex, size_t end
 		.Weight = RANDOM_NUMBER_GEN()
 	};
 
-	size_t existingGeneId;
+	ulong existingGeneId;
 	if (TryFindGene(population, result, &existingGeneId))
 	{
 		result.Id = existingGeneId;
@@ -108,9 +108,9 @@ private gene CreateGene(Population population, size_t startNodeIndex, size_t end
 	return result;
 }
 
-private size_t GetNewNodeId(Organism organism)
+private ulong GetNewNodeId(Organism organism)
 {
-	size_t newNodeId = organism->NodeCount;
+	ulong newNodeId = organism->NodeCount;
 
 	organism->NodeCount = safe_add(newNodeId, 1);
 
@@ -121,10 +121,10 @@ private void MutateAddNode(Organism organism)
 {
 	// create the node
 	// get the highest id of nodes in the organism
-	size_t endNode = GetNewNodeId(organism);
+	ulong endNode = GetNewNodeId(organism);
 
 	// choose a random node to point to it
-	size_t startNode = Random.BetweenSize_t(0, endNode - 1);
+	ulong startNode = Random.Betweenulong(0, endNode - 1);
 
 	gene newGene = CreateGene(organism->Parent->Parent, startNode, endNode);
 
@@ -133,14 +133,14 @@ private void MutateAddNode(Organism organism)
 
 private void MutateAddConnection(Organism organism)
 {
-	size_t startIndex = 0;
-	size_t endIndex = 0;
+	ulong startIndex = 0;
+	ulong endIndex = 0;
 
 	// dont point to the same node
 	do
 	{
-		startIndex = Random.BetweenSize_t(0, safe_subtract(organism->NodeCount, 1));
-		endIndex = Random.BetweenSize_t(0, safe_subtract(organism->NodeCount, 1));
+		startIndex = Random.Betweenulong(0, safe_subtract(organism->NodeCount, 1));
+		endIndex = Random.Betweenulong(0, safe_subtract(organism->NodeCount, 1));
 	} while (startIndex is endIndex);
 
 	gene gene = CreateGene(organism->Parent->Parent, startIndex, endIndex);
@@ -154,7 +154,7 @@ private void MutateWeights(Organism organism)
 
 	ai_number uniformMutationValue = RANDOM_NUMBER_GEN();
 
-	for (size_t geneIndex = 0; geneIndex < organism->Genes->Count; geneIndex++)
+	for (ulong geneIndex = 0; geneIndex < organism->Genes->Count; geneIndex++)
 	{
 		Gene gene = &organism->Genes->Values[geneIndex];
 
@@ -172,11 +172,11 @@ private void MutateWeights(Organism organism)
 	}
 }
 
-private void CreateDefaultGenome(Population population, array(gene) genes, size_t inputNodeCount, size_t outputNodeCount)
+private void CreateDefaultGenome(Population population, array(gene) genes, ulong inputNodeCount, ulong outputNodeCount)
 {
-	for (size_t input = 0; input < inputNodeCount; input++)
+	for (ulong input = 0; input < inputNodeCount; input++)
 	{
-		for (size_t output = inputNodeCount; output < outputNodeCount + inputNodeCount; output++)
+		for (ulong output = inputNodeCount; output < outputNodeCount + inputNodeCount; output++)
 		{
 			gene newGene = CreateGene(population, input, output);
 
@@ -185,7 +185,7 @@ private void CreateDefaultGenome(Population population, array(gene) genes, size_
 	}
 }
 
-private Organism CreateOrganism(size_t inputNodeCount, size_t outputNodeCount)
+private Organism CreateOrganism(ulong inputNodeCount, ulong outputNodeCount)
 {
 	Organism result = Memory.Alloc(sizeof(organism), OrganismTypeId);
 
@@ -219,7 +219,7 @@ private Organism CloneOrganism(Organism organism)
 	return result;
 }
 
-private Species CreateSpecies(Population population, size_t organismCount)
+private Species CreateSpecies(Population population, ulong organismCount)
 {
 	Species result = Memory.Alloc(sizeof(species), SpeciesTypeId);
 
@@ -233,7 +233,7 @@ private Species CreateSpecies(Population population, size_t organismCount)
 	result->Organisms = Arrays(Organism).Create(organismCount);
 	result->Parent = population;
 
-	for (size_t i = 0; i < result->Organisms->Count; i++)
+	for (ulong i = 0; i < result->Organisms->Count; i++)
 	{
 		Organism newOrganism = CreateOrganism(result->InputNodeCount, result->OutputNodeCount);
 
@@ -247,7 +247,7 @@ private Species CreateSpecies(Population population, size_t organismCount)
 	return result;
 }
 
-private Population CreatePopulation(size_t populationSize, size_t inputNodeCount, size_t outputNodeCount)
+private Population CreatePopulation(ulong populationSize, ulong inputNodeCount, ulong outputNodeCount)
 {
 	REGISTER_TYPE(Gene);
 	REGISTER_TYPE(Species);
@@ -283,7 +283,7 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 
 	*result = population;
 
-	for (size_t i = 0; i < population.Species->Count; i++)
+	for (ulong i = 0; i < population.Species->Count; i++)
 	{
 		Species species = CreateSpecies(result, populationSize);
 
@@ -292,7 +292,7 @@ private Population CreatePopulation(size_t populationSize, size_t inputNodeCount
 		species->Id = i;
 		species->Parent = result;
 
-		for (size_t organism = 0; organism < species->Organisms->Count; organism++)
+		for (ulong organism = 0; organism < species->Organisms->Count; organism++)
 		{
 			species->Organisms->Values[organism]->Parent = population.Species->Values[i];
 
@@ -343,10 +343,10 @@ private void SerializePopulation(File stream, Population population)
 	Arrays(Species).ForeachWithContext(population->Species, stream, SerializeSpecies);
 }
 
-private size_t GetHighestGeneId(const array(gene) genes)
+private ulong GetHighestGeneId(const array(gene) genes)
 {
-	size_t largestId = 0;
-	for (size_t geneIndex = 0; geneIndex < genes->Count; geneIndex++)
+	ulong largestId = 0;
+	for (ulong geneIndex = 0; geneIndex < genes->Count; geneIndex++)
 	{
 		if (genes->Values[geneIndex].Id > largestId)
 		{
@@ -357,13 +357,13 @@ private size_t GetHighestGeneId(const array(gene) genes)
 	return largestId;
 }
 
-private size_t GetNodeCount(array(gene) genes)
+private ulong GetNodeCount(array(gene) genes)
 {
-	size_t nodeCount = 0;
+	ulong nodeCount = 0;
 
-	for (size_t i = 0; i < genes->Count; i++)
+	for (ulong i = 0; i < genes->Count; i++)
 	{
-		size_t highestIndex = max(genes->Values[i].EndNodeIndex, genes->Values[i].StartNodeIndex);
+		ulong highestIndex = max(genes->Values[i].EndNodeIndex, genes->Values[i].StartNodeIndex);
 		if (highestIndex > nodeCount) {
 			nodeCount = highestIndex;
 		}
@@ -374,7 +374,7 @@ private size_t GetNodeCount(array(gene) genes)
 
 private void LoadWeightsFromGenomeIntoMatrix(array(gene) genes, BigMatrix matrix)
 {
-	size_t matrixWidth = GetNodeCount(genes);
+	ulong matrixWidth = GetNodeCount(genes);
 
 	// make sure the matrix is big enough
 	BigMatrices.Resize(matrix, matrixWidth, matrixWidth);
@@ -382,7 +382,7 @@ private void LoadWeightsFromGenomeIntoMatrix(array(gene) genes, BigMatrix matrix
 	// write zeros
 	BigMatrices.Clear(matrix);
 
-	for (size_t geneIndex = 0; geneIndex < genes->Count; geneIndex++)
+	for (ulong geneIndex = 0; geneIndex < genes->Count; geneIndex++)
 	{
 		Gene gene = Arrays(gene).At(genes, geneIndex);
 
@@ -394,9 +394,9 @@ private void LoadWeightsFromGenomeIntoMatrix(array(gene) genes, BigMatrix matrix
 }
 
 // returns true when the gene array contain the given gene
-private bool ContainsGeneId(size_t geneId, const array(gene) genes)
+private bool ContainsGeneId(ulong geneId, const array(gene) genes)
 {
-	for (size_t geneIndex = 0; geneIndex < genes->Count; geneIndex++)
+	for (ulong geneIndex = 0; geneIndex < genes->Count; geneIndex++)
 	{
 		if (genes->Values[geneIndex].Id is geneId)
 		{
@@ -407,13 +407,13 @@ private bool ContainsGeneId(size_t geneId, const array(gene) genes)
 	return false;
 }
 
-private size_t GetDisjointGeneCount(const array(gene) leftGenes, const array(gene) rightGenes)
+private ulong GetDisjointGeneCount(const array(gene) leftGenes, const array(gene) rightGenes)
 {
-	size_t smallestCount = min(leftGenes->Count, rightGenes->Count);
-	size_t disjointCount = 0;
-	for (size_t leftIndex = 0; leftIndex < smallestCount; leftIndex++)
+	ulong smallestCount = min(leftGenes->Count, rightGenes->Count);
+	ulong disjointCount = 0;
+	for (ulong leftIndex = 0; leftIndex < smallestCount; leftIndex++)
 	{
-		size_t leftId = leftGenes->Values[leftIndex].Id;
+		ulong leftId = leftGenes->Values[leftIndex].Id;
 
 		if (ContainsGeneId(leftId, rightGenes) is false)
 		{
@@ -426,14 +426,14 @@ private size_t GetDisjointGeneCount(const array(gene) leftGenes, const array(gen
 
 private ai_number GetAverageDifferenceBetweenWeights(const array(gene) leftGenes, const array(gene) rightGenes)
 {
-	size_t count = 0;
+	ulong count = 0;
 	ai_number value = 0;
 
-	for (size_t leftIndex = 0; leftIndex < leftGenes->Count; leftIndex++)
+	for (ulong leftIndex = 0; leftIndex < leftGenes->Count; leftIndex++)
 	{
 		const Gene leftGene = &leftGenes->Values[leftIndex];
 
-		for (size_t rightIndex = 0; rightIndex < rightGenes->Count; rightIndex++)
+		for (ulong rightIndex = 0; rightIndex < rightGenes->Count; rightIndex++)
 		{
 			const Gene rightGene = &rightGenes->Values[rightIndex];
 
@@ -450,18 +450,18 @@ private ai_number GetAverageDifferenceBetweenWeights(const array(gene) leftGenes
 	return value / (ai_number)count;
 }
 
-private size_t GetExcessGeneCount(const array(gene) left, const array(gene) right)
+private ulong GetExcessGeneCount(const array(gene) left, const array(gene) right)
 {
-	size_t highestLeftId = GetHighestGeneId(left);
-	size_t highestRightId = GetHighestGeneId(right);
+	ulong highestLeftId = GetHighestGeneId(left);
+	ulong highestRightId = GetHighestGeneId(right);
 
 	return safe_subtract(highestRightId, highestLeftId);
 }
 
-private size_t GetBothDisjointGeneCount(const array(gene) left, const array(gene) right)
+private ulong GetBothDisjointGeneCount(const array(gene) left, const array(gene) right)
 {
-	size_t leftDisjointCount = GetDisjointGeneCount(left, right);
-	size_t rightDisjointCount = GetDisjointGeneCount(right, left);
+	ulong leftDisjointCount = GetDisjointGeneCount(left, right);
+	ulong rightDisjointCount = GetDisjointGeneCount(right, left);
 
 	return safe_add(leftDisjointCount, rightDisjointCount);
 }
@@ -489,7 +489,7 @@ private bool SimilarOrganisms(const Population population, const Organism leftOr
 private void RemoveDisimilarOrganismsFromSpecies(Population population, Species species, array(Organism) destinationArray)
 {
 	Organism referenceOrganism = species->ReferenceOrganism;
-	size_t organismIndex = species->Organisms->Count;
+	ulong organismIndex = species->Organisms->Count;
 	while (organismIndex-- > 0)
 	{
 		Organism organism = species->Organisms->Values[organismIndex];
@@ -506,13 +506,13 @@ private void RemoveDisimilarOrganismsFromSpecies(Population population, Species 
 
 private void SortOrganismsIntoSpecies(Population population, array(Organism) organisms)
 {
-	size_t organismIndex = organisms->Count;
+	ulong organismIndex = organisms->Count;
 	while (organismIndex-- > 0)
 	{
 		Organism organism = organisms->Values[organismIndex];
 
 		bool sorted = false;
-		for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
+		for (ulong speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
 		{
 			Species species = population->Species->Values[speciesIndex];
 
@@ -556,7 +556,7 @@ private void SpeciatePopulation(Population population)
 	// create a spot to store the organisms needing sorting
 	array(Organism) organismsNeedingSorting = Arrays(Organism).Create(0);
 
-	size_t speciesIndex = population->Species->Count;
+	ulong speciesIndex = population->Species->Count;
 	while (speciesIndex-- > 0)
 	{
 		Species species = population->Species->Values[speciesIndex];
@@ -589,9 +589,9 @@ private void SigmoidalTransferFunction(ai_number* number)
 	*number = (ai_number)((ai_number)1.0 / ((ai_number)1.0 + pow((ai_number)DOUBLE_E, (ai_number)-4.9 * *number)));
 }
 
-private Gene GetGeneWithId(array(gene) genes, size_t id)
+private Gene GetGeneWithId(array(gene) genes, ulong id)
 {
-	for (size_t i = 0; i < genes->Count; i++)
+	for (ulong i = 0; i < genes->Count; i++)
 	{
 		if (genes->Values[i].Id is id)
 		{
@@ -611,7 +611,7 @@ private Organism BreedOrganisms(const Organism left, const Organism right)
 
 	Organism newOrganism = CreateOrganism(left->InputNodeCount, left->OutputNodeCount);
 
-	for (size_t geneIndex = 0; geneIndex < moreFitOrganism->Genes->Count; geneIndex++)
+	for (ulong geneIndex = 0; geneIndex < moreFitOrganism->Genes->Count; geneIndex++)
 	{
 		const Gene moreFitGene = &moreFitOrganism->Genes->Values[geneIndex];
 
@@ -649,7 +649,7 @@ private void DisposeOrganism(Organism organism)
 
 private void DisposeSpecies(Species species)
 {
-	for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
+	for (ulong organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
 	{
 		DisposeOrganism(species->Organisms->Values[organismIndex]);
 	}
@@ -668,7 +668,7 @@ private void DisposePopulation(Population population)
 		return;
 	}
 
-	for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
+	for (ulong speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
 	{
 		Species species = population->Species->Values[speciesIndex];
 
@@ -694,11 +694,11 @@ private void PropogateOrganism(Population population, Organism organism, array(a
 
 private void Propogate(Population population, array(ai_number) inputData)
 {
-	for (size_t i = 0; i < population->Species->Count; i++)
+	for (ulong i = 0; i < population->Species->Count; i++)
 	{
 		Species species = population->Species->Values[i];
 
-		for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
+		for (ulong organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
 		{
 			PropogateOrganism(population, species->Organisms->Values[organismIndex], inputData);
 		}
@@ -709,13 +709,13 @@ private void CalculateFitness(Population population)
 {
 	population->SummedAverageFitness = 0;
 
-	for (size_t i = 0; i < population->Species->Count; i++)
+	for (ulong i = 0; i < population->Species->Count; i++)
 	{
 		Species species = population->Species->Values[i];
 
 		species->AverageFitness = 0;
 
-		for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
+		for (ulong organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
 		{
 			Organism organism = species->Organisms->Values[organismIndex];
 
@@ -747,22 +747,22 @@ private bool OrganismFitnessComparator(Organism* left, Organism* right)
 private void AssignReferenceOrganism(Species species)
 {
 	// set the reference organism to a random organism
-	species->ReferenceOrganism = CloneOrganism(species->Organisms->Values[Random.NextSize_t() % species->Organisms->Count]);
+	species->ReferenceOrganism = CloneOrganism(species->Organisms->Values[Random.Nextulong() % species->Organisms->Count]);
 }
 
 // removes the poorest performing organisms within a species
 // returns the number of organisms within this species that
 // were removed
-private size_t RemovePoorFitnessOrganisms(Population population, Species species)
+private ulong RemovePoorFitnessOrganisms(Population population, Species species)
 {
 	// sort by fitness
 	Arrays(Organism).InsertionSort(species->Organisms, OrganismFitnessComparator);
 
 	// determine how many to remove
-	const size_t count = (size_t)((ai_number)species->Organisms->Count * population->OrganismCullingRate);
-	const size_t stopIndex = safe_subtract(species->Organisms->Count, count);
+	const ulong count = (ulong)((ai_number)species->Organisms->Count * population->OrganismCullingRate);
+	const ulong stopIndex = safe_subtract(species->Organisms->Count, count);
 
-	size_t index = species->Organisms->Count;
+	ulong index = species->Organisms->Count;
 	while (index-- > stopIndex)
 	{
 		DisposeOrganism(species->Organisms->Values[index]);
@@ -777,12 +777,12 @@ private size_t RemovePoorFitnessOrganisms(Population population, Species species
 private void CalculatePopulationFitnesses(Population population)
 {
 	ai_number summedAverage = 0;
-	for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
+	for (ulong speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
 	{
 		Species species = population->Species->Values[speciesIndex];
 		ai_number speciesAverage = 0;
 
-		for (size_t organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
+		for (ulong organismIndex = 0; organismIndex < species->Organisms->Count; organismIndex++)
 		{
 			ai_number fitness = species->Organisms->Values[organismIndex]->Fitness;
 			if (species->MaximumFitness < fitness)
@@ -803,7 +803,7 @@ private void CalculatePopulationFitnesses(Population population)
 
 private void RemoveStagnatingSpecies(Population population)
 {
-	size_t speciesIndex = population->Species->Count;
+	ulong speciesIndex = population->Species->Count;
 	while (speciesIndex-- > 0)
 	{
 		Species species = population->Species->Values[speciesIndex];
@@ -841,19 +841,19 @@ private void MutateOrganism(Population population, Organism organism)
 	}
 }
 
-private void ReplenishSpecies(Population population, Species species, size_t count)
+private void ReplenishSpecies(Population population, Species species, ulong count)
 {
 	if (count is 0)
 	{
 		return;
 	}
 
-	size_t organismsCreated = 1;
+	ulong organismsCreated = 1;
 
 	do
 	{
 		Organism child = null;
-		const size_t index = Random.BetweenSize_t(0, species->Organisms->Count);
+		const ulong index = Random.Betweenulong(0, species->Organisms->Count);
 		Organism left = species->Organisms->Values[index];
 
 		if (Random.Chance(population->MatingWithCrossoverChance))
@@ -887,7 +887,7 @@ private void CrossMutateAndSpeciate(Population population)
 
 	RemoveStagnatingSpecies(population);
 
-	for (size_t speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
+	for (ulong speciesIndex = 0; speciesIndex < population->Species->Count; speciesIndex++)
 	{
 		Species species = population->Species->Values[speciesIndex];
 
@@ -896,7 +896,7 @@ private void CrossMutateAndSpeciate(Population population)
 
 		ai_number allotedPercentage = species->AverageFitness / population->SummedAverageFitness;
 
-		size_t allotedCount = (size_t)(allotedPercentage * (ai_number)population->Count);
+		ulong allotedCount = (ulong)(allotedPercentage * (ai_number)population->Count);
 
 		// kill the bottom performing organisms within the species
 		RemovePoorFitnessOrganisms(population, species);
@@ -1110,7 +1110,7 @@ TEST(GetExcessGeneCount)
 
 	array(gene) right = ExampleGenome_1();
 
-	size_t expected = 2;
+	ulong expected = 2;
 
 	IsEqual(expected, GetExcessGeneCount(left, right));
 
@@ -1126,7 +1126,7 @@ TEST(GetBothDisjointGeneCount)
 
 	array(gene) right = ExampleGenome_1();
 
-	size_t expected = 2;
+	ulong expected = 2;
 
 	IsEqual(expected, GetBothDisjointGeneCount(left, right));
 
@@ -1199,7 +1199,7 @@ TEST(BreedOrganisms)
 
 	IsEqual(expectedGenes->Count, actualGenes->Count);
 
-	for (size_t i = 0; i < expectedGenes->Count; i++)
+	for (ulong i = 0; i < expectedGenes->Count; i++)
 	{
 		Gene expectedGene = &expectedGenes->Values[i];
 
@@ -1272,8 +1272,8 @@ TEST(XOR_Works)
 	// true ^ false = true
 	// false ^ true = true
 
-	size_t inputs = 2;
-	size_t outputs = 1;
+	ulong inputs = 2;
+	ulong outputs = 1;
 
 	Population ai = Neat.Create(15, inputs, outputs);
 
@@ -1281,15 +1281,15 @@ TEST(XOR_Works)
 
 	ai->FitnessFunction = XORFitnessFunction;
 
-	size_t expectedIterations = 3600;
+	ulong expectedIterations = 3600;
 
 	array(ai_number_array) inputDataArrays = GetXORTestData();
 
-	for (size_t i = 0; i < expectedIterations; i++)
+	for (ulong i = 0; i < expectedIterations; i++)
 	{
 		array(ai_number) expected = inputDataArrays->Values[inputDataArrays->Count - 1];
 
-		for (size_t inputDataIndex = 0; inputDataIndex < inputDataArrays->Count - 1; inputDataIndex++)
+		for (ulong inputDataIndex = 0; inputDataIndex < inputDataArrays->Count - 1; inputDataIndex++)
 		{
 			array(ai_number) inputData = inputDataArrays->Values[inputDataIndex];
 

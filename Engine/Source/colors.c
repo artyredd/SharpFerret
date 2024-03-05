@@ -1,8 +1,8 @@
 #include "engine/graphics/colors.h"
 #include "core/math/vectors.h"
 
-static bool TryDeserialize(const char* buffer, const size_t length, color* out_vector3);
-static bool TrySerialize(char* buffer, const size_t length, const color vector);
+static bool TryDeserialize(const char* buffer, const ulong length, color* out_vector3);
+static bool TrySerialize(char* buffer, const ulong length, const color vector);
 static bool TrySerializeStream(File stream, const color vector);
 
 const struct _colors Colors = {
@@ -16,12 +16,12 @@ const struct _colors Colors = {
 	.TrySerializeStream = TrySerializeStream
 };
 
-static bool TryDeserialize(const char* buffer, const size_t length, color* out_vector3)
+static bool TryDeserialize(const char* buffer, const ulong length, color* out_vector3)
 {
 	return Vector4s.TryDeserialize(buffer, length, (vector4*)out_vector3);
 }
 
-static bool TrySerialize(char* buffer, const size_t length, const color vector)
+static bool TrySerialize(char* buffer, const ulong length, const color vector)
 {
 	return Vector4s.TrySerialize( buffer, length, *(vector4*)&vector);
 }

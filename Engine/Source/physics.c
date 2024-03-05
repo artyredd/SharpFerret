@@ -12,18 +12,18 @@ struct _physics Physics = {
 };
 
 // TODO make this an expanding array instead of fixed
-size_t Global_ColliderCapacity = 1024;
+ulong Global_ColliderCapacity = 1024;
 Collider Global_Colliders[1024];
-size_t Global_AvailableIndex = 0;
+ulong Global_AvailableIndex = 0;
 
-static size_t GetAvailableIndex()
+static ulong GetAvailableIndex()
 {
 	/*if (Global_AvailableIndex < Global_ColliderCapacity)
 	{
 		return Global_AvailableIndex;
 	}
 
-	for (size_t index = 0; index < Global_ColliderCapacity; index++)
+	for (ulong index = 0; index < Global_ColliderCapacity; index++)
 	{
 		if (Global_Colliders[index] == null)
 		{
@@ -36,7 +36,7 @@ static size_t GetAvailableIndex()
 
 static void RegisterCollider(Collider collider)
 {
-	size_t index = GetAvailableIndex();
+	ulong index = GetAvailableIndex();
 	Global_Colliders[index] = collider;
 }
 

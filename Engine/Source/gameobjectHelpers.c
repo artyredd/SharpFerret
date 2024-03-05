@@ -64,7 +64,7 @@ GameObject LoadGameObjectFromModel(const string path, FileFormat format)
 	parent->Count = model->Count;
 
 	// set all the children's meshes parent to the gameobjects transform
-	for (size_t i = 0; i < model->Count; i++)
+	for (ulong i = 0; i < model->Count; i++)
 	{
 		Transforms.SetParent(meshes[i]->Transform, parent->Transform);
 	}

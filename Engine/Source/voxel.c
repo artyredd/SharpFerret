@@ -101,13 +101,13 @@ private void SortNewVoxel(Voxel root, Voxel voxel)
 								}
 }
 
-private vector3 GetGlobalCenter(const Voxel array, const size_t count)
+private vector3 GetGlobalCenter(const Voxel array, const ulong count)
 {
 	float x = 0;
 	float y = 0;
 	float z = 0;
 
-	for (size_t i = 0; i < count; i++)
+	for (ulong i = 0; i < count; i++)
 	{
 		const vector3 vector = array[i].BoundingBox.Center;
 
@@ -128,7 +128,7 @@ DEFINE_TYPE_ID(VoxelTree);
 
 static voxelTree Create(Mesh mesh)
 {
-	const size_t voxelCount = mesh->VertexCount / 3;
+	const ulong voxelCount = mesh->VertexCount / 3;
 
 	// we'll need a voxel for each triangle so just allocate the amount of triangles we need right off the bat
 	REGISTER_TYPE(voxel);
@@ -150,7 +150,7 @@ static voxelTree Create(Mesh mesh)
 	// centers dont get changed when we join two cuboids
 	root->BoundingBox.Center = globalCentroid;
 
-	for (size_t i = 0; i < voxelCount; i++)
+	for (ulong i = 0; i < voxelCount; i++)
 	{
 		// assign the triangles
 		Voxel destinationVoxel = &voxels[i + 1];

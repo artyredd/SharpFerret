@@ -16,7 +16,7 @@ static void DisposeModel(Model model)
 {
 	if (model isnt null)
 	{
-		for (size_t i = 0; i < model->Count; i++)
+		for (ulong i = 0; i < model->Count; i++)
 		{
 			Mesh tmp = model->Meshes[i];
 

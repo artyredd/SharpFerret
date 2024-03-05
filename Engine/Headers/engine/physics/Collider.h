@@ -14,10 +14,10 @@ struct _collision
 {
 	// index of the triangle within the left model where the first collision
 	// took place
-	size_t LeftHitIndex;
+	ulong LeftHitIndex;
 	// index of the triangle within the right model where the first collision
 	// took place
-	size_t RightHitIndex;
+	ulong RightHitIndex;
 };
 
 typedef struct _collider* Collider;

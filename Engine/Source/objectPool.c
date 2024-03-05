@@ -1,11 +1,11 @@
 #include "engine/data/objectPool.h"
 #include "core/memory.h"
 
-static ObjectPool Create(size_t capacity);
+static ObjectPool Create(ulong capacity);
 static void Dispose(ObjectPool);
 static void* Get(ObjectPool);
 static void Release(ObjectPool, void* object);
-static void Resize(ObjectPool, size_t newCapacity);
+static void Resize(ObjectPool, ulong newCapacity);
 static void ReleaseAll(ObjectPool);
 
 const struct _objectPoolMethods ObjectPools = {
@@ -19,7 +19,7 @@ const struct _objectPoolMethods ObjectPools = {
 
 DEFINE_TYPE_ID(ObjectPool);
 
-static ObjectPool Create(size_t capacity)
+static ObjectPool Create(ulong capacity)
 {
 	REGISTER_TYPE(ObjectPool);
 
@@ -56,7 +56,7 @@ static void AutoResizeOrThrow(ObjectPool pool)
 
 static void* Get(ObjectPool pool)
 {
-	const size_t index = pool->State.FirstAvailableIndex;
+	const ulong index = pool->State.FirstAvailableIndex;
 
 	// if the first available index is pas the end of the capacity of the array
 	// we probably need to resize
@@ -79,7 +79,7 @@ static void* Get(ObjectPool pool)
 	return object;
 }
 
-static void ReleaseObject(ObjectPool pool, void* object, size_t index)
+static void ReleaseObject(ObjectPool pool, void* object, ulong index)
 {
 	pool->ObjectRemover(object);
 	pool->State.Objects[index] = null;
@@ -90,7 +90,7 @@ static void ReleaseObject(ObjectPool pool, void* object, size_t index)
 
 static void Release(ObjectPool pool, void* object)
 {
-	for (size_t i = 0; i < pool->State.Capacity; i++)
+	for (ulong i = 0; i < pool->State.Capacity; i++)
 	{
 		if (object == pool->State.Objects[i])
 		{
@@ -105,13 +105,13 @@ static void Release(ObjectPool pool, void* object)
 
 static void ReleaseAll(ObjectPool pool)
 {
-	for (size_t i = 0; i < pool->Count; i++)
+	for (ulong i = 0; i < pool->Count; i++)
 	{
 		ReleaseObject(pool, pool->State.Objects[i], i);
 	}
 }
 
-static void Resize(ObjectPool pool, size_t newCapacity)
+static void Resize(ObjectPool pool, ulong newCapacity)
 {
 	// dont resize if the block is already the same 
 	// size
@@ -120,8 +120,8 @@ static void Resize(ObjectPool pool, size_t newCapacity)
 		return;
 	}
 
-	const size_t previousSize = pool->State.Capacity * sizeof(void*);
-	const size_t newSize = newCapacity * sizeof(void*);
+	const ulong previousSize = pool->State.Capacity * sizeof(void*);
+	const ulong newSize = newCapacity * sizeof(void*);
 
 	if (pool->State.Objects is null)
 	{

@@ -14,7 +14,7 @@ static unsigned int NormalShaderPosition = 2;
 typedef struct _renderMesh* RenderMesh;
 
 struct _renderMesh {
-	size_t Id;
+	ulong Id;
 
 	Pointer(char) Name;
 
@@ -25,7 +25,7 @@ struct _renderMesh {
 	// Whether or not the mesh should be rendered smooth
 	bool ShadeSmooth;
 
-	size_t NumberOfTriangles;
+	ulong NumberOfTriangles;
 	Transform Transform;
 
 	bool CopyBuffersOnDraw;

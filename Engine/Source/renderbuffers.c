@@ -2,7 +2,7 @@
 #include "core/memory.h"
 
 static void Dispose(RenderBuffer);
-static RenderBuffer Create(size_t width, size_t height, TextureFormat format);
+static RenderBuffer Create(ulong width, ulong height, TextureFormat format);
 static RenderBuffer Instance(RenderBuffer);
 
 const struct _renderBufferMethods RenderBuffers = {
@@ -28,7 +28,7 @@ static void Dispose(RenderBuffer buffer)
 	Memory.Free(buffer, RenderBufferTypeId);
 }
 
-static RenderBuffer Create(size_t width, size_t height, TextureFormat format)
+static RenderBuffer Create(ulong width, ulong height, TextureFormat format)
 {
 	Memory.RegisterTypeName(nameof(RenderBuffer), &RenderBufferTypeId);
 

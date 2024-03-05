@@ -35,8 +35,8 @@ static void AddLight(Scene scene, Light light)
 	GuardNotNull(light);
 
 	// make sure there is enough room
-	size_t previousSize = scene->LightCount * sizeof(Light);
-	size_t newSize = (scene->LightCount + 1) * sizeof(Light);
+	ulong previousSize = scene->LightCount * sizeof(Light);
+	ulong newSize = (scene->LightCount + 1) * sizeof(Light);
 
 	Memory.ReallocOrCopy((void**)&scene->Lights, previousSize, newSize, LightsTypeId);
 

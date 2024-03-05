@@ -17,7 +17,7 @@ struct _material {
 	/// <summary>
 	/// The number of shaders within this material
 	/// </summary>
-	size_t Count;
+	ulong Count;
 	/// <summary>
 	/// The ambient color of this material
 	/// </summary>
@@ -100,7 +100,7 @@ struct _materialMethods {
 	/// <summary>
 	/// Creates a new instance of the provided shade, disposes the old one and reassigns the main texture of the provided shader
 	/// </summary>
-	void (*SetShader)(Material, const Shader, size_t index);
+	void (*SetShader)(Material, const Shader, ulong index);
 	void (*SetColor)(Material, const color);
 	void (*SetColors)(Material, const float r, const float g, const float b, const float a);
 	/// <summary>

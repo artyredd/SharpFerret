@@ -20,11 +20,11 @@ struct _text {
 	/// <summary>
 	/// The length of the text array
 	/// </summary>
-	size_t Length;
+	ulong Length;
 	/// <summary>
 	/// The number of characters in the string, this should always be less than or equal to the length of the text array
 	/// </summary>
-	size_t Count;
+	ulong Count;
 	/// <summary>
 	/// The font that should be used to render this text
 	/// </summary>
@@ -42,15 +42,15 @@ struct _text {
 
 struct _textMethods {
 	Text(*Create)(void);
-	Text(*CreateText)(Font font, char* string, size_t size);
-	Text(*CreateEmpty)(Font font, size_t size);
+	Text(*CreateText)(Font font, char* string, ulong size);
+	Text(*CreateEmpty)(Font font, ulong size);
 	void (*Dispose)(Text);
 	void (*Draw)(Text, Scene);
 	void(*SetDefaultFont)(Font);
 	Font(*GetDefaultFont)(void);
 	void (*SetFont)(Text, Font font);
-	void(*SetCharacter)(Text, size_t index, unsigned int newCharacter);
-	void (*SetText)(Text, char* string, size_t size);
+	void(*SetCharacter)(Text, ulong index, unsigned int newCharacter);
+	void (*SetText)(Text, char* string, ulong size);
 };
 
 extern const struct _textMethods Texts;

@@ -21,7 +21,7 @@ static void Draw(Material material, RenderMesh mesh, Scene scene);
 static Material CreateMaterial(void);
 static Material InstanceMaterial(const Material);
 static void SetMainTexture(Material, RawTexture);
-static void SetShader(Material, const Shader, size_t index);
+static void SetShader(Material, const Shader, ulong index);
 static void SetColor(Material, const color);
 static void SetColors(Material, const float r, const float g, const float b, const float a);
 static Material Load(const string path);
@@ -63,7 +63,7 @@ static void Dispose(Material material)
 		return;
 	}
 
-	for (size_t i = 0; i < material->Count; i++)
+	for (ulong i = 0; i < material->Count; i++)
 	{
 		Shader shader = material->Shaders[i];
 		Shaders.Dispose(shader);
@@ -113,20 +113,20 @@ static Material CreateMaterial()
 	return Create(null, null);
 }
 
-static void CopyShadersTo(Shader* source, size_t sourceSize, Shader* destination, size_t destinationSize)
+static void CopyShadersTo(Shader* source, ulong sourceSize, Shader* destination, ulong destinationSize)
 {
-	for (size_t i = 0; i < min(sourceSize, destinationSize); i++)
+	for (ulong i = 0; i < min(sourceSize, destinationSize); i++)
 	{
 		destination[i] = source[i];
 	}
 }
 
-static void ResizeShaders(Material material, size_t desiredCount)
+static void ResizeShaders(Material material, ulong desiredCount)
 {
 	if (material->Count < desiredCount)
 	{
-		size_t previousSize = material->Count * sizeof(Shader);
-		size_t newSize = desiredCount * sizeof(Shader);
+		ulong previousSize = material->Count * sizeof(Shader);
+		ulong newSize = desiredCount * sizeof(Shader);
 
 		if (Memory.TryRealloc(material->Shaders, previousSize, newSize, (void**)&material->Shaders) is false)
 		{
@@ -150,7 +150,7 @@ static void InstanceShadersTo(Material source, Material destination)
 	// make sure to dispose of any old ones if they exist
 	if (destination->Shaders isnt null)
 	{
-		for (size_t i = 0; i < destination->Count; i++)
+		for (ulong i = 0; i < destination->Count; i++)
 		{
 			Shader shader = destination->Shaders[i];
 			Shaders.Dispose(shader);
@@ -166,7 +166,7 @@ static void InstanceShadersTo(Material source, Material destination)
 	}
 
 	// instance the shaders to the destination array
-	for (size_t i = 0; i < source->Count; i++)
+	for (ulong i = 0; i < source->Count; i++)
 	{
 		destination->Shaders[i] = Shaders.Instance(source->Shaders[i]);
 	}
@@ -295,7 +295,7 @@ static void SetMaterialTexture(Shader shader, Uniform textureUniform, Uniform ma
 	}
 }
 
-static bool TrySetLightUniforms(Shader shader, Light light, size_t index)
+static bool TrySetLightUniforms(Shader shader, Light light, ulong index)
 {
 	/*
 	struct _light{
@@ -379,7 +379,7 @@ static void SetLightUniforms(Shader shader, Scene scene)
 	}
 
 	// set each element of the array
-	for (size_t i = 0; i < scene->LightCount; i++)
+	for (ulong i = 0; i < scene->LightCount; i++)
 	{
 		Light light = scene->Lights[i];
 
@@ -397,7 +397,7 @@ static void Draw(Material material, RenderMesh mesh, Scene scene)
 
 	Cameras.Refresh(scene->MainCamera);
 
-	for (size_t i = 0; i < material->Count; i++)
+	for (ulong i = 0; i < material->Count; i++)
 	{
 		Shader shader = material->Shaders[i];
 
@@ -478,7 +478,7 @@ static void SetReflectionTexture(Material material, const RawTexture texture)
 	material->ReflectionMap = RawTextures.Instance(texture);
 }
 
-static void SetShader(Material material, Shader shader, size_t index)
+static void SetShader(Material material, Shader shader, ulong index)
 {
 	GuardNotNull(material);
 
@@ -522,8 +522,8 @@ static void SetName(Material material, const string name)
 struct _materialDefinition
 {
 	char** ShaderPaths;
-	size_t* ShaderPathLengths;
-	size_t ShaderCount;
+	ulong* ShaderPathLengths;
+	ulong ShaderCount;
 	color Color;
 	color Specular;
 	char* SpecularTexturePath;
@@ -546,7 +546,7 @@ TOKEN_LOAD(shaders, struct _materialDefinition*)
 TOKEN_SAVE(shaders, Material)
 {
 	// print string array
-	for (size_t i = 0; i < state->Count; i++)
+	for (ulong i = 0; i < state->Count; i++)
 	{
 		const Shader shader = state->Shaders[i];
 
@@ -738,13 +738,13 @@ static Material Load(const string path)
 			material->Shininess = state.Shininess;
 			material->Reflectivity = state.Reflectivity;
 
-			size_t shaderCount = state.ShaderCount;
+			ulong shaderCount = state.ShaderCount;
 
 			// iterate the shader path array and trim each one
-			for (size_t i = 0; i < state.ShaderCount; i++)
+			for (ulong i = 0; i < state.ShaderCount; i++)
 			{
 				char* shaderPath = state.ShaderPaths[i];
-				size_t shaderPathLength = state.ShaderPathLengths[i];
+				ulong shaderPathLength = state.ShaderPathLengths[i];
 
 				shaderPathLength = Strings.Trim(shaderPath, shaderPathLength);
 
@@ -761,13 +761,13 @@ static Material Load(const string path)
 			material->Count = shaderCount;
 
 			// becuase we might not add each shader into the array we have to keep i and currentIndex
-			size_t currentIndex = 0;
+			ulong currentIndex = 0;
 
 			// import each shader
-			for (size_t i = 0; i < state.ShaderCount; i++)
+			for (ulong i = 0; i < state.ShaderCount; i++)
 			{
 				char* shaderPath = state.ShaderPaths[i];
-				size_t shaderPathLength = state.ShaderPathLengths[i];
+				ulong shaderPathLength = state.ShaderPathLengths[i];
 
 				// try not to load empty paths
 				// this is a valid path array for example ",,,,,,,,,,,,,,,,,,,"
@@ -845,7 +845,7 @@ static Material Load(const string path)
 
 	Memory.Free(state.ShaderPathLengths, Memory.String);
 
-	for (size_t i = 0; i < state.ShaderCount; i++)
+	for (ulong i = 0; i < state.ShaderCount; i++)
 	{
 		Memory.Free(state.ShaderPaths[i], Memory.String);
 	}

@@ -139,7 +139,7 @@ struct _graphicsDeviceMethods
 	/// <summary>
 	/// Loads an empty texture on the graphics device
 	/// </summary>
-	void (*LoadBufferTexture)(const TextureType, const TextureFormat, const BufferFormat, size_t width, size_t height, unsigned int offset);
+	void (*LoadBufferTexture)(const TextureType, const TextureFormat, const BufferFormat, ulong width, ulong height, unsigned int offset);
 	/// <summary>
 	/// Modifies the currenly bound texture with the provided setting and value
 	/// </summary>
@@ -167,11 +167,11 @@ struct _graphicsDeviceMethods
 	/// <summary>
 	/// Allocs the provided sized render buffer on the graphics device
 	/// </summary>
-	void (*AllocRenderBuffer)(unsigned int handle, TextureFormat format, size_t width, size_t height);
+	void (*AllocRenderBuffer)(unsigned int handle, TextureFormat format, ulong width, ulong height);
 	/// <summary>
 	/// Sets the rendering resolution for draw, reads, and writes on the graphics device
 	/// </summary>
-	void (*SetResolution)(signed long long int x, signed long long int y, size_t width, size_t height);
+	void (*SetResolution)(signed long long int x, signed long long int y, ulong width, ulong height);
 	void (*SetReadBuffer)(ColorBufferType);
 	void (*SetDrawBuffer)(ColorBufferType);
 	// sets the fill mode for polygons, typically used for enabling/disabling wireframe rendering mode

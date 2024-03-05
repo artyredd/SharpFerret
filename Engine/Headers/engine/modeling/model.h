@@ -9,7 +9,7 @@ struct _model {
 	/// <summary>
 	/// The number of meshes that this model contains
 	/// </summary>
-	size_t Count;
+	ulong Count;
 	Mesh* Meshes;
 };
 

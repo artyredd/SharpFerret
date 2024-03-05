@@ -14,7 +14,7 @@ struct _gameObject {
 	/// <summary>
 	/// Unique Identifier for this object
 	/// </summary>
-	size_t Id;
+	ulong Id;
 	/// <summary>
 	/// A pointer to the name of this object
 	/// </summary>
@@ -30,7 +30,7 @@ struct _gameObject {
 	/// <summary>
 	/// The number of render meshes this object controls
 	/// </summary>
-	size_t Count;
+	ulong Count;
 	Material Material;
 };
 
@@ -49,7 +49,7 @@ struct _gameObjectMethods {
 	/// <summary>
 	/// Creates an empty gameobject with no material with the given size of rendermeshes
 	/// </summary>
-	GameObject(*CreateEmpty)(size_t count);
+	GameObject(*CreateEmpty)(ulong count);
 	/// <summary>
 	/// Clears the provided gameobject's rendermesh array
 	/// </summary>
@@ -57,8 +57,8 @@ struct _gameObjectMethods {
 	/// <summary>
 	/// Clears and changes the length of the rendermesh array to the provided count
 	/// </summary>
-	void (*Resize)(GameObject, size_t count);
-	void (*DrawMany)(GameObject* array, size_t count, Scene, Material override);
+	void (*Resize)(GameObject, ulong count);
+	void (*DrawMany)(GameObject* array, ulong count, Scene, Material override);
 	void (*Draw)(GameObject, Scene);
 	GameObject(*Duplicate)(GameObject);
 	void (*SetName)(GameObject, char* name);
@@ -66,11 +66,11 @@ struct _gameObjectMethods {
 	/// Creates a new instance of the provided material, disposes the old assigned material, then sets the material, provided material can be null
 	/// </summary>
 	void(*SetMaterial)(GameObject, Material);
-	void (*DestroyMany)(GameObject* array, size_t count);
+	void (*DestroyMany)(GameObject* array, ulong count);
 	void (*Destroy)(GameObject);
 	GameObject(*Load)(const string path);
 	bool (*Save)(GameObject, const string path);
-	void (*GenerateShadowMaps)(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera);
+	void (*GenerateShadowMaps)(GameObject* array, ulong count, Scene scene, Material shadowMaterial, Camera shadowCamera);
 };
 
 const extern struct _gameObjectMethods GameObjects;

@@ -20,7 +20,7 @@ private RawTexture Blank(void);
 private void Save(RawTexture texture, const string path);
 private RawTexture Load(const string path);
 private TextureFormat GetFormat(Image image);
-private bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, RawTexture* out_texture);
+private bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, ulong width, ulong height, RawTexture* out_texture);
 
 const struct _rawTextureMethods RawTextures = {
 	.Dispose = &Dispose,
@@ -105,7 +105,7 @@ private bool TryCreateCubeMapAdvanced(CubeMapImages images, RawTexture* out_text
 
 	unsigned int handle = GraphicsDevice.CreateTexture(TextureTypes.CubeMap);
 
-	for (size_t i = 0; i < 6; i++)
+	for (ulong i = 0; i < 6; i++)
 	{
 		Image image = images[i];
 
@@ -182,7 +182,7 @@ private bool TryCreateTextureAdvanced(Image image, RawTexture* out_texture, cons
 	return true;
 }
 
-private bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, RawTexture* out_texture)
+private bool TryCreateBufferTexture(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, ulong width, ulong height, RawTexture* out_texture)
 {
 	unsigned int handle = GraphicsDevice.CreateTexture(type);
 
@@ -521,7 +521,7 @@ private void Load2dTexture(struct _textureState state, RawTexture* out_texture)
 
 private void VerifyCubeMapImages(CubeMapImages images)
 {
-	for (size_t i = 0; i < 6; i++)
+	for (ulong i = 0; i < 6; i++)
 	{
 		Image image = images[i];
 
@@ -548,14 +548,14 @@ private void LoadCubemap(struct _textureState state, RawTexture* out_texture)
 
 	if (TryCreateCubeMapAdvanced(images, out_texture, DEFAULT_TEXTURE_BUFFER_FORMAT, &state, &ModifyLoadedTexture) is false)
 	{
-		for (size_t i = 0; i < 6; i++)
+		for (ulong i = 0; i < 6; i++)
 		{
 			Images.Dispose(images[i]);
 		}
 		throw(FailedToLoadTextureException);
 	}
 
-	for (size_t i = 0; i < 6; i++)
+	for (ulong i = 0; i < 6; i++)
 	{
 		Images.Dispose(images[i]);
 	}

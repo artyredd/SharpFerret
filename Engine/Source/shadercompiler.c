@@ -58,21 +58,21 @@ Shader CompiledShaders[CompiledHandleDictionarySize];
 /// <summary>
 /// The number of handles within the compiled handles dict
 /// </summary>
-size_t HandleDictionaryCount = 0;
-size_t HandleDictionaryLength = CompiledHandleDictionarySize;
+ulong HandleDictionaryCount = 0;
+ulong HandleDictionaryLength = CompiledHandleDictionarySize;
 
-static size_t HashShaderPaths(const StringArray vertexPaths, const StringArray fragmentPaths, const StringArray geometryPaths)
+static ulong HashShaderPaths(const StringArray vertexPaths, const StringArray fragmentPaths, const StringArray geometryPaths)
 {
-	size_t hash = Hashing.Hash(vertexPaths->Strings[0]);
+	ulong hash = Hashing.Hash(vertexPaths->Strings[0]);
 
-	for (size_t i = 1; i < vertexPaths->Count; i++)
+	for (ulong i = 1; i < vertexPaths->Count; i++)
 	{
 		const char* string = vertexPaths->Strings[i];
 
 		hash = Hashing.ChainHash(string, hash);
 	}
 
-	for (size_t i = 0; i < fragmentPaths->Count; i++)
+	for (ulong i = 0; i < fragmentPaths->Count; i++)
 	{
 		const char* string = fragmentPaths->Strings[i];
 
@@ -82,7 +82,7 @@ static size_t HashShaderPaths(const StringArray vertexPaths, const StringArray f
 	// geometry shaders are optional
 	if (geometryPaths->Count isnt 0)
 	{
-		for (size_t i = 0; i < geometryPaths->Count; i++)
+		for (ulong i = 0; i < geometryPaths->Count; i++)
 		{
 			const char* string = geometryPaths->Strings[i];
 
@@ -108,10 +108,10 @@ static bool TryGetStoredShader(const StringArray vertexPaths, const StringArray 
 	}
 
 	// hash the two paths
-	size_t hash = HashShaderPaths(vertexPaths, fragmentPaths, geometryPaths);
+	ulong hash = HashShaderPaths(vertexPaths, fragmentPaths, geometryPaths);
 
 	// mod the hash with the array size
-	size_t index = hash % CompiledHandleDictionarySize;
+	ulong index = hash % CompiledHandleDictionarySize;
 
 	Shader storedShader = CompiledShaders[index];
 
@@ -134,10 +134,10 @@ static bool TryStoreShader(const StringArray vertexPaths, const StringArray frag
 	}
 
 	// hash the two paths
-	size_t hash = HashShaderPaths(vertexPaths, fragmentPaths, geometryPaths);
+	ulong hash = HashShaderPaths(vertexPaths, fragmentPaths, geometryPaths);
 
 	// mod the hash with the array size
-	size_t index = hash % CompiledHandleDictionarySize;
+	ulong index = hash % CompiledHandleDictionarySize;
 
 	Shader* position = &CompiledShaders[index];
 
@@ -179,7 +179,7 @@ static void PrintLog(unsigned int handle, File stream, void(*LogProvider)(unsign
 
 	LogProvider(handle, LOG_BUFFER_SIZE, &logLength, message);
 
-	for (size_t i = 0; i < min(LOG_BUFFER_SIZE, logLength); i++)
+	for (ulong i = 0; i < min(LOG_BUFFER_SIZE, logLength); i++)
 	{
 		int c = message[i];
 
@@ -224,7 +224,7 @@ static bool VerifyShaderStatus(unsigned int handle)
 	return true;
 }
 
-static bool TryCompileShader(const char** dataArray, size_t count, ShaderType shaderType, unsigned int* out_handle)
+static bool TryCompileShader(const char** dataArray, ulong count, ShaderType shaderType, unsigned int* out_handle)
 {
 	// default set the out variable to 0, so if we return early we don't accidently give a wierd handle that may not exist
 	*out_handle = 0;
@@ -274,7 +274,7 @@ static bool TryCompile(const StringArray paths, ShaderType shaderType, unsigned 
 	// read the file's data
 	char* dataArray[MAX_SHADER_PIECES];
 
-	for (size_t i = 0; i < paths->Count; i++)
+	for (ulong i = 0; i < paths->Count; i++)
 	{
 		const char* str = paths->Strings[i];
 
@@ -302,7 +302,7 @@ static bool TryCompile(const StringArray paths, ShaderType shaderType, unsigned 
 	// compile the shader
 	bool compiled = TryCompileShader(dataArray, paths->Count, shaderType, out_handle);
 
-	for (size_t i = 0; i < paths->Count; i++)
+	for (ulong i = 0; i < paths->Count; i++)
 	{
 		Memory.Free(dataArray[i], typeid(char));
 	}
@@ -411,17 +411,17 @@ static Shader CompileShader(const StringArray vertexPaths, const StringArray fra
 	if (TryCompileProgram(vertexHandle, fragmentHandle, geometryHandle, &programHandle) is false)
 	{
 		fprintf(stderr, FailedToCompileProgramMessage);
-		for (size_t i = 0; i < vertexPaths->Count; i++)
+		for (ulong i = 0; i < vertexPaths->Count; i++)
 		{
 			fprintf(stderr, "\t Vertex Piece: %s"NEWLINE, vertexPaths->Strings[i]);
 		}
 
-		for (size_t i = 0; i < fragmentPaths->Count; i++)
+		for (ulong i = 0; i < fragmentPaths->Count; i++)
 		{
 			fprintf(stderr, "\t Fragment Piece: %s"NEWLINE, fragmentPaths->Strings[i]);
 		}
 
-		for (size_t i = 0; i < geometryPaths->Count; i++)
+		for (ulong i = 0; i < geometryPaths->Count; i++)
 		{
 			fprintf(stderr, "\t Geometry Piece: %s"NEWLINE, geometryPaths->Strings[i]);
 		}

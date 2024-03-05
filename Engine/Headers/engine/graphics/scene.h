@@ -16,7 +16,7 @@ struct _scene {
 	/// <summary>
 	/// The number of lights within the lights array
 	/// </summary>
-	size_t LightCount;
+	ulong LightCount;
 };
 
 struct _sceneMethods {

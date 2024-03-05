@@ -114,7 +114,7 @@ private void Draw(RenderMesh mesh)
 	}
 
 
-	// the entire mesh pipling ive written handles up to size_t
+	// the entire mesh pipling ive written handles up to ulong
 	// its casted down to int here for DrawArrays
 	// this may cause issues at this line for models with > 32767 triangles
 	glDrawArrays(GL_TRIANGLES, 0, (GLsizei)mesh->NumberOfTriangles);
@@ -137,7 +137,7 @@ private RenderMesh CreateRenderMesh()
 	return mesh;
 }
 
-private bool TryBindBuffer(float* buffer, size_t sizeInBytes, SharedHandle destinationBuffer)
+private bool TryBindBuffer(float* buffer, ulong sizeInBytes, SharedHandle destinationBuffer)
 {
 	destinationBuffer->Handle = 0;
 
@@ -276,7 +276,7 @@ private bool TryBindModel(Model model, RenderMesh** out_meshArray)
 
 	Pointer(char) name = Pointers(char).Create(sharedName);
 
-	for (size_t i = 0; i < model->Count; i++)
+	for (ulong i = 0; i < model->Count; i++)
 	{
 		Mesh mesh = model->Meshes[i];
 

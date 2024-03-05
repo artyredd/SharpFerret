@@ -56,7 +56,7 @@
 Window window;
 
 void DebugCameraPosition(Camera camera);
-void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled);
+void ToggleNormalShaders(GameObject* gameobjects, ulong size, bool enabled);
 
 int main()
 {
@@ -254,7 +254,7 @@ int main()
 		colliderObject2
 	};
 
-	const size_t gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
+	const ulong gameobjectCount = sizeof(gameobjects) / sizeof(GameObject);
 
 	// load the shadow material used to render shadowmaps
 	// and create a camera that should be used to render to the framebuffer for shadows
@@ -503,18 +503,18 @@ void DebugCameraPosition(Camera camera)
 	fprintf(stdout, NEWLINE);
 }
 
-void ToggleNormalShaders(GameObject* gameobjects, size_t size, bool enabled)
+void ToggleNormalShaders(GameObject* gameobjects, ulong size, bool enabled)
 {
-	for (size_t i = 0; i < size; i++)
+	for (ulong i = 0; i < size; i++)
 	{
 		// get the material
 		Material material = gameobjects[i]->Material;
 
 		// iterate the shaders and disable any normal shaders by name
-		for (size_t ithShader = 0; ithShader < material->Count; ithShader++)
+		for (ulong ithShader = 0; ithShader < material->Count; ithShader++)
 		{
 			static const char* path = "assets/shaders/debug_normal.shader";
-			static const size_t length = sizeof("assets/shaders/debug_normal.shader") - 1;
+			static const ulong length = sizeof("assets/shaders/debug_normal.shader") - 1;
 
 			Shader shader = material->Shaders[ithShader];
 

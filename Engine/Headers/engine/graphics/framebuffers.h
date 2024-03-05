@@ -43,11 +43,11 @@ struct _frameBuffer {
 	/// <summary>
 	/// The width of this frame buffer
 	/// </summary>
-	size_t Width;
+	ulong Width;
 	/// <summary>
 	/// The height of this frame buffer
 	/// </summary>
-	size_t Height;
+	ulong Height;
 	/// <summary>
 	/// The mask that is used to clear the frame buffer when .Clear() or .ClearThenUse() is called, this is normall set when
 	/// you create the framebuffer

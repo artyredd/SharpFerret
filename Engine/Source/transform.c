@@ -44,7 +44,7 @@ private void ScaleAll(Transform, float scaler);
 private void ClearChildren(Transform);
 private Transform Load(File);
 private void Save(Transform, File);
-private void SetChildCapacity(Transform, size_t count);
+private void SetChildCapacity(Transform, ulong count);
 private void LookAt(Transform, vector3 target);
 private void LookAtPositions(Transform, float x, float y, float z);
 private vector3 TransformPoint(Transform, vector3 point);
@@ -136,7 +136,7 @@ private void DirectionStatesCopyTo(struct _directionStates* source, struct _dire
 {
 	CopyMember(source, destination, Accessed);
 
-	for (size_t i = 0; i < 6; i++)
+	for (ulong i = 0; i < 6; i++)
 	{
 		destination->Directions[i] = source->Directions[i];
 	}
@@ -181,7 +181,7 @@ private Transform DuplicateTransform(Transform transform)
 /// <param name="transform"></param>
 private void NotifyChildren(Transform transform)
 {
-	for (size_t i = 0; i < transform->Count; i++)
+	for (ulong i = 0; i < transform->Count; i++)
 	{
 		Transform child = transform->Children[i];
 
@@ -346,7 +346,7 @@ private void DetachChild(Transform transform, Transform child)
 		return;
 	}
 
-	for (size_t i = 0; i < transform->Count; i++)
+	for (ulong i = 0; i < transform->Count; i++)
 	{
 		Transform current = transform->Children[i];
 
@@ -367,7 +367,7 @@ private void DetachChild(Transform transform, Transform child)
 	}
 }
 
-private void AttachChildAtIndex(Transform transform, Transform child, size_t index)
+private void AttachChildAtIndex(Transform transform, Transform child, ulong index)
 {
 	transform->Children[index] = child;
 
@@ -384,18 +384,18 @@ private void AttachChildAtIndex(Transform transform, Transform child, size_t ind
 	}
 }
 
-private void ReallocChildren(Transform transform, size_t newCount)
+private void ReallocChildren(Transform transform, ulong newCount)
 {
 	// try to realloc the space otherwise manually move it, alloc 25% more space, or + 1
-	size_t previousLength = transform->Length * sizeof(Transform);
-	size_t newLength = newCount * sizeof(Transform);
+	ulong previousLength = transform->Length * sizeof(Transform);
+	ulong newLength = newCount * sizeof(Transform);
 
 	// if we fail to realloc the array make a new one =(
 	if (Memory.TryRealloc(transform->Children, previousLength, newLength, (void**)&transform->Children) is false)
 	{
 		Transform* newArray = Memory.Alloc(newLength, TransformTypeId);
 
-		for (size_t i = 0; i < transform->Length; i++)
+		for (ulong i = 0; i < transform->Length; i++)
 		{
 			newArray[i] = transform->Children[i];
 		}
@@ -413,7 +413,7 @@ private void ReallocChildren(Transform transform, size_t newCount)
 	transform->Length = newCount;
 }
 
-private void SetChildCapacity(Transform transform, size_t count)
+private void SetChildCapacity(Transform transform, ulong count)
 {
 	GuardNotNull(transform);
 	GuardNotZero(count);
@@ -446,7 +446,7 @@ private void AttachChild(Transform transform, Transform child)
 		// try to realloc the array if not make a new one and copy the children over
 
 		// make it 25% larger to allow for future attachments
-		size_t newCount = max((size_t)((transform->Length * 125) / 100), transform->Length + 1);
+		ulong newCount = max((ulong)((transform->Length * 125) / 100), transform->Length + 1);
 
 		ReallocChildren(transform, newCount);
 	}
@@ -459,7 +459,7 @@ private void AttachChild(Transform transform, Transform child)
 	else
 	{
 		// linearly search for open spot
-		for (size_t i = 0; i < transform->Length; i++)
+		for (ulong i = 0; i < transform->Length; i++)
 		{
 			if (transform->Children[i] is null)
 			{
@@ -495,7 +495,7 @@ private void SetParent(Transform transform, Transform parent)
 
 private void ClearChildren(Transform transform)
 {
-	for (size_t i = 0; i < transform->Count; i++)
+	for (ulong i = 0; i < transform->Count; i++)
 	{
 		Transform child = transform->Children[i];
 

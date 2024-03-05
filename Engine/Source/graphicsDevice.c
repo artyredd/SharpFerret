@@ -79,7 +79,7 @@ static void SetDepthTest(const Comparison);
 static void ActivateTexture(const TextureType, const unsigned int textureHandle, const int uniformHandle, const unsigned int slot);
 static unsigned int CreateTexture(const TextureType);
 static void LoadTexture(const TextureType, TextureFormat, BufferFormat, Image, unsigned int offset);
-static void LoadBufferTexture(const TextureType, const TextureFormat, const BufferFormat, size_t width, size_t height, unsigned int offset);
+static void LoadBufferTexture(const TextureType, const TextureFormat, const BufferFormat, ulong width, ulong height, unsigned int offset);
 static void ModifyTexture(const TextureType, TextureSetting, const TextureValue);
 static void ModifyTextureProperty(TextureType type, TextureSetting setting, const color value);
 static void DeleteTexture(unsigned int handle);
@@ -99,9 +99,9 @@ static void UseFrameBuffer(unsigned int handle);
 
 static void AttachFrameBufferComponent(FrameBufferComponent componentType, FrameBufferAttachment attachmentType, unsigned int attachmentHandle);
 
-static void AllocRenderBuffer(unsigned int handle, TextureFormat format, size_t width, size_t height);
+static void AllocRenderBuffer(unsigned int handle, TextureFormat format, ulong width, ulong height);
 
-static void SetResolution(signed long long int x, signed long long int y, size_t width, size_t height);
+static void SetResolution(signed long long int x, signed long long int y, ulong width, ulong height);
 
 static void SetReadBuffer(ColorBufferType);
 static void SetDrawBuffer(ColorBufferType);
@@ -181,7 +181,7 @@ unsigned int maxTextures = GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS;
 unsigned int currentFrameBuffer = 0;
 
 // texture instance counts
-size_t activeTextures = 0;
+ulong activeTextures = 0;
 
 static void EnableDepthTesting(void)
 {
@@ -376,7 +376,7 @@ static void LoadTexture(TextureType type, TextureFormat colorFormat, BufferForma
 	glTexImage2D(type.Value.AsUInt + offset, 0, colorFormat, image->Width, image->Height, 0, colorFormat, pixelFormat, image->Pixels);
 }
 
-static void LoadBufferTexture(const TextureType type, const TextureFormat colorFormat, const BufferFormat pixelFormat, size_t width, size_t height, unsigned int offset)
+static void LoadBufferTexture(const TextureType type, const TextureFormat colorFormat, const BufferFormat pixelFormat, ulong width, ulong height, unsigned int offset)
 {
 	glTexImage2D(type.Value.AsUInt + offset, 0, colorFormat, (int)width, (int)height, 0, colorFormat, pixelFormat, null);
 }
@@ -421,7 +421,7 @@ static void UseRenderBuffer(unsigned int handle)
 	glBindRenderbuffer(GL_RENDERBUFFER, handle);
 }
 
-static void AllocRenderBuffer(unsigned int handle, TextureFormat format, size_t width, size_t height)
+static void AllocRenderBuffer(unsigned int handle, TextureFormat format, ulong width, ulong height)
 {
 	glBindRenderbuffer(GL_RENDERBUFFER, handle);
 	glRenderbufferStorage(GL_RENDERBUFFER,format, (GLsizei)width, (GLsizei)height);
@@ -447,13 +447,13 @@ void SetFillMode(const FillMode fillmode)
 	glPolygonMode(GL_FRONT_AND_BACK, fillmode.Value.AsUInt);
 }
 
-size_t viewportWidth;
-size_t viewportHeight;
+ulong viewportWidth;
+ulong viewportHeight;
 signed long long int viewportX;
 signed long long int viewportY;
 
 
-static void SetResolution(signed long long int x, signed long long int y, size_t width, size_t height)
+static void SetResolution(signed long long int x, signed long long int y, ulong width, ulong height)
 {
 	if (viewportWidth isnt width || 
 		viewportHeight isnt height ||
@@ -469,7 +469,7 @@ static void SetResolution(signed long long int x, signed long long int y, size_t
 	}
 }
 
-#define BufferObjectBase(name, generateMethod, deleteMethod) size_t active ## name ## s= 0;\
+#define BufferObjectBase(name, generateMethod, deleteMethod) ulong active ## name ## s= 0;\
 static unsigned int Generate ## name()\
 {\
 unsigned int handle;\

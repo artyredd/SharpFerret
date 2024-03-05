@@ -22,8 +22,8 @@ struct _rawTexture {
 	/// </summary>
 	char* Path;
 	SharedHandle Handle;
-	size_t Height;
-	size_t Width;
+	ulong Height;
+	ulong Width;
 	BufferFormat BufferFormat;
 	TextureFormat Format;
 	TextureType Type;
@@ -54,7 +54,7 @@ struct _rawTextureMethods
 	/// <summary>
 	/// Create a texture on the graphics device that holds no data and can be used as a buffer
 	/// </summary>
-	bool (*TryCreateBufferTexture)(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, size_t width, size_t height, RawTexture* out_texture);
+	bool (*TryCreateBufferTexture)(const TextureType type, const TextureFormat format, const BufferFormat bufferFormat, ulong width, ulong height, RawTexture* out_texture);
 	/// <summary>
 	/// Instances a new copy of the provided texture
 	/// </summary>

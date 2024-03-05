@@ -19,17 +19,17 @@ static void Dispose(GameObject);
 static void Draw(GameObject, Scene);
 static GameObject CreateGameObject(void);
 static void SetMaterial(GameObject, Material);
-static void DrawMany(GameObject* array, size_t count, Scene camera, Material override);
-static void DestroyMany(GameObject* array, size_t count);
+static void DrawMany(GameObject* array, ulong count, Scene camera, Material override);
+static void DestroyMany(GameObject* array, ulong count);
 static Material GetDefaultMaterial(void);
 static void SetDefaultMaterial(Material);
 static GameObject CreateWithMaterial(Material);
-static GameObject CreateEmpty(size_t size);
+static GameObject CreateEmpty(ulong size);
 static void Clear(GameObject);
-static void Resize(GameObject, size_t count);
+static void Resize(GameObject, ulong count);
 static GameObject Load(const string path);
 static bool Save(GameObject, const string path);
-static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera);
+static void GenerateShadowMaps(GameObject* array, ulong count, Scene scene, Material shadowMaterial, Camera shadowCamera);
 
 
 const struct _gameObjectMethods GameObjects = {
@@ -56,7 +56,7 @@ static void DisposeRenderMeshArray(GameObject gameobject)
 {
 	if (gameobject->Meshes isnt null)
 	{
-		for (size_t i = 0; i < gameobject->Count; i++)
+		for (ulong i = 0; i < gameobject->Count; i++)
 		{
 			RenderMesh mesh = gameobject->Meshes[i];
 
@@ -100,7 +100,7 @@ static GameObject CreateWithMaterial(Material material)
 	return gameObject;
 }
 
-static GameObject CreateEmpty(size_t count)
+static GameObject CreateEmpty(ulong count)
 {
 	Memory.RegisterTypeName(nameof(GameObject), &GameObjectTypeId);
 	Memory.RegisterTypeName(nameof(GameObjectMeshes), &GameObjectMeshesTypeId);
@@ -135,7 +135,7 @@ static void GameObjectCopyTo(GameObject source, GameObject destination)
 	{
 		destination->Meshes = Memory.Alloc(sizeof(RenderMesh) * source->Count, GameObjectMeshesTypeId);
 
-		for (size_t i = 0; i < source->Count; i++)
+		for (ulong i = 0; i < source->Count; i++)
 		{
 			destination->Meshes[i] = RenderMeshes.Instance(source->Meshes[i]);
 
@@ -174,7 +174,7 @@ static void SetName(GameObject gameobject, char* name)
 		return;
 	}
 
-	size_t length = min(strlen(name), MAX_GAMEOBJECT_NAME_LENGTH);
+	ulong length = min(strlen(name), MAX_GAMEOBJECT_NAME_LENGTH);
 
 	char* newName = Memory.Alloc(length, Memory.String);
 
@@ -201,7 +201,7 @@ static void Draw(GameObject gameobject, Scene scene)
 	// it controls we should refresh it's transform first
 	Transforms.Refresh(gameobject->Transform);
 
-	for (size_t i = 0; i < gameobject->Count; i++)
+	for (ulong i = 0; i < gameobject->Count; i++)
 	{
 		RenderMesh mesh = gameobject->Meshes[i];
 
@@ -220,7 +220,7 @@ static void DrawWithMaterial(GameObject gameobject, Scene scene, Material materi
 	// it controls we should refresh it's transform first
 	Transforms.Refresh(gameobject->Transform);
 
-	for (size_t i = 0; i < gameobject->Count; i++)
+	for (ulong i = 0; i < gameobject->Count; i++)
 	{
 		RenderMesh mesh = gameobject->Meshes[i];
 
@@ -233,27 +233,27 @@ static void DrawWithMaterial(GameObject gameobject, Scene scene, Material materi
 	}
 }
 
-static void DrawMany(GameObject* array, size_t count, Scene scene, Material override)
+static void DrawMany(GameObject* array, ulong count, Scene scene, Material override)
 {
 	if (override isnt null)
 	{
-		for (size_t i = 0; i < count; i++)
+		for (ulong i = 0; i < count; i++)
 		{
 			DrawWithMaterial(array[i], scene, override);
 		}
 	}
 	else
 	{
-		for (size_t i = 0; i < count; i++)
+		for (ulong i = 0; i < count; i++)
 		{
 			Draw(array[i], scene);
 		}
 	}
 }
 
-static void DestroyMany(GameObject* array, size_t count)
+static void DestroyMany(GameObject* array, ulong count)
 {
-	for (size_t i = 0; i < count; i++)
+	for (ulong i = 0; i < count; i++)
 	{
 		Dispose(array[i]);
 	}
@@ -277,7 +277,7 @@ static void SetDefaultMaterial(Material material)
 
 static void Clear(GameObject gameobject)
 {
-	for (size_t i = 0; i < gameobject->Count; i++)
+	for (ulong i = 0; i < gameobject->Count; i++)
 	{
 		RenderMesh mesh = gameobject->Meshes[i];
 
@@ -291,7 +291,7 @@ static void Clear(GameObject gameobject)
 	}
 }
 
-static void Resize(GameObject gameobject, size_t count)
+static void Resize(GameObject gameobject, ulong count)
 {
 	DisposeRenderMeshArray(gameobject);
 
@@ -304,13 +304,13 @@ static void Resize(GameObject gameobject, size_t count)
 		gameobject->Meshes = Memory.Alloc(sizeof(RenderMesh) * count, GameObjectMeshesTypeId);
 	}
 
-	for (size_t i = 0; i < count; i++)
+	for (ulong i = 0; i < count; i++)
 	{
 		gameobject->Meshes[i] = null;
 	}
 }
 
-static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Material shadowMaterial, Camera shadowCamera)
+static void GenerateShadowMaps(GameObject* array, ulong count, Scene scene, Material shadowMaterial, Camera shadowCamera)
 {
 	// if there is no lighting return
 	if (scene->LightCount is 0)
@@ -329,7 +329,7 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 
 	Cameras.SetFarClippingDistance(shadowCamera, 500.0f);
 
-	for (size_t currentLight = 0; currentLight < scene->LightCount; currentLight++)
+	for (ulong currentLight = 0; currentLight < scene->LightCount; currentLight++)
 	{
 		Light light = scene->Lights[currentLight];
 
@@ -362,7 +362,7 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 
 		// since there is lighting iterate through the scenes lights
 		// for each light generate it's shadow map by rendering the scene with the provided material
-		for (size_t i = 0; i < count; i++)
+		for (ulong i = 0; i < count; i++)
 		{
 			DrawWithMaterial(array[i], scene, shadowMaterial);
 		}
@@ -380,7 +380,7 @@ static void GenerateShadowMaps(GameObject* array, size_t count, Scene scene, Mat
 
 struct _gameObjectState
 {
-	size_t Id;
+	ulong Id;
 	char* MaterialPath;
 	char* ModelPath;
 };
@@ -455,11 +455,11 @@ static GameObject Load(const string path)
 	if (Configs.TryLoadConfigStream(stream, &GameObjectConfigDefinition, &state))
 	{
 		RenderMesh* meshArray = null;
-		size_t count = 0;
+		ulong count = 0;
 
 		if (state.ModelPath isnt null)
 		{
-			size_t modelPathLength = strlen(state.ModelPath ? state.ModelPath : "");
+			ulong modelPathLength = strlen(state.ModelPath ? state.ModelPath : "");
 			string modelPath = empty_stack_array(char, _MAX_PATH);
 			strings.AppendCArray(modelPath, state.ModelPath, modelPathLength);
 
@@ -486,7 +486,7 @@ static GameObject Load(const string path)
 		}
 
 		// load the material
-		size_t materialPathLength = strlen(state.MaterialPath ? state.MaterialPath : "");
+		ulong materialPathLength = strlen(state.MaterialPath ? state.MaterialPath : "");
 		string materialPath = empty_stack_array(char, _MAX_PATH);
 		strings.AppendCArray(materialPath, state.MaterialPath, materialPathLength);
 		Material material = Materials.Load(materialPath);
@@ -512,7 +512,7 @@ static GameObject Load(const string path)
 		Transforms.SetChildCapacity(transform, count);
 
 		// iterate the new meshs and set them as children
-		for (size_t i = 0; i < count; i++)
+		for (ulong i = 0; i < count; i++)
 		{
 			Transforms.SetParent(meshArray[i]->Transform, transform);
 		}

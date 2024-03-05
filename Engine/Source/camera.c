@@ -49,7 +49,7 @@ const struct _cameraMethods Cameras = {
 	.SetBottomDistance = SetBottomDistance
 };
 
-size_t CameraTypeId = 0;
+ulong CameraTypeId = 0;
 
 static void Dispose(Camera camera)
 {

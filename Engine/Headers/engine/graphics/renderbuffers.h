@@ -15,15 +15,15 @@ struct _renderBuffer {
 	/// <summary>
 	/// The width of the buffer
 	/// </summary>
-	size_t Width;
+	ulong Width;
 	/// <summary>
 	/// The height of the buffer
 	/// </summary>
-	size_t Height;
+	ulong Height;
 };
 
 struct _renderBufferMethods {
-	RenderBuffer (*Create)(size_t width, size_t height, TextureFormat format);
+	RenderBuffer (*Create)(ulong width, ulong height, TextureFormat format);
 	RenderBuffer(*Instance)(RenderBuffer);
 	void (*Dispose)(RenderBuffer);
 };

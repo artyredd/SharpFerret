@@ -9,11 +9,11 @@ struct _objectPool
 	struct state
 	{
 		void** Objects;
-		size_t Capacity;
-		size_t FirstAvailableIndex;
+		ulong Capacity;
+		ulong FirstAvailableIndex;
 	} State;
 
-	size_t Count;
+	ulong Count;
 	
 	// function that should be invoked with a to-be removed object
 	// this would typically be a dispose method
@@ -40,7 +40,7 @@ struct _objectPoolMethods
 	void* (*Get)(ObjectPool);
 	void (*Release)(ObjectPool, void* object);
 	void (*ReleaseAll)(ObjectPool);
-	void (*Resize)(ObjectPool, size_t newCapacity);
+	void (*Resize)(ObjectPool, ulong newCapacity);
 
 	void (*Dispose)(ObjectPool);
 };
