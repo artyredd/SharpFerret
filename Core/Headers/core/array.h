@@ -361,7 +361,7 @@ return Arrays.Equals((Array)left,(Array)right);\
 }\
 private bool _EXPAND_METHOD_NAME(type, BeginsWith)(array(type) array, array(type) value)\
 {\
-ulong safeCount = min(value->Count,array->Count);\
+ulong safeCount = safe_subtract(min(value->Count,array->Count),1);\
 array(type) sub = stack_subarray_front(type, array, safeCount);\
 return Arrays.Equals((Array)sub, (Array)value); \
 }\
