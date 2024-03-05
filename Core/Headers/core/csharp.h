@@ -10,6 +10,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+typedef unsigned char byte;
+typedef unsigned short ushort;
+typedef size_t ulong;
+typedef unsigned int uint;
+
 #define null NULL
 #define true 1
 #define false 0
@@ -88,11 +93,11 @@ static int BreakDebugger(int errorCode)
 // Ignores the provided parameter explicitly, avoiding any warnings generated from the compiler
 #define ignore_unused( parameter ) (void)parameter;
 
-#define safe_increment( uint ) ( uint = max(uint, (uint + 1) ) )
-#define safe_decrement( uint ) ( uint = min(uint, (uint - 1) ) )
+#define safe_increment( unsigned_integer ) ( unsigned_integer = max(unsigned_integer, (unsigned_integer + 1) ) )
+#define safe_decrement( unsigned_integer ) ( unsigned_integer = min(unsigned_integer, (unsigned_integer - 1) ) )
 
-#define safe_add( uint, value ) ( max(uint, (uint + value) ) )
-#define safe_subtract( uint, value ) ( min(uint, (uint - value) ) )
+#define safe_add( unsigned_integer, value ) ( max(unsigned_integer, (unsigned_integer + value) ) )
+#define safe_subtract( unsigned_integer, value ) ( min(unsigned_integer, (unsigned_integer - value) ) )
 
 #define private static inline
 

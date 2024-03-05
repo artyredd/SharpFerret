@@ -369,7 +369,7 @@ return Arrays.Equals((Array)left,(Array)right);\
 private bool _EXPAND_METHOD_NAME(type, BeginsWith)(array(type) array, array(type) value)\
 {\
 size_t safeCount = min(value->Count,array->Count);\
-array(type) sub = stack_subarray_front(type, safeCount);\
+array(type) sub = stack_subarray_front(type, array, safeCount);\
 return Arrays.Equals((Array)sub, (Array)value); \
 }\
 const static struct _array_##type##_methods\
