@@ -447,11 +447,12 @@ DEFINE_ARRAY(array(char));
 #define dynamic_string(cString) strings.AppendArray(strings.Create(sizeof(cString)-1), stack_string(cString))
 #define empty_dynamic_string(count) strings.Create(count)
 
-#define _EXPAND_tuple(left,right) tuple_##left##_##right
+#define _EXPAND_tuple(left,right) left##_##right##_tuple
 #define tuple(left,right) _EXPAND_tuple(left,right)
 
-#define DEFINE_TUPLE_FULL(left,leftname,right,rightname) struct _tuple_##left##_##right{ left leftname;right rightname;}; typedef struct _tuple_##left##_##right tuple_##left##_##right; 
-#define DEFINE_TUPLE(left,right) DEFINE_TUPLE_FULL(left,First,right,Second)  DEFINE_ARRAY(tuple(left,right));
+#define _DEFINE_TUPLE_FULL(left,leftname,right,rightname) struct _##left##_##right##_tuple{ left leftname;right rightname;}; typedef struct _##left##_##right##_tuple left##_##right##_tuple; 
+#define DEFINE_TUPLE_FULL(left,leftname,right,rightname) _DEFINE_TUPLE_FULL(left,leftname,right,rightname)
+#define DEFINE_TUPLE(left,right) DEFINE_TUPLE_FULL(left,First,right,Second); DEFINE_ARRAY(tuple(left,right));
 
 #define DEFINE_TUPLE_BOTH_WAYS(T1,T2) DEFINE_TUPLE(T1,T2); DEFINE_TUPLE(T2,T1);
 #define DEFINE_TUPLE_ALL(major,T1,T2,T3,T4,T5,T6) DEFINE_TUPLE(major,major);DEFINE_TUPLE(major, T1);DEFINE_TUPLE(major, T2);DEFINE_TUPLE(major, T3);DEFINE_TUPLE(major, T4);DEFINE_TUPLE(major, T5);DEFINE_TUPLE(major, T6);
@@ -473,7 +474,8 @@ DEFINE_TUPLE_BOTH_WAYS(type,ulong);\
 DEFINE_TUPLE_BOTH_WAYS(type,float);\
 DEFINE_TUPLE_BOTH_WAYS(type,double);\
 
-#define DEFINE_CONTAINERS(type) __pragma(warning(disable:4113)); DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type); DEFINE_POINTER(type); __pragma(warning(default:4113))
+#define _DEFINE_CONTAINERS(type) __pragma(warning(disable:4113)); DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type); DEFINE_POINTER(type); __pragma(warning(default:4113))
+#define DEFINE_CONTAINERS(type) _DEFINE_CONTAINERS(type)
 
 DEFINE_TUPLE_INTRINSIC(string);
 
@@ -487,3 +489,5 @@ DEFINE_POINTER(ulong);
 DEFINE_POINTER(float);
 DEFINE_POINTER(double);
 #pragma warning(default: 4113)
+
+DEFINE_CONTAINERS(array(int));
