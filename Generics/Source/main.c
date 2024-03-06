@@ -28,8 +28,8 @@ void main(int argc, char* argv[])
 
 	for (size_t i = 1; i < paths->Count; i++)
 	{
-		fprintf(stdout, "%s\n\r", paths->Values[i]->Values);
-		array(location) tokens = GetGenericLocations(paths->Values[i]);
+		fprintf(stdout, "%s\n\r", at(paths, i)->Values);
+		array(location) tokens = GetGenericLocations(at(paths, i));
 	}
 
 

@@ -161,7 +161,7 @@ private string ReadFile(const File file)
 
 	string result = strings.Create(length + 1);
 
-	result->Values[length] = '\0'; // add line terminator
+	at(result, length) = '\0'; // add line terminator
 
 	rewind(file);
 
@@ -184,12 +184,12 @@ private string ReadFile(const File file)
 				throw(FailedToReadFileException);
 			}
 
-			result->Values[i] = '\0';
+			at(result, i) = '\0';
 			safe_increment(result->Count);
 			break;
 		}
 
-		result->Values[i] = (char)c;
+		at(result, i) = (char)c;
 		safe_increment(result->Count);
 	}
 
@@ -204,7 +204,7 @@ private bool TryReadFile(const File file, string* out_data)
 
 	string result = strings.Create(length + 1);
 
-	result->Values[length] = '\0'; // add line terminator
+	at(result, length) = '\0'; // add line terminator
 
 	rewind(file);
 
@@ -226,11 +226,11 @@ private bool TryReadFile(const File file, string* out_data)
 				return false;
 			}
 
-			result->Values[i] = '\0';
+			at(result, i) = '\0';
 			break;
 		}
 
-		result->Values[i] = (char)c;
+		at(result, i) = (char)c;
 	}
 
 	*out_data = result;
@@ -343,7 +343,7 @@ private bool TryGetSequenceCount(File file, const string targetSequence, const s
 	while ((c = fgetc(file)) != EOF)
 	{
 		// check to see if we are at the start of the target sequence
-		if (c is abortSequence->Values[abortIndex])
+		if (c is at(abortSequence, abortIndex))
 		{
 			++abortIndex;
 
@@ -360,7 +360,7 @@ private bool TryGetSequenceCount(File file, const string targetSequence, const s
 		}
 
 		// check to see if we are at the start of the target sequence
-		if (c is targetSequence->Values[targetIndex])
+		if (c is at(targetSequence, targetIndex))
 		{
 			++targetIndex;
 

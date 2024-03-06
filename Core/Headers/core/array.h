@@ -18,6 +18,7 @@
 // Convenience methods that can be used with an array(type)
 #define arrays(type) _EXPAND_Arrays(type)
 
+
 // Represents an array that has no data and only offsets, combine with
 // a base pointer from a parent array to create and array
 // Useful for when you want to return a stack_array but can't because it wont
@@ -109,6 +110,14 @@ typedef struct _array_##type* type##_array;
 // returns the value so it can be used in expressions
 #define guard_array_size(arr, value) guard_array_attribute(arr,Size,value) 
 
+#define __at(arr,index) (arr->Values[index]) 
+#define _at(arr,index) __at(arr,guard_array_count_index(arr, index))
+// Gets the element at the given index within the array
+// Will throw if out of bounds
+#define at(arr,index) _at(arr,index)
+// Gets the element at the given index within the array
+// Ignores bounds
+#define unsafe_at(arr,index) __at(arr,index)
 
 // Creates a stack array that is a subarray of the given array
 // Uses the given arrays pointers so changes to the stack array
@@ -120,7 +129,7 @@ typedef struct _array_##type* type##_array;
 // ! will throw IndexOutOfRangeException if start index or count are out of bounds
 #define stack_subarray(type, arr, startIndex, count) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
-	.Values = &arr->Values[guard_array_count_index(arr, startIndex)],\
+	.Values = &at(arr,startIndex),\
 	.Size = guard_array_size(arr, sizeof(type) * count),\
 	.ElementSize = sizeof(type),\
 	.Capacity = guard_array_count(arr, count),\
@@ -270,10 +279,9 @@ private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, ul
 	/* { a, b, c, d, e } */\
 	/* RemoveRange(2,2) */\
 	/* { a, b, e } */\
-	const ulong safeIndex = guard_array_count_index(array, index);\
 	const ulong safeCount = guard_array_count(array, count);\
-	type* destination = &array->Values[safeIndex];\
-	array(type) source = stack_subarray_back(type, array, safeIndex + safeCount);\
+	type* destination = &at(array,index);\
+	array(type) source = stack_subarray_back(type, array, index + safeCount);\
 	memmove(destination,source->Values,source->Count * source->ElementSize );\
 	array->Count = safe_subtract(array->Count, safeCount);\
 	array->Dirty = true;\
@@ -305,7 +313,7 @@ return (type*)Arrays.At((Array)array, index); \
 }\
 private type _EXPAND_METHOD_NAME(type, ValueAt)(array(type) array, ulong index)\
 {\
-return array->Values[guard_array_count_index(array,index)]; \
+return at(array,index); \
 }\
 private array(type) _EXPAND_METHOD_NAME(type, AppendArray)(array(type) array, array(type) appendedValue)\
 {\

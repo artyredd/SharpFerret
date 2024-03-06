@@ -55,7 +55,7 @@ partial_string TrimAll(string str)
 
 	for (int i = 0; i < str->Count; i++)
 	{
-		const int c = str->Values[i];
+		const int c = at(str, i);
 
 		if (isspace(c))
 		{
@@ -69,7 +69,7 @@ partial_string TrimAll(string str)
 	int i = str->Count;
 	while (i-- > 0)
 	{
-		const int c = str->Values[i];
+		const int c = at(str, i);
 
 		if (isspace(c))
 		{
@@ -89,7 +89,7 @@ private bool TryLoopSplitByFunction(string str, string* out_string, bool(*select
 
 	for (ulong i = 0; i < str->Count; i++)
 	{
-		if (selector(str->Values[i]))
+		if (selector(at(str, i)))
 		{
 			*out_string = stack_subarray_front(char, str, i);
 			return true;

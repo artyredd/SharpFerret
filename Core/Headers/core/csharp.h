@@ -80,10 +80,12 @@ static int BreakDebugger(int errorCode)
 	fprintf_red(stdout,"%s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE);\
 	ThrowEvent(errorCode)
 
+#define _CAT(left,right) left##right
+
 // use this when you want to throw an error in the middle of an expression like
 // example: int x = y < 0 ? throw_in_expression(IndexOutOfRangeException) : y;
 #define throw_in_expression(errorCode) \
-	fprintf_red(stdout,"%s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE) + BreakDebugger(errorCode)
+	fprintf(stdout,#errorCode"\n\r\tat "__FILE__) + BreakDebugger(errorCode)
 
 #define warn(errorCode) fprintf(stdout,"[WARNING] %s in %s() %s\tat %s [%li]%s",#errorCode,__func__,NEWLINE,__FILE__,__LINE__,NEWLINE);
 

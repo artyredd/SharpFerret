@@ -7,6 +7,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "core/guards.h"
+#include "core/runtime.h"
 
 bool IsValidNameCharacter(const int c);
 
@@ -35,7 +36,7 @@ private bool StringContains(array(char) characters, int c)
 {
 	for (size_t i = 0; i < characters->Count; i++)
 	{
-		if (c is characters->Values[i])
+		if (c is at(characters, i))
 		{
 			return true;
 		}
@@ -60,7 +61,7 @@ private bool LookAheadIsGenericCall(string data)
 
 	for (size_t i = 0; i < data->Count; i++)
 	{
-		int c = data->Values[i];
+		int c = at(data, i);
 
 		// ignore all things within braces
 		// we are allowed to define things in
@@ -142,8 +143,8 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 
 	for (int i = start; i-- > 0;)
 	{
-		int previousC = data->Values[max(0, i - 1)];
-		int c = data->Values[i];
+		int previousC = at(data, max(0, i - 1));
+		int c = at(data, i);
 		// we can do this since arrays have an invisible \0 at the end so we can't overflow
 		int nextC = data->Values[i + 1];
 
@@ -273,7 +274,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 	int index = lastMacroIndex;
 	for (int i = lastMacroIndex; i < start; i++)
 	{
-		if (isspace(data->Values[i]) or iscntrl(data->Values[i]) or isblank(data->Values[i]))
+		if (isspace(at(data, i)) or iscntrl(at(data, i)) or isblank(at(data, i)))
 		{
 			continue;
 		}
@@ -304,7 +305,7 @@ private bool HasAllValidNameCharactersOrWhiteSpace(string data)
 {
 	for (size_t i = 0; i < data->Count; i++)
 	{
-		const int c = data->Values[i];
+		const int c = at(data, i);
 
 		if (IsValidNameCharacter(c) is false)
 		{
@@ -330,7 +331,7 @@ private int IndexOfClosingAlligator(string data, int startDepth, int openAlligat
 
 	for (size_t i = openAlligatorIndex; i < data->Count; i++)
 	{
-		int c = data->Values[i];
+		int c = at(data, i);
 
 		// ignore all things within braces
 		// we are allowed to define things in
@@ -396,8 +397,8 @@ private int IndexOfClosingBrace(string data)
 
 	for (int i = 0; i < data->Count; i++)
 	{
-		int previousC = data->Values[max(0, i - 1)];
-		int c = data->Values[i];
+		int previousC = at(data, max(0, i - 1));
+		int c = at(data, i);
 		// we can do this since arrays have an invisible \0 at the end so we can't overflow
 		int nextC = data->Values[i + 1];
 
@@ -502,8 +503,8 @@ private int IndexOfClosingParen(string data)
 
 	for (int i = 0; i < data->Count; i++)
 	{
-		int previousC = data->Values[max(0, i - 1)];
-		int c = data->Values[i];
+		int previousC = at(data, max(0, i - 1));
+		int c = at(data, i);
 		// we can do this since arrays have an invisible \0 at the end so we can't overflow
 		int nextC = data->Values[i + 1];
 
@@ -612,7 +613,7 @@ private int NextCharacterIgnoringWhiteSpace(string data)
 {
 	for (size_t i = 0; i < data->Count; i++)
 	{
-		const int c = data->Values[i];
+		const int c = at(data, i);
 
 		if (isspace(c)) {
 			continue;
@@ -628,7 +629,7 @@ private int IndexOfNextCharacterIgnoringWhitespace(string data)
 {
 	for (size_t i = 0; i < data->Count; i++)
 	{
-		const int c = data->Values[i];
+		const int c = at(data, i);
 
 		if (isspace(c)) {
 			continue;
@@ -644,7 +645,7 @@ private int PreviousCharacterIgnoringWhiteSpace(string data)
 {
 	for (int i = data->Count; i-- > 0;)
 	{
-		const int c = data->Values[i];
+		const int c = at(data, i);
 
 		if (isspace(c)) {
 			continue;
@@ -660,7 +661,7 @@ private int IndexOfPreviousCharacterIgnoringWhitespace(string data)
 {
 	for (int i = data->Count; i-- > 0;)
 	{
-		const int c = data->Values[i];
+		const int c = at(data, i);
 
 		if (isspace(c)) {
 			continue;
@@ -679,7 +680,7 @@ private int BeginsWithAny(string data, array(string) values)
 {
 	for (int i = 0; i < values->Count; i++)
 	{
-		string value = values->Values[i];
+		string value = at(values, i);
 		if (strings.BeginsWith(data, value))
 		{
 			return i;

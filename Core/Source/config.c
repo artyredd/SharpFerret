@@ -31,7 +31,7 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 		buffer->Count = lineLength;
 
 		// ignore comments
-		if (buffer->Values[0] is config->CommentCharacter)
+		if (at(buffer, 0) is config->CommentCharacter)
 		{
 			continue;
 		}
@@ -41,7 +41,7 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 			const char* token = config->AbortToken.Token;
 			const ulong tokenLength = max(config->AbortToken.Length - 1, 0);
 
-			if (buffer->Values[0] is token[0])
+			if (at(buffer, 0) is token[0])
 			{
 				// compare the whole token, if the abort token was found abort
 				if (memcmp(buffer->Values, token, min(tokenLength, lineLength)) is 0)
@@ -58,7 +58,7 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 
 			const ulong tokenLength = safe_subtract(token->Length, 1);
 
-			if (buffer->Values[0] is token->Token[0])
+			if (at(buffer, 0) is token->Token[0])
 			{
 				// compare the whole token, if it's valid invoke the callback
 				const int indexOfColon = Strings.IndexOf(buffer->Values, lineLength, ':');
@@ -84,7 +84,7 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 
 					// check if the first character is whitespace, if it is move the subbuffer over
 					// I COULD create a more verstatile solution to this but..
-					if (isspace(subBuffer->Values[0]))
+					if (isspace(subat(buffer, 0)))
 					{
 						subBuffer = stack_subarray_back(char, subBuffer, 1);
 					}

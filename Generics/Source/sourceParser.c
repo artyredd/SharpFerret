@@ -43,7 +43,7 @@ private bool TryGetNameBeforeAlligator(string data, tuple(int, int)* out_name)
 	// traverse backwards
 	for (int i = data->Count; i-- > 0;)
 	{
-		const int c = data->Values[i];
+		const int c = at(data, i);
 
 		if (isspace(c))
 		{
@@ -103,8 +103,8 @@ private bool TryGetTypeReturnType(string data, tuple(int, int)* out_returnType)
 	for (int i = data->Count; i-- > 0;)
 	{
 		const int previousC = data->Values[i + 1];
-		const int c = data->Values[i];
-		const int nextC = data->Values[max(0, i - 1)];
+		const int c = at(data, i);
+		const int nextC = at(data, max(0, i - 1));
 
 		// ignore whitespace
 		if (isspace(c))
@@ -431,8 +431,8 @@ array(location) GetGenericLocations(string data)
 	int macroEnd = 0;
 	for (int i = 0; i < data->Count; i++)
 	{
-		int previousC = data->Values[max(0, i - 1)];
-		int c = data->Values[i];
+		int previousC = at(data, max(0, i - 1));
+		int c = at(data, i);
 		// we can do this since arrays have an invisible \0 at the end so we can't overflow
 		int nextC = data->Values[i + 1];
 
@@ -896,7 +896,7 @@ TEST(GetGenericLocations)
 
 	array(location) locations = GetGenericLocations(data);
 
-	location result = locations->Values[0];
+	location result = at(locations, 0);
 
 	IsEqual((size_t)1, locations->Count);
 	IsEqual(74, result.AlligatorStartIndex);
@@ -913,13 +913,13 @@ TEST(GetGenericLocations)
 
 	locations = GetGenericLocations(data);
 
-	result = locations->Values[0];
+	result = at(locations, 0);
 
 	IsEqual((size_t)1, locations->Count);
 	IsEqual(30, result.AlligatorStartIndex);
 	IsEqual(34, result.AlligatorEndIndex);
 	IsEqual(20, result.StartScopeIndex);
-	IsEqual('i', data->Values[20]);
+	IsEqual('i', at(data, 20));
 	IsEqual(37, result.EndScopeIndex);
 	IsFalse(result.Struct);
 	IsFalse(result.Definition);
@@ -931,13 +931,13 @@ TEST(GetGenericLocations)
 
 	locations = GetGenericLocations(data);
 
-	result = locations->Values[0];
+	result = at(locations, 0);
 
 	IsEqual((size_t)1, locations->Count);
 	IsEqual(143, result.AlligatorStartIndex);
 	IsEqual(147, result.AlligatorEndIndex);
 	IsEqual(128, result.StartScopeIndex);
-	IsEqual('}', data->Values[126]);
+	IsEqual('}', at(data, 126));
 	IsEqual(193, result.EndScopeIndex);
 	IsFalse(result.Struct);
 	IsTrue(result.Definition);
@@ -949,7 +949,7 @@ TEST(GetGenericLocations)
 
 	locations = GetGenericLocations(data);
 
-	result = locations->Values[0];
+	result = at(locations, 0);
 
 	IsEqual((size_t)1, locations->Count);
 	IsEqual(56, result.AlligatorStartIndex);
@@ -966,13 +966,13 @@ TEST(GetGenericLocations)
 
 	locations = GetGenericLocations(data);
 
-	result = locations->Values[0];
+	result = at(locations, 0);
 
 	IsEqual((size_t)2, locations->Count);
 	IsEqual(25, result.AlligatorStartIndex);
 	IsEqual(29, result.AlligatorEndIndex);
 	IsEqual(20, result.StartScopeIndex);
-	IsEqual('a', data->Values[20]);
+	IsEqual('a', at(data, 20));
 	IsEqual(-1, result.EndScopeIndex);
 	IsFalse(result.Struct);
 	IsFalse(result.Definition);
@@ -988,10 +988,10 @@ TEST(GetGenericLocations)
 	// but second should be the call within the method
 	IsEqual((size_t)2, locations->Count);
 
-	result = locations->Values[1];
+	result = at(locations, 1);
 
 	IsEqual(38, result.AlligatorStartIndex);
-	IsEqual((char)'y', data->Values[37]);
+	IsEqual((char)'y', at(data, 37));
 	IsEqual(42, result.AlligatorEndIndex);
 	IsEqual(33, result.StartScopeIndex);
 	IsEqual(-1, result.EndScopeIndex);
@@ -1003,12 +1003,25 @@ TEST(GetGenericLocations)
 	return true;
 }
 
+TEST(IndexOfClosingParen)
+{
+	string data = stack_string("(.{}");
+
+	int expected = -1;
+	int actual = IndexOfClosingParen(data);
+
+	IsEqual(expected, actual);
+
+	return true;
+}
+
 TEST_SUITE(RunUnitTests,
 	APPEND_TEST(IndexOfLastBlockExpressionOrMacro)
 	APPEND_TEST(LookAheadIsGenericCall)
 	APPEND_TEST(IsGenericStruct)
 	APPEND_TEST(IndexOfClosingBrace)
 	APPEND_TEST(IndexOfClosingAlligator)
+	APPEND_TEST(IndexOfClosingParen)
 	APPEND_TEST(TryGetNameBeforeAlligator)
 	APPEND_TEST(TryGetTypeReturnType)
 	APPEND_TEST(IsGenericMethodDeclaration)
@@ -1016,6 +1029,6 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(GetGenericLocations)
 );
 
-OnStart(1,
+OnStart(1) {
 	RunUnitTests();
-);
+}

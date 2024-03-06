@@ -482,4 +482,7 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(Equals)
 );
 
-OnStart(11, RunUnitTests(); );
+OnStart(11)
+{
+	RunUnitTests();
+}

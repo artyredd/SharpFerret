@@ -39,7 +39,7 @@ string FlattenArgumentToCName(string arg, string stack_buffer)
 	// prevent int_______float___________name____macro
 	for (int i = 0; i < arg->Count; i++)
 	{
-		const int c = arg->Values[i];
+		const int c = at(arg, i);
 
 		if (IsValidNameCharacter(c))
 		{
@@ -54,7 +54,7 @@ string FlattenArgumentToCName(string arg, string stack_buffer)
 			continue;
 		}
 
-		if (result->Values[result->Count - 1] != '_')
+		if (unsafe_at(result, safe_subtract(result->Count, 1)) != '_')
 		{
 			strings.Append(result, '_');
 			continue;
@@ -81,10 +81,10 @@ array(string) GetGenericArguments(string data, location location)
 
 	for (int i = 1; i < subdata->Count; i++)
 	{
-		int previousC = subdata->Values[max(0, i - 1)];
-		int c = subdata->Values[i];
+		int previousC = at(subdata, max(0, i - 1));
+		int c = at(subdata, i);
 		// we can do this since arrays have an invisible \0 at the end so we can't overflow
-		int nextC = subdata->Values[i + 1];
+		int nextC = unsafe_at(subdata, i + 1);
 
 		// check to see if we're in a string
 		if (c is '"' and inSingleComment is false and inMultiComment is false)
@@ -257,10 +257,10 @@ array(array(int)) GetGenericArgumentsWithinBody(string data, location location, 
 
 	for (int i = 0; i < subdata->Count; i++)
 	{
-		int previousC = subdata->Values[max(0, i - 1)];
-		int c = subdata->Values[i];
+		int previousC = at(subdata, max(0, i - 1));
+		int c = at(subdata, i);
 		// we can do this since arrays have an invisible \0 at the end so we can't overflow
-		int nextC = subdata->Values[i + 1];
+		int nextC = unsafe_at(subdata, i + 1);
 
 		if (c is '"' and inSingleComment is false and inMultiComment is false)
 		{
@@ -322,7 +322,6 @@ array(array(int)) GetGenericArgumentsWithinBody(string data, location location, 
 			continue;
 		}
 
-		previousCharWasPuncutation = false;
 
 		if (previousCharWasPuncutation)
 		{
@@ -331,8 +330,17 @@ array(array(int)) GetGenericArgumentsWithinBody(string data, location location, 
 			const int indexOfFoundArg = BeginsWithAny(stack_substring_back(subdata, i), typeNames);
 			if (indexOfFoundArg isnt - 1)
 			{
-				arrays(int).Append(result->Values[indexOfFoundArg], i);
+				// just because it begins with a type token
+				// doesnt mean its a type token
+				// make sure a NON valid type character follows the typename
+				string substr = stack_substring_front(subdata, at(typeNames, indexOfFoundArg)->Count);
+				if (IsValidNameCharacter(at(substr, substr->Count - 1)) is false)
+				{
+					arrays(int).Append(at(result, indexOfFoundArg), i);
+				}
 			}
+
+			previousCharWasPuncutation = false;
 		}
 	}
 
@@ -397,7 +405,7 @@ void ExpandGenerics(string data, array(location) locations)
 	int i = locations->Count;
 	while (i-- > 0)
 	{
-		location location = locations->Values[i];
+		location location = at(locations, i);
 
 		ExpandGeneric(data, location);
 	}
@@ -445,7 +453,7 @@ TEST(ExpandCall)
 
 	IsEqual((size_t)1, locations->Count);
 
-	ExpandGeneric(data, locations->Values[0]);
+	ExpandGeneric(data, at(locations, 0));
 
 	string expected = stack_string("int x = MyMethod_int_(24);");
 
@@ -466,7 +474,7 @@ TEST(GetGenericArguments)
 	array(string) actual = GetGenericArguments(data, genericLocation);
 
 	IsEqual(expected->Count, actual->Count);
-	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
+	IsTrue(strings.Equals(at(actual, 0), at(expected, 0)));
 
 	data = stack_string("<T,U,V>");
 	genericLocation = (location){
@@ -479,9 +487,9 @@ TEST(GetGenericArguments)
 
 	IsEqual(expected->Count, actual->Count);
 
-	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
-	IsTrue(strings.Equals(actual->Values[1], expected->Values[1]));
-	IsTrue(strings.Equals(actual->Values[2], expected->Values[2]));
+	IsTrue(strings.Equals(at(actual, 0), at(expected, 0)));
+	IsTrue(strings.Equals(at(actual, 1), at(expected, 1)));
+	IsTrue(strings.Equals(at(actual, 2), at(expected, 2)));
 
 	data = stack_string("<T,struct tuple_int{int x; int y;},V>");
 	genericLocation = (location){
@@ -494,9 +502,9 @@ TEST(GetGenericArguments)
 
 	IsEqual(expected->Count, actual->Count);
 
-	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
-	IsTrue(strings.Equals(actual->Values[1], expected->Values[1]));
-	IsTrue(strings.Equals(actual->Values[2], expected->Values[2]));
+	IsTrue(strings.Equals(at(actual, 0), at(expected, 0)));
+	IsTrue(strings.Equals(at(actual, 1), at(expected, 1)));
+	IsTrue(strings.Equals(at(actual, 2), at(expected, 2)));
 
 	data = stack_string("<\nT,\nU,\nV\n>");
 	genericLocation = (location){
@@ -509,9 +517,9 @@ TEST(GetGenericArguments)
 
 	IsEqual(expected->Count, actual->Count);
 
-	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
-	IsTrue(strings.Equals(actual->Values[1], expected->Values[1]));
-	IsTrue(strings.Equals(actual->Values[2], expected->Values[2]));
+	IsTrue(strings.Equals(at(actual, 0), at(expected, 0)));
+	IsTrue(strings.Equals(at(actual, 1), at(expected, 1)));
+	IsTrue(strings.Equals(at(actual, 2), at(expected, 2)));
 
 	data = stack_string("<T,\nstruct triplet_int{/* comment here */int x;// other comment\n int y;},\nV\n>");
 	genericLocation = (location){
@@ -527,9 +535,9 @@ TEST(GetGenericArguments)
 
 	IsEqual(expected->Count, actual->Count);
 
-	IsTrue(strings.Equals(actual->Values[0], expected->Values[0]));
-	IsTrue(strings.Equals(actual->Values[1], expected->Values[1]));
-	IsTrue(strings.Equals(actual->Values[2], expected->Values[2]));
+	IsTrue(strings.Equals(at(actual, 0), at(expected, 0)));
+	IsTrue(strings.Equals(at(actual, 1), at(expected, 1)));
+	IsTrue(strings.Equals(at(actual, 2), at(expected, 2)));
 
 
 	return true;
@@ -551,13 +559,31 @@ TEST(GetGenericArgumentsWithinBody)
 		stack_string("V")
 	);
 
-	array(array(int)) expected = nested_stack_array(array(int),
-		auto_stack_array(int, 1, 2, 3),
-		auto_stack_array(int, 1, 2, 3),
-		auto_stack_array(int, 1, 2, 3)
+	array(array(int)) expectedArray = stack_array(array(int), 3,
+		auto_stack_array(int, 9, 16, 38),
+		auto_stack_array(int, 11, 23, 58),
+		auto_stack_array(int, 0, 13, 73, 85, 95)
 	);
 
-	array(array(int)) actual = GetGenericArgumentsWithinBody(data, dataLocation, typeNames);
+	array(array(int)) actualArray = GetGenericArgumentsWithinBody(data, dataLocation, typeNames);
+
+	IsEqual(expectedArray->Count, actualArray->Count);
+
+	for (int arrayIndex = 0; arrayIndex < min(actualArray->Count, expectedArray->Count); arrayIndex++)
+	{
+		array(int) actualValues = at(actualArray, arrayIndex);
+		array(int) expectedValues = at(expectedArray, arrayIndex);
+
+		IsEqual(expectedValues->Count, actualValues->Count);
+
+		for (int valueIndex = 0; valueIndex < min(actualValues->Count, expectedValues->Count); valueIndex++)
+		{
+			int actual = at(actualValues, valueIndex);
+			int expected = at(expectedValues, valueIndex);
+
+			IsEqual(expected, actual);
+		}
+	}
 
 	return true;
 }
@@ -569,6 +595,6 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(GetGenericArgumentsWithinBody)
 );
 
-OnStart(2,
+OnStart(2) {
 	RunUnitTests();
-);
+}

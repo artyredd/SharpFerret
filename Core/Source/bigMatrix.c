@@ -48,7 +48,7 @@ private void MultiplyVector(BigMatrix matrix, array(float) vector, array(float) 
 		float value = 0.0f;
 		for (ulong i = 0; i < vector->Count; i++)
 		{
-			value += matrix->Values->Values[(row * matrix->Columns) + i] * vector->Values[i];
+			value += at(matrix->Values, (row * matrix->Columns) + i) * at(vector, i);
 		}
 
 		arrays(float).Append(destinationVector, value);

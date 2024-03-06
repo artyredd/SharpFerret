@@ -18,17 +18,15 @@ __declspec(allocate(".srt$z")) __declspec(selectany)  const OnStartMethod GLOBAL
 #define _ONSTART_METHOD_NAME(id) _OnStartBody ## id
 #define _ONSTART_METHOD_ADDRESS(id) _OnStartAddress ## id
 
-#define _ON_START(id,body) static void _ONSTART_METHOD_NAME(id)()\
-{\
-body\
-}\
-__pragma(section(_ONSTART_SECTION(id), read));\
-__declspec(allocate(_ONSTART_SECTION(id))) const OnStartMethod _ONSTART_METHOD_ADDRESS(id) = (OnStartMethod)_ONSTART_METHOD_NAME(id)
+#define _ON_START(id) static void _ONSTART_METHOD_NAME(id)(void);\
+__pragma(section(_ONSTART_SECTION(id), read)); \
+__declspec(allocate(_ONSTART_SECTION(id))) const OnStartMethod _ONSTART_METHOD_ADDRESS(id) = (OnStartMethod)_ONSTART_METHOD_NAME(id); \
+static void _ONSTART_METHOD_NAME(id)(void)
 
 // Creates a method that gets called when the application starts
 // order is a UNIQUE letter or number globally
 // to determine the order this method gets run against the rest
-#define OnStart(order,body) _ON_START(order,body)
+#define OnStart(order) _ON_START(order)
 
 static void RunOnStartMethods() {
 	const OnStartMethod* x = &GLOBAL_InitSegStart;
