@@ -333,8 +333,9 @@ array(array(int)) GetGenericArgumentsWithinBody(string data, location location, 
 				// just because it begins with a type token
 				// doesnt mean its a type token
 				// make sure a NON valid type character follows the typename
-				string substr = stack_substring_front(subdata, at(typeNames, indexOfFoundArg)->Count);
-				if (IsValidNameCharacter(at(substr, substr->Count - 1)) is false)
+				string substr = stack_substring_back(subdata, i);
+				const char cAfterToken = at(substr, at(typeNames, indexOfFoundArg)->Count);
+				if (IsValidNameCharacter(cAfterToken) is false)
 				{
 					arrays(int).Append(at(result, indexOfFoundArg), i);
 				}
