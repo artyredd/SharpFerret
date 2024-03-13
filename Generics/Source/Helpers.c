@@ -9,12 +9,12 @@
 #include "core/guards.h"
 #include "core/runtime.h"
 
-bool IsValidNameCharacter(const int c);
+bool IsValidNamebyteacter(const int c);
 
 // Returns -1 if the left is found first
 // Returns 0 if neither are found
 // returns 1 if right is found first
-private int LookAheadForCharacters(string data, int left, int right)
+private int LookAheadForbyteacters(string data, int left, int right)
 {
 	int leftIndex = Strings.IndexOf(data->Values, data->Count, left);
 	int rightIndex = Strings.IndexOf(data->Values, data->Count, right);
@@ -32,11 +32,11 @@ private int LookAheadForCharacters(string data, int left, int right)
 	return 0;
 }
 
-private bool StringContains(array(char) characters, int c)
+private bool StringContains(array(byte) byteacters, int c)
 {
-	for (size_t i = 0; i < characters->Count; i++)
+	for (size_t i = 0; i < byteacters->Count; i++)
 	{
-		if (c is at(characters, i))
+		if (c is at(byteacters, i))
 		{
 			return true;
 		}
@@ -136,7 +136,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 	bool inString = false;
 	bool inSingleComment = false;
 	bool inMultiComment = false;
-	int indexOfLastValidChar = -1;
+	int indexOfLastValidbyte = -1;
 	int depth = 0;
 	int parenDepth = 0;
 	int indexOfFirstBrace = -1;
@@ -214,9 +214,9 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 
 			if (depth is 0)
 			{
-				if (indexOfFirstBrace > 0 and PreviousCharacterIgnoringWhiteSpace(stack_substring_front(data, i - 1)) is ')')
+				if (indexOfFirstBrace > 0 and PreviousbyteacterIgnoringWhiteSpace(stack_substring_front(data, i - 1)) is ')')
 				{
-					return indexOfLastValidChar >= 0 ? indexOfLastValidChar : indexOfFirstBrace;
+					return indexOfLastValidbyte >= 0 ? indexOfLastValidbyte : indexOfFirstBrace;
 				}
 
 				return IndexOfLastBlockExpressionOrMacro(data, i, lastMacroIndex);
@@ -238,7 +238,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 
 			if (parenDepth is - 1)
 			{
-				return indexOfLastValidChar >= 0 ? indexOfLastValidChar : indexOfFirstBrace;
+				return indexOfLastValidbyte >= 0 ? indexOfLastValidbyte : indexOfFirstBrace;
 			}
 		}
 		if (c is ')')
@@ -253,9 +253,9 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 		}
 
 		// skip words like private, static, int, float etc
-		if (IsValidNameCharacter(c) && depth is 0 && parenDepth is 0)
+		if (IsValidNamebyteacter(c) && depth is 0 && parenDepth is 0)
 		{
-			indexOfLastValidChar = i;
+			indexOfLastValidbyte = i;
 			continue;
 		}
 
@@ -264,7 +264,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 		// MyMethod(13,24,GetNumber<int>(23));
 		if ((c is ';' or c is ',') and depth is 0 && parenDepth is 0)
 		{
-			return indexOfLastValidChar >= 0 ? indexOfLastValidChar : i;
+			return indexOfLastValidbyte >= 0 ? indexOfLastValidbyte : i;
 		}
 	}
 
@@ -285,9 +285,9 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 	return index;
 }
 
-// returns whether or not the character is a valid c name character that could be used
+// returns whether or not the byteacter is a valid c name byteacter that could be used
 // to name a method or variable
-private bool IsValidNameCharacter(const int c)
+private bool IsValidNamebyteacter(const int c)
 {
 	if (isalnum(c))
 	{
@@ -301,13 +301,13 @@ private bool IsValidNameCharacter(const int c)
 	return false;
 }
 
-private bool HasAllValidNameCharactersOrWhiteSpace(string data)
+private bool HasAllValidNamebyteactersOrWhiteSpace(string data)
 {
 	for (size_t i = 0; i < data->Count; i++)
 	{
 		const int c = at(data, i);
 
-		if (IsValidNameCharacter(c) is false)
+		if (IsValidNamebyteacter(c) is false)
 		{
 			if (isspace(c))
 			{
@@ -609,7 +609,7 @@ private int IndexOfClosingParen(string data)
 	return -1;
 }
 
-private int NextCharacterIgnoringWhiteSpace(string data)
+private int NextbyteacterIgnoringWhiteSpace(string data)
 {
 	for (size_t i = 0; i < data->Count; i++)
 	{
@@ -625,7 +625,7 @@ private int NextCharacterIgnoringWhiteSpace(string data)
 	return 0;
 }
 
-private int IndexOfNextCharacterIgnoringWhitespace(string data)
+private int IndexOfNextbyteacterIgnoringWhitespace(string data)
 {
 	for (size_t i = 0; i < data->Count; i++)
 	{
@@ -641,7 +641,7 @@ private int IndexOfNextCharacterIgnoringWhitespace(string data)
 	return -1;
 }
 
-private int PreviousCharacterIgnoringWhiteSpace(string data)
+private int PreviousbyteacterIgnoringWhiteSpace(string data)
 {
 	for (int i = data->Count; i-- > 0;)
 	{
@@ -657,7 +657,7 @@ private int PreviousCharacterIgnoringWhiteSpace(string data)
 	return 0;
 }
 
-private int IndexOfPreviousCharacterIgnoringWhitespace(string data)
+private int IndexOfPreviousbyteacterIgnoringWhitespace(string data)
 {
 	for (int i = data->Count; i-- > 0;)
 	{

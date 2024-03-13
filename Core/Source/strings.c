@@ -85,13 +85,13 @@ partial_string TrimAll(string str)
 
 private bool TryLoopSplitByFunction(string str, string* out_string, bool(*selector)(char))
 {
-	*out_string = (array(char)){ 0 };
+	*out_string = (array(byte)){ 0 };
 
 	for (ulong i = 0; i < str->Count; i++)
 	{
 		if (selector(at(str, i)))
 		{
-			*out_string = stack_subarray_front(char, str, i);
+			*out_string = stack_subarray_front(byte, str, i);
 			return true;
 		}
 	}

@@ -3,6 +3,7 @@
 #include "core/csharp.h"
 #include <stdio.h>
 #include <time.h>
+#include "core/array.h"
 
 typedef struct _test* Test;
 
@@ -128,6 +129,9 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
     default: "UnsupportedType" \
 )
 
+#define __IsTypeof(value,type) _Generic((value),type:"1",default:"")
+#define IsTypeof(value,type) (sizeof(__IsTypeof(value,type))-1)
+
 #define Assert(expr) BenchmarkAssertion(expr,__test_stream);
 #define StandardAssert(expr) Assert(expr,stdout);
 
@@ -141,3 +145,47 @@ static const char* TestFinishedFormat = "[%s]"; // TestName
 #define IsNotEqual(left,right) BenchmarkAssertion(left != right,__test_stream);
 
 #define IsApproximate(left,right) BenchmarkComparison(((left < 0 ? (-left) : (left)) - (right < 0 ? (-right) : (right))),1e-15,<=,FormatCType(left),__test_stream);
+
+private int _IndexWhereDifferent(string left, string right)
+{
+	for (int i = 0; i < min(left->Count, right->Count); i++)
+	{
+		const byte leftC = at(left, i);
+		const byte rightC = at(right, i);
+		if (leftC isnt rightC)
+		{
+			return i;
+		}
+	}
+	return min(left->Count, right->Count);
+}
+
+private bool _IsStringEqual(void* stream, string left, string right)
+{
+	bool equal = strings.Equals(left, right);
+	if (equal is false)
+	{
+		if (left isnt null and right isnt null)
+		{
+			const int differentIndex = _IndexWhereDifferent(left, right);
+			string arrowLine = dynamic_array(byte, differentIndex + 1);
+			arrowLine->Count = differentIndex + 1;
+			strings.Fill(arrowLine, '-');
+			at(arrowLine, differentIndex) = '|';
+
+			fprintf_red(stream, " Expected: %s"NEWLINE, left->Values);
+			fprintf_red(stream, "          %s"NEWLINE, arrowLine->Values);
+			fprintf_red(stream, "Actual:   %s"NEWLINE, right->Values);
+		}
+		else
+		{
+			fprintf_red(stream, "Expected was%s", left ? "nt null" : " null"NEWLINE);
+			fprintf_red(stream, "Actual   was%s", right ? "nt null" : " null"NEWLINE);
+		}
+	}
+	return true;
+}
+
+#define IsStringEqual(expected,actual) IsTrue(_IsStringEqual(__test_stream, expected,actual))
+
+#define IsTupleEqual(leftTuple,rightTuple) IsEqual(leftTuple.First,rightTuple.First); IsEqual(leftTuple.Second,rightTuple.Second)

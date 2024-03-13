@@ -38,7 +38,7 @@ static bool TryLoadImage(const char* path, Image* out_image)
 
 static Image LoadImage(const char* path)
 {
-	string newPath = empty_stack_array(char, _MAX_PATH);
+	string newPath = empty_stack_array(byte, _MAX_PATH);
 
 	strings.AppendCArray(newPath, path, strlen(path));
 

@@ -21,7 +21,7 @@ const struct _configMethods Configs = {
 
 static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void* state)
 {
-	string buffer = empty_stack_array(char, BUFFER_SIZE);
+	string buffer = empty_stack_array(byte, BUFFER_SIZE);
 
 	ulong bufferLength = BUFFER_SIZE;
 
@@ -80,13 +80,13 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 				{
 					ulong offset = min(tokenLength + 1, lineLength);
 
-					array(char) subBuffer = stack_subarray_back(char, buffer, offset);
+					array(byte) subBuffer = stack_subarray_back(byte, buffer, offset);
 
 					// check if the first character is whitespace, if it is move the subbuffer over
 					// I COULD create a more verstatile solution to this but..
 					if (isspace(subat(buffer, 0)))
 					{
-						subBuffer = stack_subarray_back(char, subBuffer, 1);
+						subBuffer = stack_subarray_back(byte, subBuffer, 1);
 					}
 
 					if (token->TokenLoad(subBuffer->Values, subBuffer->Count, state) is false)

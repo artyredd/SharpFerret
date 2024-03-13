@@ -4,7 +4,7 @@
 #include "GenericExpansion.h"
 #include "core/runtime.h"
 
-private array(string) GetFiles(char* strs[], int count)
+private array(string) GetFiles(byte* strs[], int count)
 {
 	array(string) result = arrays(string).Create(count);
 
@@ -19,7 +19,7 @@ private array(string) GetFiles(char* strs[], int count)
 	return result;
 }
 
-void main(int argc, char* argv[])
+void main(int argc, byte* argv[])
 {
 	RunOnStartMethods();
 	return;

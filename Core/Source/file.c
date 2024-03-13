@@ -9,9 +9,9 @@
 private bool TryOpen(const string, FileMode fileMode, File* out_file);
 private File Open(const string path, FileMode fileMode);
 private ulong GetFileSize(const File file);
-private array(char) ReadFile(const File file);
+private array(byte) ReadFile(const File file);
 private bool TryReadFile(const File file, string* out_data);
-private array(char) ReadAll(const string path);
+private array(byte) ReadAll(const string path);
 private bool TryReadAll(const string path, string* out_data);
 private bool TryReadLine(File file, string buffer, ulong offset, ulong* out_lineLength);
 private bool TryGetSequenceCount(File file, const string targetSequence, const string abortSequence, ulong* out_count);
@@ -93,7 +93,7 @@ private bool TryOpen(const string path, FileMode fileMode, File* out_file)
 		{
 			const string directory = arrays(string).ValueAt(Files.AssetDirectories, i);
 
-			string newPath = empty_stack_array(char, _MAX_PATH);
+			string newPath = empty_stack_array(byte, _MAX_PATH);
 
 			strings.AppendArray(newPath, directory);
 

@@ -92,7 +92,7 @@ typedef struct _array_##type* type##_array;
 	.AutoHash = true\
 }
 
-#define _stack_string(string) explicit_stack_array(char,,sizeof(string) - 1, string) 
+#define _stack_string(string) explicit_stack_array(byte,,sizeof(string) - 1, string) 
 #define stack_string(string) _stack_string(string) 
 
 #define dynamic_array(type, initialCount) _EXPAND_METHOD_NAME(type,Create)(initialCount);
@@ -204,7 +204,7 @@ typedef struct _array_##type* type##_array;
 // STACK OBJECT!
 #define combine_partial_array(type, arr, partial) (array(type))&(partial_array(type))\
 {\
-	.Values = arr->Count >= (ulong)partial.Values ? (arr->Values + (ulong)partial.Values) : (char*)(ulong)throw_in_expression(IndexOutOfRangeException),\
+	.Values = arr->Count >= (ulong)partial.Values ? (arr->Values + (ulong)partial.Values) : (byte*)(ulong)throw_in_expression(IndexOutOfRangeException),\
 	.Size = guard_array_size(arr, partial.Size),\
 	.ElementSize = guard_array_attribute(arr,ElementSize,partial.ElementSize),\
 	.Capacity = guard_array_attribute(arr, Capacity, partial.Capacity),\
@@ -359,7 +359,7 @@ private ulong _EXPAND_METHOD_NAME(type, Hash)(array(type) array)\
 if(array->Dirty)\
 {\
 	array->Dirty = false;\
-	array->Hash = Hashing.HashSafe((char*)array->Values, array->Count * array->ElementSize);\
+	array->Hash = Hashing.HashSafe((byte*)array->Values, array->Count * array->ElementSize);\
 }\
 return array->Hash; \
 }\
@@ -372,6 +372,14 @@ private bool _EXPAND_METHOD_NAME(type, BeginsWith)(array(type) array, array(type
 ulong safeCount = safe_subtract(min(value->Count,array->Count),1);\
 array(type) sub = stack_subarray_front(type, array, safeCount);\
 return Arrays.Equals((Array)sub, (Array)value); \
+}\
+private array(type) _EXPAND_METHOD_NAME(type, Fill)(array(type) array, type value)\
+{\
+	for(int i = 0; i < array->Count; i++)\
+	{\
+		at(array, i) = value;\
+	}\
+	return array;\
 }\
 const static struct _array_##type##_methods\
 {\
@@ -396,6 +404,7 @@ void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
 array(type) (*Clone)(array(type)); \
 ulong(*Hash)(array(type)); \
+array(type) (*Fill)(array(type), type); \
 void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\
@@ -420,31 +429,34 @@ void (*Dispose)(array(type)); \
 .Clone = _EXPAND_METHOD_NAME(type, Clone), \
 .Hash = _EXPAND_METHOD_NAME(type, Hash), \
 .BeginsWith = _EXPAND_METHOD_NAME(type, BeginsWith), \
+.Fill = _EXPAND_METHOD_NAME(type, Fill),\
 .Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
 
 #define DEFINE_ARRAY(type) _EXPAND_DEFINE_ARRAY(type)
 
+#define DEFINE_COMPARATOR(type, name, operation) private bool name(type* left, type* right){return *(left) operation *(right);} 
+
 // define common types
 DEFINE_ARRAY(bool);
-DEFINE_ARRAY(char);
+DEFINE_ARRAY(byte);
 DEFINE_ARRAY(int);
 DEFINE_ARRAY(float);
 DEFINE_ARRAY(double);
 DEFINE_ARRAY(ulong);
 
-DEFINE_ARRAY(array(char));
+DEFINE_ARRAY(array(byte));
 
-#define string array(char)
-#define strings arrays(char)
-#define stack_substring(arr, index, count) stack_subarray(char, arr, index, count)
-#define stack_substring_front(arr, endIndexInclusive) stack_subarray_front(char, arr, endIndexInclusive)
-#define stack_substring_back(arr, startIndexInclusive) stack_subarray_back(char, arr, startIndexInclusive)
-#define partial_string partial_array(char)
-#define partial_substring(arr,index,count) partial_subarray(char,arr,index,count)
-#define partial_substring_front(arr, endIndexInclusive) partial_subarray_front(char, arr, endIndexInclusive)
-#define partial_substring_back(arr, startIndexInclusive) partial_subarray_back(char, arr, startIndexInclusive)
-#define combine_partial_string(arr, partial) combine_partial_array(char, arr, partial)
+#define string array(byte)
+#define strings arrays(byte)
+#define stack_substring(arr, index, count) stack_subarray(byte, arr, index, count)
+#define stack_substring_front(arr, endIndexInclusive) stack_subarray_front(byte, arr, endIndexInclusive)
+#define stack_substring_back(arr, startIndexInclusive) stack_subarray_back(byte, arr, startIndexInclusive)
+#define partial_string partial_array(byte)
+#define partial_substring(arr,index,count) partial_subarray(byte,arr,index,count)
+#define partial_substring_front(arr, endIndexInclusive) partial_subarray_front(byte, arr, endIndexInclusive)
+#define partial_substring_back(arr, startIndexInclusive) partial_subarray_back(byte, arr, startIndexInclusive)
+#define combine_partial_string(arr, partial) combine_partial_array(byte, arr, partial)
 #define dynamic_string(cString) strings.AppendArray(strings.Create(sizeof(cString)-1), stack_string(cString))
 #define empty_dynamic_string(count) strings.Create(count)
 
@@ -456,39 +468,41 @@ DEFINE_ARRAY(array(char));
 #define DEFINE_TUPLE(left,right) DEFINE_TUPLE_FULL(left,First,right,Second); DEFINE_ARRAY(tuple(left,right));
 
 #define DEFINE_TUPLE_BOTH_WAYS(T1,T2) DEFINE_TUPLE(T1,T2); DEFINE_TUPLE(T2,T1);
-#define DEFINE_TUPLE_ALL(major,T1,T2,T3,T4,T5,T6) DEFINE_TUPLE(major,major);DEFINE_TUPLE(major, T1);DEFINE_TUPLE(major, T2);DEFINE_TUPLE(major, T3);DEFINE_TUPLE(major, T4);DEFINE_TUPLE(major, T5);DEFINE_TUPLE(major, T6);
+#define DEFINE_TUPLE_ALL(major,T1,T2,T3,T4,T5,T6,T7) DEFINE_TUPLE(major,major);\
+DEFINE_TUPLE(major, T1);\
+DEFINE_TUPLE(major, T2);\
+DEFINE_TUPLE(major, T3);\
+DEFINE_TUPLE(major, T4);\
+DEFINE_TUPLE(major, T5);\
+DEFINE_TUPLE(major, T6);\
+DEFINE_TUPLE(major, T7);
 
-DEFINE_TUPLE_ALL(bool, char, int, long, ulong, float, double)
-DEFINE_TUPLE_ALL(char, bool, int, long, ulong, float, double)
-DEFINE_TUPLE_ALL(int, bool, char, long, ulong, float, double)
-DEFINE_TUPLE_ALL(long, bool, char, int, ulong, float, double)
-DEFINE_TUPLE_ALL(ulong, bool, char, int, long, float, double)
-DEFINE_TUPLE_ALL(float, bool, char, int, long, ulong, double)
-DEFINE_TUPLE_ALL(double, bool, char, int, long, ulong, float)
+DEFINE_TUPLE_ALL(bool, byte, int, long, ulong, float, double, string)
+DEFINE_TUPLE_ALL(byte, bool, int, long, ulong, float, double, string)
+DEFINE_TUPLE_ALL(int, bool, byte, long, ulong, float, double, string)
+DEFINE_TUPLE_ALL(long, bool, byte, int, ulong, float, double, string)
+DEFINE_TUPLE_ALL(ulong, bool, byte, int, long, float, double, string)
+DEFINE_TUPLE_ALL(float, bool, byte, int, long, ulong, double, string)
+DEFINE_TUPLE_ALL(double, bool, byte, int, long, ulong, float, string)
+DEFINE_TUPLE_ALL(string, bool, byte, int, long, ulong, float, double)
+
 
 #define DEFINE_TUPLE_ALL_INTRINSIC(type)\
 DEFINE_TUPLE_BOTH_WAYS(type,bool);\
-DEFINE_TUPLE_BOTH_WAYS(type,char);\
+DEFINE_TUPLE_BOTH_WAYS(type,byte);\
 DEFINE_TUPLE_BOTH_WAYS(type,int);\
 DEFINE_TUPLE_BOTH_WAYS(type,long);\
 DEFINE_TUPLE_BOTH_WAYS(type,ulong);\
 DEFINE_TUPLE_BOTH_WAYS(type,float);\
 DEFINE_TUPLE_BOTH_WAYS(type,double);\
+DEFINE_TUPLE_BOTH_WAYS(type,string);
 
 #define _DEFINE_CONTAINERS(type) __pragma(warning(disable:4113)); DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type); DEFINE_POINTER(type); __pragma(warning(default:4113))
 #define DEFINE_CONTAINERS(type) _DEFINE_CONTAINERS(type)
 
 DEFINE_TUPLE_INTRINSIC(string);
 
-#pragma warning(disable:4113)
-DEFINE_POINTER(_Bool);
-DEFINE_POINTER(char);
-DEFINE_POINTER(int);
-DEFINE_POINTER(short);
-DEFINE_POINTER(long);
-DEFINE_POINTER(ulong);
-DEFINE_POINTER(float);
-DEFINE_POINTER(double);
-#pragma warning(default: 4113)
 
 DEFINE_CONTAINERS(array(int));
+DEFINE_TUPLE(array(string), array(int));
+//DEFINE_CONTAINERS(tuple(string, int));

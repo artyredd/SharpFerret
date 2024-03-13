@@ -58,7 +58,7 @@ private bool TryGetNameBeforeAlligator(string data, tuple(int, int)* out_name)
 
 		exitedWhitespace = true;
 
-		if (IsValidNameCharacter(c))
+		if (IsValidNamebyteacter(c))
 		{
 			if (nameEnd is - 1)
 			{
@@ -70,7 +70,7 @@ private bool TryGetNameBeforeAlligator(string data, tuple(int, int)* out_name)
 			continue;
 		}
 
-		// contains invalid characters or is improperly formatted
+		// contains invalid byteacters or is improperly formatted
 		return false;
 	}
 
@@ -94,7 +94,7 @@ private bool TryGetTypeReturnType(string data, tuple(int, int)* out_returnType)
 		int* method();
 	*/
 	int depth = 0;
-	bool encounteredNameCharacter = false;
+	bool encounteredNamebyteacter = false;
 	int typeEnd = -1;
 	int typeStart = -1;
 
@@ -109,23 +109,23 @@ private bool TryGetTypeReturnType(string data, tuple(int, int)* out_returnType)
 		// ignore whitespace
 		if (isspace(c))
 		{
-			if (encounteredNameCharacter)
+			if (encounteredNamebyteacter)
 			{
 				typeStart = i + 1;
 
 				// we want the struct portion of the type
-				if (PreviousCharacterIgnoringWhiteSpace(stack_substring_front(data, i)) isnt 't')
+				if (PreviousbyteacterIgnoringWhiteSpace(stack_substring_front(data, i)) isnt 't')
 				{
 					break;
 				}
 
-				i = IndexOfPreviousCharacterIgnoringWhitespace(stack_substring_front(data, i));
+				i = IndexOfPreviousbyteacterIgnoringWhitespace(stack_substring_front(data, i));
 			}
 
 			continue;
 		}
 
-		// first non-whitespace character
+		// first non-whitespace byteacter
 		// denotes end of type
 		if (typeEnd is - 1)
 		{
@@ -156,7 +156,7 @@ private bool TryGetTypeReturnType(string data, tuple(int, int)* out_returnType)
 		{
 			// can't have a type like int*float
 			// only int***********
-			if (encounteredNameCharacter)
+			if (encounteredNamebyteacter)
 			{
 				return false;
 			}
@@ -164,9 +164,9 @@ private bool TryGetTypeReturnType(string data, tuple(int, int)* out_returnType)
 			continue;
 		}
 
-		if (IsValidNameCharacter(c))
+		if (IsValidNamebyteacter(c))
 		{
-			encounteredNameCharacter = true;
+			encounteredNamebyteacter = true;
 
 			typeStart = i;
 
@@ -237,7 +237,7 @@ private bool IsGenericStruct(string data, int openAlligatorIndex, location* out_
 	// struct name<T>{ T thing; };
 	// typedef struct <T>{ T thing; } name;
 
-	string startThroughAlligator = stack_subarray(char, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex);
+	string startThroughAlligator = stack_subarray(byte, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex);
 
 	const bool hasStructKeyword = Strings.Contains(startThroughAlligator->Values, startThroughAlligator->Count, "struct", sizeof("struct") - 1);
 
@@ -246,7 +246,7 @@ private bool IsGenericStruct(string data, int openAlligatorIndex, location* out_
 		return false;
 	}
 
-	const bool hasValidNameOrNoName = HasAllValidNameCharactersOrWhiteSpace(startThroughAlligator);
+	const bool hasValidNameOrNoName = HasAllValidNamebyteactersOrWhiteSpace(startThroughAlligator);
 
 	if (hasValidNameOrNoName is false)
 	{
@@ -262,15 +262,15 @@ private bool IsGenericStruct(string data, int openAlligatorIndex, location* out_
 	}
 
 	// open brace must follow generic declaration
-	const int nextCharacter = NextCharacterIgnoringWhiteSpace(stack_subarray_back(char, data, closingIndex + 1));
+	const int nextbyteacter = NextbyteacterIgnoringWhiteSpace(stack_subarray_back(byte, data, closingIndex + 1));
 
-	if (nextCharacter isnt '{')
+	if (nextbyteacter isnt '{')
 	{
 		return false;
 	}
 
 	// at this point we know its a struct def
-	string block = stack_subarray_back(char, data, closingIndex + 1);
+	string block = stack_subarray_back(byte, data, closingIndex + 1);
 
 	const int indexOfBrace = IndexOfClosingBrace(block) + closingIndex + 1;
 
@@ -289,7 +289,7 @@ private bool IsGenericMethodDeclaration(string data, int openAlligatorIndex, loc
 	Guard(data->Values[openAlligatorIndex] is '<');
 
 	// method declarations have a return type, name, params, and a semicolon at the end
-	string startThroughAlligator = stack_subarray(char, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex + 1);
+	string startThroughAlligator = stack_subarray(byte, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex + 1);
 
 	const bool hasValidMethodSignature = IsValidMethodSignature(startThroughAlligator);
 
@@ -307,9 +307,9 @@ private bool IsGenericMethodDeclaration(string data, int openAlligatorIndex, loc
 	}
 
 	// open brace must follow generic declaration
-	const int nextCharacter = NextCharacterIgnoringWhiteSpace(stack_substring_back(data, closingIndex + 1));
+	const int nextbyteacter = NextbyteacterIgnoringWhiteSpace(stack_substring_back(data, closingIndex + 1));
 
-	if (nextCharacter isnt '(')
+	if (nextbyteacter isnt '(')
 	{
 		return false;
 	}
@@ -320,12 +320,12 @@ private bool IsGenericMethodDeclaration(string data, int openAlligatorIndex, loc
 	const int indexOfBrace = IndexOfClosingParen(block) + closingIndex + 1;
 
 	// make sure the declaration is ended with a semicolon
-	if (NextCharacterIgnoringWhiteSpace(stack_substring_back(data, indexOfBrace + 1)) isnt ';')
+	if (NextbyteacterIgnoringWhiteSpace(stack_substring_back(data, indexOfBrace + 1)) isnt ';')
 	{
 		return false;
 	}
 
-	out_location->EndScopeIndex = 1 + indexOfBrace + IndexOfNextCharacterIgnoringWhitespace(stack_substring_back(data, indexOfBrace));
+	out_location->EndScopeIndex = 1 + indexOfBrace + IndexOfNextbyteacterIgnoringWhitespace(stack_substring_back(data, indexOfBrace));
 
 	out_location->Declaration = true;
 
@@ -340,7 +340,7 @@ private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, loca
 	Guard(data->Values[openAlligatorIndex] is '<');
 
 	// method declarations have a return type, name, params, and a semicolon at the end
-	string startThroughAlligator = stack_subarray(char, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex + 1);
+	string startThroughAlligator = stack_subarray(byte, data, out_location->StartScopeIndex, openAlligatorIndex - out_location->StartScopeIndex + 1);
 
 	const bool hasValidMethodSignature = IsValidMethodSignature(startThroughAlligator);
 
@@ -361,7 +361,7 @@ private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, loca
 	const int indexOfStartBrace = IndexOfClosingParen(block) + out_location->AlligatorEndIndex + 2;
 
 	// make sure the signature ends with a brace to define the method body
-	if (NextCharacterIgnoringWhiteSpace(stack_substring_back(data, indexOfStartBrace)) isnt '{')
+	if (NextbyteacterIgnoringWhiteSpace(stack_substring_back(data, indexOfStartBrace)) isnt '{')
 	{
 		return false;
 	}
@@ -456,7 +456,7 @@ array(location) GetGenericLocations(string data)
 		if (c is '/' and nextC is '/')
 		{
 			inComment = true;
-			// skip past next char since we know what it is
+			// skip past next byte since we know what it is
 			i++;
 			continue;
 		}
@@ -464,7 +464,7 @@ array(location) GetGenericLocations(string data)
 		if (c is '/' and nextC is '*')
 		{
 			inMultiLineComment = true;
-			// skip past next char since we know what it is
+			// skip past next byte since we know what it is
 			i++;
 			continue;
 		}
@@ -472,7 +472,7 @@ array(location) GetGenericLocations(string data)
 		if (c is '*' and nextC is '/')
 		{
 			inMultiLineComment = false;
-			// skip past next char since we know what it is
+			// skip past next byte since we know what it is
 			i++;
 			continue;
 		}
@@ -524,7 +524,7 @@ array(location) GetGenericLocations(string data)
 		{
 			// check to see if it's actually a generic definition or 
 			// something else
-			if (LookAheadIsGenericCall(stack_subarray_back(char, data, i + 1)))
+			if (LookAheadIsGenericCall(stack_subarray_back(byte, data, i + 1)))
 			{
 				location callLocation = IdentifyGenericCall(data, depth, i, macroEnd);
 
@@ -639,23 +639,23 @@ TEST(TryGetTypeReturnType)
 
 	data = stack_string("void ");
 	IsTrue(TryGetTypeReturnType(data, &result));
-	IsTrue(strings.Equals(stack_subarray(char, data, result.First, result.Second), stack_string("void")));
+	IsTrue(strings.Equals(stack_subarray(byte, data, result.First, result.Second), stack_string("void")));
 
 	data = stack_string("struct vector2{ float x; float y; } ");
 	IsTrue(TryGetTypeReturnType(data, &result));
-	IsTrue(strings.Equals(stack_subarray(char, data, result.First, result.Second), stack_string("struct vector2{ float x; float y; }")));
+	IsTrue(strings.Equals(stack_subarray(byte, data, result.First, result.Second), stack_string("struct vector2{ float x; float y; }")));
 
 	data = stack_string("struct vector4{ struct vector3{ struct vector2{float x; float y;}; float z;}; float w; } ");
 	IsTrue(TryGetTypeReturnType(data, &result));
-	IsTrue(strings.Equals(stack_subarray(char, data, result.First, result.Second), stack_string("struct vector4{ struct vector3{ struct vector2{float x; float y;}; float z;}; float w; }")));
+	IsTrue(strings.Equals(stack_subarray(byte, data, result.First, result.Second), stack_string("struct vector4{ struct vector3{ struct vector2{float x; float y;}; float z;}; float w; }")));
 
 	data = stack_string("int* ");
 	IsTrue(TryGetTypeReturnType(data, &result));
-	IsTrue(strings.Equals(stack_subarray(char, data, result.First, result.Second), stack_string("int*")));
+	IsTrue(strings.Equals(stack_subarray(byte, data, result.First, result.Second), stack_string("int*")));
 
 	data = stack_string("static inline int**************** ");
 	IsTrue(TryGetTypeReturnType(data, &result));
-	IsTrue(strings.Equals(stack_subarray(char, data, result.First, result.Second), stack_string("int****************")));
+	IsTrue(strings.Equals(stack_subarray(byte, data, result.First, result.Second), stack_string("int****************")));
 
 	data = stack_string("int*float* ");
 	IsFalse(TryGetTypeReturnType(data, &result));
@@ -677,7 +677,7 @@ TEST(TryGetNameBeforeAlligator)
 
 	data = stack_string("void MyMethod");
 	IsTrue(TryGetNameBeforeAlligator(data, &result));
-	IsTrue(strings.Equals(stack_subarray(char, data, result.First, result.Second), stack_string("MyMethod")));
+	IsTrue(strings.Equals(stack_subarray(byte, data, result.First, result.Second), stack_string("MyMethod")));
 
 	data = stack_string("void MyMethod;");
 	IsFalse(TryGetNameBeforeAlligator(data, &result));
@@ -817,7 +817,7 @@ TEST(IsGenericMethodDefinition)
 	data = stack_string("void Method<T>(){}");
 	IsTrue(IsGenericMethodDefinition(data, 11, &dataLocation));
 
-	data = stack_string("int Method<T>(int left, int right){ struct result{int x; const char* s = \"thi)}g\"}; if(left && right){ return left; } return right + Method(); }");
+	data = stack_string("int Method<T>(int left, int right){ struct result{int x; const byte* s = \"thi)}g\"}; if(left && right){ return left; } return right + Method(); }");
 	dataLocation = (location){
 		.AlligatorStartIndex = 10,
 		.AlligatorEndIndex = 12,
@@ -991,7 +991,7 @@ TEST(GetGenericLocations)
 	result = at(locations, 1);
 
 	IsEqual(38, result.AlligatorStartIndex);
-	IsEqual((char)'y', at(data, 37));
+	IsEqual((byte)'y', at(data, 37));
 	IsEqual(42, result.AlligatorEndIndex);
 	IsEqual(33, result.StartScopeIndex);
 	IsEqual(-1, result.EndScopeIndex);

@@ -65,7 +65,7 @@ struct _configMethods {
 	/// with the index of the token within the token array and the data for that token, along with the state pointer originally passed to the method,
 	/// this method returns true when all calls to OnTokenFound return true and no file error occurs, otherwise false
 	/// </summary>
-	bool(*TryLoadConfig)(const array(char) path, const ConfigDefinition, void* state);
+	bool(*TryLoadConfig)(const string path, const ConfigDefinition, void* state);
 
 	/// <summary>
 	/// Attempts to locate each token within the config definition, once found OnTokenFound within the definition is invoked
@@ -74,7 +74,7 @@ struct _configMethods {
 	/// </summary>
 	bool (*TryLoadConfigStream)(File stream, const ConfigDefinition, void* state);
 
-	void (*SaveConfig)(const array(char) path, const ConfigDefinition, void* state);
+	void (*SaveConfig)(const string path, const ConfigDefinition, void* state);
 	void (*SaveConfigStream)(File stream, const ConfigDefinition, void* state);
 };
 

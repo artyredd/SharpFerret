@@ -477,9 +477,25 @@ TEST(Hashing)
 	return true;
 }
 
+DEFINE_COMPARATOR(byte, GreaterThan, > );
+
+TEST(Sorting)
+{
+	string data = stack_string("21875098126354912839");
+
+	strings.InsertionSort(data, GreaterThan);
+
+	string expected = stack_string("01112223345567888999");
+
+	IsStringEqual(expected, data);
+
+	return true;
+}
+
 TEST_SUITE(RunUnitTests,
 	APPEND_TEST(Hashing)
 	APPEND_TEST(Equals)
+	APPEND_TEST(Sorting)
 );
 
 OnStart(11)

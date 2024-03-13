@@ -4,8 +4,8 @@
 #include "windows.h"
 // >:(
 
-private array(char) ExecutableDirectory(void);
-private array(char) ExecutableDirectorylINUX(void);
+private string ExecutableDirectory(void);
+private string ExecutableDirectorylINUX(void);
 
 extern const struct _osMethods OperatingSystem = {
 #ifdef LINUX
@@ -15,16 +15,16 @@ extern const struct _osMethods OperatingSystem = {
 #endif
 };
 
-array(char) ExecutableDirectory(void)
+array(byte) ExecutableDirectory(void)
 {
 	char buffer[MAX_PATH];
 	DWORD length = GetModuleFileNameA(NULL, buffer, MAX_PATH);
 
-	array(char) result = arrays(char).Create(length);
+	array(byte) result = arrays(byte).Create(length);
 
 	for (ulong i = 0; i < safe_add(length, 1); i++)
 	{
-		*arrays(char).At(result, i) = buffer[i];
+		*arrays(byte).At(result, i) = buffer[i];
 	}
 
 	return result;
