@@ -31,7 +31,7 @@ string FlattenArgumentToCName(string arg, string stack_buffer) {
 	for (int i = 0; i < arg->Count; i++) {
 		const int c = at(arg, i);
 
-		if (IsValidNamebyteacter(c)) {
+		if (IsValidNameCharacter(c)) {
 			strings.Append(result, c);
 			continue;
 		}
@@ -188,7 +188,7 @@ array(string) GetGenericArguments(string data, location location) {
 		if (subdata->Count is 2) {
 			fprintf_red(
 				stderr,
-				"A minium of one type argument is required when using generics.", "");
+				"A minium of one type argument is required when using generics. %s", "");
 			throw(MissingGenericArgumentException);
 		}
 
@@ -281,7 +281,7 @@ GenericTypeInfo GetGenericArgumentsWithinBody(string data, location location,
 		}
 
 		// ignore non name byteacters, NO type can start with one
-		if (IsValidNamebyteacter(c) is false) {
+		if (IsValidNameCharacter(c) is false) {
 			previousbyteWasPuncutation = true;
 			continue;
 		}
@@ -298,7 +298,7 @@ GenericTypeInfo GetGenericArgumentsWithinBody(string data, location location,
 				string substr = stack_substring_back(subdata, i);
 				const byte cAfterToken =
 					at(substr, at(typeNames, indexOfFoundArg)->Count);
-				if (IsValidNamebyteacter(cAfterToken) is false) {
+				if (IsValidNameCharacter(cAfterToken) is false) {
 					arrays(int).Append(at(result, indexOfFoundArg), i);
 				}
 			}
@@ -343,26 +343,28 @@ private array(tuple(string, int)) SortGenericTypeInfo(GenericTypeInfo info) {
 
 	arrays(tuple(string, int)).InsertionSort(result, BigToSmallComparator);
 
+	info.SortedTypeLocations = result;
+
 	return result;
 }
 
-private string RemoveTypesFromGenericMethodBody(string data, GenericTypeInfo info, array(tuple(string, int)) sortedTypeLocations)
+private string RemoveTypesFromGenericMethodBody(string data, GenericTypeInfo info)
 {
 	string result = strings.Clone(data);
 
 	// iterate backwards deleting all the generic types
 	// so we can fill in concrete types later
-	for (size_t forwardIndex = 0; forwardIndex < sortedTypeLocations->Count; forwardIndex++)
+	for (size_t forwardIndex = 0; forwardIndex < info.SortedTypeLocations->Count; forwardIndex++)
 	{
-		string name = at(sortedTypeLocations, forwardIndex).First;
-		int index = at(sortedTypeLocations, forwardIndex).Second;
+		string name = at(info.SortedTypeLocations, forwardIndex).First;
+		int index = at(info.SortedTypeLocations, forwardIndex).Second;
 
 		strings.RemoveRange(result, index, name->Count);
 
 		// recalc indices for any values that come after this
 		int backIndex = forwardIndex;
 		while (backIndex-- > 0) {
-			at(sortedTypeLocations, backIndex).Second -= name->Count;
+			at(info.SortedTypeLocations, backIndex).Second -= name->Count;
 		}
 	}
 
@@ -372,9 +374,30 @@ private string RemoveTypesFromGenericMethodBody(string data, GenericTypeInfo inf
 void ExpandGenericArgumentsWithinBody(string data, location location,
 	GenericTypeInfo info) {}
 
-MethodInfo GetMethodInfo(string data, location location,
-	GenericTypeInfo typeInfo) {
-	return (MethodInfo) { 0 };
+MethodInfo GetMethodInfo(string data, location location) {
+
+	MethodInfo info = {
+		.Data = null,
+		.TypeLocations = null,
+		.TypeNames = GetGenericArguments(data,location),
+		.SortedTypeLocations = null,
+		.Name = null
+	};
+
+	GenericTypeInfo genericInfo = GetGenericArgumentsWithinBody(data, location, info.TypeNames);
+
+	info.TypeLocations = genericInfo.TypeLocations;
+	info.TypeNames = genericInfo.TypeNames;
+	info.SortedTypeLocations = SortGenericTypeInfo(genericInfo);
+	genericInfo.SortedTypeLocations = info.SortedTypeLocations;
+
+	info.Data = RemoveTypesFromGenericMethodBody(data, genericInfo);
+
+	string name = combine_partial_string(data, GetMethodName(stack_substring_front(data, location.AlligatorStartIndex)));
+
+	info.Name = strings.Clone(name);
+
+	return info;
 }
 
 GenericTypeInfo GetGenericTokens(string data, location location) {
@@ -562,22 +585,29 @@ TEST(GetGenericArguments) {
 	return true;
 }
 
-TEST(GetGenericArgumentsWithinBody) {
-	string data = stack_string(
-		"V Method<T,U,V>(T left,U right){ if(((T)right).Thing && "
-		"((U)left).Thing){V result = (V)left + (V)right; return result; }}");
-	location dataLocation = (location){ .AlligatorStartIndex = 8,
+static string GlobalData = stack_string(
+	"V Method<T,U,V>(T left,U right){ if(((T)right).Thing && "
+	"((U)left).Thing){V result = (V)left + (V)right; return result; }}");
+static location GlobalLocation = { .AlligatorStartIndex = 8,
 									   .AlligatorEndIndex = 14,
 									   .StartScopeIndex = 0,
 									   .EndScopeIndex = 120 };
+array(string) GlobalTypeNames = nested_stack_array(
+	string, stack_string("T"), stack_string("U"), stack_string("V"));
 
-	array(string) typeNames = nested_stack_array(
-		string, stack_string("T"), stack_string("U"), stack_string("V"));
+array(array(int)) GlobalTypeLocations =
+stack_array(array(int), 3, auto_stack_array(int, 9, 16, 38),
+	auto_stack_array(int, 11, 23, 58),
+	auto_stack_array(int, 0, 13, 73, 85, 95));
 
-	array(array(int)) expectedArray =
-		stack_array(array(int), 3, auto_stack_array(int, 9, 16, 38),
-			auto_stack_array(int, 11, 23, 58),
-			auto_stack_array(int, 0, 13, 73, 85, 95));
+TEST(GetGenericArgumentsWithinBody) {
+	string data = GlobalData;
+
+	location dataLocation = GlobalLocation;
+
+	array(string) typeNames = GlobalTypeNames;
+
+	array(array(int)) expectedArray = GlobalTypeLocations;
 
 	GenericTypeInfo typeInfo =
 		GetGenericArgumentsWithinBody(data, dataLocation, typeNames);
@@ -609,56 +639,29 @@ TEST(GetGenericArgumentsWithinBody) {
 	return true;
 }
 
-TEST(SortGenericTypeInfo) {
-	string data = stack_string(
-		"V Method<T,U,V>(T left,U right){ if(((T)right).Thing && "
-		"((U)left).Thing){V result = (V)left + (V)right; return result; }}");
-	location dataLocation = (location){ .AlligatorStartIndex = 8,
-									   .AlligatorEndIndex = 14,
-									   .StartScopeIndex = 0,
-									   .EndScopeIndex = 120 };
+array(tuple(string, int)) GlobalSortedTypeLocations = stack_array(tuple(string, int), 11,
+	{ stack_string("V"), 95 },
+	{ stack_string("V"), 85 },
+	{ stack_string("V"), 73 },
+	{ stack_string("U"), 58 },
+	{ stack_string("T"), 38 },
+	{ stack_string("U"), 23 },
+	{ stack_string("T"), 16 },
+	{ stack_string("V"), 13 },
+	{ stack_string("U"), 11 },
+	{ stack_string("T"), 9 },
+	{ stack_string("V"), 0 }
+);
 
-	array(string) typeNames = nested_stack_array(
-		string, stack_string("T"), stack_string("U"), stack_string("V"));
+TEST(SortGenericTypeInfo) {
+	string data = GlobalData;
+	location dataLocation = GlobalLocation;
+	array(string) typeNames = GlobalTypeNames;
 
 	GenericTypeInfo typeInfo =
 		GetGenericArgumentsWithinBody(data, dataLocation, typeNames);
 
-	array(tuple(string, int)) expectedArray = stack_array(tuple(string, int), 11,
-		(tuple(string, int)) {
-		stack_string("V"), 95
-	},
-		(tuple(string, int)) {
-		stack_string("V"), 85
-	},
-		(tuple(string, int)) {
-		stack_string("V"), 73
-	},
-		(tuple(string, int)) {
-		stack_string("U"), 58
-	},
-		(tuple(string, int)) {
-		stack_string("T"), 38
-	},
-		(tuple(string, int)) {
-		stack_string("U"), 23
-	},
-		(tuple(string, int)) {
-		stack_string("T"), 16
-	},
-		(tuple(string, int)) {
-		stack_string("V"), 13
-	},
-		(tuple(string, int)) {
-		stack_string("U"), 11
-	},
-		(tuple(string, int)) {
-		stack_string("T"), 9
-	},
-		(tuple(string, int)) {
-		stack_string("V"), 0
-	}
-	);
+	array(tuple(string, int)) expectedArray = GlobalSortedTypeLocations;
 
 	array(tuple(string, int)) actualArray = SortGenericTypeInfo(typeInfo);
 
@@ -669,36 +672,68 @@ TEST(SortGenericTypeInfo) {
 		tuple(string, int) expected = at(expectedArray, i);
 		tuple(string, int) actual = at(actualArray, i);
 
-		IsStringEqual(expected.First, actual.First);
+		IsEqual(expected.First, actual.First);
 		IsEqual(expected.Second, actual.Second);
 	}
 
 	return true;
 }
 
+string GlobalTypelessData = stack_string(" Method<,,>( left, right){ if((()right).Thing && (()left).Thing){ result = ()left + ()right; return result; }}");
+
+
 TEST(RemoveTypesFromGenericMethodBody)
 {
-	string data = stack_string(
-		"V Method<T,U,V>(T left,U right){ if(((T)right).Thing && "
-		"((U)left).Thing){V result = (V)left + (V)right; return result; }}");
-	location dataLocation = (location){ .AlligatorStartIndex = 8,
-									   .AlligatorEndIndex = 14,
-									   .StartScopeIndex = 0,
-									   .EndScopeIndex = 120 };
-
-	array(string) typeNames = nested_stack_array(
-		string, stack_string("T"), stack_string("U"), stack_string("V"));
+	string data = GlobalData;
+	location dataLocation = GlobalLocation;
+	array(string) typeNames = GlobalTypeNames;
 
 	GenericTypeInfo typeInfo =
 		GetGenericArgumentsWithinBody(data, dataLocation, typeNames);
 
 	array(tuple(string, int)) sortedInfo = SortGenericTypeInfo(typeInfo);
 
-	string actual = RemoveTypesFromGenericMethodBody(data, typeInfo, sortedInfo);
+	typeInfo.SortedTypeLocations = sortedInfo;
 
-	string expected = stack_string(" Method<,,>( left, right){ if((()right).Thing && (()left).Thing){ result = ()left + ()right; return result; }}");
+	string actual = RemoveTypesFromGenericMethodBody(data, typeInfo);
 
-	IsStringEqual(expected, actual);
+	string expected = GlobalTypelessData;
+
+	IsEqual(expected, actual);
+
+	return true;
+}
+
+TEST(GetMethodInfo)
+{
+	string data = GlobalData;
+	location dataLocation = GlobalLocation;
+
+	MethodInfo expected = {
+		.Name = stack_string("Method"),
+		.Data = GlobalTypelessData,
+		.TypeNames = GlobalTypeNames,
+		.TypeLocations = GlobalTypeLocations,
+		.SortedTypeLocations = GlobalSortedTypeLocations
+	};
+
+	MethodInfo actual = GetMethodInfo(data, dataLocation);
+
+	NotNull(actual.Name);
+	NotNull(actual.Data);
+	NotNull(actual.SortedTypeLocations);
+	NotNull(actual.TypeLocations);
+	NotNull(actual.TypeNames);
+
+	IsEqual(actual.Data, expected.Data);
+	IsEqual(actual.Name, expected.Name);
+
+	for (size_t i = 0; i < min(actual.TypeNames->Count, expected.TypeNames->Count); i++)
+	{
+		string expectedType = at(expected.TypeNames, i);
+		string actualType = at(actual.TypeNames, i);
+		IsEqual(expectedType, actualType);
+	}
 
 	return true;
 }
@@ -709,6 +744,7 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(GetGenericArgumentsWithinBody)
 	APPEND_TEST(SortGenericTypeInfo)
 	APPEND_TEST(RemoveTypesFromGenericMethodBody)
+	APPEND_TEST(GetMethodInfo)
 );
 
 OnStart(2) { RunUnitTests(); }

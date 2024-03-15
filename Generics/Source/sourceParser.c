@@ -25,65 +25,6 @@ T Multiply_##T(T left, T right)\
 }\
 */
 
-// returns true if it has a valid name, and sets the out_name (int nameStartIndex,int length) so you
-// can construct a stack_subarray from the indices
-private bool TryGetNameBeforeAlligator(string data, tuple(int, int)* out_name)
-{
-	*out_name = (tuple(int, int)){ 0,0 };
-
-	// when we got past here
-	//           \/
-	// void method <>()
-	bool exitedWhitespace = false;
-	int nameLength = 0;
-
-	int nameStart = -1;
-	int nameEnd = -1;
-
-	// traverse backwards
-	for (int i = data->Count; i-- > 0;)
-	{
-		const int c = at(data, i);
-
-		if (isspace(c))
-		{
-			if (exitedWhitespace)
-			{
-				nameStart = i + 1;
-				break;
-			}
-
-			continue;
-		}
-
-		exitedWhitespace = true;
-
-		if (IsValidNamebyteacter(c))
-		{
-			if (nameEnd is - 1)
-			{
-				nameEnd = i;
-			}
-
-			++nameLength;
-
-			continue;
-		}
-
-		// contains invalid byteacters or is improperly formatted
-		return false;
-	}
-
-	if (nameStart is - 1 or nameEnd is - 1)
-	{
-		return false;
-	}
-
-	*out_name = (tuple(int, int)){ nameStart, nameEnd - nameStart + 1 };
-
-	return nameLength > 0;
-}
-
 private bool TryGetTypeReturnType(string data, tuple(int, int)* out_returnType)
 {
 	*out_returnType = (tuple(int, int)){ 0,0 };
@@ -164,7 +105,7 @@ private bool TryGetTypeReturnType(string data, tuple(int, int)* out_returnType)
 			continue;
 		}
 
-		if (IsValidNamebyteacter(c))
+		if (IsValidNameCharacter(c))
 		{
 			encounteredNamebyteacter = true;
 

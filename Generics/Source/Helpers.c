@@ -9,7 +9,7 @@
 #include "core/guards.h"
 #include "core/runtime.h"
 
-bool IsValidNamebyteacter(const int c);
+bool IsValidNameCharacter(const int c);
 
 // Returns -1 if the left is found first
 // Returns 0 if neither are found
@@ -253,7 +253,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 		}
 
 		// skip words like private, static, int, float etc
-		if (IsValidNamebyteacter(c) && depth is 0 && parenDepth is 0)
+		if (IsValidNameCharacter(c) && depth is 0 && parenDepth is 0)
 		{
 			indexOfLastValidbyte = i;
 			continue;
@@ -287,7 +287,7 @@ private int IndexOfLastBlockExpressionOrMacro(string data, int start, int lastMa
 
 // returns whether or not the byteacter is a valid c name byteacter that could be used
 // to name a method or variable
-private bool IsValidNamebyteacter(const int c)
+private bool IsValidNameCharacter(const int c)
 {
 	if (isalnum(c))
 	{
@@ -307,7 +307,7 @@ private bool HasAllValidNamebyteactersOrWhiteSpace(string data)
 	{
 		const int c = at(data, i);
 
-		if (IsValidNamebyteacter(c) is false)
+		if (IsValidNameCharacter(c) is false)
 		{
 			if (isspace(c))
 			{
@@ -687,4 +687,81 @@ private int BeginsWithAny(string data, array(string) values)
 		}
 	}
 	return -1;
+}
+
+
+// returns true if it has a valid name, and sets the out_name (int nameStartIndex,int length) so you
+// can construct a stack_subarray from the indices
+private bool TryGetNameBeforeAlligator(string data, tuple(int, int)* out_name)
+{
+	*out_name = (tuple(int, int)){ 0,0 };
+
+	// when we got past here
+	//           \/
+	// void method <>()
+	bool exitedWhitespace = false;
+	int nameLength = 0;
+
+	int nameStart = -1;
+	int nameEnd = -1;
+
+	// traverse backwards
+	for (int i = data->Count; i-- > 0;)
+	{
+		const int c = at(data, i);
+
+		if (isspace(c))
+		{
+			if (exitedWhitespace)
+			{
+				nameStart = i + 1;
+				break;
+			}
+
+			continue;
+		}
+
+		exitedWhitespace = true;
+
+		if (IsValidNameCharacter(c))
+		{
+			if (nameEnd is - 1)
+			{
+				nameEnd = i;
+			}
+
+			++nameLength;
+
+			continue;
+		}
+
+		// contains invalid byteacters or is improperly formatted
+		return false;
+	}
+
+	if (nameStart is - 1 or nameEnd is - 1)
+	{
+		return false;
+	}
+
+	*out_name = (tuple(int, int)){ nameStart, nameEnd - nameStart + 1 };
+
+	return nameLength > 0;
+}
+
+// returns method name
+// takes in a string which is everything at or before the >( in a generic method
+// so takes in int main<int>(
+// returns "main" as a partial string
+private partial_string GetMethodName(string data)
+{
+	tuple(int, int) namePosition;
+	partial_string result = { 0 };
+
+	if (TryGetNameBeforeAlligator(data, &namePosition))
+	{
+		return partial_substring(data, namePosition.First, namePosition.Second);
+	}
+
+	return result;
 }

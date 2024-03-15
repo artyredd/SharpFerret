@@ -8,11 +8,13 @@ typedef struct {
 	// index matches type name indices
 	// TypeLocations[i] is an array of start indexes where TypeName[i] appears
 	array(array(int)) TypeLocations;
+	// Sorted last to first type locations
+	array(tuple(string, int)) SortedTypeLocations;
 } GenericTypeInfo;
 
 typedef struct {
-	string name;
-	string data;
+	string Name;
+	string Data;
 	GenericTypeInfo;
 } MethodInfo;
 

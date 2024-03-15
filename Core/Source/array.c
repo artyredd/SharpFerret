@@ -488,7 +488,7 @@ TEST(Sorting)
 
 	string expected = stack_string("01112223345567888999");
 
-	IsStringEqual(expected, data);
+	IsEqual(expected, data);
 
 	return true;
 }

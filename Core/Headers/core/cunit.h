@@ -98,6 +98,22 @@ private bool _PrintStringDifferences(void* stream, void* left, void* right)
 	return false;
 }
 
+static int _DangerousPrintString(void* str)
+{
+	string s = (string)str;
+	fprintf(stdout, "%s", s ? s->Values ? s->Values : "Null String" : "Null Array");
+	return true;
+}
+
+static bool _DangerousStringEquals(void* expectedPtr, void* actualPtr)
+{
+	string expected = (string)expectedPtr;
+	string actual = (string)actualPtr;
+
+	return strings.Equals(expected, actual);
+}
+
+#define AutoPrint(value) if(IsTypeof(value,string)){_DangerousPrintString((void*)(ulong)value);}else{fprintf(stdout,FormatCType(value),value);}
 
 #define BenchmarkAssertion(expression,stream) do\
 {\
@@ -120,7 +136,9 @@ private bool _PrintStringDifferences(void* stream, void* left, void* right)
 #define BenchmarkComparison(expected,actual,comparison,format,stream)do\
 {\
 	ulong start = clock(); \
-	bool pass = (expected comparison actual); \
+	bool pass = false;\
+	if(IsTypeof(expected,string) is false){pass = (expected comparison actual);} \
+	else{ pass = _DangerousStringEquals((void*)(size_t)(expected),(void*)(size_t)(actual)); }\
 	ulong end = clock() - start; \
 	if (pass)\
 	{\
@@ -175,6 +193,7 @@ private bool _PrintStringDifferences(void* stream, void* left, void* right)
     default: "UnsupportedType" \
 )
 
+
 #define Assert(expr) BenchmarkAssertion(expr,__test_stream);
 #define StandardAssert(expr) Assert(expr,stdout);
 
@@ -189,18 +208,8 @@ private bool _PrintStringDifferences(void* stream, void* left, void* right)
 
 #define IsApproximate(left,right) BenchmarkComparison(((left < 0 ? (-left) : (left)) - (right < 0 ? (-right) : (right))),1e-15,<=,FormatCType(left),__test_stream);
 
-#define IsStringEqual(expected,actual) do{bool areStringsEqual = strings.Equals(expected,actual); IsTrue(areStringsEqual); if(areStringsEqual is false){_PrintStringDifferences(__test_stream,expected,actual);}}while(0);
-
 #define IsTupleEqual(leftTuple,rightTuple) IsEqual(leftTuple.First,rightTuple.First); IsEqual(leftTuple.Second,rightTuple.Second)
 
-static int _DangerousPrintString(void* str)
-{
-	string s = (string)str;
-	fprintf(stdout, "%s", s ? s->Values ? s->Values : "Null String" : "Null Array");
-	return true;
-}
-
-#define AutoPrint(value) if(IsTypeof(value,string)){_DangerousPrintString((void*)(ulong)value);}else{fprintf(stdout,FormatCType(value),value);}
 
 #define PrintTuple(value) fprintf(stdout,"{ "); AutoPrint((value).First); fprintf(stdout,", "); AutoPrint((value).Second); fprintf(stdout," }"NEWLINE);
 #define PrintTupleArray(name,value) fprintf(stdout,name"{ \n");for(int i = 0; i < value->Count; i++){ fprintf(stdout,"\t");PrintTuple(at(value,i)); } fprintf(stdout,"}");
