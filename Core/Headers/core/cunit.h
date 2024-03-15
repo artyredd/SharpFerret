@@ -105,6 +105,8 @@ static int _DangerousPrintString(void* str)
 	return true;
 }
 
+#define AutoPrint(value) if(IsTypeof(value,string)){_DangerousPrintString((void*)(ulong)value);}else{fprintf(stdout,FormatCType(value),value);}
+
 static bool _DangerousStringEquals(void* expectedPtr, void* actualPtr)
 {
 	string expected = (string)expectedPtr;
@@ -113,7 +115,6 @@ static bool _DangerousStringEquals(void* expectedPtr, void* actualPtr)
 	return strings.Equals(expected, actual);
 }
 
-#define AutoPrint(value) if(IsTypeof(value,string)){_DangerousPrintString((void*)(ulong)value);}else{fprintf(stdout,FormatCType(value),value);}
 
 #define BenchmarkAssertion(expression,stream) do\
 {\
@@ -174,26 +175,6 @@ static bool _DangerousStringEquals(void* expectedPtr, void* actualPtr)
 	suite->Dispose(suite);\
 }
 
-#define FormatCType(type) _Generic((type), \
-    char: "%c", \
-    unsigned char: "%c", \
-    short: "%hd", \
-    unsigned short: "%hu", \
-    int: "%d", \
-    unsigned int: "%u", \
-    long: "%ld", \
-    unsigned long: "%lu", \
-    long long: "%lld", \
-    unsigned long long: "%llu", \
-    float: "%f", \
-    double: "%lf", \
-    long double: "%Lf", \
-    const char*: "%s", \
-	char*: "%s",\
-    default: "UnsupportedType" \
-)
-
-
 #define Assert(expr) BenchmarkAssertion(expr,__test_stream);
 #define StandardAssert(expr) Assert(expr,stdout);
 
@@ -209,7 +190,6 @@ static bool _DangerousStringEquals(void* expectedPtr, void* actualPtr)
 #define IsApproximate(left,right) BenchmarkComparison(((left < 0 ? (-left) : (left)) - (right < 0 ? (-right) : (right))),1e-15,<=,FormatCType(left),__test_stream);
 
 #define IsTupleEqual(leftTuple,rightTuple) IsEqual(leftTuple.First,rightTuple.First); IsEqual(leftTuple.Second,rightTuple.Second)
-
 
 #define PrintTuple(value) fprintf(stdout,"{ "); AutoPrint((value).First); fprintf(stdout,", "); AutoPrint((value).Second); fprintf(stdout," }"NEWLINE);
 #define PrintTupleArray(name,value) fprintf(stdout,name"{ \n");for(int i = 0; i < value->Count; i++){ fprintf(stdout,"\t");PrintTuple(at(value,i)); } fprintf(stdout,"}");

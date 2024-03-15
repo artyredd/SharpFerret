@@ -107,4 +107,25 @@ static int BreakDebugger(int errorCode)
 #define struct_cast(destinationType) *(destinationType*)& 
 
 #define __IsTypeof(value,type) _Generic((value),type:"1",default:"")
-#define IsTypeof(value,type) (sizeof(__IsTypeof(value,type))-1)
+#define _IsTypeof(value,type) (sizeof(__IsTypeof(value,type))-1)
+#define IsTypeof(value,type) _IsTypeof(value,type)
+
+#define FormatCType(type) _Generic((type), \
+    char: "%c", \
+    unsigned char: "%c", \
+    short: "%hd", \
+    unsigned short: "%hu", \
+    int: "%d", \
+    unsigned int: "%u", \
+    long: "%ld", \
+    unsigned long: "%lu", \
+    long long: "%lld", \
+    unsigned long long: "%llu", \
+    float: "%f", \
+    double: "%lf", \
+    long double: "%Lf", \
+    const char*: "%s", \
+	char*: "%s",\
+    default: "UnsupportedType" \
+)
+

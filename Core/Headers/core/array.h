@@ -249,7 +249,6 @@ struct _arrayMethods
 
 extern const struct _arrayMethods Arrays;
 
-
 // TEMPLATE FOR METHODS
 #define _EXPAND_DEFINE_ARRAY(type) _ARRAY_DEFINE_STRUCT(type)\
 DEFINE_TYPE_ID(type##_array); \
@@ -381,6 +380,29 @@ private array(type) _EXPAND_METHOD_NAME(type, Fill)(array(type) array, type valu
 	}\
 	return array;\
 }\
+private int _EXPAND_METHOD_NAME(type, IndexOf)(array(type) array, type value)\
+{\
+	for (int i = 0; i < array->Count; i++)\
+	{\
+		if(memcmp(&value,&at(array,i),array->ElementSize) is 0)\
+		{\
+			return i;\
+		}\
+	}\
+	return -1;\
+}\
+private void _EXPAND_METHOD_NAME(type, Print)(void* stream, array(type) array)\
+{\
+	fprintf(stream,"{ ");\
+	for (int i = 0; i < array->Count; i++)\
+	{\
+		type value = at(array,i);\
+		if(IsTypeof(value,struct _array_byte*) is true) {fprintf(stream,"%s",(char*)((*(array(type)*)(void*)&value)->Values));}\
+		else{fprintf(stream,FormatCType(value),value);}\
+		if(i isnt array->Count-1){ fprintf(stream,", "); }\
+	}\
+	fprintf(stream," }");\
+}\
 const static struct _array_##type##_methods\
 {\
 array(type) (*Create)(ulong count); \
@@ -402,9 +424,11 @@ bool (*BeginsWith)(array(type), array(type)); \
 void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
+int (*IndexOf)(array(type), type); \
 array(type) (*Clone)(array(type)); \
 ulong(*Hash)(array(type)); \
 array(type) (*Fill)(array(type), type); \
+void (*Print)(void* stream, array(type)); \
 void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\
@@ -429,7 +453,9 @@ void (*Dispose)(array(type)); \
 .Clone = _EXPAND_METHOD_NAME(type, Clone), \
 .Hash = _EXPAND_METHOD_NAME(type, Hash), \
 .BeginsWith = _EXPAND_METHOD_NAME(type, BeginsWith), \
-.Fill = _EXPAND_METHOD_NAME(type, Fill),\
+.Fill = _EXPAND_METHOD_NAME(type, Fill), \
+.IndexOf = _EXPAND_METHOD_NAME(type, IndexOf), \
+.Print = _EXPAND_METHOD_NAME(type, Print), \
 .Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
 

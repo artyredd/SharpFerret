@@ -751,7 +751,7 @@ private bool TryGetNameBeforeAlligator(string data, tuple(int, int)* out_name)
 
 // returns method name
 // takes in a string which is everything at or before the >( in a generic method
-// so takes in int main<int>(
+// so takes in int main
 // returns "main" as a partial string
 private partial_string GetMethodName(string data)
 {

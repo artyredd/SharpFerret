@@ -348,6 +348,29 @@ private array(tuple(string, int)) SortGenericTypeInfo(GenericTypeInfo info) {
 	return result;
 }
 
+void RepackRecalculatedTypeLocations(MethodInfo info)
+{
+	// clear old values
+	for (int i = 0; i < info.TypeLocations->Count; i++)
+	{
+		arrays(int).Clear(at(info.TypeLocations, i));
+	}
+
+	for (int i = 0; i < info.SortedTypeLocations->Count; i++)
+	{
+		tuple(string, int) pair = at(info.SortedTypeLocations, i);
+
+		int nameIndex = arrays(string).IndexOf(info.TypeNames, pair.First);
+
+		if (nameIndex is - 1)
+		{
+			throw(ItemNotFoundInCollectionException);
+		}
+
+		arrays(int).Append(at(info.TypeLocations, nameIndex), pair.Second);
+	}
+}
+
 private string RemoveTypesFromGenericMethodBody(string data, GenericTypeInfo info)
 {
 	string result = strings.Clone(data);
@@ -393,9 +416,13 @@ MethodInfo GetMethodInfo(string data, location location) {
 
 	info.Data = RemoveTypesFromGenericMethodBody(data, genericInfo);
 
-	string name = combine_partial_string(data, GetMethodName(stack_substring_front(data, location.AlligatorStartIndex)));
+	string name = combine_partial_string(data, GetMethodName(stack_substring_front(data, location.AlligatorStartIndex - 1)));
 
 	info.Name = strings.Clone(name);
+
+	// because we removed the generic type names
+	// the type locations array is invalidated
+	RepackRecalculatedTypeLocations(info);
 
 	return info;
 }
@@ -653,6 +680,11 @@ array(tuple(string, int)) GlobalSortedTypeLocations = stack_array(tuple(string, 
 	{ stack_string("V"), 0 }
 );
 
+array(array(int)) GlobalRepackedTypeLocations =
+stack_array(array(int), 3, auto_stack_array(int, 38, 16, 9),
+	auto_stack_array(int, 58, 23, 11),
+	auto_stack_array(int, 95, 85, 73, 13, 0));
+
 TEST(SortGenericTypeInfo) {
 	string data = GlobalData;
 	location dataLocation = GlobalLocation;
@@ -728,11 +760,24 @@ TEST(GetMethodInfo)
 	IsEqual(actual.Data, expected.Data);
 	IsEqual(actual.Name, expected.Name);
 
-	for (size_t i = 0; i < min(actual.TypeNames->Count, expected.TypeNames->Count); i++)
+	for (int i = 0; i < min(actual.TypeNames->Count, expected.TypeNames->Count); i++)
 	{
 		string expectedType = at(expected.TypeNames, i);
 		string actualType = at(actual.TypeNames, i);
 		IsEqual(expectedType, actualType);
+	}
+
+	for (int i = 0; i < min(expected.TypeLocations->Count, actual.TypeLocations->Count); i++)
+	{
+		array(int) actualInts = at(actual.TypeLocations, i);
+		array(int) expectedInts = at(expected.TypeLocations, i);
+
+		arrays(int).Print(stdout, actualInts);
+		AutoPrint((byte)'\n');
+		arrays(int).Print(stdout, expectedInts);
+		AutoPrint((byte)'\n');
+
+		IsTrue(arrays(int).Equals(actualInts, expectedInts));
 	}
 
 	return true;
