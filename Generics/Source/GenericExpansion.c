@@ -638,11 +638,7 @@ TEST(SortGenericTypeInfo) {
 	}
 	);
 
-	PrintTupleArray("Expected: ", expectedArray);
-
 	array(tuple(string, int)) actualArray = SortGenericTypeInfo(typeInfo);
-
-	PrintTupleArray("\nActual:", actualArray);
 
 	IsEqual(expectedArray->Count, actualArray->Count);
 
