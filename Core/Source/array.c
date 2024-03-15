@@ -200,30 +200,31 @@ private void Swap(Array array, ulong firstIndex, ulong secondIndex)
 private void InsertionSort(Array array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock))
 {
 	// chat gpt generated insertion sort cuz im lazy
-	ulong j = 0;
+	// and i got punished for it because this creates a buffer
+	// overrun somwhere that i now have to debug
+	char* tempPointer = Memory.Alloc(array->ElementSize, Memory.GenericMemoryBlock);
 
-	char* temporaryMemoryBlock = Memory.Alloc(array->ElementSize, Memory.GenericMemoryBlock);
+	int leftIndex = 0;
 
-	for (ulong i = 1; i < array->Count; i++) {
+	for (int rightIndex = 1; rightIndex < array->Count; rightIndex++) {
+		memcpy(tempPointer, At(array, rightIndex), array->ElementSize);
 
-		memcpy(temporaryMemoryBlock, At(array, i), array->ElementSize);
+		leftIndex = rightIndex - 1;
 
-		j = i - 1;
+		char* leftPointer = At(array, leftIndex);
 
-		char* jPointer = At(array, j);
+		while (leftIndex >= 0 && comparator(leftPointer, tempPointer)) {
+			Swap(array, leftIndex + 1, leftIndex);
 
-		while (j >= 0 && comparator(jPointer, temporaryMemoryBlock)) {
-			Swap(array, j + 1, j);
+			leftIndex = leftIndex - 1;
 
-			j = j - 1;
-
-			jPointer = At(array, j);
+			leftPointer = At(array, leftIndex);
 		}
 
-		memcpy(At(array, j + 1), temporaryMemoryBlock, array->ElementSize);
+		memcpy(At(array, leftIndex + 1), tempPointer, array->ElementSize);
 	}
 
-	Memory.Free(temporaryMemoryBlock, Memory.GenericMemoryBlock);
+	Memory.Free(tempPointer, Memory.GenericMemoryBlock);
 
 	array->Dirty = true;
 }

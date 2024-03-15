@@ -311,13 +311,11 @@ GenericTypeInfo GetGenericArgumentsWithinBody(string data, location location,
 	return (GenericTypeInfo) { .TypeNames = typeNames, .TypeLocations = result };
 }
 
-private
-void SumCount(int* out_count, array(int)* arr_ptr) {
+private void SumCount(int* out_count, array(int)* arr_ptr) {
 	*out_count += (*arr_ptr)->Count;
 }
 
-private
-bool BigToSmallComparator(tuple(string, int)* left,
+private bool BigToSmallComparator(tuple(string, int)* left,
 	tuple(string, int)* right) {
 	return (*right).Second > (*left).Second;
 }
@@ -609,6 +607,9 @@ TEST(SortGenericTypeInfo) {
 		stack_string("V"), 95
 	},
 		(tuple(string, int)) {
+		stack_string("V"), 85
+	},
+		(tuple(string, int)) {
 		stack_string("V"), 73
 	},
 		(tuple(string, int)) {
@@ -619,9 +620,6 @@ TEST(SortGenericTypeInfo) {
 	},
 		(tuple(string, int)) {
 		stack_string("U"), 23
-	},
-		(tuple(string, int)) {
-		stack_string("V"), 17
 	},
 		(tuple(string, int)) {
 		stack_string("T"), 16
@@ -640,7 +638,11 @@ TEST(SortGenericTypeInfo) {
 	}
 	);
 
+	PrintTupleArray("Expected: ", expectedArray);
+
 	array(tuple(string, int)) actualArray = SortGenericTypeInfo(typeInfo);
+
+	PrintTupleArray("\nActual:", actualArray);
 
 	IsEqual(expectedArray->Count, actualArray->Count);
 

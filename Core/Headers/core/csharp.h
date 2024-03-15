@@ -105,3 +105,6 @@ static int BreakDebugger(int errorCode)
 
 // DO NOT USE, DANGY, WILL HURT CPU FEELINGS >:(, ONLY USE WHEN YOU KNOW IT WONT HURT CPU FEELING
 #define struct_cast(destinationType) *(destinationType*)& 
+
+#define __IsTypeof(value,type) _Generic((value),type:"1",default:"")
+#define IsTypeof(value,type) (sizeof(__IsTypeof(value,type))-1)
