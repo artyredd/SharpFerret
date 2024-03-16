@@ -208,7 +208,6 @@ private void InstantiateIntArray(array(int)* arr) { *arr = dynamic_array(int, 0)
 // returns a list of arrays of indices
 // each index of the returned array matches the index of the provided typeNames
 // each array represents a list of indices where that typename is used
-//
 GenericTypeInfo GetGenericArgumentsWithinBody(string data, location location,
 	array(string) typeNames) {
 	array(array(int)) result = dynamic_array(array(int), typeNames->Count);
@@ -426,6 +425,36 @@ MethodInfo GetMethodInfo(string data, location location) {
 	RepackRecalculatedTypeLocations(info);
 
 	return info;
+}
+
+// generates code for the given method info, generates new
+// string that must be disposed of
+string GenerateMethod(const MethodInfo info, array(string) types)
+{
+	if (types->Count != info.TypeNames->Count)
+	{
+		fprintf_red(stdout, "Wrong number of arguments provided when generating generic method %s %lli were expected but %lli were provided", info.Name->Values, info.TypeNames->Count, types->Count);
+		throw(GenericTypeArityException);
+	}
+
+	string result = strings.Clone(info.Data);
+	int i = info.SortedTypeLocations->Count;
+	while (i-- > 0)
+	{
+		tuple(string, int) pair = at(info.SortedTypeLocations, i);
+
+		const int index = arrays(string).IndexWhere(info.TypeNames, pair.First, strings.Equals);
+
+		if (index is - 1)
+		{
+			// Malformed array, something is wrong here
+			throw(ItemNotFoundInCollectionException);
+		}
+
+		strings.InsertArray(result, at(types, index), pair.Second);
+	}
+
+	return result;
 }
 
 GenericTypeInfo GetGenericTokens(string data, location location) {
@@ -799,6 +828,25 @@ TEST(GetMethodInfo)
 	return true;
 }
 
+TEST(GenerateMethod)
+{
+	MethodInfo info = {
+		.Name = stack_string("Method"),
+		.Data = GlobalTypelessData,
+		.TypeNames = GlobalTypeNames,
+		.TypeLocations = GlobalRepackedTypeLocations,
+		.SortedTypeLocations = GlobalSortedTypeLocations
+	};
+
+	string expected = GlobalData;
+
+	string actual = GenerateMethod(info, GlobalTypeNames);
+
+	IsEqual(expected, actual);
+
+	return true;
+}
+
 TEST_SUITE(RunUnitTests,
 	APPEND_TEST(FlattenArgumentToCName) APPEND_TEST(ExpandCall)
 	APPEND_TEST(GetGenericArguments)
@@ -806,6 +854,7 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(SortGenericTypeInfo)
 	APPEND_TEST(RemoveTypesFromGenericMethodBody)
 	APPEND_TEST(GetMethodInfo)
+	APPEND_TEST(GenerateMethod)
 );
 
 OnStart(2) { RunUnitTests(); }

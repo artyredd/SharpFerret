@@ -377,14 +377,14 @@ private array(type) _EXPAND_METHOD_NAME(type, Fill)(array(type) array, type valu
 	for(int i = 0; i < array->Count; i++)\
 	{\
 		at(array, i) = value;\
-	}\
+	}array->Dirty = true;array->Hash = 0;\
 	return array;\
 }\
 private int _EXPAND_METHOD_NAME(type, IndexOf)(array(type) array, type value)\
 {\
 	for (int i = 0; i < array->Count; i++)\
 	{\
-		if(memcmp(&value,&at(array,i),array->ElementSize) is 0)\
+		if(memcmp(&value,&(at(array,i)),array->ElementSize) is 0)\
 		{\
 			return i;\
 		}\
@@ -402,6 +402,14 @@ private void _EXPAND_METHOD_NAME(type, Print)(void* stream, array(type) array)\
 		if(i isnt array->Count-1){ fprintf(stream,", "); }\
 	}\
 	fprintf(stream," }");\
+}\
+private int _EXPAND_METHOD_NAME(type, IndexWhere)(array(type) array, void* state, bool(*expression)(type,void*))\
+{\
+	for (int i = 0; i < array->Count; i++)\
+	{\
+		if(expression(at(array,i),state)) {return i;}\
+	}\
+	return -1; \
 }\
 const static struct _array_##type##_methods\
 {\
@@ -425,6 +433,7 @@ void (*Clear)(array(type)); \
 void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
 int (*IndexOf)(array(type), type); \
+int (*IndexWhere)(array(type), void* state, bool(*Expression)(type value, void* state)); \
 array(type) (*Clone)(array(type)); \
 ulong(*Hash)(array(type)); \
 array(type) (*Fill)(array(type), type); \
@@ -455,6 +464,7 @@ void (*Dispose)(array(type)); \
 .BeginsWith = _EXPAND_METHOD_NAME(type, BeginsWith), \
 .Fill = _EXPAND_METHOD_NAME(type, Fill), \
 .IndexOf = _EXPAND_METHOD_NAME(type, IndexOf), \
+.IndexWhere = _EXPAND_METHOD_NAME(type, IndexWhere), \
 .Print = _EXPAND_METHOD_NAME(type, Print), \
 .Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
