@@ -364,6 +364,7 @@ void RepackRecalculatedTypeLocations(MethodInfo info)
 
 		if (nameIndex is - 1)
 		{
+			// can't repack a typename that we didnt originally unpack
 			throw(ItemNotFoundInCollectionException);
 		}
 
@@ -680,11 +681,6 @@ array(tuple(string, int)) GlobalSortedTypeLocations = stack_array(tuple(string, 
 	{ stack_string("V"), 0 }
 );
 
-array(array(int)) GlobalRepackedTypeLocations =
-stack_array(array(int), 3, auto_stack_array(int, 38, 16, 9),
-	auto_stack_array(int, 58, 23, 11),
-	auto_stack_array(int, 95, 85, 73, 13, 0));
-
 TEST(SortGenericTypeInfo) {
 	string data = GlobalData;
 	location dataLocation = GlobalLocation;
@@ -736,6 +732,11 @@ TEST(RemoveTypesFromGenericMethodBody)
 	return true;
 }
 
+array(array(int)) GlobalRepackedTypeLocations =
+stack_array(array(int), 3, auto_stack_array(int, 32, 12, 8),
+	auto_stack_array(int, 51, 18, 9),
+	auto_stack_array(int, 85, 76, 65, 10, 0));
+
 TEST(GetMethodInfo)
 {
 	string data = GlobalData;
@@ -745,7 +746,7 @@ TEST(GetMethodInfo)
 		.Name = stack_string("Method"),
 		.Data = GlobalTypelessData,
 		.TypeNames = GlobalTypeNames,
-		.TypeLocations = GlobalTypeLocations,
+		.TypeLocations = GlobalRepackedTypeLocations,
 		.SortedTypeLocations = GlobalSortedTypeLocations
 	};
 
@@ -770,12 +771,27 @@ TEST(GetMethodInfo)
 	for (int i = 0; i < min(expected.TypeLocations->Count, actual.TypeLocations->Count); i++)
 	{
 		array(int) actualInts = at(actual.TypeLocations, i);
+
+		ulong previousHash = actualInts->Hash;
+		ulong newHash = arrays(int).Hash(actualInts);
+
+		IsEqual(previousHash, newHash);
+
 		array(int) expectedInts = at(expected.TypeLocations, i);
 
-		arrays(int).Print(stdout, actualInts);
-		AutoPrint((byte)'\n');
+		ulong expectedHash = arrays(int).Hash(expectedInts);
+
+		IsEqual(expectedHash, newHash);
+
+		ulong manualHash = Hashing.HashSafe((char*)expectedInts->Values, expectedInts->Count * sizeof(int));
+
+		IsEqual(manualHash, expectedHash);
+
+		/*AutoPrint("Expected:\n");
 		arrays(int).Print(stdout, expectedInts);
-		AutoPrint((byte)'\n');
+		AutoPrint("\nActual:\n");
+		arrays(int).Print(stdout, actualInts);
+		AutoPrint((byte)'\n');*/
 
 		IsTrue(arrays(int).Equals(actualInts, expectedInts));
 	}

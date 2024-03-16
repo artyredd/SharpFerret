@@ -275,6 +275,7 @@ private void Clear(Array array)
 	memset(array->Values, 0, array->Size);
 	array->Count = 0;
 	array->Dirty = false;
+	array->Hash = 0;
 }
 
 private void Foreach(Array array, void(*method)(void* item))
@@ -460,6 +461,12 @@ TEST(Equals)
 	return true;
 }
 
+static array(array(int)) GlobalNestedIntTestData =
+stack_array(array(int), 3, auto_stack_array(int, 32, 12, 8),
+	auto_stack_array(int, 51, 18, 9),
+	auto_stack_array(int, 85, 76, 65, 10, 0));
+
+
 TEST(Hashing)
 {
 	string data = stack_string("The Quick Brown Fox");
@@ -474,6 +481,21 @@ TEST(Hashing)
 	int otherHash = strings.Hash(other);
 
 	IsEqual(hash, otherHash);
+
+	array(int) intData = stack_array(int, 3, 32, 12, 8);
+	array(int) dynamicIntData = auto_stack_array(int, 32, 12, 8);
+
+	arrays(int).Hash(intData);
+	arrays(int).Hash(dynamicIntData);
+
+	IsEqual(intData->Hash, dynamicIntData->Hash);
+
+	// nested array
+	array(array(int)) nestedInts = GlobalNestedIntTestData;
+
+	arrays(int).Hash(at(nestedInts, 0));
+
+	IsEqual(intData->Hash, at(nestedInts, 0)->Hash);
 
 	return true;
 }
