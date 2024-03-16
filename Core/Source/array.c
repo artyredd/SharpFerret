@@ -83,7 +83,6 @@ private void Append(Array array, void* value)
 
 		array->Count = safe_add(array->Count, 1);
 
-
 		if (array->AutoHash)
 		{
 			// we only have to hash the new value
@@ -175,6 +174,7 @@ private void RemoveIndex(Array array, ulong index)
 	safe_decrement(array->Count);
 
 	array->Dirty = true;
+	array->Hash = 0;
 }
 
 private void Swap(Array array, ulong firstIndex, ulong secondIndex)
@@ -195,6 +195,7 @@ private void Swap(Array array, ulong firstIndex, ulong secondIndex)
 	}
 
 	array->Dirty = true;
+	array->Hash = 0;
 }
 
 private void InsertionSort(Array array, bool(comparator)(void* leftMemoryBlock, void* rightMemoryBlock))
@@ -227,6 +228,7 @@ private void InsertionSort(Array array, bool(comparator)(void* leftMemoryBlock, 
 	Memory.Free(tempPointer, Memory.GenericMemoryBlock);
 
 	array->Dirty = true;
+	array->Hash = 0;
 }
 
 // Gets a pointer to the value contained at index
@@ -262,6 +264,7 @@ private Array InsertArray(Array destination, Array source, ulong index)
 		destination->Count = safe_add(destination->Count, source->Count);
 
 		destination->Dirty = true;
+		destination->Hash = 0;
 
 		return destination;
 	}
