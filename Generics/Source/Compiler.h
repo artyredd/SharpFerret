@@ -12,11 +12,46 @@ typedef struct {
 	array(tuple(string, int)) SortedTypeLocations;
 } GenericTypeInfo;
 
+typedef struct _CompileUnit* CompileUnit;
+
 typedef struct {
+	CompileUnit Parent;
 	string Name;
 	string Data;
 	GenericTypeInfo;
 } MethodInfo;
 
+
 DEFINE_CONTAINERS(MethodInfo);
 DEFINE_CONTAINERS(GenericTypeInfo);
+
+
+struct _GenericMethodInstance
+{
+	MethodInfo Info;
+	array(string) Arguments;
+	CompileUnit Parent;
+};
+
+typedef struct _GenericMethodInstance GenericMethodInstance;
+
+DEFINE_CONTAINERS(GenericMethodInstance);
+
+typedef struct _Assembly* Assembly;
+
+struct _CompileUnit
+{
+	Assembly Parent;
+	array(MethodInfo) Methods;
+	array(GenericMethodInstance) MethodInstances;
+};
+
+
+DEFINE_CONTAINERS(CompileUnit);
+
+struct _Assembly
+{
+	array(CompileUnit) CompileUnits;
+	array(MethodInfo) Methods;
+	array(GenericMethodInstance) MethodInstances;
+};

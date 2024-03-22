@@ -51,7 +51,9 @@ string FlattenArgumentToCName(string arg, string stack_buffer) {
 	return stack_buffer;
 }
 
-array(string) GetGenericArguments(string data, location location) {
+// makes new strings
+private array(string) GetGenericArguments(string data, location location)
+{
 	array(string) result = dynamic_array(string, 0);
 
 	bool inMacro = false;
@@ -208,8 +210,9 @@ private void InstantiateIntArray(array(int)* arr) { *arr = dynamic_array(int, 0)
 // returns a list of arrays of indices
 // each index of the returned array matches the index of the provided typeNames
 // each array represents a list of indices where that typename is used
-GenericTypeInfo GetGenericArgumentsWithinBody(string data, location location,
-	array(string) typeNames) {
+private GenericTypeInfo GetGenericArgumentsWithinBody(string data, location location,
+	array(string) typeNames)
+{
 	array(array(int)) result = dynamic_array(array(int), typeNames->Count);
 	result->Count = typeNames->Count;
 	arrays(array(int)).Foreach(result, InstantiateIntArray);
@@ -309,19 +312,22 @@ GenericTypeInfo GetGenericArgumentsWithinBody(string data, location location,
 	return (GenericTypeInfo) { .TypeNames = typeNames, .TypeLocations = result };
 }
 
-private void SumCount(int* out_count, array(int)* arr_ptr) {
+private void SumCount(int* out_count, array(int)* arr_ptr)
+{
 	*out_count += (*arr_ptr)->Count;
 }
 
 private bool BigToSmallComparator(tuple(string, int)* left,
-	tuple(string, int)* right) {
+	tuple(string, int)* right)
+{
 	return (*right).Second > (*left).Second;
 }
 
 // sorts the provided generic type info into a list
 // ids and indices that are sorted so that the type locations
 // that occur last are first in the second array
-private array(tuple(string, int)) SortGenericTypeInfo(GenericTypeInfo info) {
+private array(tuple(string, int)) SortGenericTypeInfo(GenericTypeInfo info)
+{
 	// the total number of elements in all the int arrays
 	int totalCount = 0;
 	arrays(array(int))
@@ -347,7 +353,7 @@ private array(tuple(string, int)) SortGenericTypeInfo(GenericTypeInfo info) {
 	return result;
 }
 
-void RepackRecalculatedTypeLocations(MethodInfo info)
+private void RepackRecalculatedTypeLocations(MethodInfo info)
 {
 	// clear old values
 	for (int i = 0; i < info.TypeLocations->Count; i++)
@@ -393,9 +399,6 @@ private string RemoveTypesFromGenericMethodBody(string data, GenericTypeInfo inf
 
 	return result;
 }
-
-void ExpandGenericArgumentsWithinBody(string data, location location,
-	GenericTypeInfo info) {}
 
 MethodInfo GetMethodInfo(string data, location location) {
 
@@ -457,33 +460,134 @@ string GenerateMethod(const MethodInfo info, array(string) types)
 	return result;
 }
 
-GenericTypeInfo GetGenericTokens(string data, location location) {
-	return (GenericTypeInfo) { 0 };
-}
-
-void ExpandCall(string data, location location) {
+private string FlattenArguments(string data, location location, string buffer)
+{
 	// calls just get replaced with a valid C name
 	// and the preprocessor and compiler will do lookup
 	const size_t start = location.AlligatorStartIndex;
 	const size_t count = location.AlligatorEndIndex - start + 1;
 
+	string arguments = stack_substring(data, start, count);
+
+	return FlattenArgumentToCName(arguments, buffer);
+}
+
+private void ExpandCall(string data, location location) {
+
 	string buffer = empty_stack_array(byte, MAX_ARG_LENGTH);
 
-	string arguments = stack_substring(data, start, count);
+	string arguments = FlattenArguments(data, location, buffer);
 
 	string flattened = FlattenArgumentToCName(arguments, buffer);
 
 	// we dont know for sure the flattend name is the same length
 	// it may be shorter or longer, shift old text left over it
-	strings.RemoveRange(data, start, count);
-	strings.InsertArray(data, flattened, start);
+	strings.RemoveRange(data, location.AlligatorStartIndex, location.AlligatorEndIndex);
+	strings.InsertArray(data, flattened, location.AlligatorStartIndex);
 }
 
-void ExpandMethodDeclaration(string data, location location) {
+// methods dont get expanded, they get processed and removed
+private void ExpandMethodDefinition(string data, location location, CompileUnit unit)
+{
+	// data is the whole file/compile unit
+	MethodInfo info = GetMethodInfo(data, location);
+
+	info.Parent = unit;
+
+	arrays(MethodInfo).Append(unit->Methods, info);
+
+	// add to global list too for easy search
+	arrays(MethodInfo).Append(unit->Parent->Methods, info);
+
+	// remove the definition
+	strings.RemoveRange(data, location.StartScopeIndex, location.EndScopeIndex - location.StartScopeIndex);
+}
+
+private bool MethodNameIs(MethodInfo method, string name)
+{
+	return strings.Equals(method.Name, name);
+}
+
+private bool GenericInstanceIs(GenericMethodInstance instance, GenericMethodInstance* valuePtr)
+{
+	GenericMethodInstance value = *valuePtr;
+	// string.Equals returns true if both are null
+	// check for name not null here
+	if (instance.Info.Name and strings.Equals(instance.Info.Name, value.Info.Name))
+	{
+		if (instance.Arguments->Count and value.Arguments->Count)
+		{
+			for (size_t i = 0; i < min(instance.Arguments->Count, value.Arguments->Count); i++)
+			{
+				if (strings.Equals(at(instance.Arguments, i), at(value.Arguments, i)) is false)
+				{
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
+private void ExpandMethodDeclaration(string data, location location, CompileUnit unit)
+{
 	// T MyMethod<T>(T, T);
+
+	// get the name
+	string name = combine_partial_string(data, GetMethodName(stack_substring_front(data, location.AlligatorStartIndex - 1)));
+
+	// check to see if we've already found the method in the assembly
+
+	array(string) args = GetGenericArguments(data, location);
+
+	GenericMethodInstance instance = {
+		.Info = null,
+		.Arguments = args,
+		.Parent = unit
+	};
+
+	Assembly assembly = unit->Parent;
+
+	MethodInfo foundInfo = arrays(MethodInfo).Select(assembly->Methods, name, MethodNameIs);
+
+	// if no definition was found yet
+	// just add an instance anyway, when we find the definition
+	// we'll generate and emit the method
+	instance.Info = foundInfo;
+
+	// keep track of the new instance
+	GenericMethodInstance foundInstance = arrays(GenericMethodInstance).Select(assembly->MethodInstances, &instance, GenericInstanceIs);
+
+	bool emitMethod = false;
+	if (foundInstance.Arguments is null)
+	{
+		arrays(GenericMethodInstance).Append(unit->MethodInstances, instance);
+		arrays(GenericMethodInstance).Append(assembly->MethodInstances, instance);
+		emitMethod = foundInfo.Data isnt null;
+	}
+	else if (arrays(GenericMethodInstance).Select(unit->MethodInstances, &instance, GenericInstanceIs).Arguments is null)
+	{
+		arrays(GenericMethodInstance).Append(unit->MethodInstances, instance);
+		emitMethod = foundInfo.Data isnt null;
+	}
+
+	if (emitMethod)
+	{
+		strings.RemoveRange(data, location.AlligatorStartIndex, location.AlligatorEndIndex);
+		strings.InsertArray(data, GenerateMethod(foundInfo, args), location.AlligatorStartIndex);
+	}
+	else // emit declaration instead, because definition exists
+	{
+		// flatten the name
+		ExpandCall(data, location);
+	}
 }
 
-void ExpandGeneric(string data, location location) {
+private void ExpandGeneric(string data, location location, CompileUnit unit)
+{
 	Guard(data->Count > 0);
 	Guard(location.Call or location.Declaration or location.Definition or
 		location.Struct);
@@ -502,15 +606,25 @@ void ExpandGeneric(string data, location location) {
 	}
 }
 
-void ExpandGenerics(string data, array(location) locations) {
+void ExpandGenerics(string data, array(location) locations, CompileUnit unit)
+{
 	// expand backwards so the indexes dont change
 	int i = locations->Count;
 	while (i-- > 0) {
 		location location = at(locations, i);
 
-		ExpandGeneric(data, location);
+		ExpandGeneric(data, location, unit);
 	}
 }
+
+struct _CompileUnit Global_Test_CompileUnit = {
+	.MethodInstances = null,
+	.Methods = null
+};
+
+struct _Assembly Global_Test_Assembly = {
+	.CompileUnits = stack_array(CompileUnit,1,&Global_Test_CompileUnit)
+};
 
 TEST(FlattenArgumentToCName) {
 	string data = stack_string("");
@@ -558,7 +672,7 @@ TEST(ExpandCall) {
 
 	IsEqual((size_t)1, locations->Count);
 
-	ExpandGeneric(data, at(locations, 0));
+	ExpandGeneric(data, at(locations, 0), &Global_Test_CompileUnit);
 
 	string expected = stack_string("int x = MyMethod_int_(24);");
 

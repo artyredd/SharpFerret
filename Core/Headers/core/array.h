@@ -411,6 +411,12 @@ private int _EXPAND_METHOD_NAME(type, IndexWhere)(array(type) array, void* state
 	}\
 	return -1; \
 }\
+private type _EXPAND_METHOD_NAME(type, Select)(array(type) array, void* state, bool(*expression)(type,void*))\
+{\
+	int index = _EXPAND_METHOD_NAME(type, IndexWhere)(array,state,expression);\
+	if(index is -1){ return (type){0}; }\
+	return at(array,index);\
+}\
 const static struct _array_##type##_methods\
 {\
 array(type) (*Create)(ulong count); \
@@ -434,6 +440,7 @@ void (*Foreach)(array(type), void(*method)(type*)); \
 void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
 int (*IndexOf)(array(type), type); \
 int (*IndexWhere)(array(type), void* state, bool(*Expression)(type value, void* state)); \
+type (*Select)(array(type), void* state, bool(*Expression)(type value, void* state)); \
 array(type) (*Clone)(array(type)); \
 ulong(*Hash)(array(type)); \
 array(type) (*Fill)(array(type), type); \
@@ -465,6 +472,7 @@ void (*Dispose)(array(type)); \
 .Fill = _EXPAND_METHOD_NAME(type, Fill), \
 .IndexOf = _EXPAND_METHOD_NAME(type, IndexOf), \
 .IndexWhere = _EXPAND_METHOD_NAME(type, IndexWhere), \
+.Select = _EXPAND_METHOD_NAME(type, Select),\
 .Print = _EXPAND_METHOD_NAME(type, Print), \
 .Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
