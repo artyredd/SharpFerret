@@ -533,7 +533,7 @@ private void ExpandMethodDefinition(string data, location location, CompileUnit 
 	arrays(MethodInfo).Append(unit->Parent->Methods, info);
 
 	// remove the definition
-	strings.RemoveRange(data, location.StartScopeIndex, location.EndScopeIndex - location.StartScopeIndex);
+	strings.RemoveRange(data, location.StartScopeIndex, location.EndScopeIndex - location.StartScopeIndex + 1);
 }
 
 private void ExpandMethodDeclaration(string data, location location, CompileUnit unit)
@@ -981,6 +981,10 @@ TEST(ExpandMethodDefinition)
 	arrays(CompileUnit).Append(assembly->CompileUnits, unit);
 
 	ExpandGenerics(data, locations, at(assembly->CompileUnits, 0));
+
+	string expected = stack_string("#include <stdlib.h>\n\r \n");
+
+	IsEqual(expected, data);
 
 	return true;
 }

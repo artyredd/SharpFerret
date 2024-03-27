@@ -880,6 +880,7 @@ TEST(GetGenericLocations)
 	IsEqual(128, result.StartScopeIndex);
 	IsEqual('}', at(data, 126));
 	IsEqual(193, result.EndScopeIndex);
+	IsEqual('}', at(data, result.EndScopeIndex));
 	IsFalse(result.Struct);
 	IsTrue(result.Definition);
 	IsFalse(result.Call);
