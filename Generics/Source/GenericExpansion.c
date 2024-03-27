@@ -48,7 +48,7 @@ string FlattenArgumentToCName(string arg, string stack_buffer) {
 		}
 	}
 
-	return stack_buffer;
+	return result;
 }
 
 // makes new strings
@@ -476,32 +476,17 @@ private void ExpandCall(string data, location location) {
 
 	string buffer = empty_stack_array(byte, MAX_ARG_LENGTH);
 
-	string arguments = FlattenArguments(data, location, buffer);
+	string flattened = FlattenArguments(data, location, buffer);
 
-	string flattened = FlattenArgumentToCName(arguments, buffer);
+	const size_t start = location.AlligatorStartIndex;
+	const size_t count = location.AlligatorEndIndex - start + 1;
 
 	// we dont know for sure the flattend name is the same length
 	// it may be shorter or longer, shift old text left over it
-	strings.RemoveRange(data, location.AlligatorStartIndex, location.AlligatorEndIndex);
-	strings.InsertArray(data, flattened, location.AlligatorStartIndex);
+	strings.RemoveRange(data, start, count);
+	strings.InsertArray(data, flattened, start);
 }
 
-// methods dont get expanded, they get processed and removed
-private void ExpandMethodDefinition(string data, location location, CompileUnit unit)
-{
-	// data is the whole file/compile unit
-	MethodInfo info = GetMethodInfo(data, location);
-
-	info.Parent = unit;
-
-	arrays(MethodInfo).Append(unit->Methods, info);
-
-	// add to global list too for easy search
-	arrays(MethodInfo).Append(unit->Parent->Methods, info);
-
-	// remove the definition
-	strings.RemoveRange(data, location.StartScopeIndex, location.EndScopeIndex - location.StartScopeIndex);
-}
 
 private bool MethodNameIs(MethodInfo method, string name)
 {
@@ -530,6 +515,23 @@ private bool GenericInstanceIs(GenericMethodInstance instance, GenericMethodInst
 	}
 
 	return false;
+}
+
+// methods dont get expanded, they get processed and removed
+private void ExpandMethodDefinition(string data, location location, CompileUnit unit)
+{
+	// data is the whole file/compile unit
+	MethodInfo info = GetMethodInfo(data, location);
+
+	info.Parent = unit;
+
+	arrays(MethodInfo).Append(unit->Methods, info);
+
+	// add to global list too for easy search
+	arrays(MethodInfo).Append(unit->Parent->Methods, info);
+
+	// remove the definition
+	strings.RemoveRange(data, location.StartScopeIndex, location.EndScopeIndex - location.StartScopeIndex);
 }
 
 private void ExpandMethodDeclaration(string data, location location, CompileUnit unit)
@@ -596,10 +598,10 @@ private void ExpandGeneric(string data, location location, CompileUnit unit)
 		ExpandCall(data, location);
 	}
 	else if (location.Declaration) {
-		// ExpandDeclaration(data, location);
+		ExpandMethodDeclaration(data, location, unit);
 	}
 	else if (location.Definition) {
-		// ExpandDefinition(data, location);
+		ExpandMethodDefinition(data, location, unit);
 	}
 	else if (location.Struct) {
 		// ExpandStruct(data, location);
@@ -672,7 +674,9 @@ TEST(ExpandCall) {
 
 	IsEqual((size_t)1, locations->Count);
 
-	ExpandGeneric(data, at(locations, 0), &Global_Test_CompileUnit);
+	CompileUnit unit = CreateCompileUnit();
+
+	ExpandGeneric(data, at(locations, 0), unit);
 
 	string expected = stack_string("int x = MyMethod_int_(24);");
 
@@ -958,6 +962,31 @@ TEST(GenerateMethod)
 
 	IsEqual(expected, actual);
 
+	return true;
+}
+
+TEST(ExpandMethodDefinition)
+{
+	string data = dynamic_string("#include <stdlib.h>\n\r T Add<T,T>(T left, T right){ return left + right; }\n");
+
+	array(location) locations = GetGenericLocations(data);
+
+	IsEqual(1ull, locations->Count);
+
+	Assembly assembly = &(struct _Assembly)
+	{
+		.Methods = empty_stack_array(MethodInfo, 1),
+			.CompileUnits = empty_stack_array(CompileUnit, 1),
+			.MethodInstances = empty_stack_array(GenericMethodInstance, 1)
+	};
+
+	ExpandGenerics(data, locations, at(assembly->CompileUnits, 0));
+
+	return true;
+}
+
+TEST(ExpandMethodDeclaration)
+{
 	return true;
 }
 

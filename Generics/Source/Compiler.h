@@ -46,7 +46,6 @@ struct _CompileUnit
 	array(GenericMethodInstance) MethodInstances;
 };
 
-
 DEFINE_CONTAINERS(CompileUnit);
 
 struct _Assembly
@@ -55,3 +54,25 @@ struct _Assembly
 	array(MethodInfo) Methods;
 	array(GenericMethodInstance) MethodInstances;
 };
+
+private CompileUnit CreateCompileUnit()
+{
+	CompileUnit unit = Memory.Alloc(sizeof(struct _CompileUnit), Memory.GenericMemoryBlock);
+
+	unit->MethodInstances = dynamic_array(GenericMethodInstance, 0);
+	unit->Methods = dynamic_array(MethodInfo, 0);
+	unit->Parent = null;
+
+	return unit;
+}
+
+private Assembly CreateAssembly()
+{
+	Assembly unit = Memory.Alloc(sizeof(struct _Assembly), Memory.GenericMemoryBlock);
+
+	unit->CompileUnits = dynamic_array(CompileUnit, 0);
+	unit->MethodInstances = dynamic_array(GenericMethodInstance, 0);
+	unit->Methods = dynamic_array(MethodInfo, 0);
+
+	return unit;
+}

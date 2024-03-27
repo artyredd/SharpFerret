@@ -95,7 +95,8 @@ typedef struct _array_##type* type##_array;
 #define _stack_string(string) explicit_stack_array(byte,,sizeof(string) - 1, string) 
 #define stack_string(string) _stack_string(string) 
 
-#define dynamic_array(type, initialCount) _EXPAND_METHOD_NAME(type,Create)(initialCount);
+#define _dynamic_array(type, initialCount) _EXPAND_METHOD_NAME(type,Create)(initialCount) 
+#define dynamic_array(type, initialCount) _dynamic_array(type, initialCount)
 
 // checks the corresponding attribute against the provided value
 // throws if the value is out of bounds, otherwise returns value
