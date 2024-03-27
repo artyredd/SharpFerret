@@ -358,7 +358,8 @@ private void RepackRecalculatedTypeLocations(MethodInfo info)
 	// clear old values
 	for (int i = 0; i < info.TypeLocations->Count; i++)
 	{
-		arrays(int).Clear(at(info.TypeLocations, i));
+		array(int) locations = at(info.TypeLocations, i);
+		arrays(int).Clear(locations);
 	}
 
 	for (int i = 0; i < info.SortedTypeLocations->Count; i++)
@@ -419,7 +420,9 @@ MethodInfo GetMethodInfo(string data, location location) {
 
 	info.Data = RemoveTypesFromGenericMethodBody(data, genericInfo);
 
-	string name = combine_partial_string(data, GetMethodName(stack_substring_front(data, location.AlligatorStartIndex - 1)));
+	partial_string partialName = GetMethodName(stack_substring_front(data, location.AlligatorStartIndex - 1));
+
+	string name = combine_partial_string(data, partialName);
 
 	info.Name = strings.Clone(name);
 
@@ -486,7 +489,6 @@ private void ExpandCall(string data, location location) {
 	strings.RemoveRange(data, start, count);
 	strings.InsertArray(data, flattened, start);
 }
-
 
 private bool MethodNameIs(MethodInfo method, string name)
 {
@@ -973,12 +975,10 @@ TEST(ExpandMethodDefinition)
 
 	IsEqual(1ull, locations->Count);
 
-	Assembly assembly = &(struct _Assembly)
-	{
-		.Methods = empty_stack_array(MethodInfo, 1),
-			.CompileUnits = empty_stack_array(CompileUnit, 1),
-			.MethodInstances = empty_stack_array(GenericMethodInstance, 1)
-	};
+	Assembly assembly = CreateAssembly();
+	CompileUnit unit = CreateCompileUnit();
+	unit->Parent = assembly;
+	arrays(CompileUnit).Append(assembly->CompileUnits, unit);
 
 	ExpandGenerics(data, locations, at(assembly->CompileUnits, 0));
 
@@ -998,6 +998,8 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(RemoveTypesFromGenericMethodBody)
 	APPEND_TEST(GetMethodInfo)
 	APPEND_TEST(GenerateMethod)
+	APPEND_TEST(ExpandMethodDefinition)
+	APPEND_TEST(ExpandMethodDeclaration)
 );
 
 OnStart(2) { RunUnitTests(); }

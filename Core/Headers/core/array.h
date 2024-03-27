@@ -210,7 +210,7 @@ typedef struct _array_##type* type##_array;
 	.ElementSize = guard_array_attribute(arr,ElementSize,partial.ElementSize),\
 	.Capacity = guard_array_attribute(arr, Capacity, partial.Capacity),\
 	.Count = guard_array_count(arr,(partial).Count),\
-	.TypeId = partial.TypeId != arr->TypeId ? throw_in_expression(TypeMismatchException) : partial.TypeId,\
+	.TypeId = partial.TypeId,\
 	.StackObject = true,\
 	.Dirty = true,\
 	.Hash = 0,\

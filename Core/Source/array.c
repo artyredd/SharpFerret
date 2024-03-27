@@ -45,13 +45,10 @@ private Array Create(ulong elementSize, ulong count, ulong typeId)
 
 	array(void) array = Memory.Alloc(sizeof(struct _array_void), ArrayTypeId);
 
-	if (count)
-	{
-		// since alloc gets a zeroed block of memory and 0 is '\0'
-		// alloc one more byte of space to ensure all of our arrays are
-		// always terminated, regardless if their strings or not
-		array->Values = Memory.Alloc((elementSize * count) + 1, typeId);
-	}
+	// since alloc gets a zeroed block of memory and 0 is '\0'
+	// alloc one more byte of space to ensure all of our arrays are
+	// always terminated, regardless if their strings or not
+	array->Values = Memory.Alloc((elementSize * count) + 1, typeId);
 
 	array->Count = 0;
 	array->ElementSize = elementSize;
@@ -275,7 +272,10 @@ private Array InsertArray(Array destination, Array source, ulong index)
 
 private void Clear(Array array)
 {
-	memset(array->Values, 0, array->Size);
+	if (array->Values)
+	{
+		memset(array->Values, 0, array->Size);
+	}
 	array->Count = 0;
 	array->Dirty = false;
 	array->Hash = 0;
