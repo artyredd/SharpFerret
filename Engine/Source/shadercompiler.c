@@ -278,7 +278,7 @@ static bool TryCompile(const StringArray paths, ShaderType shaderType, unsigned 
 	{
 		const char* str = paths->Strings[i];
 
-		string path = empty_stack_array(char, _MAX_PATH);
+		string path = empty_stack_array(byte, _MAX_PATH);
 
 		strings.AppendCArray(path, str, Strings.Length(str));
 

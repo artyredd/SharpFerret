@@ -191,7 +191,7 @@ static void DisposeBufferCollection(struct _bufferCollection* buffers)
 	Memory.Free(buffers->Normals, Memory.GenericMemoryBlock);
 }
 
-static bool TryCountElements(File stream, array(char) buffer, struct _elementCounts* out_counts)
+static bool TryCountElements(File stream, array(byte) buffer, struct _elementCounts* out_counts)
 {
 	if (out_counts is null || stream is null)
 	{
@@ -626,7 +626,7 @@ static bool TryImportModelStream(File stream,
 )
 {
 
-	array(char) streamBuffer = empty_stack_array(char, BUFFER_SIZE);
+	array(byte) streamBuffer = empty_stack_array(byte, BUFFER_SIZE);
 
 	// create a place to put the counts of the file
 	struct _elementCounts elementCounts = {

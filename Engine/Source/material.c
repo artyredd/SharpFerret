@@ -773,7 +773,7 @@ static Material Load(const string path)
 				// this is a valid path array for example ",,,,,,,,,,,,,,,,,,,"
 				if (shaderPathLength isnt 0)
 				{
-					string shaderPathAsString = empty_stack_array(char, _MAX_PATH);
+					string shaderPathAsString = empty_stack_array(byte, _MAX_PATH);
 					strings.AppendCArray(shaderPathAsString, shaderPath, shaderPathLength);
 
 					Shader shader = ShaderCompilers.Load(shaderPathAsString);
@@ -785,7 +785,7 @@ static Material Load(const string path)
 			// load any textures that were included in the material
 			if (state.MainTexturePath isnt null)
 			{
-				string mainTexturePath = empty_stack_array(char, _MAX_PATH);
+				string mainTexturePath = empty_stack_array(byte, _MAX_PATH);
 				strings.AppendCArray(mainTexturePath, state.MainTexturePath, Strings.Length(state.MainTexturePath));
 				RawTexture texture = RawTextures.Load(mainTexturePath);
 
@@ -801,7 +801,7 @@ static Material Load(const string path)
 
 			if (state.SpecularTexturePath isnt null)
 			{
-				string specularTexturePath = empty_stack_array(char, _MAX_PATH);
+				string specularTexturePath = empty_stack_array(byte, _MAX_PATH);
 				strings.AppendCArray(specularTexturePath, state.SpecularTexturePath, Strings.Length(state.SpecularTexturePath));
 
 				RawTexture texture = RawTextures.Load(specularTexturePath);
@@ -818,7 +818,7 @@ static Material Load(const string path)
 
 			if (state.ReflectionTexturePath isnt null)
 			{
-				string reflectionTexturePath = empty_stack_array(char, _MAX_PATH);
+				string reflectionTexturePath = empty_stack_array(byte, _MAX_PATH);
 				strings.AppendCArray(reflectionTexturePath, state.ReflectionTexturePath, Strings.Length(state.ReflectionTexturePath));
 				RawTexture texture = RawTextures.Load(reflectionTexturePath);
 

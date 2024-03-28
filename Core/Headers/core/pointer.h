@@ -43,7 +43,7 @@ static inline Pointer(type) _##type##pointer_Create(type* resourceToInstance)\
 #define DEFINE_DISPOSE_METHOD_WRAPPER(type)\
 static inline void _##type##pointer_Dispose(Pointer(type) ptr, void* state, void(*OnDispose)(Pointer(type), void* state))\
 {\
-	Pointers(void).Dispose((Pointer(void))ptr, state, OnDispose);\
+	Pointers(void).Dispose((Pointer(void))ptr, state,  (void(*)(voidPointer, void*))OnDispose);\
 }
 
 #define DEFINE_METHOD_WRAPPERS(type) DEFINE_DISPOSE_METHOD_WRAPPER(type); DEFINE_CREATE_METHOD_WRAPPER(type); DEFINE_INSTANCE_METHOD_WRAPPER(type);
@@ -56,3 +56,5 @@ static DEFINE_POINTER_METHODS(type) = { \
 	.Dispose = _##type##pointer_Dispose,\
 	.Instance = _##type##pointer_Instance\
 };
+
+DEFINE_POINTER(byte);

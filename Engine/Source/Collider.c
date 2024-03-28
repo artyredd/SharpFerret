@@ -151,7 +151,7 @@ static Collider Load(const string path)
 	if (Configs.TryLoadConfig(path, &ColliderConfigDefinition, &state))
 	{
 		Model model;
-		string modelPath = empty_stack_array(char, _MAX_PATH);
+		string modelPath = empty_stack_array(byte, _MAX_PATH);
 
 		strings.AppendCArray(modelPath, state.ModelPath, strlen(state.ModelPath ? state.ModelPath : ""));
 

@@ -84,7 +84,7 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 
 					// check if the first character is whitespace, if it is move the subbuffer over
 					// I COULD create a more verstatile solution to this but..
-					if (isspace(subat(buffer, 0)))
+					if (isspace(at(subBuffer, 0)))
 					{
 						subBuffer = stack_subarray_back(byte, subBuffer, 1);
 					}

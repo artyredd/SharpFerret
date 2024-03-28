@@ -16,7 +16,7 @@ typedef struct _renderMesh* RenderMesh;
 struct _renderMesh {
 	ulong Id;
 
-	Pointer(char) Name;
+	Pointer(byte) Name;
 
 	SharedHandle VertexBuffer;
 	SharedHandle UVBuffer;

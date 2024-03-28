@@ -460,7 +460,7 @@ static GameObject Load(const string path)
 		if (state.ModelPath isnt null)
 		{
 			ulong modelPathLength = strlen(state.ModelPath ? state.ModelPath : "");
-			string modelPath = empty_stack_array(char, _MAX_PATH);
+			string modelPath = empty_stack_array(byte, _MAX_PATH);
 			strings.AppendCArray(modelPath, state.ModelPath, modelPathLength);
 
 			// load the model first so we can determine how many render meshes we will need
@@ -487,7 +487,7 @@ static GameObject Load(const string path)
 
 		// load the material
 		ulong materialPathLength = strlen(state.MaterialPath ? state.MaterialPath : "");
-		string materialPath = empty_stack_array(char, _MAX_PATH);
+		string materialPath = empty_stack_array(byte, _MAX_PATH);
 		strings.AppendCArray(materialPath, state.MaterialPath, materialPathLength);
 		Material material = Materials.Load(materialPath);
 

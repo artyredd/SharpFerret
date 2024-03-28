@@ -29,7 +29,7 @@ private void OnBufferDispose(SharedHandle handle)
 	GraphicsDevice.DeleteBuffer(handle->Handle);
 }
 
-private void OnNameDispose(Pointer(char) resource, void* state)
+private void OnNameDispose(Pointer(byte) resource, void* state)
 {
 	if (state is null)
 	{
@@ -48,7 +48,7 @@ private void Dispose(RenderMesh mesh)
 
 	// since the name is shared between all rendermeshes that come from the same model we must not dispose the name till the last render
 	// mesh instance is being disposed
-	Pointers(char).Dispose(mesh->Name, null, &OnNameDispose);
+	Pointers(byte).Dispose(mesh->Name, null, &OnNameDispose);
 
 	// since these handles are shared among possibly many instances we only want to actually
 	// clear the buffer when the final instance has been disposed
@@ -238,7 +238,7 @@ private void RenderMeshCopyTo(RenderMesh source, RenderMesh destination)
 
 	if (source->Name isnt null)
 	{
-		destination->Name = Pointers(char).Instance(source->Name);
+		destination->Name = Pointers(byte).Instance(source->Name);
 	}
 
 	if (source->Mesh isnt null)
@@ -274,7 +274,7 @@ private bool TryBindModel(Model model, RenderMesh** out_meshArray)
 	// all sub-meshes within a model share the same name
 	char* sharedName = Strings.DuplicateTerminated(model->Name);
 
-	Pointer(char) name = Pointers(char).Create(sharedName);
+	Pointer(byte) name = Pointers(byte).Create(sharedName);
 
 	for (ulong i = 0; i < model->Count; i++)
 	{
@@ -284,7 +284,7 @@ private bool TryBindModel(Model model, RenderMesh** out_meshArray)
 		if (RenderMeshes.TryBindMesh(mesh, &newMesh) is false)
 		{
 			// dispose of the extra instance we made for convenience
-			Pointers(char).Dispose(name, null, null);
+			Pointers(byte).Dispose(name, null, null);
 
 			// dispose of any children before this index where we failed
 			for (int childIndex = 0; childIndex < i; ++childIndex)
@@ -297,7 +297,7 @@ private bool TryBindModel(Model model, RenderMesh** out_meshArray)
 			return false;
 		}
 
-		newMesh->Name = Pointers(char).Instance(name);
+		newMesh->Name = Pointers(byte).Instance(name);
 
 		newMesh->Mesh = Pointers(mesh).Create(mesh);
 
@@ -305,7 +305,7 @@ private bool TryBindModel(Model model, RenderMesh** out_meshArray)
 	}
 
 	// dispose of the extra instance we made for convenience
-	Pointers(char).Dispose(name, null, null);
+	Pointers(byte).Dispose(name, null, null);
 
 	*out_meshArray = meshesArray;
 

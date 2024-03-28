@@ -602,7 +602,7 @@ private void ExpandMethodDeclaration(string data, location location, CompileUnit
 
 	if (emitMethod)
 	{
-		strings.RemoveRange(data, location.AlligatorStartIndex, location.AlligatorEndIndex);
+		strings.RemoveRange(data, location.AlligatorStartIndex, location.AlligatorEndIndex - location.AlligatorStartIndex + 1);
 		strings.InsertArray(data, GenerateMethod(foundInfo, args), location.AlligatorStartIndex);
 	}
 	else // emit declaration instead, because definition exists
@@ -1037,6 +1037,28 @@ TEST(ExpandMethodDeclaration)
 
 TEST(MethodDefinitionExpansion)
 {
+	string data = dynamic_string("#include <stdlib.h>\n\r int Add<int,int>(int,int); T Add<T,T>(T left, T right){ return left + right; }\n");
+
+	array(location) locations = GetGenericLocations(data);
+
+	void* small = calloc(1, 1);
+
+	IsEqual(2ull, locations->Count);
+
+	Assembly assembly = CreateAssembly();
+	CompileUnit unit = CreateCompileUnit();
+	unit->Parent = assembly;
+	unit->Data = data;
+	arrays(CompileUnit).Append(assembly->CompileUnits, unit);
+
+	IsEqual(unit, at(assembly->CompileUnits, 0));
+
+	ExpandGenerics(data, locations, unit);
+
+	//string expected = stack_string("#include <stdlib.h>\n\r int Add_int_int_(int,int); int Add_int_int_(int left, int right){ return left + right; }\n");
+
+	//IsEqual(expected, data);
+
 	return true;
 }
 
