@@ -495,6 +495,11 @@ private bool MethodNameIs(MethodInfo method, string name)
 	return strings.Equals(method.Name, name);
 }
 
+private bool GenericInstanceNameIs(GenericMethodInstance instance, string name)
+{
+	return strings.Equals(instance.Name, name);
+}
+
 private bool GenericInstanceIs(GenericMethodInstance instance, GenericMethodInstance* valuePtr)
 {
 	GenericMethodInstance value = *valuePtr;
@@ -534,6 +539,22 @@ private void ExpandMethodDefinition(string data, location location, CompileUnit 
 
 	// remove the definition
 	strings.RemoveRange(data, location.StartScopeIndex, location.EndScopeIndex - location.StartScopeIndex + 1);
+
+	// we should go back and check to see if we found any
+	// declarations before we found the definition
+	// if so we should generate code for those
+	array(GenericMethodInstance) existingInstances = arrays(GenericMethodInstance).Any(unit->Parent->MethodInstances, info.Name, GenericInstanceNameIs);
+
+	if (existingInstances)
+	{
+		for (int i = 0; i < existingInstances->Count; i++)
+		{
+			GenericMethodInstance instance = at(existingInstances, i);
+			strings.AppendArray(instance.Parent->Data, GenerateMethod(info, instance.Arguments));
+		}
+	}
+
+	arrays(GenericMethodInstance).Dispose(existingInstances);
 }
 
 private void ExpandMethodDeclaration(string data, location location, CompileUnit unit)
@@ -548,6 +569,7 @@ private void ExpandMethodDeclaration(string data, location location, CompileUnit
 	array(string) args = GetGenericArguments(data, location);
 
 	GenericMethodInstance instance = {
+		.Name = strings.Clone(name),
 		.Info = null,
 		.Arguments = args,
 		.Parent = unit
@@ -978,6 +1000,7 @@ TEST(ExpandMethodDefinition)
 	Assembly assembly = CreateAssembly();
 	CompileUnit unit = CreateCompileUnit();
 	unit->Parent = assembly;
+	unit->Data = data;
 	arrays(CompileUnit).Append(assembly->CompileUnits, unit);
 
 	ExpandGenerics(data, locations, at(assembly->CompileUnits, 0));
@@ -990,6 +1013,29 @@ TEST(ExpandMethodDefinition)
 }
 
 TEST(ExpandMethodDeclaration)
+{
+	string data = dynamic_string("#include <stdlib.h>\n\r int Add<int>(int,int);\n");
+
+	array(location) locations = GetGenericLocations(data);
+
+	IsEqual(1ull, locations->Count);
+
+	Assembly assembly = CreateAssembly();
+	CompileUnit unit = CreateCompileUnit();
+	unit->Parent = assembly;
+	unit->Data = data;
+	arrays(CompileUnit).Append(assembly->CompileUnits, unit);
+
+	ExpandGenerics(data, locations, at(assembly->CompileUnits, 0));
+
+	string expected = stack_string("#include <stdlib.h>\n\r int Add_int_(int,int);\n");
+
+	IsEqual(expected, data);
+
+	return true;
+}
+
+TEST(MethodDefinitionExpansion)
 {
 	return true;
 }
@@ -1004,6 +1050,7 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(GenerateMethod)
 	APPEND_TEST(ExpandMethodDefinition)
 	APPEND_TEST(ExpandMethodDeclaration)
+	APPEND_TEST(MethodDefinitionExpansion)
 );
 
 OnStart(2) { RunUnitTests(); }

@@ -28,6 +28,7 @@ DEFINE_CONTAINERS(GenericTypeInfo);
 
 struct _GenericMethodInstance
 {
+	string Name;
 	MethodInfo Info;
 	array(string) Arguments;
 	CompileUnit Parent;
@@ -44,6 +45,7 @@ struct _CompileUnit
 	Assembly Parent;
 	array(MethodInfo) Methods;
 	array(GenericMethodInstance) MethodInstances;
+	string Data;
 };
 
 DEFINE_CONTAINERS(CompileUnit);

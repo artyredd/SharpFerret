@@ -418,71 +418,87 @@ private type _EXPAND_METHOD_NAME(type, Select)(array(type) array, void* state, b
 	if(index is -1){ return (type){0}; }\
 	return at(array,index);\
 }\
+private array(type) _EXPAND_METHOD_NAME(type, Any)(array(type) arr, void* state, bool(*expression)(type,void*))\
+{\
+	array(type) result = null;\
+	for (int i = 0; i < arr->Count; i++)\
+	{\
+		type item = at(arr,i);\
+		if(expression(item, state))\
+		{\
+			if(result){result = _EXPAND_METHOD_NAME(type, Create)(1);}\
+			_EXPAND_METHOD_NAME(type, Append)(result,item);\
+		}\
+	}\
+	return null; \
+}\
 const static struct _array_##type##_methods\
 {\
-array(type) (*Create)(ulong count); \
-void (*AutoResize)(array(type)); \
-void (*Resize)(array(type), ulong newCount); \
-void (*Append)(array(type), type); \
-void (*RemoveIndex)(array(type), ulong index); \
-array(type) (*RemoveRange)(array(type), ulong startIndex, ulong count); \
-bool (*Empty)(array(type)); \
-void (*Swap)(array(type), ulong firstIndex, ulong secondIndex); \
-void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
-type* (*At)(array(type), ulong index); \
-type(*ValueAt)(array(type), ulong index); \
-array(type) (*AppendArray)(array(type), const array(type) appendedValue); \
-array(type) (*InsertArray)(array(type) destination, array(type) values, ulong index); \
-void (*AppendCArray)(array(type), const type* carray, const ulong count); \
-bool (*Equals)(array(type), array(type)); \
-bool (*BeginsWith)(array(type), array(type)); \
-void (*Clear)(array(type)); \
-void (*Foreach)(array(type), void(*method)(type*)); \
-void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
-int (*IndexOf)(array(type), type); \
-int (*IndexWhere)(array(type), void* state, bool(*Expression)(type value, void* state)); \
-type (*Select)(array(type), void* state, bool(*Expression)(type value, void* state)); \
-array(type) (*Clone)(array(type)); \
-ulong(*Hash)(array(type)); \
-array(type) (*Fill)(array(type), type); \
-void (*Print)(void* stream, array(type)); \
-void (*Dispose)(array(type)); \
+	array(type) (*Create)(ulong count); \
+	void (*AutoResize)(array(type)); \
+	void (*Resize)(array(type), ulong newCount); \
+	void (*Append)(array(type), type); \
+	void (*RemoveIndex)(array(type), ulong index); \
+	array(type) (*RemoveRange)(array(type), ulong startIndex, ulong count); \
+	bool (*Empty)(array(type)); \
+	void (*Swap)(array(type), ulong firstIndex, ulong secondIndex); \
+	void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
+	type* (*At)(array(type), ulong index); \
+	type(*ValueAt)(array(type), ulong index); \
+	array(type) (*AppendArray)(array(type), const array(type) appendedValue); \
+	array(type) (*InsertArray)(array(type) destination, array(type) values, ulong index); \
+	void (*AppendCArray)(array(type), const type* carray, const ulong count); \
+	bool (*Equals)(array(type), array(type)); \
+	bool (*BeginsWith)(array(type), array(type)); \
+	void (*Clear)(array(type)); \
+	void (*Foreach)(array(type), void(*method)(type*)); \
+	void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
+	int (*IndexOf)(array(type), type); \
+	int (*IndexWhere)(array(type), void* state, bool(*Expression)(type value, void* state)); \
+	type(*Select)(array(type), void* state, bool(*Expression)(type value, void* state)); \
+	array(type) (*Any)(array(type), void* state, bool(*Expression)(type value, void* state)); \
+	array(type) (*Clone)(array(type)); \
+	ulong(*Hash)(array(type)); \
+	array(type) (*Fill)(array(type), type); \
+	void (*Print)(void* stream, array(type)); \
+	void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\
-.Create = _EXPAND_METHOD_NAME(type, Create), \
-.AutoResize = _EXPAND_METHOD_NAME(type, AutoResize), \
-.Resize = _EXPAND_METHOD_NAME(type, Resize), \
-.Append = _EXPAND_METHOD_NAME(type, Append), \
-.RemoveIndex = _EXPAND_METHOD_NAME(type, RemoveIndex), \
-.RemoveRange = _EXPAND_METHOD_NAME(type, RemoveRange), \
-.Empty = _EXPAND_METHOD_NAME(type, Empty), \
-.Swap = _EXPAND_METHOD_NAME(type, Swap), \
-.InsertionSort = _EXPAND_METHOD_NAME(type, InsertionSort), \
-.At = _EXPAND_METHOD_NAME(type, At), \
-.ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
-.AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
-.InsertArray = _EXPAND_METHOD_NAME(type, InsertArray), \
-.AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray), \
-.Equals = _EXPAND_METHOD_NAME(type, Equals), \
-.Clear = _EXPAND_METHOD_NAME(type, Clear), \
-.Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
-.ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
-.Clone = _EXPAND_METHOD_NAME(type, Clone), \
-.Hash = _EXPAND_METHOD_NAME(type, Hash), \
-.BeginsWith = _EXPAND_METHOD_NAME(type, BeginsWith), \
-.Fill = _EXPAND_METHOD_NAME(type, Fill), \
-.IndexOf = _EXPAND_METHOD_NAME(type, IndexOf), \
-.IndexWhere = _EXPAND_METHOD_NAME(type, IndexWhere), \
-.Select = _EXPAND_METHOD_NAME(type, Select),\
-.Print = _EXPAND_METHOD_NAME(type, Print), \
-.Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
+	.Create = _EXPAND_METHOD_NAME(type, Create), \
+	.AutoResize = _EXPAND_METHOD_NAME(type, AutoResize), \
+	.Resize = _EXPAND_METHOD_NAME(type, Resize), \
+	.Append = _EXPAND_METHOD_NAME(type, Append), \
+	.RemoveIndex = _EXPAND_METHOD_NAME(type, RemoveIndex), \
+	.RemoveRange = _EXPAND_METHOD_NAME(type, RemoveRange), \
+	.Empty = _EXPAND_METHOD_NAME(type, Empty), \
+	.Swap = _EXPAND_METHOD_NAME(type, Swap), \
+	.InsertionSort = _EXPAND_METHOD_NAME(type, InsertionSort), \
+	.At = _EXPAND_METHOD_NAME(type, At), \
+	.ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
+	.AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
+	.InsertArray = _EXPAND_METHOD_NAME(type, InsertArray), \
+	.AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray), \
+	.Equals = _EXPAND_METHOD_NAME(type, Equals), \
+	.Clear = _EXPAND_METHOD_NAME(type, Clear), \
+	.Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
+	.ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
+	.Clone = _EXPAND_METHOD_NAME(type, Clone), \
+	.Hash = _EXPAND_METHOD_NAME(type, Hash), \
+	.BeginsWith = _EXPAND_METHOD_NAME(type, BeginsWith), \
+	.Fill = _EXPAND_METHOD_NAME(type, Fill), \
+	.IndexOf = _EXPAND_METHOD_NAME(type, IndexOf), \
+	.IndexWhere = _EXPAND_METHOD_NAME(type, IndexWhere), \
+	.Select = _EXPAND_METHOD_NAME(type, Select), \
+	.Any = _EXPAND_METHOD_NAME(type, Any), \
+	.Print = _EXPAND_METHOD_NAME(type, Print), \
+	.Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
 
 #define DEFINE_ARRAY(type) _EXPAND_DEFINE_ARRAY(type)
 
 #define DEFINE_COMPARATOR(type, name, operation) private bool name(type* left, type* right){return *(left) operation *(right);} 
 
-// define common types
+	// define common types
 DEFINE_ARRAY(bool);
 DEFINE_ARRAY(byte);
 DEFINE_ARRAY(int);

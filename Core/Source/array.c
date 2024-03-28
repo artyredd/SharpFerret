@@ -299,6 +299,12 @@ private void ForeachWithContext(Array array, void* context, void(*method)(void* 
 
 private void Dispose(Array array)
 {
+	// nothing to do
+	if (array is null)
+	{
+		return;
+	}
+
 	// avoid crazyness
 	if (array->StackObject)
 	{
