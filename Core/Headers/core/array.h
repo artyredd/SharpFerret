@@ -274,15 +274,22 @@ private void _EXPAND_METHOD_NAME(type,RemoveIndex)(array(type) array, ulong inde
 {\
 Arrays.RemoveIndex((Array)array, index); \
 }\
+private type* _EXPAND_METHOD_NAME(type, At)(array(type) array, ulong index)\
+{\
+return (type*)Arrays.At((Array)array, index); \
+}\
 private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, ulong index, ulong count)\
 {\
 	/* { a, b, c, d, e } */\
 	/* RemoveRange(2,2) */\
 	/* { a, b, e } */\
 	const ulong safeCount = guard_array_count(array, count);\
-	type* destination = &at(array,index);\
-	array(type) source = stack_subarray_back(type, array, index + safeCount);\
-	memmove(destination,source->Values,source->Count * source->ElementSize );\
+	const ulong safeIndex = guard_array_count_index(array, index);\
+	type* destination = &array->Values[safeIndex];\
+	const ulong safeEndIndex = guard_array_count_index(array, safeIndex + safeCount);\
+	type* source = &array->Values[safeEndIndex];\
+	const ulong safeRemainingCount = safe_subtract(array->Count,safeEndIndex);\
+	memmove( destination, source, safeRemainingCount * array->ElementSize );\
 	array->Count = safe_subtract(array->Count, safeCount);\
 	array->Dirty = true;\
 	return array; \
@@ -306,10 +313,6 @@ Arrays.Swap((Array)array, firstIndex, secondIndex); \
 private void _EXPAND_METHOD_NAME(type, InsertionSort)(array(type) array, bool(comparator)(type* leftMemoryBlock, type* rightMemoryBlock))\
 {\
 Arrays.InsertionSort((Array)array, comparator); \
-}\
-private type* _EXPAND_METHOD_NAME(type, At)(array(type) array, ulong index)\
-{\
-return (type*)Arrays.At((Array)array, index); \
 }\
 private type _EXPAND_METHOD_NAME(type, ValueAt)(array(type) array, ulong index)\
 {\

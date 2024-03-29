@@ -167,8 +167,7 @@ private array(string) GetGenericArguments(string data, location location)
 			string stackName =
 				stack_substring(subdata, nameStartIndex, i - nameStartIndex);
 			stackName = combine_partial_string(stackName, Strings.TrimAll(stackName));
-			string name = empty_dynamic_string(stackName->Count);
-			strings.AppendArray(name, stackName);
+			string name = strings.Clone(stackName);
 			arrays(string).Append(result, name);
 			// the next index is the start of the next type name
 			nameStartIndex = i + 1;
@@ -178,8 +177,7 @@ private array(string) GetGenericArguments(string data, location location)
 			string stackName =
 				stack_substring(subdata, nameStartIndex, i - nameStartIndex);
 			stackName = combine_partial_string(stackName, Strings.TrimAll(stackName));
-			string name = empty_dynamic_string(stackName->Count);
-			strings.AppendArray(name, stackName);
+			string name = strings.Clone(stackName);
 			arrays(string).Append(result, name);
 		}
 	}
@@ -197,8 +195,7 @@ private array(string) GetGenericArguments(string data, location location)
 		// assume a single argument
 		string stackName = stack_substring(subdata, 1, subdata->Count - 2);
 		stackName = combine_partial_string(stackName, Strings.TrimAll(stackName));
-		string name = empty_dynamic_string(stackName->Count);
-		strings.AppendArray(name, stackName);
+		string name = strings.Clone(stackName);
 		arrays(string).Append(result, name);
 	}
 
@@ -378,6 +375,7 @@ private void RepackRecalculatedTypeLocations(MethodInfo info)
 	}
 }
 
+// makes NEW string
 private string RemoveTypesFromGenericMethodBody(string data, GenericTypeInfo info)
 {
 	string result = strings.Clone(data);
@@ -418,7 +416,12 @@ MethodInfo GetMethodInfo(string data, location location) {
 	info.SortedTypeLocations = SortGenericTypeInfo(genericInfo);
 	genericInfo.SortedTypeLocations = info.SortedTypeLocations;
 
-	info.Data = RemoveTypesFromGenericMethodBody(data, genericInfo);
+	info.Data = RemoveTypesFromGenericMethodBody(
+		stack_substring(
+			data,
+			location.StartScopeIndex,
+			location.EndScopeIndex - location.StartScopeIndex + 1
+		), genericInfo);
 
 	partial_string partialName = GetMethodName(stack_substring_front(data, location.AlligatorStartIndex - 1));
 
@@ -603,7 +606,9 @@ private void ExpandMethodDeclaration(string data, location location, CompileUnit
 	if (emitMethod)
 	{
 		strings.RemoveRange(data, location.AlligatorStartIndex, location.AlligatorEndIndex - location.AlligatorStartIndex + 1);
-		strings.InsertArray(data, GenerateMethod(foundInfo, args), location.AlligatorStartIndex);
+
+		string method = GenerateMethod(foundInfo, args);
+		strings.InsertArray(data, method, location.AlligatorStartIndex);
 	}
 	else // emit declaration instead, because definition exists
 	{
@@ -698,7 +703,7 @@ TEST(ExpandCall) {
 
 	IsEqual((size_t)1, locations->Count);
 
-	CompileUnit unit = CreateCompileUnit();
+	CompileUnit unit = CreateCompileUnit(CreateAssembly(), data);
 
 	ExpandGeneric(data, at(locations, 0), unit);
 
@@ -998,10 +1003,7 @@ TEST(ExpandMethodDefinition)
 	IsEqual(1ull, locations->Count);
 
 	Assembly assembly = CreateAssembly();
-	CompileUnit unit = CreateCompileUnit();
-	unit->Parent = assembly;
-	unit->Data = data;
-	arrays(CompileUnit).Append(assembly->CompileUnits, unit);
+	CompileUnit unit = CreateCompileUnit(assembly, data);
 
 	ExpandGenerics(data, locations, at(assembly->CompileUnits, 0));
 
@@ -1021,10 +1023,7 @@ TEST(ExpandMethodDeclaration)
 	IsEqual(1ull, locations->Count);
 
 	Assembly assembly = CreateAssembly();
-	CompileUnit unit = CreateCompileUnit();
-	unit->Parent = assembly;
-	unit->Data = data;
-	arrays(CompileUnit).Append(assembly->CompileUnits, unit);
+	CompileUnit unit = CreateCompileUnit(assembly, data);
 
 	ExpandGenerics(data, locations, at(assembly->CompileUnits, 0));
 
@@ -1046,10 +1045,7 @@ TEST(MethodDefinitionExpansion)
 	IsEqual(2ull, locations->Count);
 
 	Assembly assembly = CreateAssembly();
-	CompileUnit unit = CreateCompileUnit();
-	unit->Parent = assembly;
-	unit->Data = data;
-	arrays(CompileUnit).Append(assembly->CompileUnits, unit);
+	CompileUnit unit = CreateCompileUnit(assembly, data);
 
 	IsEqual(unit, at(assembly->CompileUnits, 0));
 

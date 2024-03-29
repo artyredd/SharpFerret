@@ -57,13 +57,16 @@ struct _Assembly
 	array(GenericMethodInstance) MethodInstances;
 };
 
-private CompileUnit CreateCompileUnit()
+private CompileUnit CreateCompileUnit(Assembly assembly, string data)
 {
 	CompileUnit unit = Memory.Alloc(sizeof(struct _CompileUnit), Memory.GenericMemoryBlock);
 
 	unit->MethodInstances = dynamic_array(GenericMethodInstance, 0);
 	unit->Methods = dynamic_array(MethodInfo, 0);
-	unit->Parent = null;
+	unit->Parent = assembly;
+	unit->Data = data;
+
+	arrays(CompileUnit).Append(assembly->CompileUnits, unit);
 
 	return unit;
 }

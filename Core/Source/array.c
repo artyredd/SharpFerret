@@ -48,7 +48,12 @@ private Array Create(ulong elementSize, ulong count, ulong typeId)
 	// since alloc gets a zeroed block of memory and 0 is '\0'
 	// alloc one more byte of space to ensure all of our arrays are
 	// always terminated, regardless if their strings or not
-	array->Values = Memory.Alloc((elementSize * count) + 1, typeId);
+	array->Values = null;
+
+	if (count)
+	{
+		array->Values = Memory.Alloc((elementSize * count) + 1, typeId);
+	}
 
 	array->Count = 0;
 	array->ElementSize = elementSize;
@@ -74,7 +79,7 @@ private ulong HashArray(Array array)
 private void Append(Array array, void* value)
 {
 	// check to see if we need to resize or not
-	if (array->Count < array->Capacity)
+	if (array->Values isnt null and (array->Count < array->Capacity))
 	{
 		memcpy(At(array, array->Count), value, array->ElementSize);
 
@@ -109,7 +114,7 @@ private void AutoResize(Array array)
 		throw(StackObjectModifiedException);
 	}
 
-	ulong newSize = max(array->Size << 1, 1);
+	ulong newSize = max(array->Size << 1, array->ElementSize);
 
 	if ((newSize % array->ElementSize) isnt 0)
 	{
@@ -124,7 +129,15 @@ private void AutoResize(Array array)
 	else
 	{
 		// alloc one more byte so its terminated
-		Memory.ReallocOrCopy(&array->Values, array->Size, newSize + 1, array->TypeId);
+		//Memory.ReallocOrCopy(&array->Values, array->Size, newSize + 1, array->TypeId);
+		void* old = array->Values;
+		array->Values = Memory.Alloc(newSize + 1, array->TypeId);
+		if (old)
+		{
+			memcpy(array->Values, old, array->Size);
+
+			Memory.Free(old, array->TypeId);
+		}
 	}
 
 	array->Capacity = newSize / array->ElementSize;
