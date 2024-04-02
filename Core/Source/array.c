@@ -537,10 +537,32 @@ TEST(Sorting)
 	return true;
 }
 
+TEST(RemoveRange)
+{
+	string data = stack_string("0123456789");
+
+	strings.RemoveRange(data, 0, 1);
+
+	string expected = stack_string("123456789");
+
+	IsEqual(expected, data);
+
+	data = stack_string("0123456789");
+
+	strings.RemoveRange(data, 0, data->Count);
+
+	expected = stack_string("");
+
+	IsEqual(expected, data);
+
+	return true;
+}
+
 TEST_SUITE(RunUnitTests,
 	APPEND_TEST(Hashing)
 	APPEND_TEST(Equals)
 	APPEND_TEST(Sorting)
+	APPEND_TEST(RemoveRange)
 );
 
 OnStart(11)

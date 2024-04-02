@@ -1051,9 +1051,9 @@ TEST(MethodDefinitionExpansion)
 
 	ExpandGenerics(data, locations, unit);
 
-	//string expected = stack_string("#include <stdlib.h>\n\r int Add_int_int_(int,int); int Add_int_int_(int left, int right){ return left + right; }\n");
+	string expected = stack_string("#include <stdlib.h>\n\r int Add_int_int_(int,int); int Add_int_int_(int left, int right){ return left + right; }\n");
 
-	//IsEqual(expected, data);
+	IsEqual(expected, data);
 
 	return true;
 }
