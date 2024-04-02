@@ -290,7 +290,7 @@ private void Clear(Array array)
 		memset(array->Values, 0, array->Size);
 	}
 	array->Count = 0;
-	array->Dirty = false;
+	array->Dirty = true;
 	array->Hash = 0;
 }
 

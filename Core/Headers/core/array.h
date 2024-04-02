@@ -58,10 +58,10 @@
 typedef struct _array_##type partial_##type##_##array;\
 typedef struct _array_##type* type##_array;
 
-#define explicit_stack_array(type,initialArraySize,count, ...) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
+#define explicit_stack_array(type,initialArraySize,count, sizeOffset , ...) (array(type))&(struct _EXPAND_STRUCT_NAME(type))\
 {\
 	.Values = (type*)(type[initialArraySize]){ __VA_ARGS__ },\
-	.Size = sizeof(type) * count,\
+	.Size = (sizeof(type) * count) + sizeOffset,\
 	.ElementSize = sizeof(type),\
 	.Capacity = count,\
 	.Count = count,\
@@ -72,7 +72,7 @@ typedef struct _array_##type* type##_array;
 	.AutoHash = true\
 }
 
-#define stack_array(type,count,...) explicit_stack_array(type,count,count,__VA_ARGS__)
+#define stack_array(type,count,...) explicit_stack_array(type,count,count,0,__VA_ARGS__)
 
 #define auto_stack_array(type,...) stack_array(type,VAR_COUNT(__VA_ARGS__),__VA_ARGS__)
 #define _stack_array_comma_count(...) (VAR_COUNT(__VA_ARGS__) - 1)/9
@@ -92,7 +92,7 @@ typedef struct _array_##type* type##_array;
 	.AutoHash = true\
 }
 
-#define _stack_string(string) explicit_stack_array(byte,,sizeof(string) - 1, string) 
+#define _stack_string(string) explicit_stack_array(byte,,sizeof(string)-1,1, string) 
 #define stack_string(string) _stack_string(string) 
 
 #define _dynamic_array(type, initialCount) _EXPAND_METHOD_NAME(type,Create)(initialCount) 
@@ -278,6 +278,11 @@ private type* _EXPAND_METHOD_NAME(type, At)(array(type) array, ulong index)\
 {\
 return (type*)Arrays.At((Array)array, index); \
 }\
+private array(type) _EXPAND_METHOD_NAME(type, Clear)(array(type)array)\
+{\
+Arrays.Clear((Array)array); \
+return array;\
+}\
 private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, ulong index, ulong count)\
 {\
 	/* { a, b, c, d, e } */\
@@ -286,7 +291,9 @@ private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, ul
 	const ulong safeCount = guard_array_count(array, count);\
 	const ulong safeIndex = guard_array_count_index(array, index);\
 	type* destination = &array->Values[safeIndex];\
-	const ulong safeEndIndex = guard_array_count_index(array, safeIndex + safeCount);\
+	const ulong maybeSafeEndIndex = safe_add(safeCount, safeIndex);\
+	if(maybeSafeEndIndex >= array->Count){ return _EXPAND_METHOD_NAME(type, Clear)(array); }\
+	const ulong safeEndIndex = guard_array_count_index(array, maybeSafeEndIndex);\
 	type* source = &array->Values[safeEndIndex];\
 	const ulong safeRemainingCount = safe_subtract(array->Count,safeEndIndex);\
 	memmove( destination, source, safeRemainingCount * array->ElementSize );\
@@ -334,10 +341,6 @@ type value = carray[cIndex]; \
 \
 _EXPAND_METHOD_NAME(type, Append)(array, value); \
 }\
-}\
-private void _EXPAND_METHOD_NAME(type, Clear)(array(type)array)\
-{\
-Arrays.Clear((Array)array); \
 }\
 private void _EXPAND_METHOD_NAME(type, Foreach)(array(type)array, void(*method)(type*))\
 {\
@@ -453,7 +456,7 @@ const static struct _array_##type##_methods\
 	void (*AppendCArray)(array(type), const type* carray, const ulong count); \
 	bool (*Equals)(array(type), array(type)); \
 	bool (*BeginsWith)(array(type), array(type)); \
-	void (*Clear)(array(type)); \
+	array(type) (*Clear)(array(type)); \
 	void (*Foreach)(array(type), void(*method)(type*)); \
 	void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
 	int (*IndexOf)(array(type), type); \
