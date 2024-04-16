@@ -555,6 +555,40 @@ TEST(RemoveRange)
 
 	IsEqual(expected, data);
 
+	data = stack_string("0123456789");
+
+	strings.RemoveRange(data, 4, 3);
+
+	expected = stack_string("0123789");
+
+	IsEqual(expected, data);
+
+	data = stack_string("0123456789");
+
+	strings.RemoveRange(data, 9, 1);
+
+	expected = stack_string("012345678");
+
+	IsEqual(expected, data);
+
+	data = stack_string("0123456789");
+
+	strings.RemoveRange(data, 1, data->Count - 2);
+
+	expected = stack_string("09");
+
+	IsEqual(expected, data);
+
+	data = dynamic_string("#include <stdlib.h>\n\r int Add<int,int>(int,int); T Add<T,T>(T left, T right){ return left + right; }\n");
+
+	strings.RemoveRange(data, 49, 51);
+
+	IsEqual('\0', *(data->Values + 50));
+
+	expected = stack_string("#include <stdlib.h>\n\r int Add<int,int>(int,int); \n");
+
+	IsEqual(expected, data);
+
 	return true;
 }
 

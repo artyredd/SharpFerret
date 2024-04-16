@@ -292,11 +292,16 @@ private array(type) _EXPAND_METHOD_NAME(type, RemoveRange)(array(type) array, ul
 	const ulong safeIndex = guard_array_count_index(array, index);\
 	type* destination = &array->Values[safeIndex];\
 	const ulong maybeSafeEndIndex = safe_add(safeCount, safeIndex);\
-	if(maybeSafeEndIndex >= array->Count){ return _EXPAND_METHOD_NAME(type, Clear)(array); }\
-	const ulong safeEndIndex = guard_array_count_index(array, maybeSafeEndIndex);\
-	type* source = &array->Values[safeEndIndex];\
-	const ulong safeRemainingCount = safe_subtract(array->Count,safeEndIndex);\
-	memmove( destination, source, safeRemainingCount * array->ElementSize );\
+	if(maybeSafeEndIndex >= array->Count){ \
+		memset(destination, 0, safeCount * array->ElementSize);\
+	}else{\
+		const ulong safeEndIndex = guard_array_count_index(array, maybeSafeEndIndex); \
+		type* source = &array->Values[safeEndIndex]; \
+		const ulong safeRemainingCount = safe_subtract(array->Count, safeEndIndex); \
+		memmove(destination, source, safeRemainingCount* array->ElementSize); \
+		/* null terminate at the end to make debugbing strings easier in the debugger */\
+		memset(destination + safeRemainingCount, '\0', 1);\
+	}\
 	array->Count = safe_subtract(array->Count, safeCount);\
 	array->Dirty = true;\
 	return array; \
