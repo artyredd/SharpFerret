@@ -320,7 +320,7 @@ private bool IsGenericMethodDefinition(string data, int openAlligatorIndex, loca
 	return true;
 }
 
-private location IdentifyGenericCall(string data, int depth, int openAlligatorIndex, int lastMacroEndIndex)
+location IdentifyGenericCall(string data, int depth, int openAlligatorIndex, int lastMacroEndIndex)
 {
 	location result = { 0 };
 

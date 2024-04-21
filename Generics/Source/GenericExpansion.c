@@ -436,6 +436,19 @@ MethodInfo GetMethodInfo(string data, location location) {
 	return info;
 }
 
+
+private string FlattenArguments(string data, location location, string buffer)
+{
+	// calls just get replaced with a valid C name
+	// and the preprocessor and compiler will do lookup
+	const size_t start = location.AlligatorStartIndex;
+	const size_t count = location.AlligatorEndIndex - start + 1;
+
+	string arguments = stack_substring(data, start, count);
+
+	return FlattenArgumentToCName(arguments, buffer);
+}
+
 // generates code for the given method info, generates new
 // string that must be disposed of
 string GenerateMethod(const MethodInfo info, array(string) types)
@@ -447,6 +460,7 @@ string GenerateMethod(const MethodInfo info, array(string) types)
 	}
 
 	string result = strings.Clone(info.Data);
+
 	for (int i = 0; i < info.SortedTypeLocations->Count; i++)
 	{
 		tuple(string, int) pair = at(info.SortedTypeLocations, i);
@@ -462,20 +476,21 @@ string GenerateMethod(const MethodInfo info, array(string) types)
 		strings.InsertArray(result, at(types, index), pair.Second);
 	}
 
+	// we should flatten the method arguments
+	int alligatorStartIndex = strings.IndexOf(result, '<');
+	location location = IdentifyGenericCall(result, 0, alligatorStartIndex, 0);
+
+	string buffer = empty_stack_array(byte, MAX_ARG_LENGTH);
+
+	FlattenArguments(result, location, buffer);
+
+	strings.RemoveRange(result, alligatorStartIndex, location.AlligatorEndIndex - alligatorStartIndex + 1);
+
+	strings.InsertArray(result, buffer, alligatorStartIndex);
+
 	return result;
 }
 
-private string FlattenArguments(string data, location location, string buffer)
-{
-	// calls just get replaced with a valid C name
-	// and the preprocessor and compiler will do lookup
-	const size_t start = location.AlligatorStartIndex;
-	const size_t count = location.AlligatorEndIndex - start + 1;
-
-	string arguments = stack_substring(data, start, count);
-
-	return FlattenArgumentToCName(arguments, buffer);
-}
 
 private void ExpandCall(string data, location location) {
 
@@ -607,10 +622,14 @@ private void ExpandMethodDeclaration(string data, location location, CompileUnit
 		// flatten the name
 		ExpandCall(data, location);
 
-		strings.RemoveRange(data, location.StartScopeIndex, location.EndScopeIndex - location.StartScopeIndex + 1);
+		// dont remove original declaration
+		//strings.RemoveRange(data, location.StartScopeIndex, location.EndScopeIndex - location.StartScopeIndex + 1);
 
 		string method = GenerateMethod(foundInfo, args);
-		strings.InsertArray(data, method, location.StartScopeIndex);
+
+		// flatten generic arguments??
+
+		strings.AppendArray(data, method);
 		strings.Dispose(method);
 	}
 	else // emit declaration instead, because definition exists
@@ -1057,7 +1076,7 @@ TEST(MethodDefinitionExpansion)
 
 	ExpandGenerics(data, locations, unit);
 
-	string expected = stack_string("#include <stdlib.h>\n\r int Add_int_int_(int,int); int Add_int_int_(int left, int right){ return left + right; }\n");
+	string expected = stack_string("#include <stdlib.h>\n\r int Add_int_int_(int,int);\nint Add_int_int_(int left, int right){ return left + right; }");
 
 	IsEqual(expected, data);
 

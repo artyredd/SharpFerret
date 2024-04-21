@@ -27,6 +27,8 @@ typedef struct
 DEFINE_CONTAINERS(location);
 
 array(location) GetGenericLocations(string data);
+location IdentifyGenericCall(string data, int depth, int openAlligatorIndex, int lastMacroEndIndex);
+
 
 // Reads the tokens from the provided file
 void RunTests();
