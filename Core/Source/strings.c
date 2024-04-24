@@ -31,6 +31,8 @@ static int IndexOf(const char* buffer, const ulong bufferLength, int character);
 private ulong Length(const char* str);
 private bool TryLoopSplitByFunction(string str, string* out_string, bool(*selector)(char));
 private partial_string TrimAll(string str);
+private int GetVisibleCharacter(byte c);
+private string ReplaceInvisibleCharacters(const string str);
 
 const struct _stringMethods Strings = {
 	.Length = Length,
@@ -45,7 +47,9 @@ const struct _stringMethods Strings = {
 	.TryParse = &TryParse,
 	.IndexOf = IndexOf,
 	.TryLoopSplitByFunction = TryLoopSplitByFunction,
-	.TrimAll = TrimAll
+	.TrimAll = TrimAll,
+	.ReplaceInvisibleCharacters = ReplaceInvisibleCharacters,
+	.GetVisibleCharacter = GetVisibleCharacter
 };
 
 partial_string TrimAll(string str)
@@ -97,6 +101,55 @@ private bool TryLoopSplitByFunction(string str, string* out_string, bool(*select
 	}
 
 	return false;
+}
+
+static array(tuple(int, string)) GLOBAL_VisibleCharacters = stack_array(tuple(int, string),
+	2,
+	(tuple(int, string)) {
+	'\n', stack_string("\\n")
+}, (tuple(int, string)) {
+		' ', stack_string(182)
+	}
+	);
+static string GLOBAL_DefaultVisibleCharacterReplacement = stack_string(167);
+
+private string GetVisibleCharacter(byte c)
+{
+	if (isalnum(c))
+	{
+		return null;
+	}
+
+	for (size_t i = 0; i < GLOBAL_VisibleCharacters; i++)
+	{
+		tuple(int, string) item = at(GLOBAL_VisibleCharacters, i);
+
+		if (item.First is c)
+		{
+			return item.Second;
+		}
+	}
+
+	return GLOBAL_DefaultVisibleCharacterReplacement;
+}
+
+private string ReplaceInvisibleCharacters(const string str)
+{
+	int i = str->Count;
+	while (i-- > 0)
+	{
+		int c = at(str, i);
+
+		string replacement = null;
+
+		if (replacement = GetVisibleCharacter(c))
+		{
+			if (replacement->Count is 1)
+			{
+				at(str, i) = at(replacement, 0);
+			}
+		}
+	}
 }
 
 private ulong Length(const char* str)

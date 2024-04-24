@@ -1065,8 +1065,6 @@ TEST(MethodDefinitionExpansion)
 
 	array(location) locations = GetGenericLocations(data);
 
-	void* small = calloc(1, 1);
-
 	IsEqual(2ull, locations->Count);
 
 	Assembly assembly = CreateAssembly();
@@ -1076,7 +1074,7 @@ TEST(MethodDefinitionExpansion)
 
 	ExpandGenerics(data, locations, unit);
 
-	string expected = stack_string("#include <stdlib.h>\n\r int Add_int_int_(int,int);\nint Add_int_int_(int left, int right){ return left + right; }");
+	string expected = stack_string("#include <stdlib.h>\n\r int Add_int_int_(int,int);\n int Add_int_int_(int left, int right){ return left + right; }");
 
 	IsEqual(expected, data);
 
