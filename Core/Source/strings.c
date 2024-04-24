@@ -31,7 +31,7 @@ static int IndexOf(const char* buffer, const ulong bufferLength, int character);
 private ulong Length(const char* str);
 private bool TryLoopSplitByFunction(string str, string* out_string, bool(*selector)(char));
 private partial_string TrimAll(string str);
-private int GetVisibleCharacter(byte c);
+private string GetVisibleCharacter(byte c);
 private string ReplaceInvisibleCharacters(const string str);
 
 const struct _stringMethods Strings = {
@@ -104,23 +104,31 @@ private bool TryLoopSplitByFunction(string str, string* out_string, bool(*select
 }
 
 static array(tuple(int, string)) GLOBAL_VisibleCharacters = stack_array(tuple(int, string),
-	2,
-	(tuple(int, string)) {
-	'\n', stack_string("\\n")
-}, (tuple(int, string)) {
-		' ', stack_string(182)
+	3,
+	{
+		'\n',
+		stack_array(byte,2,"\\n")
+	},
+	{
+		' ',
+		stack_array(byte,2,"\\s")
+	},
+	{
+		'\r',
+		stack_array(byte,2,"\\r")
 	}
 	);
-static string GLOBAL_DefaultVisibleCharacterReplacement = stack_string(167);
+
+static string GLOBAL_DefaultVisibleCharacterReplacement = stack_array(byte, 1, '—');
 
 private string GetVisibleCharacter(byte c)
 {
-	if (isalnum(c))
+	if (isspace(c) is false)
 	{
 		return null;
 	}
 
-	for (size_t i = 0; i < GLOBAL_VisibleCharacters; i++)
+	for (size_t i = 0; i < GLOBAL_VisibleCharacters->Count; i++)
 	{
 		tuple(int, string) item = at(GLOBAL_VisibleCharacters, i);
 
@@ -135,21 +143,36 @@ private string GetVisibleCharacter(byte c)
 
 private string ReplaceInvisibleCharacters(const string str)
 {
-	int i = str->Count;
+	string result = strings.Clone(str);
+
+	int i = result->Count;
 	while (i-- > 0)
 	{
-		int c = at(str, i);
+		int c = at(result, i);
 
 		string replacement = null;
 
 		if (replacement = GetVisibleCharacter(c))
 		{
-			if (replacement->Count is 1)
+			GuardGreaterThanEqual(replacement->Count, 0);
+
+			if (replacement->Count is 0)
 			{
-				at(str, i) = at(replacement, 0);
+				strings.RemoveIndex(result, i);
+			}
+			else if (replacement->Count is 1)
+			{
+				at(result, i) = at(replacement, 0);
+			}
+			else if (replacement->Count > 1)
+			{
+				strings.RemoveIndex(result, i);
+				strings.InsertArray(result, replacement, i);
 			}
 		}
 	}
+
+	return result;
 }
 
 private ulong Length(const char* str)

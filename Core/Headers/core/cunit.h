@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <time.h>
 #include "core/array.h"
+#include "core/strings.h"
 
 typedef struct _test* Test;
 
@@ -78,15 +79,21 @@ private bool _PrintStringDifferences(void* stream, void* left, void* right)
 
 	if (left isnt null and right isnt null)
 	{
-		const int differentIndex = _IndexWhereDifferent(leftStr, rightStr);
+		string visibleLeft = Strings.ReplaceInvisibleCharacters(leftStr);
+		string visibleRight = Strings.ReplaceInvisibleCharacters(rightStr);
+
+		const int differentIndex = _IndexWhereDifferent(visibleLeft, visibleRight);
 		string arrowLine = dynamic_array(byte, differentIndex + 1);
 		arrowLine->Count = differentIndex + 1;
 		strings.Fill(arrowLine, '-');
 		at(arrowLine, differentIndex) = '|';
 
-		fprintf_red(stream, " Expected: %s"NEWLINE, leftStr->Values);
+		fprintf_red(stream, " Expected: %s"NEWLINE, visibleLeft->Values);
 		fprintf_red(stream, "          %s"NEWLINE, arrowLine->Values);
-		fprintf_red(stream, "Actual:   %s"NEWLINE, rightStr->Values);
+		fprintf_red(stream, "Actual:   %s"NEWLINE, visibleRight->Values);
+
+		strings.Dispose(visibleLeft);
+		strings.Dispose(visibleRight);
 	}
 	else
 	{

@@ -88,6 +88,10 @@ struct _stringMethods {
 	// Trims leading and trailing whitespace
 	// by returning a partial string
 	partial_string(*TrimAll)(string str);
+	// gets the string replacement for an invisible (or visible) character
+	string(*GetVisibleCharacter)(byte c);
+	// replaces all invisible characters with visible ones in the given string
+	string(*ReplaceInvisibleCharacters)(const string str);
 };
 
 extern const struct _stringMethods Strings;
