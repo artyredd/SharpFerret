@@ -76,7 +76,6 @@ file(GLOB engineHeaderFiles CONFIGURE_DEPENDS
      "Engine/Headers/engine/physics/*.h"
      "Engine/Headers/engine/scripts/*.h"
      "Engine/Headers/engine/*.h"
-
 )
 
 file(GLOB engineSourceFiles CONFIGURE_DEPENDS
@@ -88,7 +87,10 @@ add_executable(Engine ${engineSourceFiles} ${engineHeaderFiles})
 
 set_property(TARGET Engine PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
+# compile to preprocessor
+# /P /EP /C
 set_target_properties(Engine PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
+
 target_link_options(Engine PUBLIC "/DEBUG")
 
 target_include_directories(Engine PUBLIC 
@@ -103,3 +105,10 @@ target_include_directories(Engine PUBLIC
 target_link_libraries(Engine Core)
 
 add_dependencies(Engine Core)
+
+set_target_properties( Engine Core Generics
+  PROPERTIES
+  ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
