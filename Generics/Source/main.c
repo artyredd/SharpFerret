@@ -47,9 +47,9 @@ void main(int argc, byte* argv[])
 	{
 		CompileUnit unit = at(assembly->CompileUnits, i);
 
-		string path = strings.Clone(at(paths, i));
+		//string path = strings.Clone();
 
-		Files.WriteAll(path, unit->Data);
+		Files.WriteAll(at(paths, i), unit->Data);
 	}
 
 	printf("");
