@@ -12,6 +12,7 @@ private ulong GetFileSize(const File file);
 private array(byte) ReadFile(const File file);
 private bool TryReadFile(const File file, string* out_data);
 private array(byte) ReadAll(const string path);
+private void WriteAll(const string path, const string data);
 private bool TryReadAll(const string path, string* out_data);
 private bool TryReadLine(File file, string buffer, ulong offset, ulong* out_lineLength);
 private bool TryGetSequenceCount(File file, const string targetSequence, const string abortSequence, ulong* out_count);
@@ -32,6 +33,7 @@ const struct _fileMethods Files = {
 	.TryReadFile = &TryReadFile,
 	.ReadAll = &ReadAll,
 	.TryReadAll = &TryReadAll,
+	.WriteAll = WriteAll,
 	.TryReadLine = &TryReadLine,
 	.TryGetSequenceCount = &TryGetSequenceCount,
 	.TryClose = &TryClose,
@@ -236,6 +238,24 @@ private bool TryReadFile(const File file, string* out_data)
 	*out_data = result;
 
 	return true;
+}
+
+private void WriteAll(const string path, const string data)
+{
+	File file;
+	if (TryOpen(path, FileModes.Create, &file))
+	{
+		for (int i = 0; i < data->Count; i++)
+		{
+			byte c = at(data, i);
+			if (c != fputc(c, file))
+			{
+				throw(FailedToWriteToStreamException);
+			}
+		}
+	}
+
+	throw(FailedToOpenFileException);
 }
 
 private string ReadAll(const string path)

@@ -58,6 +58,10 @@ struct _fileMethods {
 
 	string(*ReadAll)(const string path);
 
+	// writes the given string to the provided path, creates the file
+	// if non existing, otherwise overwrites file contents
+	void (*WriteAll)(const string path, const string data);
+
 	// reads the provided path into a NEW string and sets the out value
 	// to the string
 	bool (*TryReadAll)(const string path, string* out_data);

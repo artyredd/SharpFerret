@@ -3,6 +3,7 @@
 #include "sourceParser.h"
 #include "GenericExpansion.h"
 #include "core/runtime.h"
+#include "core/file.h"
 
 private array(string) GetFiles(byte* strs[], int count)
 {
@@ -22,16 +23,34 @@ private array(string) GetFiles(byte* strs[], int count)
 void main(int argc, byte* argv[])
 {
 	RunOnStartMethods();
-	return;
 
 	array(string) paths = GetFiles(argv, argc);
 
+	Assembly assembly = CreateAssembly();
+
+
 	for (size_t i = 1; i < paths->Count; i++)
 	{
-		fprintf(stdout, "%s\n\r", at(paths, i)->Values);
-		array(location) tokens = GetGenericLocations(at(paths, i));
+		const string path = at(paths, i);
+		fprintf(stdout, "%s\n\r", path->Values);
+
+		array(location) locations = GetGenericLocations(path);
+
+		string data = Files.ReadAll(path);
+
+		CompileUnit unit = CreateCompileUnit(assembly, data);
+
+		ExpandGenerics(data, locations, unit);
 	}
 
+	for (int i = 0; i < assembly->CompileUnits->Count; i++)
+	{
+		CompileUnit unit = at(assembly->CompileUnits, i);
+
+		string path = strings.Clone(at(paths, i));
+
+		Files.WriteAll(path, unit->Data);
+	}
 
 	printf("");
 }
