@@ -57,9 +57,10 @@ void main(int argc, byte* argv[])
 	{
 		CompileUnit unit = at(assembly->CompileUnits, i);
 
-		//string path = strings.Clone();
+		string newPath = strings.Clone(at(paths, i));
+		strings.AppendCArray(newPath, ".fi", 3);
 
-		Files.WriteAll(at(paths, i), unit->Data);
+		Files.WriteAll(newPath, unit->Data);
 	}
 
 	printf("");
