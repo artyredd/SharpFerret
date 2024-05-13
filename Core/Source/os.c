@@ -116,7 +116,7 @@ private array(string) GetFilesInDirectory(string path, bool recursive)
 			string fileOrDir = empty_stack_array(byte, MAX_PATH << 1);
 
 			strings.AppendArray(fileOrDir, path);
-			strings.Append(fileOrDir, '\\');
+			MaybeAppendCharacter(fileOrDir, '\\');
 			strings.AppendCArray(fileOrDir, findFileData.cFileName, strlen(findFileData.cFileName));
 
 			// If it's a directory, recurse into it
