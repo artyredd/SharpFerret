@@ -33,7 +33,7 @@ void main(int argc, byte* argv[])
 {
 	RunOnStartMethods();
 
-	getc(stdin);
+	//getc(stdin);
 
 	array(string) paths = GetFiles(argv, argc);
 

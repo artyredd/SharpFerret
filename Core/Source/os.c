@@ -35,17 +35,51 @@ array(byte) ExecutableDirectory(void)
 	return result;
 }
 
+private void PrintError(int error)
+{
+#ifdef LINUX
+	/* Do nothing for now */
+#else
+	switch (error)
+	{
+	case 0x7B /* 123 */:
+		fprintf(stderr, "The filename, directory name, or volume label syntax is incorrect.\n");
+	default:
+		fprintf(stderr, "Error reading file attributes. Error code: %d\n", GetLastError());
+	}
+#endif
+}
+
 private bool IsDirectory(const string path)
 {
+#ifdef LINUX
+	/* Do nothing for now */
+#else
 	DWORD attributes = GetFileAttributes(path->Values);
 
 	if (attributes == INVALID_FILE_ATTRIBUTES) {
-		fprintf(stderr, "Error reading file attributes. Error code: %d\n", GetLastError());
-
+		PrintError(GetLastError());
 		throw(FailedToOpenFileException);
 	}
 
 	return (attributes & FILE_ATTRIBUTE_DIRECTORY);
+#endif
+}
+
+private string MaybeAppendCharacter(string path, byte c)
+{
+	if (path->Count is 0)
+	{
+		strings.Append(path, c);
+		return path;
+	}
+
+	if (at(path, path->Count - 1) isnt c)
+	{
+		strings.Append(path, c);
+	}
+
+	return path;
 }
 
 private array(string) GetFilesInDirectory(string path, bool recursive)
@@ -66,7 +100,8 @@ private array(string) GetFilesInDirectory(string path, bool recursive)
 	// From: D:\Files\Directory
 	// To__: D:\Files\Directory\*
 	strings.AppendArray(searchPath, path);
-	strings.AppendCArray(searchPath, "\\*", sizeof("\\*") - 1);
+	MaybeAppendCharacter(searchPath, '\\');
+	MaybeAppendCharacter(searchPath, '*');
 
 	// Start searching for files
 	hFind = FindFirstFile(searchPath->Values, &findFileData);
@@ -93,7 +128,7 @@ private array(string) GetFilesInDirectory(string path, bool recursive)
 			}
 			else
 			{
-				arrays(string).Append(result, fileOrDir);
+				arrays(string).Append(result, strings.Clone(fileOrDir));
 			}
 		}
 	} while (FindNextFile(hFind, &findFileData) != 0);
