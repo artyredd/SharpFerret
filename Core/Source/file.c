@@ -250,7 +250,7 @@ private void WriteAll(const string path, const string data)
 			{
 				throw(FailedToWriteToStreamException);
 			}
-			fputc(c, stdout);
+			//fputc(c, stdout);
 		}
 
 		Close(file);
