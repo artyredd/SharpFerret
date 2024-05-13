@@ -162,8 +162,9 @@ private string ReadFile(const File file)
 	ulong length = GetFileSize(file);
 
 	string result = strings.Create(length + 1);
+	result->Count = length;
 
-	at(result, length) = '\0'; // add line terminator
+	unsafe_at(result, length) = '\0'; // add line terminator
 
 	rewind(file);
 

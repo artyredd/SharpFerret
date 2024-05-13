@@ -9,7 +9,7 @@ private array(string) GetFiles(byte* strs[], int count)
 {
 	array(string) result = arrays(string).Create(count);
 
-	for (size_t i = 0; i < count; i++)
+	for (size_t i = 1; i < count; i++)
 	{
 		string path = strings.Create(strlen(strs[i]));
 		strings.AppendCArray(path, strs[i], path->Capacity);
@@ -28,8 +28,7 @@ void main(int argc, byte* argv[])
 
 	Assembly assembly = CreateAssembly();
 
-
-	for (size_t i = 1; i < paths->Count; i++)
+	for (size_t i = 0; i < paths->Count; i++)
 	{
 		const string path = at(paths, i);
 		fprintf(stdout, "%s\n\r", path->Values);
