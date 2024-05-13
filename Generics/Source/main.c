@@ -4,6 +4,7 @@
 #include "GenericExpansion.h"
 #include "core/runtime.h"
 #include "core/file.h"
+#include "core/os.h"
 
 private array(string) GetFiles(byte* strs[], int count)
 {
@@ -13,6 +14,14 @@ private array(string) GetFiles(byte* strs[], int count)
 	{
 		string path = strings.Create(strlen(strs[i]));
 		strings.AppendCArray(path, strs[i], path->Capacity);
+
+		if (OperatingSystem.IsDirectory(path))
+		{
+			array(string) subPaths = OperatingSystem.GetFilesInDirectory(path, true);
+			arrays(string).AppendArray(result, subPaths);
+			arrays(string).Dispose(subPaths);
+			continue;
+		}
 
 		arrays(string).Append(result, path);
 	}

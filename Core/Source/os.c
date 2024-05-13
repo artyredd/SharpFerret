@@ -37,10 +37,10 @@ array(byte) ExecutableDirectory(void)
 
 private bool IsDirectory(const string path)
 {
-	DWORD attributes = GetFileAttributes(path);
+	DWORD attributes = GetFileAttributes(path->Values);
 
 	if (attributes == INVALID_FILE_ATTRIBUTES) {
-		printf(stderr, "Error reading file attributes. Error code: %d\n", GetLastError());
+		fprintf(stderr, "Error reading file attributes. Error code: %d\n", GetLastError());
 
 		throw(FailedToOpenFileException);
 	}
@@ -71,8 +71,8 @@ private array(string) GetFilesInDirectory(string path, bool recursive)
 	// Start searching for files
 	hFind = FindFirstFile(searchPath->Values, &findFileData);
 	if (hFind == INVALID_HANDLE_VALUE) {
-		printf("Error searching directory. Error code: %d\n", GetLastError());
-		return;
+		fprintf(stderr, "Error searching directory. Error code: %d\n", GetLastError());
+		throw(FailedToReadFileException);
 	}
 
 	// Loop through files in directory
