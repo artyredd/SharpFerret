@@ -162,7 +162,6 @@ private string ReadFile(const File file)
 	ulong length = GetFileSize(file);
 
 	string result = strings.Create(length + 1);
-	result->Count = length;
 
 	unsafe_at(result, length) = '\0'; // add line terminator
 
@@ -187,13 +186,11 @@ private string ReadFile(const File file)
 				throw(FailedToReadFileException);
 			}
 
-			at(result, i) = '\0';
-			safe_increment(result->Count);
+			strings.Append(result, '\0');
 			break;
 		}
 
-		at(result, i) = (char)c;
-		safe_increment(result->Count);
+		strings.Append(result, c);
 	}
 
 	return result;
@@ -229,11 +226,11 @@ private bool TryReadFile(const File file, string* out_data)
 				return false;
 			}
 
-			at(result, i) = '\0';
+			strings.Append(result, '\0');
 			break;
 		}
 
-		at(result, i) = (char)c;
+		strings.Append(result, c);
 	}
 
 	*out_data = result;
@@ -253,10 +250,14 @@ private void WriteAll(const string path, const string data)
 			{
 				throw(FailedToWriteToStreamException);
 			}
+			fputc(c, stdout);
 		}
-	}
 
-	throw(FailedToOpenFileException);
+		Close(file);
+	}
+	else {
+		throw(FailedToOpenFileException);
+	}
 }
 
 private string ReadAll(const string path)
