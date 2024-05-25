@@ -272,7 +272,7 @@ static bool TryCompile(const StringArray paths, ShaderType shaderType, unsigned 
 	*out_handle = 0;
 
 	// read the file's data
-	char* dataArray[MAX_SHADER_PIECES];
+	array(string) dataArray = empty_stack_array(string, MAX_SHADER_PIECES);
 
 	for (ulong i = 0; i < paths->Count; i++)
 	{
@@ -290,22 +290,26 @@ static bool TryCompile(const StringArray paths, ShaderType shaderType, unsigned 
 			return false;
 		}
 
-		// HACK ALERT
-		// steal the underlying backing array
-		dataArray[i] = data->Values;
-
-		// this frees the container but not the underlying array
-		Memory.Free(data, typeid(Array));
+		arrays(string).Append(dataArray, data);
 	}
 
+	// convert string array to byte array
+	byte* intermediateData[MAX_SHADER_PIECES];
+
+	for (int i = 0; i < dataArray->Count; i++)
+	{
+		intermediateData[i] = at(dataArray, i)->Values;
+	}
 
 	// compile the shader
-	bool compiled = TryCompileShader(dataArray, paths->Count, shaderType, out_handle);
+	bool compiled = TryCompileShader(intermediateData, paths->Count, shaderType, out_handle);
 
 	for (ulong i = 0; i < paths->Count; i++)
 	{
-		Memory.Free(dataArray[i], typeid(char));
+		strings.Dispose(at(dataArray, i));
 	}
+
+	// dont dispose stack data array
 
 	return compiled;
 }

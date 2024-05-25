@@ -28,7 +28,10 @@ static bool TryLoadConfigStream(File stream, const ConfigDefinition config, void
 	ulong lineLength;
 	while (buffer->Count = 0, Files.TryReadLine(stream, buffer, 0, &lineLength))
 	{
-		buffer->Count = lineLength;
+		if (buffer->Count is 0)
+		{
+			continue;
+		}
 
 		// ignore comments
 		if (at(buffer, 0) is config->CommentCharacter)

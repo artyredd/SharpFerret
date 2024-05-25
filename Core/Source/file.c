@@ -202,9 +202,8 @@ private bool TryReadFile(const File file, string* out_data)
 
 	const ulong length = GetFileSize(file);
 
-	string result = strings.Create(length + 1);
-
-	at(result, length) = '\0'; // add line terminator
+	// array memory blocks are auto-terminated
+	string result = strings.Create(length);
 
 	rewind(file);
 
@@ -337,6 +336,8 @@ private bool TryReadLine(File file, string buffer, ulong offset, ulong* out_line
 	}
 
 	length = max(length, 0);
+
+	buffer->Count += length;
 
 	*out_lineLength = length;
 
