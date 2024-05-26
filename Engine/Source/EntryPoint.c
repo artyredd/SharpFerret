@@ -46,6 +46,9 @@
 #include "engine/graphics/drawing.h"
 #include "engine/ai/neat.h"
 
+#include "core/runtime.h"
+
+
 // scripts (not intrinsically part of the engine)
 #include "engine/scripts/fpsCamera.h"
 #include <engine/physics/Collider.h>
@@ -59,6 +62,14 @@ void DebugCameraPosition(Camera camera);
 void ToggleNormalShaders(GameObject* gameobjects, ulong size, bool enabled);
 
 int main()
+{
+	// use runtime.h to add functionality to main loop
+	Application.Start();
+
+	return 0;
+}
+
+OnStart(1)
 {
 	// create a window to bind to GDI
 	Windows.StartRuntime();
