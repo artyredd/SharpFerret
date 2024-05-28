@@ -47,7 +47,7 @@
 #include "engine/ai/neat.h"
 
 #include "core/runtime.h"
-
+#include "core/tasks.h"
 
 // scripts (not intrinsically part of the engine)
 #include "engine/scripts/fpsCamera.h"
@@ -69,7 +69,45 @@ int main()
 	return 0;
 }
 
+int DoSomething(int* numberPtr)
+{
+	for (int i = 0; i < 10; i++)
+	{
+		fprintf(stdout, "%i: %i\n", Tasks.ThreadId(), (*numberPtr)++);
+	}
+
+	return 0;
+}
+
 OnStart(1)
+{
+	array(Task) tasks = empty_stack_array(Task, 5);
+
+	for (int i = 0; i < 5; i++)
+	{
+		arrays(Task).Append(tasks, Tasks.Create(DoSomething));
+	}
+
+
+	int number = 0;
+
+	array(void_ptr) states = stack_array(void_ptr, 5, &number, &number, &number, &number, &number);
+
+	Tasks.RunAll(tasks, states);
+
+	Tasks.WaitForState(at(tasks, 0), TaskStatus.Running, 99999999);
+
+	for (int i = 0; i < 10; i++)
+	{
+		fprintf(stdout, "%i: %i\n", Tasks.ThreadId(), number++);
+	}
+
+	Tasks.WaitAll(tasks, 9999999999);
+
+	fprintf(stdout, "Done");
+}
+
+void nocall()
 {
 	// create a window to bind to GDI
 	Windows.StartRuntime();
