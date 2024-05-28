@@ -71,7 +71,7 @@ int main()
 
 int DoSomething(int* numberPtr)
 {
-	for (int i = 0; i < 10; i++)
+	while (*numberPtr < 100000)
 	{
 		fprintf(stdout, "%i: %i\n", Tasks.ThreadId(), (*numberPtr)++);
 	}
@@ -97,7 +97,7 @@ OnStart(1)
 
 	Tasks.WaitForState(at(tasks, 0), TaskStatus.Running, 99999999);
 
-	for (int i = 0; i < 10; i++)
+	while (number < 100000)
 	{
 		fprintf(stdout, "%i: %i\n", Tasks.ThreadId(), number++);
 	}
