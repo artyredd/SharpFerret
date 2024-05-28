@@ -57,6 +57,7 @@ target_link_libraries(Core PRIVATE
     ../external/glew/lib/Release/x64/glew32
     ../external/glfw/lib-vc2022/glfw3
     opengl32.lib
+    Synchronization
 )
 
 add_subdirectory(Generics)

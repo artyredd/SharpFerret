@@ -574,7 +574,8 @@ DEFINE_TUPLE_BOTH_WAYS(type,string);
 
 DEFINE_TUPLE_INTRINSIC(string);
 
-
+typedef void* void_ptr;
+DEFINE_CONTAINERS(void_ptr);
 DEFINE_CONTAINERS(array(int));
 DEFINE_TUPLE(array(string), array(int));
 //DEFINE_CONTAINERS(tuple(string, int));
