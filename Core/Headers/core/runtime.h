@@ -137,10 +137,20 @@ extern struct _Application {
 	void (*Close)(void);
 	// starts the application and begin the runtime
 	void (*Start)();
+	// Sets the method that should be used to retrieve time
+	// every frame
+	void (*SetTimeProvider)(double(*Provider)());
+	// the interval in seconds that Fixed update should be run
+	double FixedUpdateTimeInterval;
 	struct _state {
 		// Flag that when non-zero sigals
 		// the application runtime to exit the
 		// application normally
-		int _CloseApplicationFlag;
+		int CloseApplicationFlag;
+		// the method that should be called every loop to check
+		// the time and compare it to the interval
+		double(*TimeProvider)();
+		// Stored last real time of engine
+		double PreviousTime;
 	} InternalState;
 } Application;
