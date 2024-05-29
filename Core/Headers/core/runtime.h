@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include "core/csharp.h"
 
 #define _EXPAND_STRING(value) #value
 #define _STRING(value) _EXPAND_STRING(value)
@@ -23,7 +24,7 @@ __declspec(allocate(_STRING(sectionId##id))) const _VoidMethod _METHOD_ADDRESS(n
 static void _METHOD_NAME(name,id)(void)
 
 #define DEFINE_SECTION_METHOD_RUNNER(sectionName,sectionHeaderName,sectionFooterName)\
-static void RunOn##sectionName##Methods() {\
+__declspec(dllexport) inline void RunOn##sectionName##Methods() {\
 	const _VoidMethod* x = &sectionHeaderName;\
 	for (++x; x < &sectionFooterName; ++x)\
 		if (*x) (*x)();\
@@ -38,8 +39,10 @@ SECTION_METHOD_MARKER(START_SECTION_HEADER, GLOBAL_InitSegStart)
 #pragma section(START_SECTION_FOOTER, read)
 SECTION_METHOD_MARKER(START_SECTION_FOOTER, GLOBAL_InitSegEnd)
 
-
+#ifndef RUNTIME_METHODS_DEFINED
 DEFINE_SECTION_METHOD_RUNNER(Start, GLOBAL_InitSegStart, GLOBAL_InitSegEnd);
+#endif // !RUNTIME_METHODS_DEFINED
+
 
 // Creates a method that gets called when the application starts
 // order is a UNIQUE letter or number globally
@@ -56,8 +59,10 @@ SECTION_METHOD_MARKER(UPDATE_SECTION_HEADER, GLOBAL_UpdateSegStart)
 #pragma section(UPDATE_SECTION_FOOTER, read)
 SECTION_METHOD_MARKER(UPDATE_SECTION_FOOTER, GLOBAL_UpdateSegEnd)
 
-
+#ifndef RUNTIME_METHODS_DEFINED
 DEFINE_SECTION_METHOD_RUNNER(Update, GLOBAL_UpdateSegStart, GLOBAL_UpdateSegEnd);
+#endif // !RUNTIME_METHODS_DEFINED
+
 
 // Creates a method that gets called every frame
 // order is a UNIQUE letter or number globally
@@ -73,7 +78,10 @@ SECTION_METHOD_MARKER(AFTER_UPDATE_SECTION_HEADER, GLOBAL_AfterUpdateSegStart)
 #pragma section(AFTER_UPDATE_SECTION_FOOTER, read)
 SECTION_METHOD_MARKER(AFTER_UPDATE_SECTION_FOOTER, GLOBAL_AfterUpdateSegEnd)
 
+#ifndef RUNTIME_METHODS_DEFINED
 DEFINE_SECTION_METHOD_RUNNER(AfterUpdate, GLOBAL_AfterUpdateSegStart, GLOBAL_AfterUpdateSegEnd);
+#endif // !RUNTIME_METHODS_DEFINED
+
 
 // Creates a method that gets called AFTER every frame
 // order is a UNIQUE letter or number globally
@@ -89,8 +97,10 @@ SECTION_METHOD_MARKER(FIXED_UPDATE_SECTION_HEADER, GLOBAL_FixedUpdateSegStart)
 #pragma section(FIXED_UPDATE_SECTION_FOOTER, read)
 SECTION_METHOD_MARKER(FIXED_UPDATE_SECTION_FOOTER, GLOBAL_FixedUpdateSegEnd)
 
-
+#ifndef RUNTIME_METHODS_DEFINED
 DEFINE_SECTION_METHOD_RUNNER(FixedUpdate, GLOBAL_FixedUpdateSegStart, GLOBAL_FixedUpdateSegEnd);
+#endif // !RUNTIME_METHODS_DEFINED
+
 
 // Creates a method that gets called at the same real
 // time between calls
@@ -107,8 +117,9 @@ SECTION_METHOD_MARKER(AFTER_FIXED_UPDATE_SECTION_HEADER, GLOBAL_AfterFixedUpdate
 #pragma section(AFTER_FIXED_UPDATE_SECTION_FOOTER, read)
 SECTION_METHOD_MARKER(AFTER_FIXED_UPDATE_SECTION_FOOTER, GLOBAL_AfterFixedUpdateSegEnd)
 
-
+#ifndef RUNTIME_METHODS_DEFINED
 DEFINE_SECTION_METHOD_RUNNER(AfterFixedUpdate, GLOBAL_AfterFixedUpdateSegStart, GLOBAL_AfterFixedUpdateSegEnd);
+#endif // !RUNTIME_METHODS_DEFINED
 
 // Creates a method that gets called at the same real
 // time between calls
@@ -125,12 +136,37 @@ SECTION_METHOD_MARKER(CLOSE_SECTION_HEADER, GLOBAL_CloseSegStart)
 #pragma section(CLOSE_SECTION_FOOTER, read)
 SECTION_METHOD_MARKER(CLOSE_SECTION_FOOTER, GLOBAL_CloseSegEnd)
 
+#ifndef RUNTIME_METHODS_DEFINED
 DEFINE_SECTION_METHOD_RUNNER(Close, GLOBAL_CloseSegStart, GLOBAL_CloseSegEnd);
+#endif // !RUNTIME_METHODS_DEFINED
+
+#define RUNTIME_METHODS_DEFINED
 
 // Creates a method that gets called when the application starts
 // order is a UNIQUE letter or number globally
 // to determine the order this method gets run against the rest
 #define OnClose(order) _ON_START(.cls$a,Close, order)
+
+typedef byte RuntimeEventType;
+
+static const struct _runtimeEventTypes
+{
+	RuntimeEventType None;
+	RuntimeEventType Start;
+	RuntimeEventType Close;
+	RuntimeEventType Update;
+	RuntimeEventType AfterUpdate;
+	RuntimeEventType FixedUpdate;
+	RuntimeEventType AfterFixedUpdate;
+} RuntimeEventTypes = {
+	.None = 0,
+	.Start = 1,
+	.Close = 2,
+	.Update = 3,
+	.AfterUpdate = 4,
+	.FixedUpdate = 5,
+	.AfterFixedUpdate = 6
+};
 
 extern struct _Application {
 	// Closes the application
@@ -142,6 +178,8 @@ extern struct _Application {
 	void (*SetTimeProvider)(double(*Provider)());
 	// the interval in seconds that Fixed update should be run
 	double FixedUpdateTimeInterval;
+	void (*AppendEvent)(RuntimeEventType, void(*Method)(void));
+	void (*RemoveEvent)(RuntimeEventType, void(*Method)(void));
 	struct _state {
 		// Flag that when non-zero sigals
 		// the application runtime to exit the
@@ -152,5 +190,7 @@ extern struct _Application {
 		double(*TimeProvider)();
 		// Stored last real time of engine
 		double PreviousTime;
+		// whether or not the runtime is started
+		bool RuntimeStarted;
 	} InternalState;
 } Application;

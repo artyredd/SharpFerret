@@ -59,6 +59,7 @@ static Exception FailedToMoveMemoryException = 0x7000000D;
 static Exception GenericTypeArityException = 0x7000000E;
 static Exception FailedToLoadLibraryException = 0x7000000F;
 static Exception FailedToLoadMethodException = 0x7000001F;
+static Exception FailedToLoadPluginException = 0x7000002F;
 
 // The logic path or branching that lead to this error needs to be evaluated or tested more thoroughly.
 // This error denotes and exception that may or may not be dangerous but is unexpected and clearly unintended.
