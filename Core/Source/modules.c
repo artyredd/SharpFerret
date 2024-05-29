@@ -119,5 +119,8 @@ private void Dispose(Module module)
 		FreeLibrary(module->Handle);
 	}
 
+
+	strings.Dispose(module->Name);
+
 	Memory.Free(module, ModuleTypeId);
 }
