@@ -69,6 +69,7 @@ typedef unsigned int uint;
 #define fprintf_red(file, format, ...) fprintf(file,_FORMAT_COLOR_RED_START format _FORMAT_COLOR_RED_END, __VA_ARGS__)
 #define fprintf_blue(file, format, ...) fprintf(file,_FORMAT_COLOR_BLUE_START format _FORMAT_COLOR_BLUE_END, __VA_ARGS__)
 #define fprintf_yellow(file, format, ...) fprintf(file,_FORMAT_COLOR_YELLOW_START format _FORMAT_COLOR_YELLOW_END, __VA_ARGS__)
+#define fprintf_green(file, format, ...) fprintf(file,_FORMAT_COLOR_GREEN_START format _FORMAT_COLOR_GREEN_END, __VA_ARGS__)
 
 static int BreakDebugger(int errorCode)
 {
@@ -101,7 +102,7 @@ static int BreakDebugger(int errorCode)
 #define safe_add( unsigned_integer, value ) ( max(unsigned_integer, (unsigned_integer + value) ) )
 #define safe_subtract( unsigned_integer, value ) ( min(unsigned_integer, (unsigned_integer - value) ) )
 
-#define private static inline
+#define private inline static
 
 // DO NOT USE, DANGY, WILL HURT CPU FEELINGS >:(, ONLY USE WHEN YOU KNOW IT WONT HURT CPU FEELING
 #define struct_cast(destinationType) *(destinationType*)& 

@@ -20,6 +20,7 @@ private WaitState WaitForState(Task task, WaitState state, ulong milliseconds);
 private void RunAll(array(Task) tasks, array(void_ptr) states);
 private WaitState WaitAll(array(Task) tasks, ulong milliseconds);
 private WaitState WaitAny(array(Task) tasks, ulong milliseconds);
+private void Dispose(Task);
 
 struct _taskMethods Tasks = {
 	.Create = CreateTask,
@@ -33,7 +34,8 @@ struct _taskMethods Tasks = {
 	.WaitForState = WaitForState,
 	.RunAll = RunAll,
 	.WaitAll = WaitAll,
-	.WaitAny = WaitAny
+	.WaitAny = WaitAny,
+	.Dispose = Dispose
 };
 
 DEFINE_TYPE_ID(Task);
@@ -48,6 +50,13 @@ private Task CreateTask(int (*Method)(void* state))
 	task->State = TaskStatus.Created;
 
 	return task;
+}
+
+private void Dispose(Task task)
+{
+	Stop(task->ThreadHandle);
+
+	Memory.Free(task, TaskTypeId);
 }
 
 private int MethodWrapper(Task task)
