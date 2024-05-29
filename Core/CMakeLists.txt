@@ -21,17 +21,16 @@ set_target_properties(Core PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
 
 include(FetchContent)
 
-FetchContent_Declare(
+FetchContent_Populate(
     cglm
     GIT_REPOSITORY https://github.com/recp/cglm.git
-    GIT_TAG v0.8.5
-    SOURCE_DIR ${CMAKE_BINARY_DIR}/external/cglm
+    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/cglm
 )
-FetchContent_MakeAvailable(cglm)
 
 target_include_directories(Core PRIVATE 
     "${cglm_SOURCE_DIR}/include"
+    "external/stb_image"
     "Headers"
 )
 
-file(COPY "${CMAKE_SOURCE_DIR}/external/glew/bin/Release/x64/glew32.dll" DESTINATION ${CMAKE_BINARY_DIR})
+target_link_libraries(Core cglm)

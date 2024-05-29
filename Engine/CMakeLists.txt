@@ -27,17 +27,18 @@ set_property(TARGET Engine PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_target_properties(Engine PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
 
 target_include_directories(Engine PRIVATE 
-    "${CMAKE_SOURCE_DIR}/external/stb_image"
-    "${CMAKE_SOURCE_DIR}/external/glfw/include"
-    "${CMAKE_SOURCE_DIR}/external/glew/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/glfw/include"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/glew/include"
     "${cglm_SOURCE_DIR}/include"
+    "../Core/Headers"
     "Headers"
 )
 
 target_link_libraries(Engine PRIVATE
     Core
-    "${CMAKE_SOURCE_DIR}/external/glew/lib/Release/x64/glew32.lib"
-    "${CMAKE_SOURCE_DIR}/external/glfw/lib-vc2022/glfw3.lib"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/glew/lib/Release/x64/glew32.lib"
+    "${CMAKE_CURRENT_SOURCE_DIR}/external/glfw/lib-vc2022/glfw3.lib"
     opengl32.lib
 )
 
@@ -48,3 +49,5 @@ set_target_properties(Engine PROPERTIES
   LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
+
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/external/glew/bin/Release/x64/glew32.dll" DESTINATION ${CMAKE_BINARY_DIR})
