@@ -43,8 +43,6 @@ add_dependencies(Core cglm)
 target_include_directories(Core PUBLIC 
     "external/stb_image"
     "external/cglm/include"
-    "external/glew/lib/Release/x64"
-    "external/glfw/lib-vc2022"
     "Core/Headers"
     "Core"
 ) 
@@ -65,9 +63,6 @@ set(GLFW_LIBRARIES "${CMAKE_SOURCE_DIR}/external/glfw/lib-vc2022/glfw3.lib")
 include_directories(${GLEW_INCLUDE_DIRS} ${GLFW_LIBRARIES})
 
 target_link_libraries(Core PRIVATE
-    ${GLEW_LIBRARIES}
-    ${GLFW_LIBRARIES}
-    opengl32.lib
     Synchronization
 )
 
@@ -106,15 +101,20 @@ set_target_properties(Engine PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
 target_link_options(Engine PUBLIC "/DEBUG")
 
 target_include_directories(Engine PUBLIC 
-    "external/glfw/include"
-    "external/cglm/include"
-    "external/glew/include"
     "external/stb_image"
+    "external/glfw/include"
+    "external/glew/include"
+    "external/cglm/include"
     "Engine/Headers"
     "Engine"
 ) 
 
-target_link_libraries(Engine Core)
+target_link_libraries(Engine PUBLIC
+    Core
+    ${GLEW_LIBRARIES}
+    ${GLFW_LIBRARIES}
+    opengl32.libCore
+)
 
 add_dependencies(Engine Core)
 
