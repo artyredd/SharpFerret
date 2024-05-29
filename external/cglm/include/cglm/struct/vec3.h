@@ -76,6 +76,9 @@
    CGLM_INLINE vec3s glms_vec3_smoothinterpc(vec3s from, vec3s to, float t);
    CGLM_INLINE vec3s glms_vec3_swizzle(vec3s v, int mask);
    CGLM_INLINE vec3s glms_vec3_make(float * restrict src);
+   CGLM_INLINE vec3s glms_vec3_faceforward(vec3s n, vec3s v, vec3s nref);
+   CGLM_INLINE vec3s glms_vec3_reflect(vec3s v, vec3s n);
+   CGLM_INLINE bool  glms_vec3_refract(vec3s v, vec3s n, float eta, vec3s *dest)
 
  Convenient:
    CGLM_INLINE vec3s glms_cross(vec3s a, vec3s b);
@@ -1077,10 +1080,63 @@ glms_vec3_(swizzle)(vec3s v, int mask) {
  */
 CGLM_INLINE
 vec3s
-glms_vec3_(make)(float * __restrict src) {
+glms_vec3_(make)(const float * __restrict src) {
   vec3s dest;
   glm_vec3_make(src, dest.raw);
   return dest;
+}
+
+/*!
+ * @brief a vector pointing in the same direction as another
+ *
+ * orients a vector to point away from a surface as defined by its normal
+ *
+ * @param[in] n      vector to orient.
+ * @param[in] v      incident vector
+ * @param[in] nref   reference vector
+ * @returns oriented vector, pointing away from the surface.
+ */
+CGLM_INLINE
+vec3s
+glms_vec3_(faceforward)(vec3s n, vec3s v, vec3s nref) {
+  vec3s dest;
+  glm_vec3_faceforward(n.raw, v.raw, nref.raw, dest.raw);
+  return dest;
+}
+
+/*!
+ * @brief reflection vector using an incident ray and a surface normal
+ *
+ * @param[in]  I    incident vector
+ * @param[in]  N    normalized normal vector
+ * @returns reflection result
+ */
+CGLM_INLINE
+vec3s
+glms_vec3_(reflect)(vec3s v, vec3s n) {
+  vec3s dest;
+  glm_vec3_reflect(v.raw, n.raw, dest.raw);
+  return dest;
+}
+
+/*!
+ * @brief computes refraction vector for an incident vector and a surface normal.
+ *
+ * calculates the refraction vector based on Snell's law. If total internal reflection
+ * occurs (angle too great given eta), dest is set to zero and returns false.
+ * Otherwise, computes refraction vector, stores it in dest, and returns true.
+ *
+ * @param[in]  v    normalized incident vector
+ * @param[in]  n    normalized normal vector
+ * @param[in]  eta  ratio of indices of refraction (incident/transmitted)
+ * @param[out] dest refraction vector if refraction occurs; zero vector otherwise
+ *
+ * @returns true if refraction occurs; false if total internal reflection occurs.
+ */
+CGLM_INLINE
+bool
+glms_vec3_(refract)(vec3s v, vec3s n, float eta, vec3s * __restrict dest) {
+  return glm_vec3_refract(v.raw, n.raw, eta, dest->raw);
 }
 
 #endif /* cglms_vec3s_h */

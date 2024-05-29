@@ -195,7 +195,15 @@ glmc_vec2_complex_conjugate(vec2 a, vec2 dest);
 
 CGLM_EXPORT
 void
-glmc_vec2_make(float * __restrict src, vec2 dest);
+glmc_vec2_make(const float * __restrict src, vec2 dest);
+
+CGLM_EXPORT
+void
+glmc_vec2_reflect(vec2 v, vec2 n, vec2 dest);
+
+CGLM_EXPORT
+bool
+glmc_vec2_refract(vec2 v, vec2 n, float eta, vec2 dest);
 
 #ifdef __cplusplus
 }

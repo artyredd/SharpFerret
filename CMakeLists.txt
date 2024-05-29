@@ -43,6 +43,8 @@ add_dependencies(Core cglm)
 target_include_directories(Core PUBLIC 
     "external/stb_image"
     "external/cglm/include"
+    "external/glew/lib/Release/x64"
+    "external/glfw/lib-vc2022"
     "Core/Headers"
     "Core"
 ) 
@@ -53,9 +55,18 @@ file(COPY "external/glew/bin/Release/x64/glew32.dll" DESTINATION .)
 # copy assets to build dir so we dont constantly have failed to find file issues
 file(COPY assets DESTINATION ./)
 
+# Provide the path to the GLEW include directory and libraries
+set(GLEW_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/external/glew/include")
+set(GLEW_LIBRARIES "${CMAKE_SOURCE_DIR}/external/glew/lib/Release/x64/glew32.lib")
+set(GLFW_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/external/glfw/include")
+set(GLFW_LIBRARIES "${CMAKE_SOURCE_DIR}/external/glfw/lib-vc2022/glfw3.lib")
+
+# Include directories
+include_directories(${GLEW_INCLUDE_DIRS} ${GLFW_LIBRARIES})
+
 target_link_libraries(Core PRIVATE
-    ../external/glew/lib/Release/x64/glew32
-    ../external/glfw/lib-vc2022/glfw3
+    ${GLEW_LIBRARIES}
+    ${GLFW_LIBRARIES}
     opengl32.lib
     Synchronization
 )

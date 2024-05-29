@@ -80,6 +80,9 @@
    CGLM_INLINE void  glm_vec3_smoothinterpc(vec3 from, vec3 to, float t, vec3 dest);
    CGLM_INLINE void  glm_vec3_swizzle(vec3 v, int mask, vec3 dest);
    CGLM_INLINE void  glm_vec3_make(float * restrict src, vec3 dest);
+   CGLM_INLINE void  glm_vec3_faceforward(vec3 n, vec3 v, vec3 nref, vec3 dest);
+   CGLM_INLINE void  glm_vec3_reflect(vec3 v, vec3 n, vec3 dest);
+   CGLM_INLINE void  glm_vec3_refract(vec3 v, vec3 n, float eta, vec3 dest);
 
  Convenient:
    CGLM_INLINE void  glm_cross(vec3 a, vec3 b, vec3 d);
@@ -369,7 +372,7 @@ glm_vec3_scale_as(vec3 v, float s, vec3 dest) {
   float norm;
   norm = glm_vec3_norm(v);
 
-  if (norm == 0.0f) {
+  if (CGLM_UNLIKELY(norm < FLT_EPSILON)) {
     glm_vec3_zero(dest);
     return;
   }
@@ -648,7 +651,7 @@ glm_vec3_normalize(vec3 v) {
 
   norm = glm_vec3_norm(v);
 
-  if (norm == 0.0f) {
+  if (CGLM_UNLIKELY(norm < FLT_EPSILON)) {
     v[0] = v[1] = v[2] = 0.0f;
     return;
   }
@@ -669,7 +672,7 @@ glm_vec3_normalize_to(vec3 v, vec3 dest) {
 
   norm = glm_vec3_norm(v);
 
-  if (norm == 0.0f) {
+  if (CGLM_UNLIKELY(norm < FLT_EPSILON)) {
     glm_vec3_zero(dest);
     return;
   }
@@ -1196,10 +1199,80 @@ glm_normalize_to(vec3 v, vec3 dest) {
  */
 CGLM_INLINE
 void
-glm_vec3_make(float * __restrict src, vec3 dest) {
+glm_vec3_make(const float * __restrict src, vec3 dest) {
   dest[0] = src[0];
   dest[1] = src[1];
   dest[2] = src[2];
+}
+
+/*!
+ * @brief a vector pointing in the same direction as another
+ *
+ * orients a vector to point away from a surface as defined by its normal
+ *
+ * @param[in] n      vector to orient
+ * @param[in] v      incident vector
+ * @param[in] nref   reference vector
+ * @param[out] dest  oriented vector, pointing away from the surface
+ */
+CGLM_INLINE
+void
+glm_vec3_faceforward(vec3 n, vec3 v, vec3 nref, vec3 dest) {
+  if (glm_vec3_dot(v, nref) < 0.0f) {
+    /* N is facing away from I */
+    glm_vec3_copy(n, dest);
+  } else {
+    /* N is facing towards I, negate it */
+    glm_vec3_negate_to(n, dest);
+  }
+}
+
+/*!
+ * @brief reflection vector using an incident ray and a surface normal
+ *
+ * @param[in]  v    incident vector
+ * @param[in]  n    normalized normal vector
+ * @param[out] dest reflection result
+ */
+CGLM_INLINE
+void
+glm_vec3_reflect(vec3 v, vec3 n, vec3 dest) {
+  vec3 temp;
+  glm_vec3_scale(n, 2.0f * glm_vec3_dot(v, n), temp);
+  glm_vec3_sub(v, temp, dest);
+}
+
+/*!
+ * @brief computes refraction vector for an incident vector and a surface normal.
+ *
+ * calculates the refraction vector based on Snell's law. If total internal reflection
+ * occurs (angle too great given eta), dest is set to zero and returns false.
+ * Otherwise, computes refraction vector, stores it in dest, and returns true.
+ *
+ * @param[in]  v    normalized incident vector
+ * @param[in]  n    normalized normal vector
+ * @param[in]  eta  ratio of indices of refraction (incident/transmitted)
+ * @param[out] dest refraction vector if refraction occurs; zero vector otherwise
+ *
+ * @returns true if refraction occurs; false if total internal reflection occurs.
+ */
+CGLM_INLINE
+bool
+glm_vec3_refract(vec3 v, vec3 n, float eta, vec3 dest) {
+  float ndi, eni, k;
+
+  ndi = glm_vec3_dot(n, v);
+  eni = eta * ndi;
+  k   = 1.0f + eta * eta - eni * eni;
+
+  if (k < 0.0f) {
+    glm_vec3_zero(dest);
+    return false;
+  }
+
+  glm_vec3_scale(v, eta, dest);
+  glm_vec3_mulsubs(n, eni + sqrtf(k), dest);
+  return true;
 }
 
 #endif /* cglm_vec3_h */

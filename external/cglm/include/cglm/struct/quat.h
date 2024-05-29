@@ -37,6 +37,7 @@
    CGLM_INLINE versors glms_quat_lerpc(versors from, versors to, float t)
    CGLM_INLINE versors glms_quat_nlerp(versors from, versors to, float t)
    CGLM_INLINE versors glms_quat_slerp(versors from, versors to, float t)
+   CGLM_INLINE versors glms_quat_slerp_longest(versors from, versors to, float t)
    CGLM_INLINE mat4s.  glms_quat_look(vec3s eye, versors ori)
    CGLM_INLINE versors glms_quat_for(vec3s dir, vec3s fwd, vec3s up)
    CGLM_INLINE versors glms_quat_forp(vec3s from, vec3s to, vec3s fwd, vec3s up)
@@ -458,6 +459,23 @@ glms_quat_(slerp)(versors from, versors to, float t) {
 }
 
 /*!
+ * @brief interpolates between two quaternions
+ *        using spherical linear interpolation (SLERP) and always takes the longest path
+ *
+ * @param[in]   from  from
+ * @param[in]   to    to
+ * @param[in]   t     amout
+ * @returns result quaternion
+ */
+CGLM_INLINE
+versors
+glms_quat_(slerp_longest)(versors from, versors to, float t) {
+  versors dest;
+  glm_quat_slerp_longest(from.raw, to.raw, t, dest.raw);
+  return dest;
+}
+
+/*!
  * @brief creates view matrix using quaternion as camera orientation
  *
  * @param[in]   eye   eye
@@ -574,7 +592,7 @@ glms_quat_(rotate_atm)(versors q, vec3s pivot) {
  */
 CGLM_INLINE
 versors
-glms_quat_(make)(float * __restrict src) {
+glms_quat_(make)(const float * __restrict src) {
   versors dest;
   glm_quat_make(src, dest.raw);
   return dest;

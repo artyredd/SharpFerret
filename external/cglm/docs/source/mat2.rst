@@ -180,11 +180,11 @@ Functions documentation
     Returns:
         scalar value e.g. Matrix1x1
 
-.. c:function:: void glm_mat2_make(float * __restrict src, mat2 dest)
+.. c:function:: void glm_mat2_make(const float * __restrict src, mat2 dest)
 
     Create mat2 matrix from pointer
 
-    | NOTE: **@src** must contain at least 4 elements.
+    .. note:: **@src** must contain at least 4 elements.
 
     Parameters:
       | *[in]*  **src**  pointer to an array of floats

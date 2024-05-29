@@ -238,6 +238,9 @@
     <ClInclude Include="..\include\cglm\struct\handed\euler_to_quat_lh.h" />
     <ClInclude Include="..\include\cglm\struct\handed\euler_to_quat_rh.h" />
     <ClInclude Include="..\include\cglm\struct\io.h" />
+    <ClInclude Include="..\include\cglm\struct\ivec2.h" />
+    <ClInclude Include="..\include\cglm\struct\ivec3.h" />
+    <ClInclude Include="..\include\cglm\struct\ivec4.h" />
     <ClInclude Include="..\include\cglm\struct\mat2.h" />
     <ClInclude Include="..\include\cglm\struct\mat2x3.h" />
     <ClInclude Include="..\include\cglm\struct\mat2x4.h" />
@@ -250,6 +253,7 @@
     <ClInclude Include="..\include\cglm\struct\plane.h" />
     <ClInclude Include="..\include\cglm\struct\project.h" />
     <ClInclude Include="..\include\cglm\struct\quat.h" />
+    <ClInclude Include="..\include\cglm\struct\ray.h" />
     <ClInclude Include="..\include\cglm\struct\sphere.h" />
     <ClInclude Include="..\include\cglm\struct\vec2-ext.h" />
     <ClInclude Include="..\include\cglm\struct\vec2.h" />

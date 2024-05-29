@@ -420,6 +420,18 @@ glmc_vec4_sqrt(vec4 v, vec4 dest) {
 
 CGLM_EXPORT
 void
-glmc_vec4_make(float * __restrict src, vec4 dest) {
+glmc_vec4_make(const float * __restrict src, vec4 dest) {
   glm_vec4_make(src, dest);
+}
+
+CGLM_EXPORT
+void
+glmc_vec4_reflect(vec4 v, vec4 n, vec4 dest) {
+  glm_vec4_reflect(v, n, dest);
+}
+
+CGLM_EXPORT
+bool
+glmc_vec4_refract(vec4 v, vec4 n, float eta, vec4 dest) {
+  return glm_vec4_refract(v, n, eta, dest);
 }

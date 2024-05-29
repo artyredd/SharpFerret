@@ -65,6 +65,8 @@
    CGLM_INLINE void  glm_vec4_smoothinterpc(vec4 from, vec4 to, float t, vec4 dest);
    CGLM_INLINE void  glm_vec4_swizzle(vec4 v, int mask, vec4 dest);
    CGLM_INLINE void  glm_vec4_make(float * restrict src, vec4 dest);
+   CGLM_INLINE void  glm_vec4_reflect(vec4 v, vec4 n, vec4 dest);
+   CGLM_INLINE void  glm_vec4_refract(vec4 v, vec4 n, float eta, vec4 dest);
 
  DEPRECATED:
    glm_vec4_dup
@@ -485,7 +487,7 @@ glm_vec4_scale_as(vec4 v, float s, vec4 dest) {
   float norm;
   norm = glm_vec4_norm(v);
 
-  if (norm == 0.0f) {
+  if (CGLM_UNLIKELY(norm < FLT_EPSILON)) {
     glm_vec4_zero(dest);
     return;
   }
@@ -916,7 +918,7 @@ glm_vec4_normalize_to(vec4 v, vec4 dest) {
   /* dot  = _mm_cvtss_f32(xdot); */
   dot  = wasm_f32x4_extract_lane(xdot, 0);
 
-  if (dot == 0.0f) {
+  if (CGLM_UNLIKELY(dot < FLT_EPSILON)) {
     glmm_store(dest, wasm_f32x4_const_splat(0.f));
     return;
   }
@@ -930,7 +932,7 @@ glm_vec4_normalize_to(vec4 v, vec4 dest) {
   xdot = glmm_vdot(x0, x0);
   dot  = _mm_cvtss_f32(xdot);
 
-  if (dot == 0.0f) {
+  if (CGLM_UNLIKELY(dot < FLT_EPSILON)) {
     glmm_store(dest, _mm_setzero_ps());
     return;
   }
@@ -941,7 +943,7 @@ glm_vec4_normalize_to(vec4 v, vec4 dest) {
 
   norm = glm_vec4_norm(v);
 
-  if (norm == 0.0f) {
+  if (CGLM_UNLIKELY(norm < FLT_EPSILON)) {
     glm_vec4_zero(dest);
     return;
   }
@@ -1299,9 +1301,65 @@ glm_vec4_swizzle(vec4 v, int mask, vec4 dest) {
  */
 CGLM_INLINE
 void
-glm_vec4_make(float * __restrict src, vec4 dest) {
+glm_vec4_make(const float * __restrict src, vec4 dest) {
   dest[0] = src[0]; dest[1] = src[1];
   dest[2] = src[2]; dest[3] = src[3];
+}
+
+/*!
+ * @brief reflection vector using an incident ray and a surface normal
+ *
+ * @param[in]  v    incident vector
+ * @param[in]  n    normalized normal vector
+ * @param[out] dest destination vector for the reflection result
+ */
+CGLM_INLINE
+void
+glm_vec4_reflect(vec4 v, vec4 n, vec4 dest) {
+  vec4 temp;
+
+  /* TODO: direct simd touch */
+  glm_vec4_scale(n, 2.0f * glm_vec4_dot(v, n), temp);
+  glm_vec4_sub(v, temp, dest);
+
+  dest[3] = v[3];
+}
+
+/*!
+ * @brief computes refraction vector for an incident vector and a surface normal.
+ *
+ * calculates the refraction vector based on Snell's law. If total internal reflection
+ * occurs (angle too great given eta), dest is set to zero and returns false.
+ * Otherwise, computes refraction vector, stores it in dest, and returns true.
+ *
+ * this implementation does not explicitly preserve the 'w' component of the
+ * incident vector 'I' in the output 'dest', users requiring the preservation of
+ * the 'w' component should manually adjust 'dest' after calling this function.
+ *
+ * @param[in]  v    normalized incident vector
+ * @param[in]  n    normalized normal vector
+ * @param[in]  eta  ratio of indices of refraction (incident/transmitted)
+ * @param[out] dest refraction vector if refraction occurs; zero vector otherwise
+ *
+ * @returns true if refraction occurs; false if total internal reflection occurs.
+ */
+CGLM_INLINE
+bool
+glm_vec4_refract(vec4 v, vec4 n, float eta, vec4 dest) {
+  float ndi, eni, k;
+
+  ndi = glm_vec4_dot(n, v);
+  eni = eta * ndi;
+  k   = 1.0f + eta * eta - eni * eni;
+
+  if (k < 0.0f) {
+    glm_vec4_zero(dest);
+    return false;
+  }
+
+  glm_vec4_scale(v, eta, dest);
+  glm_vec4_mulsubs(n, eni + sqrtf(k), dest);
+  return true;
 }
 
 #endif /* cglm_vec4_h */

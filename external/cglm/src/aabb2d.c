@@ -10,6 +10,12 @@
 
 CGLM_EXPORT
 void
+glmc_aabb2d_zero(vec2 aabb[2]) {
+  glm_aabb2d_zero(aabb);
+}
+
+CGLM_EXPORT
+void
 glmc_aabb2d_copy(vec2 aabb[2], vec2 dest[2]) {
   glm_aabb2d_copy(aabb, dest);
 }
@@ -55,8 +61,14 @@ glmc_aabb2d_isvalid(vec2 aabb[2]) {
 
 CGLM_EXPORT
 float
-glmc_aabb2d_size(vec2 aabb[2]) {
-  return glm_aabb2d_size(aabb);
+glmc_aabb2d_diag(vec2 aabb[2]) {
+  return glm_aabb2d_diag(aabb);
+}
+
+CGLM_EXPORT
+void
+glmc_aabb2d_sizev(vec2 aabb[2], vec2 dest) {
+  glm_aabb2d_sizev(aabb, dest);
 }
 
 CGLM_EXPORT

@@ -55,6 +55,7 @@ Functions:
 #. :c:func:`glm_quat_lerp`
 #. :c:func:`glm_quat_nlerp`
 #. :c:func:`glm_quat_slerp`
+#. :c:func:`glm_quat_slerp_longest`
 #. :c:func:`glm_quat_look`
 #. :c:func:`glm_quat_for`
 #. :c:func:`glm_quat_forp`
@@ -351,6 +352,17 @@ Functions documentation
       | *[in]*  **t**     interpolant (amount) clamped between 0 and 1
       | *[out]* **dest**  result quaternion
 
+.. c:function:: void glm_quat_slerp_longest(versor q, versor r, float  t, versor dest)
+    
+    | interpolates between two quaternions
+    | using spherical linear interpolation (SLERP) and always takes the longest path
+    
+    Parameters:
+      | *[in]*  **from**  from
+      | *[in]*  **to**    to
+      | *[in]*  **t**     interpolant (amount) clamped between 0 and 1
+      | *[out]* **dest**  result quaternion
+
 .. c:function:: void  glm_quat_look(vec3 eye, versor ori, mat4 dest)
 
     | creates view matrix using quaternion as camera orientation
@@ -422,11 +434,11 @@ Functions documentation
       | *[in]*       **q**      quaternion
       | *[in]*       **pivot**  pivot
 
-.. c:function:: void glm_quat_make(float * __restrict src, versor dest)
+.. c:function:: void glm_quat_make(const float * __restrict src, versor dest)
 
     Create quaternion from pointer
 
-    | NOTE: **@src** must contain at least 4 elements. cglm store quaternions as [x, y, z, w].
+    .. note:: **@src** must contain at least 4 elements. cglm store quaternions as [x, y, z, w].
 
     Parameters:
       | *[in]*  **src**  pointer to an array of floats

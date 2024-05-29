@@ -456,6 +456,24 @@ glmc_vec3_sqrt(vec3 v, vec3 dest) {
 
 CGLM_EXPORT
 void
-glmc_vec3_make(float * __restrict src, vec3 dest) {
+glmc_vec3_make(const float * __restrict src, vec3 dest) {
   glm_vec3_make(src, dest);
+}
+
+CGLM_EXPORT
+void
+glmc_vec3_faceforward(vec3 n, vec3 v, vec3 nref, vec3 dest) {
+  glm_vec3_faceforward(n, v, nref, dest);
+}
+
+CGLM_EXPORT
+void
+glmc_vec3_reflect(vec3 v, vec3 n, vec3 dest) {
+  glm_vec3_reflect(v, n, dest);
+}
+
+CGLM_EXPORT
+bool
+glmc_vec3_refract(vec3 v, vec3 n, float eta, vec3 dest) {
+  return glm_vec3_refract(v, n, eta, dest);
 }
