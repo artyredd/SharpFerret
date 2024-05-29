@@ -48,6 +48,7 @@
 
 #include "core/runtime.h"
 #include "core/tasks.h"
+#include "core/modules.h"
 
 // scripts (not intrinsically part of the engine)
 #include "engine/scripts/fpsCamera.h"
@@ -80,6 +81,17 @@ int DoSomething(int* numberPtr)
 }
 
 OnStart(1)
+{
+	typedef const char* (*CharPtrGetter)();
+
+	Module module = Modules.Load(stack_string("DLLExample.dll"));
+
+	CharPtrGetter getter = Modules.Find(module, stack_string("HelloWorld"));
+
+	fprintf(stdout, "%s", getter());
+}
+
+void Ignored()
 {
 	array(Task) tasks = empty_stack_array(Task, 5);
 

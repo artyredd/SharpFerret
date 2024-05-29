@@ -67,4 +67,5 @@ extern struct _taskMethods {
 	WaitState(*WaitAny)(array(Task) tasks, ulong milliseconds);
 	int (*ThreadId)();
 	WaitState(*WaitForState)(Task task, WaitState state, ulong milliseconds);
+	void (*Dispose)(Task);
 } Tasks;
