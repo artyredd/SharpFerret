@@ -49,13 +49,15 @@ target_include_directories(Core PUBLIC
 
 # copy glew to build dir so we can debug code from there
 file(COPY "external/glew/bin/Release/x64/glew32.dll" DESTINATION .)
+file(COPY "external/glew/lib/Release/x64/glew32.lib" DESTINATION .)
+file(COPY "external/glfw/lib-vc2022/glfw3.lib" DESTINATION .)
 
 # copy assets to build dir so we dont constantly have failed to find file issues
 file(COPY assets DESTINATION ./)
 
 target_link_libraries(Core PRIVATE
-    ../external/glew/lib/Release/x64/glew32
-    ../external/glfw/lib-vc2022/glfw3
+    glew32.lib
+    glfw3.lib
     opengl32.lib
     Synchronization
 )
