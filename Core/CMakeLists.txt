@@ -24,7 +24,7 @@ include(FetchContent)
 FetchContent_Populate(
     cglm
     GIT_REPOSITORY https://github.com/recp/cglm.git
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/external/cglm
+    SOURCE_DIR external/cglm
 )
 
 target_include_directories(Core PRIVATE 
