@@ -24,7 +24,6 @@ include(FetchContent)
 FetchContent_Declare(
     cglm
     GIT_REPOSITORY https://github.com/recp/cglm.git
-    SOURCE_DIR ${CMAKE_BINARY_DIR}/external/cglm
 )
 FetchContent_MakeAvailable(cglm)
 
