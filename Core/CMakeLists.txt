@@ -21,11 +21,12 @@ set_target_properties(Core PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
 
 include(FetchContent)
 
-FetchContent_Populate(
+FetchContent_Declare(
     cglm
     GIT_REPOSITORY https://github.com/recp/cglm.git
-    SOURCE_DIR external/cglm
+    SOURCE_DIR ${CMAKE_BINARY_DIR}/external/cglm
 )
+FetchContent_MakeAvailable(cglm)
 
 target_include_directories(Core PRIVATE 
     "${cglm_SOURCE_DIR}/include"
