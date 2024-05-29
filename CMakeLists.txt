@@ -40,7 +40,7 @@ add_subdirectory(${cglm_SOURCE_DIR} cglm/build)
 
 add_dependencies(Core cglm)
 
-target_include_directories(Core PUBLIC 
+target_include_directories(Core PRIVATE 
     "external/stb_image"
     "external/cglm/include"
     "Core/Headers"
@@ -100,7 +100,7 @@ set_target_properties(Engine PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
 
 target_link_options(Engine PUBLIC "/DEBUG")
 
-target_include_directories(Engine PUBLIC 
+target_include_directories(Engine PRIVATE 
     "external/stb_image"
     "external/glfw/include"
     "external/glew/include"
@@ -109,7 +109,7 @@ target_include_directories(Engine PUBLIC
     "Engine"
 ) 
 
-target_link_libraries(Engine PUBLIC
+target_link_libraries(Engine PRIVATE
     Core
     ${GLEW_LIBRARIES}
     ${GLFW_LIBRARIES}
