@@ -84,7 +84,7 @@ file(GLOB engineSourceFiles CONFIGURE_DEPENDS
     "Engine/Source/scripts/*.c"
 )
 
-add_executable(Engine ${engineSourceFiles} ${engineHeaderFiles})
+add_library(Engine ${engineSourceFiles} ${engineHeaderFiles})
 
 set_property(TARGET Engine PROPERTY COMPILE_WARNING_AS_ERROR ON)
 
