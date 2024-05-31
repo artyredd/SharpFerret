@@ -9,6 +9,8 @@ private void Start(void);
 private void SetTimeProvider(double(*Provider)());
 private void AppendEvent(RuntimeEventType, void(*Method)(void));
 private void RemoveEvent(RuntimeEventType, void(*Method)(void));
+private void SetParentApplication(struct _Application* parent);
+private array(array(_VoidMethod)) GlobalEvents();
 
 struct _Application Application =
 {
@@ -18,21 +20,29 @@ struct _Application Application =
 	.FixedUpdateTimeInterval = 0,
 	.AppendEvent = AppendEvent,
 	.RemoveEvent = RemoveEvent,
+	.SetParentApplication = SetParentApplication,
 	.InternalState = {
 		.CloseApplicationFlag = 0,
 		.PreviousTime = 0.0,
 		.TimeProvider = null,
-		.RuntimeStarted = false
+		.RuntimeStarted = false,
+		.StartMethodsBegan = false,
+		.ParentProcessApplication = null,
+		.GlobalEvents = GlobalEvents
 	}
 };
 
-private void Close(void)
+#define ApplicationOrParent (Application.InternalState.ParentProcessApplication ? Application.InternalState.ParentProcessApplication : &Application )
+
+private void SetParentApplication(struct _Application* parent)
 {
-	Application.InternalState.CloseApplicationFlag = true;
+	Application.InternalState.ParentProcessApplication = parent;
 }
 
-DEFINE_CONTAINERS(_VoidMethod);
-DEFINE_CONTAINERS(array(_VoidMethod));
+private void Close(void)
+{
+	ApplicationOrParent->InternalState.CloseApplicationFlag = true;
+}
 
 array(_VoidMethod) GLOBAL_StartEvents;
 array(_VoidMethod) GLOBAL_CloseEvents;
@@ -41,6 +51,11 @@ array(_VoidMethod) GLOBAL_AfterUpdateEvents;
 array(_VoidMethod) GLOBAL_FixedUpdateEvents;
 array(_VoidMethod) GLOBAL_AfterFixedUpdateEvents;
 array(array(_VoidMethod)) GLOBAL_Events = empty_stack_array(array(_VoidMethod), 7);
+
+private array(array(_VoidMethod)) GlobalEvents()
+{
+	return GLOBAL_Events;
+}
 
 private const char* EventName(RuntimeEventType eventType)
 {
@@ -62,7 +77,7 @@ private const char* EventName(RuntimeEventType eventType)
 
 private void AppendEvent(RuntimeEventType eventType, void(*Method)(void))
 {
-	if (Application.InternalState.RuntimeStarted is false)
+	if (ApplicationOrParent->InternalState.RuntimeStarted is false)
 	{
 		fprintf_red(stderr, "Failed to append event %s, runtime not started", EventName(eventType));
 		throw(InvalidArgumentException);
@@ -74,12 +89,21 @@ private void AppendEvent(RuntimeEventType eventType, void(*Method)(void))
 		throw(InvalidArgumentException);
 	}
 
-	arrays(_VoidMethod).Append(at(GLOBAL_Events, eventType), Method);
+	arrays(_VoidMethod).Append(at(ApplicationOrParent->InternalState.GlobalEvents(), eventType), Method);
+
+	// if we already executing the application on starts
+	// then we're hooking a plugin thats hooked after the start
+	// of the program and we should execute their on start
+	// immediately
+	if (eventType is RuntimeEventTypes.Start and ApplicationOrParent->InternalState.StartMethodsBegan)
+	{
+		Method();
+	}
 }
 
 private void RemoveEvent(RuntimeEventType eventType, void(*Method)(void))
 {
-	if (Application.InternalState.RuntimeStarted is false)
+	if (ApplicationOrParent->InternalState.RuntimeStarted is false)
 	{
 		fprintf_red(stderr, "Failed to remove event %s, runtime not started", EventName(eventType));
 		throw(InvalidArgumentException);
@@ -92,7 +116,7 @@ private void RemoveEvent(RuntimeEventType eventType, void(*Method)(void))
 	}
 
 	// find the index of the method
-	array(_VoidMethod) eventArray = at(GLOBAL_Events, eventType);
+	array(_VoidMethod) eventArray = at(ApplicationOrParent->InternalState.GlobalEvents(), eventType);
 
 	const int index = arrays(_VoidMethod).IndexOf(eventArray, Method);
 
@@ -133,10 +157,17 @@ private void ExecuteEvents(array(_VoidMethod) events)
 
 private void Start(void)
 {
+	if (Application.InternalState.ParentProcessApplication)
+	{
+		fprintf_red(stderr, "Attempted to start runtime of child plugin. Plugins automatically hook their runtimes. %s\n", "");
+		throw(InvalidLogicException);
+	}
+
 	InitializeRuntime();
 
 	RunOnStartMethods();
 	ExecuteEvents(GLOBAL_StartEvents);
+	Application.InternalState.StartMethodsBegan = true;
 
 	while (Application.InternalState.CloseApplicationFlag is false)
 	{

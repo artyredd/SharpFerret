@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include "core/csharp.h"
+#include "core/array.h"
 
 #define _EXPAND_STRING(value) #value
 #define _STRING(value) _EXPAND_STRING(value)
@@ -9,6 +10,9 @@
 #pragma warning(disable : 4075)
 
 typedef void(__cdecl* _VoidMethod)(void);
+
+DEFINE_CONTAINERS(_VoidMethod);
+DEFINE_CONTAINERS(array(_VoidMethod));
 
 #define SECTION_METHOD_MARKER(sectionHeader, sectionName) \
 __declspec(allocate(sectionHeader)) __declspec(selectany)  const _VoidMethod sectionName = (_VoidMethod)1;
@@ -180,6 +184,7 @@ extern struct _Application {
 	double FixedUpdateTimeInterval;
 	void (*AppendEvent)(RuntimeEventType, void(*Method)(void));
 	void (*RemoveEvent)(RuntimeEventType, void(*Method)(void));
+	void (*SetParentApplication)(struct _Application* parent);
 	struct _state {
 		// Flag that when non-zero sigals
 		// the application runtime to exit the
@@ -192,5 +197,14 @@ extern struct _Application {
 		double PreviousTime;
 		// whether or not the runtime is started
 		bool RuntimeStarted;
+		// whether or not OnStart methods have already started
+		// executing
+		bool StartMethodsBegan;
+		// Pointer to the parent process application struct
+		// this is non-null if the application currently
+		// running is loaded as a plugin in another
+		// ferret module
+		struct _Application* ParentProcessApplication;
+		array(array(_VoidMethod)) (*GlobalEvents)();
 	} InternalState;
 } Application;
