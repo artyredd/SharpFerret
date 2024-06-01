@@ -21,7 +21,7 @@ file(GLOB engineSourceFiles CONFIGURE_DEPENDS
     "Source/scripts/*.c"
 )
 
-add_library(Engine ${engineSourceFiles} ${engineHeaderFiles})
+add_library(Engine STATIC ${engineSourceFiles} ${engineHeaderFiles})
 
 set_property(TARGET Engine PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_target_properties(Engine PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
