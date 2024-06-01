@@ -28,7 +28,7 @@ __declspec(allocate(_STRING(sectionId##id))) const _VoidMethod _METHOD_ADDRESS(n
 static void _METHOD_NAME(name,id)(void)
 
 #define DEFINE_SECTION_METHOD_RUNNER(sectionName,sectionHeaderName,sectionFooterName)\
-__declspec(dllexport) inline void RunOn##sectionName##Methods() {\
+public void RunOn##sectionName##Methods() {\
 	const _VoidMethod* x = &sectionHeaderName;\
 	for (++x; x < &sectionFooterName; ++x)\
 		if (*x) (*x)();\
@@ -208,3 +208,8 @@ extern struct _Application {
 		array(array(_VoidMethod)) (*GlobalEvents)();
 	} InternalState;
 } Application;
+
+public struct _Application* GetApplication()
+{
+	return &Application;
+}

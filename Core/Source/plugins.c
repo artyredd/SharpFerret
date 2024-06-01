@@ -1,4 +1,6 @@
 #include "core/plugins.h"
+#include "core/runtime.h"
+#include "core/csharp.h"
 
 private Plugin Load(string);
 private void Dispose(Plugin);
@@ -19,6 +21,50 @@ private Plugin Create(string name)
 	plugin->Name = strings.Clone(name);
 
 	return plugin;
+}
+
+private struct _Application* GetChildApplication(Plugin plugin)
+{
+	struct _Application* (*GetApplication)(void) = Modules.Find(plugin->Module, stack_string("GetApplication"));
+
+	if (GetApplication is null)
+	{
+		fprintf_red(stdout, "Plugin: %s does not have method: struct _Application* GetApplication(void);\n", plugin->Name->Values);
+		throw(FailedToLoadMethodException);
+	}
+
+	struct _Application* result = GetApplication();
+
+	if (result is null)
+	{
+		fprintf_red(stdout, "Plugin: %s GetApplication(void) method did not return a valid pointer to the plugins Application object\n", plugin->Name->Values);
+
+		throw(FailedToLoadPluginException);
+	}
+
+	return result;
+}
+
+private void HookPluginMethodsIntoRuntime(Plugin plugin)
+{
+	// assign the events
+	Application.AppendEvent(RuntimeEventTypes.Start, plugin->OnStart);
+	Application.AppendEvent(RuntimeEventTypes.Close, plugin->OnClose);
+	Application.AppendEvent(RuntimeEventTypes.Update, plugin->OnUpdate);
+	Application.AppendEvent(RuntimeEventTypes.AfterUpdate, plugin->AfterUpdate);
+	Application.AppendEvent(RuntimeEventTypes.FixedUpdate, plugin->OnFixedUpdate);
+	Application.AppendEvent(RuntimeEventTypes.AfterFixedUpdate, plugin->AfterFixedUpdate);
+}
+
+private void UnHookPluginMethodsFromRuntime(Plugin plugin)
+{
+	// assign the events
+	Application.RemoveEvent(RuntimeEventTypes.Start, plugin->OnStart);
+	Application.RemoveEvent(RuntimeEventTypes.Close, plugin->OnClose);
+	Application.RemoveEvent(RuntimeEventTypes.Update, plugin->OnUpdate);
+	Application.RemoveEvent(RuntimeEventTypes.AfterUpdate, plugin->AfterUpdate);
+	Application.RemoveEvent(RuntimeEventTypes.FixedUpdate, plugin->OnFixedUpdate);
+	Application.RemoveEvent(RuntimeEventTypes.AfterFixedUpdate, plugin->AfterFixedUpdate);
 }
 
 private Plugin Load(string name)
@@ -46,6 +92,15 @@ private Plugin Load(string name)
 		throw(FailedToLoadPluginException);
 	}
 
+	// take over the child plugins application
+	// so their events hook into ours
+	struct _Application* application = GetChildApplication(plugin);
+
+	application->SetParentApplication(&Application);
+
+	// attach the plugin's events to our runtime
+	HookPluginMethodsIntoRuntime(plugin);
+
 	return plugin;
 }
 
@@ -55,6 +110,9 @@ private void Dispose(Plugin plugin)
 	{
 		return;
 	}
+
+	// make sure the runtime doesn't attempt to call the plugins methods
+	UnHookPluginMethodsFromRuntime(plugin);
 
 	strings.Dispose(plugin->Name);
 
