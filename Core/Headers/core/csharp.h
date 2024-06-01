@@ -103,7 +103,18 @@ static int BreakDebugger(int errorCode)
 #define safe_subtract( unsigned_integer, value ) ( min(unsigned_integer, (unsigned_integer - value) ) )
 
 #define private inline static
-#define public __declspec(dllexport) inline
+
+#ifdef _WIN32
+#ifdef BUILD_STATIC_LIB
+#define STATIC_LIB_API __declspec(dllexport)
+#else
+#define STATIC_LIB_API __declspec(dllimport)
+#endif
+#else
+#define STATIC_LIB_API
+#endif
+
+#define public STATIC_LIB_API inline
 
 // DO NOT USE, DANGY, WILL HURT CPU FEELINGS >:(, ONLY USE WHEN YOU KNOW IT WONT HURT CPU FEELING
 #define struct_cast(destinationType) *(destinationType*)& 

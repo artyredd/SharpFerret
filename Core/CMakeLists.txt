@@ -18,6 +18,7 @@ add_library(Core STATIC ${coreSourceFiles} ${coreHeaderFiles})
 
 set_property(TARGET Core PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_target_properties(Core PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
+target_compile_definitions(Core PRIVATE BUILD_STATIC_LIB)
 
 include(FetchContent)
 

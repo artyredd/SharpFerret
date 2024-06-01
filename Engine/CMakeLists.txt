@@ -25,6 +25,7 @@ add_library(Engine STATIC ${engineSourceFiles} ${engineHeaderFiles})
 
 set_property(TARGET Engine PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_target_properties(Engine PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
+target_compile_definitions(Engine PRIVATE BUILD_STATIC_LIB)
 
 target_include_directories(Engine PRIVATE 
     "${CMAKE_CURRENT_SOURCE_DIR}/external/stb_image"
