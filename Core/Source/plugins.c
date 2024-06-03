@@ -25,7 +25,7 @@ private Plugin Create(string name)
 
 private struct _Application* GetChildApplication(Plugin plugin)
 {
-	struct _Application* (*GetApplication)(void) = Modules.Find(plugin->Module, stack_string("GetApplication"));
+	struct _Application* (*GetApplication)(void) = Modules.Find(plugin->Module, stack_string(nameof(GetApplication)));
 
 	if (GetApplication is null)
 	{
