@@ -83,7 +83,7 @@ private Plugin Load(string name)
 	plugin->AfterUpdate = Modules.Find(plugin->Module, stack_string("RunOnAfterUpdateMethods"));
 	plugin->OnFixedUpdate = Modules.Find(plugin->Module, stack_string("RunOnFixedUpdateMethods"));
 	plugin->AfterFixedUpdate = Modules.Find(plugin->Module, stack_string("RunOnAfterFixedUpdateMethods"));
-	plugin->OnRender = Modules.Find(plugin->Module, stack_string("RunOnOnRenderMethods"));
+	plugin->OnRender = Modules.Find(plugin->Module, stack_string("RunOnRenderMethods"));
 	plugin->AfterRender = Modules.Find(plugin->Module, stack_string("RunOnAfterRenderMethods"));
 
 	if (plugin->OnStart is null
