@@ -50,10 +50,12 @@ private void HookPluginMethodsIntoRuntime(Plugin plugin)
 	// assign the events
 	Application.AppendEvent(RuntimeEventTypes.Start, plugin->OnStart);
 	Application.AppendEvent(RuntimeEventTypes.Close, plugin->OnClose);
-	Application.AppendEvent(RuntimeEventTypes.Update, plugin->OnUpdate);
-	Application.AppendEvent(RuntimeEventTypes.AfterUpdate, plugin->AfterUpdate);
-	Application.AppendEvent(RuntimeEventTypes.FixedUpdate, plugin->OnFixedUpdate);
-	Application.AppendEvent(RuntimeEventTypes.AfterFixedUpdate, plugin->AfterFixedUpdate);
+	// InitializeThreadedEvents will handle this after we
+	// take over the plugin's Application object
+	//Application.AppendEvent(RuntimeEventTypes.Update, plugin->OnUpdate);
+	//Application.AppendEvent(RuntimeEventTypes.AfterUpdate, plugin->AfterUpdate);
+	//Application.AppendEvent(RuntimeEventTypes.FixedUpdate, plugin->OnFixedUpdate);
+	//Application.AppendEvent(RuntimeEventTypes.AfterFixedUpdate, plugin->AfterFixedUpdate);
 	Application.AppendEvent(RuntimeEventTypes.Render, plugin->OnRender);
 	Application.AppendEvent(RuntimeEventTypes.AfterRender, plugin->AfterRender);
 }
@@ -88,10 +90,10 @@ private Plugin Load(string name)
 
 	if (plugin->OnStart is null
 		or plugin->OnClose is null
-		or plugin->OnUpdate is null
-		or plugin->AfterUpdate is null
-		or plugin->OnFixedUpdate is null
-		or plugin->AfterFixedUpdate is null
+		//or plugin->OnUpdate is null
+		//or plugin->AfterUpdate is null
+		//or plugin->OnFixedUpdate is null
+		//or plugin->AfterFixedUpdate is null
 		or plugin->OnRender is null
 		or plugin->AfterRender is null
 		)
@@ -105,6 +107,10 @@ private Plugin Load(string name)
 	struct _Application* application = GetChildApplication(plugin);
 
 	application->SetParentApplication(&Application);
+
+	// this appends Update and FixedUpdate's
+	// events into our runtime since we are now the parent
+	application->InitializeThreadedEvents();
 
 	// attach the plugin's events to our runtime
 	HookPluginMethodsIntoRuntime(plugin);

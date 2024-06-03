@@ -13,7 +13,7 @@
 
 typedef unsigned char byte;
 typedef unsigned short ushort;
-typedef size_t ulong;
+#define ulong size_t
 typedef unsigned int uint;
 
 #define null NULL

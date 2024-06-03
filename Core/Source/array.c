@@ -177,9 +177,14 @@ private void RemoveIndex(Array array, ulong index)
 		throw(IndexOutOfRangeException);
 	}
 
-	ulong size = safe_subtract(array->Size, safe_add(index, 1) * array->ElementSize);
+	// don't memmove if it's the last index
+	// we can just decrement the count
+	if (index < (array->Count - 1))
+	{
+		ulong size = safe_subtract(array->Size, safe_add(index, 1) * array->ElementSize);
 
-	memmove(At(array, index), At(array, safe_add(index, 1)), size);
+		memmove(At(array, index), At(array, safe_add(index, 1)), size);
+	}
 
 	safe_decrement(array->Count);
 

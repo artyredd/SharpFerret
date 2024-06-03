@@ -27,12 +27,34 @@ __pragma(section(_STRING(sectionId##id), read)); \
 __declspec(allocate(_STRING(sectionId##id))) const _VoidMethod _METHOD_ADDRESS(name,id) = (_VoidMethod) _METHOD_NAME(name,id); \
 static void _METHOD_NAME(name,id)(void)
 
+private int CountSectionSize(_VoidMethod* start, _VoidMethod* end) {
+	int count = 0;
+	_VoidMethod* x = start;
+	for (++x; x < end; ++x) {
+
+		if (*x) { count++; }
+	}
+	return count;
+}
+
 #define DEFINE_SECTION_METHOD_RUNNER(sectionName,sectionHeaderName,sectionFooterName)\
 public void RunOn##sectionName##Methods() {\
 	const _VoidMethod* x = &sectionHeaderName;\
 	for (++x; x < &sectionFooterName; ++x)\
 		if (*x) (*x)();\
-};
+};\
+public void** Get##sectionName##Methods(){\
+	int count = CountSectionSize((_VoidMethod*)&sectionHeaderName,(_VoidMethod*)&sectionFooterName);\
+	_VoidMethod* x = (_VoidMethod*)&sectionHeaderName;\
+	void** arr = calloc(count + 1,sizeof(void*));\
+	int i = 0;\
+	x = (_VoidMethod*)&sectionHeaderName;\
+	for (++x; x < &sectionFooterName; ++x){\
+		if (*x) { arr[i] = x; }\
+		i++;\
+	}\
+	return arr; \
+}\
 
 #define START_SECTION_HEADER ".srt$a"
 #define START_SECTION_FOOTER ".srt$z"
@@ -220,6 +242,7 @@ extern struct _Application {
 	void (*AppendEvent)(RuntimeEventType, void(*Method)(void));
 	void (*RemoveEvent)(RuntimeEventType, void(*Method)(void));
 	void (*SetParentApplication)(struct _Application* parent);
+	void (*InitializeThreadedEvents)();
 	struct _state {
 		// Flag that when non-zero sigals
 		// the application runtime to exit the

@@ -14,6 +14,7 @@ private void AppendEvent(RuntimeEventType, void(*Method)(void));
 private void RemoveEvent(RuntimeEventType, void(*Method)(void));
 private void SetParentApplication(struct _Application* parent);
 private array(array(_VoidMethod)) GlobalEvents();
+private void InitializeThreadedEvents();
 
 struct _Application Application =
 {
@@ -24,6 +25,7 @@ struct _Application Application =
 	.AppendEvent = AppendEvent,
 	.RemoveEvent = RemoveEvent,
 	.SetParentApplication = SetParentApplication,
+	.InitializeThreadedEvents = InitializeThreadedEvents,
 	.InternalState = {
 		.CloseApplicationFlag = 0,
 		.PreviousTime = 0.0,
@@ -58,9 +60,9 @@ array(_VoidMethod) GLOBAL_AfterRenderEvents;
 
 array(array(_VoidMethod)) GLOBAL_Events = empty_stack_array(array(_VoidMethod), sizeof(RuntimeEventTypes) / sizeof(RuntimeEventType));
 
-bool GLOBAL_EventStackLocker = false;
 array(_VoidMethod) GLOBAL_EventStack;
 array(Task) GLOBAL_Workers;
+Locker GLOBAL_WorkerLock;
 
 private array(array(_VoidMethod)) GlobalEvents()
 {
@@ -147,7 +149,18 @@ private int WorkerJob(void* state)
 	// exit when asked
 	while (task->RequestExitFlag is false)
 	{
+		_VoidMethod method = null;
 
+		lock(GLOBAL_WorkerLock,
+			if (GLOBAL_EventStack->Count)
+			{
+				method = arrays(_VoidMethod).Pop(GLOBAL_EventStack);
+			}
+				);
+		if (method)
+		{
+			method();
+		}
 	}
 
 	return 0;
@@ -157,8 +170,27 @@ private void InitializeWorkers(array(Task) workers)
 {
 	for (int i = 0; i < OperatingSystem.ThreadCount() - 1; i++)
 	{
-		arrays(Task).Append(workers, Tasks.Create(WorkerJob));
+		arrays(Task).Append(workers, Tasks.Run(Tasks.Create(WorkerJob), null));
 	}
+}
+
+private void ExpandMultiThreadedEvents(RuntimeEventType type, void** methods)
+{
+	int i = 0;
+	while (methods[i] != null)
+	{
+		void* method = methods[i];
+		AppendEvent(type, (_VoidMethod)method);
+	}
+}
+
+private void InitializeThreadedEvents()
+{
+	// append multi threaded events individually
+	ExpandMultiThreadedEvents(RuntimeEventTypes.Update, GetUpdateMethods());
+	ExpandMultiThreadedEvents(RuntimeEventTypes.AfterUpdate, GetAfterUpdateMethods());
+	ExpandMultiThreadedEvents(RuntimeEventTypes.FixedUpdate, GetFixedUpdateMethods());
+	ExpandMultiThreadedEvents(RuntimeEventTypes.AfterFixedUpdate, GetAfterFixedUpdateMethods());
 }
 
 private void InitializeRuntime()
@@ -184,6 +216,8 @@ private void InitializeRuntime()
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_RenderEvents);
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_AfterRenderEvents);
 
+	InitializeThreadedEvents();
+
 	GLOBAL_EventStack = dynamic_array(_VoidMethod, 0);
 	GLOBAL_Workers = dynamic_array(Task, OperatingSystem.ThreadCount() - 1);
 
@@ -192,7 +226,7 @@ private void InitializeRuntime()
 	Application.InternalState.RuntimeStarted = true;
 }
 
-private void ExecuteEvents(array(_VoidMethod) events)
+private void ExecuteEventsOnMainThread(array(_VoidMethod) events)
 {
 	for (int i = 0; i < events->Count; i++)
 	{
@@ -211,16 +245,16 @@ private void Start(void)
 	InitializeRuntime();
 
 	RunOnStartMethods();
-	ExecuteEvents(GLOBAL_StartEvents);
+	ExecuteEventsOnMainThread(GLOBAL_StartEvents);
 	Application.InternalState.StartMethodsBegan = true;
 
 	while (Application.InternalState.CloseApplicationFlag is false)
 	{
 		RunOnUpdateMethods();
-		ExecuteEvents(GLOBAL_UpdateEvents);
+		ExecuteEventsOnMainThread(GLOBAL_UpdateEvents);
 
 		RunOnAfterUpdateMethods();
-		ExecuteEvents(GLOBAL_AfterUpdateEvents);
+		ExecuteEventsOnMainThread(GLOBAL_AfterUpdateEvents);
 
 		if (Application.InternalState.TimeProvider)
 		{
@@ -230,23 +264,23 @@ private void Start(void)
 
 			if (time >= targetTime) {
 				RunOnFixedUpdateMethods();
-				ExecuteEvents(GLOBAL_FixedUpdateEvents);
+				ExecuteEventsOnMainThread(GLOBAL_FixedUpdateEvents);
 
 				RunOnAfterFixedUpdateMethods();
-				ExecuteEvents(GLOBAL_AfterFixedUpdateEvents);
+				ExecuteEventsOnMainThread(GLOBAL_AfterFixedUpdateEvents);
 
 				Application.InternalState.PreviousTime = time;
 			}
 		}
 
 		RunOnRenderMethods();
-		ExecuteEvents(GLOBAL_RenderEvents);
+		ExecuteEventsOnMainThread(GLOBAL_RenderEvents);
 
 		RunOnAfterRenderMethods();
-		ExecuteEvents(GLOBAL_AfterRenderEvents);
+		ExecuteEventsOnMainThread(GLOBAL_AfterRenderEvents);
 	}
 
-	ExecuteEvents(GLOBAL_CloseEvents);
+	ExecuteEventsOnMainThread(GLOBAL_CloseEvents);
 	RunOnCloseMethods();
 }
 

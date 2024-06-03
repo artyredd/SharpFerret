@@ -17,16 +17,17 @@ private void NotifyAllThreadsAddressChanged(void* address);
 private void NotifyAddressChanged(void* address);
 private bool _WaitOnAddress(volatile void* address, ulong addressSize, ulong milliseconds);
 private int ThreadId();
-private WaitState Wait(Task task, ulong milliseconds);
-private WaitState WaitForState(Task task, WaitState state, ulong milliseconds);
+private WaitStatus Wait(Task task, ulong milliseconds);
+private WaitStatus WaitForState(Task task, WaitStatus state, ulong milliseconds);
 private void RunAll(array(Task) tasks, array(void_ptr) states);
-private WaitState WaitAll(array(Task) tasks, ulong milliseconds);
-private WaitState WaitAny(array(Task) tasks, ulong milliseconds);
+private WaitStatus WaitAll(array(Task) tasks, ulong milliseconds);
+private WaitStatus WaitAny(array(Task) tasks, ulong milliseconds);
 private void Dispose(Task);
 private Task CurrentTask();
 private Task TaskForThread(int threadId);
 
 struct _taskMethods Tasks = {
+	.Forever = ULLONG_MAX,
 	.Create = CreateTask,
 	.Run = Run,
 	.Stop = Stop,
@@ -156,7 +157,7 @@ private bool Stop(Task task)
 	return false;
 }
 
-private WaitState WaitAny(array(Task) tasks, ulong milliseconds)
+private WaitStatus WaitAny(array(Task) tasks, ulong milliseconds)
 {
 	void* handles[MAX_HANDLES];
 
@@ -173,7 +174,7 @@ private WaitState WaitAny(array(Task) tasks, ulong milliseconds)
 	return WaitForMultipleObjects(tasks->Count, handles, false, milliseconds);
 }
 
-private WaitState WaitAll(array(Task) tasks, ulong milliseconds)
+private WaitStatus WaitAll(array(Task) tasks, ulong milliseconds)
 {
 	void* handles[MAX_HANDLES];
 
@@ -190,22 +191,22 @@ private WaitState WaitAll(array(Task) tasks, ulong milliseconds)
 	return WaitForMultipleObjects(tasks->Count, handles, true, milliseconds);
 }
 
-private WaitState Wait(Task task, ulong milliseconds)
+private WaitStatus Wait(Task task, ulong milliseconds)
 {
 	return WaitForSingleObject(task->ThreadHandle, milliseconds);
 }
 
-private WaitState WaitForState(Task task, WaitState state, ulong milliseconds)
+private WaitStatus WaitForState(Task task, WaitStatus state, ulong milliseconds)
 {
 	while (task->Status != state)
 	{
 		if (_WaitOnAddress(&task->Status, sizeof(byte), milliseconds) is false)
 		{
-			return WaitStatus.Timedout;
+			return WaitStatuses.Timedout;
 		}
 	}
 
-	return WaitStatus.Signaled;
+	return WaitStatuses.Signaled;
 }
 
 // A thread can use the WaitOnAddress function to wait for the value of a target address to change from some undesired value to any other value. This enables threads to wait for a value to change without having to spin

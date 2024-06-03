@@ -266,9 +266,10 @@ private void _EXPAND_METHOD_NAME(type,Resize)(array(type) array, ulong newCount)
 {\
 Arrays.Resize((Array)array, newCount); \
 }\
-private void _EXPAND_METHOD_NAME(type,Append)(array(type)array, type value)\
+private array(type) _EXPAND_METHOD_NAME(type,Append)(array(type)array, type value)\
 {\
 Arrays.Append((Array)array, &value); \
+return array;\
 }\
 private void _EXPAND_METHOD_NAME(type,RemoveIndex)(array(type) array, ulong index)\
 {\
@@ -392,124 +393,142 @@ private array(type) _EXPAND_METHOD_NAME(type, Fill)(array(type) array, type valu
 	}array->Dirty = true;array->Hash = 0;\
 	return array;\
 }\
+private type _EXPAND_METHOD_NAME(type, Last)(array(type)array)\
+{\
+	return at(array, array->Count - 1);\
+}\
+private type _EXPAND_METHOD_NAME(type, Pop)(array(type)array)\
+{\
+	type result = at(array, array->Count - 1);\
+	safe_decrement(array->Count);\
+	array->Dirty = true;\
+	array->Hash = 0;\
+	return result;\
+}\
 private int _EXPAND_METHOD_NAME(type, IndexOf)(array(type) array, type value)\
 {\
-	for (int i = 0; i < array->Count; i++)\
-	{\
-		if(memcmp(&value,&(at(array,i)),array->ElementSize) is 0)\
-		{\
-			return i;\
-		}\
-	}\
-	return -1;\
+for (int i = 0; i < array->Count; i++)\
+{\
+if (memcmp(&value, &(at(array, i)), array->ElementSize) is 0)\
+{\
+return i; \
+}\
+}\
+return -1; \
 }\
 private void _EXPAND_METHOD_NAME(type, Print)(void* stream, array(type) array)\
 {\
-	fprintf(stream,"{ ");\
-	for (int i = 0; i < array->Count; i++)\
-	{\
-		type value = at(array,i);\
-		if(IsTypeof(value,struct _array_byte*) is true) {fprintf(stream,"%s",(char*)((*(array(type)*)(void*)&value)->Values));}\
-		else{fprintf(stream,FormatCType(value),value);}\
-		if(i isnt array->Count-1){ fprintf(stream,", "); }\
-	}\
-	fprintf(stream," }");\
-}\
-private int _EXPAND_METHOD_NAME(type, IndexWhere)(array(type) array, void* state, bool(*expression)(type,void*))\
+fprintf(stream, "{ "); \
+for (int i = 0; i < array->Count; i++)\
 {\
-	for (int i = 0; i < array->Count; i++)\
-	{\
-		if(expression(at(array,i),state)) {return i;}\
-	}\
-	return -1; \
+type value = at(array, i); \
+if (IsTypeof(value, struct _array_byte*) is true) { fprintf(stream, "%s", (char*)((*(array(type)*)(void*) & value)->Values)); }\
+else { fprintf(stream, FormatCType(value), value); }\
+if (i isnt array->Count - 1) { fprintf(stream, ", "); }\
 }\
-private type _EXPAND_METHOD_NAME(type, Select)(array(type) array, void* state, bool(*expression)(type,void*))\
-{\
-	int index = _EXPAND_METHOD_NAME(type, IndexWhere)(array,state,expression);\
-	if(index is -1){ return (type){0}; }\
-	return at(array,index);\
+fprintf(stream, " }"); \
 }\
-private array(type) _EXPAND_METHOD_NAME(type, Any)(array(type) arr, void* state, bool(*expression)(type,void*))\
+private int _EXPAND_METHOD_NAME(type, IndexWhere)(array(type) array, void* state, bool(*expression)(type, void*))\
 {\
-	array(type) result = null;\
-	for (int i = 0; i < arr->Count; i++)\
-	{\
-		type item = at(arr,i);\
-		if(expression(item, state))\
-		{\
-			if(result){result = _EXPAND_METHOD_NAME(type, Create)(1);}\
-			_EXPAND_METHOD_NAME(type, Append)(result,item);\
-		}\
-	}\
-	return null; \
+for (int i = 0; i < array->Count; i++)\
+{\
+if (expression(at(array, i), state)) { return i; }\
+}\
+return -1; \
+}\
+private type _EXPAND_METHOD_NAME(type, Select)(array(type) array, void* state, bool(*expression)(type, void*))\
+{\
+int index = _EXPAND_METHOD_NAME(type, IndexWhere)(array, state, expression); \
+if (index is - 1) { return (type) { 0 }; }\
+return at(array, index); \
+}\
+private array(type) _EXPAND_METHOD_NAME(type, Any)(array(type) arr, void* state, bool(*expression)(type, void*))\
+{\
+array(type) result = null; \
+for (int i = 0; i < arr->Count; i++)\
+{\
+type item = at(arr, i); \
+if (expression(item, state))\
+{\
+if (result) { result = _EXPAND_METHOD_NAME(type, Create)(1); }\
+_EXPAND_METHOD_NAME(type, Append)(result, item); \
+}\
+}\
+return null; \
 }\
 const static struct _array_##type##_methods\
 {\
-	array(type) (*Create)(ulong count); \
-	void (*AutoResize)(array(type)); \
-	void (*Resize)(array(type), ulong newCount); \
-	void (*Append)(array(type), type); \
-	void (*RemoveIndex)(array(type), ulong index); \
-	array(type) (*RemoveRange)(array(type), ulong startIndex, ulong count); \
-	bool (*Empty)(array(type)); \
-	void (*Swap)(array(type), ulong firstIndex, ulong secondIndex); \
-	void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
-	type* (*At)(array(type), ulong index); \
-	type(*ValueAt)(array(type), ulong index); \
-	array(type) (*AppendArray)(array(type), const array(type) appendedValue); \
-	array(type) (*InsertArray)(array(type) destination, array(type) values, ulong index); \
-	void (*AppendCArray)(array(type), const type* carray, const ulong count); \
-	bool (*Equals)(array(type), array(type)); \
-	bool (*BeginsWith)(array(type), array(type)); \
-	array(type) (*Clear)(array(type)); \
-	void (*Foreach)(array(type), void(*method)(type*)); \
-	void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
-	int (*IndexOf)(array(type), type); \
-	int (*IndexWhere)(array(type), void* state, bool(*Expression)(type value, void* state)); \
-	type(*Select)(array(type), void* state, bool(*Expression)(type value, void* state)); \
-	array(type) (*Any)(array(type), void* state, bool(*Expression)(type value, void* state)); \
-	array(type) (*Clone)(array(type)); \
-	ulong(*Hash)(array(type)); \
-	array(type) (*Fill)(array(type), type); \
-	void (*Print)(void* stream, array(type)); \
-	void (*Dispose)(array(type)); \
+array(type) (*Create)(ulong count); \
+void (*AutoResize)(array(type)); \
+void (*Resize)(array(type), ulong newCount); \
+array(type) (*Append)(array(type), type); \
+void (*RemoveIndex)(array(type), ulong index); \
+array(type) (*RemoveRange)(array(type), ulong startIndex, ulong count); \
+bool (*Empty)(array(type)); \
+void (*Swap)(array(type), ulong firstIndex, ulong secondIndex); \
+void (*InsertionSort)(array(type), bool(comparator)(type* left, type* right)); \
+type* (*At)(array(type), ulong index); \
+type(*ValueAt)(array(type), ulong index); \
+array(type) (*AppendArray)(array(type), const array(type) appendedValue); \
+array(type) (*InsertArray)(array(type) destination, array(type) values, ulong index); \
+void (*AppendCArray)(array(type), const type* carray, const ulong count); \
+bool (*Equals)(array(type), array(type)); \
+bool (*BeginsWith)(array(type), array(type)); \
+array(type) (*Clear)(array(type)); \
+void (*Foreach)(array(type), void(*method)(type*)); \
+void (*ForeachWithContext)(array(type), void* context, void(*method)(void*, type*)); \
+int (*IndexOf)(array(type), type); \
+int (*IndexWhere)(array(type), void* state, bool(*Expression)(type value, void* state)); \
+type(*Select)(array(type), void* state, bool(*Expression)(type value, void* state)); \
+array(type) (*Any)(array(type), void* state, bool(*Expression)(type value, void* state)); \
+array(type) (*Clone)(array(type)); \
+ulong(*Hash)(array(type)); \
+array(type) (*Fill)(array(type), type); \
+type(*Pop)(array(type)); \
+array(type) (*Push)(array(type), type); \
+type (*Last)(array(type));\
+void (*Print)(void* stream, array(type)); \
+void (*Dispose)(array(type)); \
 } type##_array##Arrays = \
 {\
-	.Create = _EXPAND_METHOD_NAME(type, Create), \
-	.AutoResize = _EXPAND_METHOD_NAME(type, AutoResize), \
-	.Resize = _EXPAND_METHOD_NAME(type, Resize), \
-	.Append = _EXPAND_METHOD_NAME(type, Append), \
-	.RemoveIndex = _EXPAND_METHOD_NAME(type, RemoveIndex), \
-	.RemoveRange = _EXPAND_METHOD_NAME(type, RemoveRange), \
-	.Empty = _EXPAND_METHOD_NAME(type, Empty), \
-	.Swap = _EXPAND_METHOD_NAME(type, Swap), \
-	.InsertionSort = _EXPAND_METHOD_NAME(type, InsertionSort), \
-	.At = _EXPAND_METHOD_NAME(type, At), \
-	.ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
-	.AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
-	.InsertArray = _EXPAND_METHOD_NAME(type, InsertArray), \
-	.AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray), \
-	.Equals = _EXPAND_METHOD_NAME(type, Equals), \
-	.Clear = _EXPAND_METHOD_NAME(type, Clear), \
-	.Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
-	.ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
-	.Clone = _EXPAND_METHOD_NAME(type, Clone), \
-	.Hash = _EXPAND_METHOD_NAME(type, Hash), \
-	.BeginsWith = _EXPAND_METHOD_NAME(type, BeginsWith), \
-	.Fill = _EXPAND_METHOD_NAME(type, Fill), \
-	.IndexOf = _EXPAND_METHOD_NAME(type, IndexOf), \
-	.IndexWhere = _EXPAND_METHOD_NAME(type, IndexWhere), \
-	.Select = _EXPAND_METHOD_NAME(type, Select), \
-	.Any = _EXPAND_METHOD_NAME(type, Any), \
-	.Print = _EXPAND_METHOD_NAME(type, Print), \
-	.Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
+.Create = _EXPAND_METHOD_NAME(type, Create), \
+.AutoResize = _EXPAND_METHOD_NAME(type, AutoResize), \
+.Resize = _EXPAND_METHOD_NAME(type, Resize), \
+.Append = _EXPAND_METHOD_NAME(type, Append), \
+.RemoveIndex = _EXPAND_METHOD_NAME(type, RemoveIndex), \
+.RemoveRange = _EXPAND_METHOD_NAME(type, RemoveRange), \
+.Empty = _EXPAND_METHOD_NAME(type, Empty), \
+.Swap = _EXPAND_METHOD_NAME(type, Swap), \
+.InsertionSort = _EXPAND_METHOD_NAME(type, InsertionSort), \
+.At = _EXPAND_METHOD_NAME(type, At), \
+.ValueAt = _EXPAND_METHOD_NAME(type, ValueAt), \
+.AppendArray = _EXPAND_METHOD_NAME(type, AppendArray), \
+.InsertArray = _EXPAND_METHOD_NAME(type, InsertArray), \
+.AppendCArray = _EXPAND_METHOD_NAME(type, AppendCArray), \
+.Equals = _EXPAND_METHOD_NAME(type, Equals), \
+.Clear = _EXPAND_METHOD_NAME(type, Clear), \
+.Foreach = _EXPAND_METHOD_NAME(type, Foreach), \
+.ForeachWithContext = _EXPAND_METHOD_NAME(type, ForeachWithContext), \
+.Clone = _EXPAND_METHOD_NAME(type, Clone), \
+.Hash = _EXPAND_METHOD_NAME(type, Hash), \
+.BeginsWith = _EXPAND_METHOD_NAME(type, BeginsWith), \
+.Fill = _EXPAND_METHOD_NAME(type, Fill), \
+.Pop = _EXPAND_METHOD_NAME(type, Pop), \
+.Push = _EXPAND_METHOD_NAME(type, Append), \
+.Last = _EXPAND_METHOD_NAME(type, Last), \
+.IndexOf = _EXPAND_METHOD_NAME(type, IndexOf), \
+.IndexWhere = _EXPAND_METHOD_NAME(type, IndexWhere), \
+.Select = _EXPAND_METHOD_NAME(type, Select), \
+.Any = _EXPAND_METHOD_NAME(type, Any), \
+.Print = _EXPAND_METHOD_NAME(type, Print), \
+.Dispose = _EXPAND_METHOD_NAME(type, Dispose)\
 };
 
 #define DEFINE_ARRAY(type) _EXPAND_DEFINE_ARRAY(type)
 
 #define DEFINE_COMPARATOR(type, name, operation) private bool name(type* left, type* right){return *(left) operation *(right);} 
 
-	// define common types
+// define common types
 DEFINE_ARRAY(bool);
 DEFINE_ARRAY(byte);
 DEFINE_ARRAY(int);

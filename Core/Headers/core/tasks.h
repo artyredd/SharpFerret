@@ -25,15 +25,15 @@ static struct _taskState {
 	.Faulted = 7
 };
 
-typedef ulong WaitState;
+typedef ulong WaitStatus;
 
 static struct _waitStatus
 {
-	WaitState Abandoned;
-	WaitState Signaled;
-	WaitState Timedout;
-	WaitState Failed;
-} WaitStatus = {
+	WaitStatus Abandoned;
+	WaitStatus Signaled;
+	WaitStatus Timedout;
+	WaitStatus Failed;
+} WaitStatuses = {
 	.Abandoned = 0x00000080L,
 	.Signaled = 0x00000000L,
 	.Timedout = 0x00000102L,
@@ -59,6 +59,7 @@ typedef struct _task* Task;
 DEFINE_CONTAINERS(Task);
 
 extern struct _taskMethods {
+	ulong Forever;
 	Task(*Create)(int(*Method)(void* state));
 	Task(*Run)(Task task, void* state);
 	void (*RunAll)(array(Task), array(void_ptr) states);
@@ -66,14 +67,14 @@ extern struct _taskMethods {
 	void (*NotifyAllThreadsAddressChanged)(void* address);
 	void (*NotifyAddressChanged)(void* address);
 	bool (*WaitOnAddress)(volatile void* address, ulong addressSize, ulong milliseconds);
-	WaitState(*Wait)(Task task, ulong milliseconds);
-	WaitState(*WaitAll)(array(Task) tasks, ulong milliseconds);
-	WaitState(*WaitAny)(array(Task) tasks, ulong milliseconds);
+	WaitStatus(*Wait)(Task task, ulong milliseconds);
+	WaitStatus(*WaitAll)(array(Task) tasks, ulong milliseconds);
+	WaitStatus(*WaitAny)(array(Task) tasks, ulong milliseconds);
 	int (*ThreadId)();
 	// Returns the task that the current thread is executing
 	Task(*CurrentTask)();
 	// Returns the task that's executing on the given thread id
 	Task(*TaskForThread)(int threadId);
-	WaitState(*WaitForState)(Task task, WaitState state, ulong milliseconds);
+	WaitStatus(*WaitForState)(Task task, WaitStatus state, ulong milliseconds);
 	void (*Dispose)(Task);
 } Tasks;

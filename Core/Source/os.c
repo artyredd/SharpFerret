@@ -148,7 +148,6 @@ private int ThreadCount()
 {
 	if (CachedSystemInfo is false)
 	{
-		SYSTEM_INFO SystemInfo;
 		GetSystemInfo(&SystemInfo);
 		CachedSystemInfo = true;
 	}
