@@ -77,14 +77,14 @@ private Plugin Load(string name)
 
 	plugin->Module = Modules.Load(name);
 
-	plugin->OnStart = Modules.Find(plugin->Module, stack_string("RunOnStartMethods"));
-	plugin->OnClose = Modules.Find(plugin->Module, stack_string("RunOnCloseMethods"));
-	plugin->OnUpdate = Modules.Find(plugin->Module, stack_string("RunOnUpdateMethods"));
-	plugin->AfterUpdate = Modules.Find(plugin->Module, stack_string("RunOnAfterUpdateMethods"));
-	plugin->OnFixedUpdate = Modules.Find(plugin->Module, stack_string("RunOnFixedUpdateMethods"));
-	plugin->AfterFixedUpdate = Modules.Find(plugin->Module, stack_string("RunOnAfterFixedUpdateMethods"));
-	plugin->OnRender = Modules.Find(plugin->Module, stack_string("RunOnRenderMethods"));
-	plugin->AfterRender = Modules.Find(plugin->Module, stack_string("RunOnAfterRenderMethods"));
+	plugin->OnStart = Modules.Find(plugin->Module, stack_string(nameof(RunOnStartMethods)));
+	plugin->OnClose = Modules.Find(plugin->Module, stack_string(nameof(RunOnCloseMethods)));
+	plugin->OnUpdate = Modules.Find(plugin->Module, stack_string(nameof(RunOnUpdateMethods)));
+	plugin->AfterUpdate = Modules.Find(plugin->Module, stack_string(nameof(RunOnAfterUpdateMethods)));
+	plugin->OnFixedUpdate = Modules.Find(plugin->Module, stack_string(nameof(RunOnFixedUpdateMethods)));
+	plugin->AfterFixedUpdate = Modules.Find(plugin->Module, stack_string(nameof(RunOnAfterFixedUpdateMethods)));
+	plugin->OnRender = Modules.Find(plugin->Module, stack_string(nameof(RunOnRenderMethods)));
+	plugin->AfterRender = Modules.Find(plugin->Module, stack_string(nameof(RunOnAfterRenderMethods)));
 
 	if (plugin->OnStart is null
 		or plugin->OnClose is null
