@@ -8,6 +8,8 @@
 #include <synchapi.h>
 #endif // WIN32
 
+#define MAX_HANDLES 1024
+
 private Task CreateTask(int (*Method)(void* state));
 private Task Run(Task task, void* state);
 private bool Stop(Task task);
@@ -133,9 +135,9 @@ private bool Stop(Task task)
 
 private WaitState WaitAny(array(Task) tasks, ulong milliseconds)
 {
-	void* handles[2048];
+	void* handles[MAX_HANDLES];
 
-	if (tasks->Count >= 2048)
+	if (tasks->Count >= MAX_HANDLES)
 	{
 		throw(OutOfMemoryException);
 	}
@@ -150,9 +152,9 @@ private WaitState WaitAny(array(Task) tasks, ulong milliseconds)
 
 private WaitState WaitAll(array(Task) tasks, ulong milliseconds)
 {
-	void* handles[2048];
+	void* handles[MAX_HANDLES];
 
-	if (tasks->Count >= 2048)
+	if (tasks->Count >= MAX_HANDLES)
 	{
 		throw(OutOfMemoryException);
 	}
