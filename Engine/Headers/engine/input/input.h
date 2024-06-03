@@ -229,5 +229,10 @@ extern struct _inputMethods {
 		/// The current mouse position for the active window
 		/// </summary>
 		double MousePosition[2];
+		Window ActiveWindow;
+		CursorMode CurrentCursorMode;
+		bool RawMouseEnabled;
+		double AxisStates[MAX_AXES];
+
 	} State;
 } Inputs;

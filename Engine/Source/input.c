@@ -4,7 +4,7 @@
 #include <math.h>
 #include "core/macros.h"
 
-#define EnsureWindowSet() if (ActiveWindow is null)\
+#define EnsureWindowSet() if (Inputs.State.ActiveWindow is null)\
 	{\
 	fprintf(stderr, "There is no active window that was set with SetInputWindow(Window)"NEWLINE);\
 	throw(NoActiveWindowException);\
@@ -14,6 +14,7 @@ private void PollInput(void);
 private void SetInputWindow(Window window);
 private Window GetInputWindow();
 private bool GetKey(KeyCode key);
+private double GetAxis(Axis axis);
 private void SetMousePosition(double x, double y);
 private void SetCursorMode(CursorMode mode);
 private CursorMode GetCursorMode(void);
@@ -27,7 +28,6 @@ struct _inputMethods Inputs =
 	.GetCursorMode = GetCursorMode,
 	.GetInputWindow = GetInputWindow,
 	.GetKey = GetKey,
-	.GetAxis = GetAxis,
 	.GetRawMouseEnabled = GetRawMouseEnabled,
 	.SetCursorMode = SetCursorMode,
 	.SetMousePosition = SetMousePosition,
@@ -36,7 +36,11 @@ struct _inputMethods Inputs =
 	.SetInputWindow = SetInputWindow,
 	.State =
 	{
-		.MousePosition = {0,0}
+		.MousePosition = {0,0},
+		.ActiveWindow = null,
+		.CurrentCursorMode = GLFW_CURSOR_NORMAL,
+		.RawMouseEnabled = false,
+		.AxisStates = {0}
 	}
 };
 
@@ -159,53 +163,47 @@ const struct _cursorModes CursorModes = {
 	.Disabled = GLFW_CURSOR_DISABLED
 };
 
-static Window ActiveWindow = null;
-static CursorMode CurrentCursorMode = GLFW_CURSOR_NORMAL;
-static bool RawMouseEnabled = false;
-
-static double AxisStates[MAX_AXES];
-
 private void PollInput()
 {
 	glfwPollEvents();
-	glfwGetCursorPos(ActiveWindow->Handle, &MousePosition[0], &MousePosition[1]);
+	glfwGetCursorPos(Inputs.State.ActiveWindow->Handle, &Inputs.State.MousePosition[0], &Inputs.State.MousePosition[1]);
 	CalculateAxes();
 }
 
 private bool GetKey(KeyCode key)
 {
 	EnsureWindowSet();
-	return glfwGetKey(ActiveWindow->Handle, key);
+	return glfwGetKey(Inputs.State.ActiveWindow->Handle, key);
 }
 
 private void SetInputWindow(Window window)
 {
-	ActiveWindow = window;
+	Inputs.State.ActiveWindow = window;
 }
 
 private Window GetInputWindow()
 {
-	return ActiveWindow;
+	return Inputs.State.ActiveWindow;
 }
 
 private void SetMousePosition(double x, double y)
 {
 	EnsureWindowSet();
-	glfwSetCursorPos(ActiveWindow->Handle, x, y);
-	MousePosition[0] = x;
-	MousePosition[1] = y;
+	glfwSetCursorPos(Inputs.State.ActiveWindow->Handle, x, y);
+	Inputs.State.MousePosition[0] = x;
+	Inputs.State.MousePosition[1] = y;
 }
 
 private void SetCursorMode(CursorMode mode)
 {
 	EnsureWindowSet();
-	glfwSetInputMode(ActiveWindow->Handle, GLFW_CURSOR, mode);
-	CurrentCursorMode = mode;
+	glfwSetInputMode(Inputs.State.ActiveWindow->Handle, GLFW_CURSOR, mode);
+	Inputs.State.CurrentCursorMode = mode;
 }
 
 private CursorMode GetCursorMode(void)
 {
-	return CurrentCursorMode;
+	return Inputs.State.CurrentCursorMode;
 }
 
 private void SetRawMouseEnabled(bool value)
@@ -214,19 +212,19 @@ private void SetRawMouseEnabled(bool value)
 	{
 		if (value)
 		{
-			glfwSetInputMode(ActiveWindow->Handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
+			glfwSetInputMode(Inputs.State.ActiveWindow->Handle, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
 		}
 		else
 		{
-			glfwSetInputMode(ActiveWindow->Handle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
+			glfwSetInputMode(Inputs.State.ActiveWindow->Handle, GLFW_RAW_MOUSE_MOTION, GLFW_FALSE);
 		}
-		RawMouseEnabled = value;
+		Inputs.State.RawMouseEnabled = value;
 	}
 }
 
 private bool GetRawMouseEnabled()
 {
-	return RawMouseEnabled;
+	return Inputs.State.RawMouseEnabled;
 }
 
 private  double CalculateAxis(AxisDefinition definition, double newValue)
@@ -249,11 +247,11 @@ private  double CalculateAxis(AxisDefinition definition, double newValue)
 
 private void CalculateAxes()
 {
-	AxisStates[Axes.None] = 0.0;
-	AxisStates[Axes.MouseX] = CalculateAxis(&AxisDefinitions[Axes.MouseX], MousePosition[0]);
-	AxisStates[Axes.MouseY] = CalculateAxis(&AxisDefinitions[Axes.MouseY], MousePosition[1]);
-	AxisStates[Axes.Horizontal] = -(double)GetKey(KeyCodes.Left) + (double)GetKey(KeyCodes.Right);
-	AxisStates[Axes.Vertical] = -(double)GetKey(KeyCodes.Down) + (double)GetKey(KeyCodes.Up);
+	Inputs.State.AxisStates[Axes.None] = 0.0;
+	Inputs.State.AxisStates[Axes.MouseX] = CalculateAxis(&AxisDefinitions[Axes.MouseX], Inputs.State.MousePosition[0]);
+	Inputs.State.AxisStates[Axes.MouseY] = CalculateAxis(&AxisDefinitions[Axes.MouseY], Inputs.State.MousePosition[1]);
+	Inputs.State.AxisStates[Axes.Horizontal] = -(double)GetKey(KeyCodes.Left) + (double)GetKey(KeyCodes.Right);
+	Inputs.State.AxisStates[Axes.Vertical] = -(double)GetKey(KeyCodes.Down) + (double)GetKey(KeyCodes.Up);
 }
 
 private double GetAxis(Axis axis)
@@ -264,5 +262,5 @@ private double GetAxis(Axis axis)
 		return 0.0;
 	}
 
-	return AxisStates[axis];
+	return Inputs.State.AxisStates[axis];
 }
