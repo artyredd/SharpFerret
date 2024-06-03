@@ -131,6 +131,36 @@ DEFINE_SECTION_METHOD_RUNNER(AfterFixedUpdate, GLOBAL_AfterFixedUpdateSegStart, 
 // to determine the order this method gets run against the rest
 #define AfterFixedUpdate(order) _ON_START(.afu$a,AfterFixedUpdate, order)
 
+#define RENDER_SECTION_HEADER ".rdr$a"
+#define RENDER_SECTION_FOOTER ".rdr$z"
+
+#pragma section(RENDER_SECTION_HEADER, read)
+SECTION_METHOD_MARKER(RENDER_SECTION_HEADER, GLOBAL_RenderSegStart)
+
+#pragma section(RENDER_SECTION_FOOTER, read)
+SECTION_METHOD_MARKER(RENDER_SECTION_FOOTER, GLOBAL_RenderSegEnd)
+
+#ifndef RUNTIME_METHODS_DEFINED
+DEFINE_SECTION_METHOD_RUNNER(Render, GLOBAL_RenderSegStart, GLOBAL_RenderSegEnd);
+#endif // !RUNTIME_METHODS_DEFINED
+
+#define OnRender(order) _ON_START(.rdr$a,Render, order)
+
+#define AFTER_RENDER_SECTION_HEADER ".ard$a"
+#define AFTER_RENDER_SECTION_FOOTER ".ard$z"
+
+#pragma section(AFTER_RENDER_SECTION_HEADER, read)
+SECTION_METHOD_MARKER(AFTER_RENDER_SECTION_HEADER, GLOBAL_AfterRenderSegStart)
+
+#pragma section(AFTER_RENDER_SECTION_FOOTER, read)
+SECTION_METHOD_MARKER(AFTER_RENDER_SECTION_FOOTER, GLOBAL_AfterRenderSegEnd)
+
+#ifndef RUNTIME_METHODS_DEFINED
+DEFINE_SECTION_METHOD_RUNNER(AfterRender, GLOBAL_AfterRenderSegStart, GLOBAL_AfterRenderSegEnd);
+#endif // !RUNTIME_METHODS_DEFINED
+
+#define AfterRender(order) _ON_START(.ard$a,AfterRender, order)
+
 #define CLOSE_SECTION_HEADER ".cls$a"
 #define CLOSE_SECTION_FOOTER ".cls$z"
 
@@ -144,12 +174,13 @@ SECTION_METHOD_MARKER(CLOSE_SECTION_FOOTER, GLOBAL_CloseSegEnd)
 DEFINE_SECTION_METHOD_RUNNER(Close, GLOBAL_CloseSegStart, GLOBAL_CloseSegEnd);
 #endif // !RUNTIME_METHODS_DEFINED
 
+#define OnClose(order) _ON_START(.cls$a,Close, order)
+
 #define RUNTIME_METHODS_DEFINED
 
 // Creates a method that gets called when the application starts
 // order is a UNIQUE letter or number globally
 // to determine the order this method gets run against the rest
-#define OnClose(order) _ON_START(.cls$a,Close, order)
 
 typedef byte RuntimeEventType;
 
@@ -162,6 +193,8 @@ static const struct _runtimeEventTypes
 	RuntimeEventType AfterUpdate;
 	RuntimeEventType FixedUpdate;
 	RuntimeEventType AfterFixedUpdate;
+	RuntimeEventType Render;
+	RuntimeEventType AfterRender;
 } RuntimeEventTypes = {
 	.None = 0,
 	.Start = 1,
@@ -169,7 +202,9 @@ static const struct _runtimeEventTypes
 	.Update = 3,
 	.AfterUpdate = 4,
 	.FixedUpdate = 5,
-	.AfterFixedUpdate = 6
+	.AfterFixedUpdate = 6,
+	.Render = 7,
+	.AfterRender = 8
 };
 
 extern struct _Application {

@@ -54,6 +54,8 @@ private void HookPluginMethodsIntoRuntime(Plugin plugin)
 	Application.AppendEvent(RuntimeEventTypes.AfterUpdate, plugin->AfterUpdate);
 	Application.AppendEvent(RuntimeEventTypes.FixedUpdate, plugin->OnFixedUpdate);
 	Application.AppendEvent(RuntimeEventTypes.AfterFixedUpdate, plugin->AfterFixedUpdate);
+	Application.AppendEvent(RuntimeEventTypes.Render, plugin->OnRender);
+	Application.AppendEvent(RuntimeEventTypes.AfterRender, plugin->AfterRender);
 }
 
 private void UnHookPluginMethodsFromRuntime(Plugin plugin)
@@ -65,6 +67,8 @@ private void UnHookPluginMethodsFromRuntime(Plugin plugin)
 	Application.RemoveEvent(RuntimeEventTypes.AfterUpdate, plugin->AfterUpdate);
 	Application.RemoveEvent(RuntimeEventTypes.FixedUpdate, plugin->OnFixedUpdate);
 	Application.RemoveEvent(RuntimeEventTypes.AfterFixedUpdate, plugin->AfterFixedUpdate);
+	Application.AppendEvent(RuntimeEventTypes.Render, plugin->OnRender);
+	Application.RemoveEvent(RuntimeEventTypes.AfterRender, plugin->AfterRender);
 }
 
 private Plugin Load(string name)
@@ -79,6 +83,8 @@ private Plugin Load(string name)
 	plugin->AfterUpdate = Modules.Find(plugin->Module, stack_string("RunOnAfterUpdateMethods"));
 	plugin->OnFixedUpdate = Modules.Find(plugin->Module, stack_string("RunOnFixedUpdateMethods"));
 	plugin->AfterFixedUpdate = Modules.Find(plugin->Module, stack_string("RunOnAfterFixedUpdateMethods"));
+	plugin->OnRender = Modules.Find(plugin->Module, stack_string("RunOnOnRenderMethods"));
+	plugin->AfterRender = Modules.Find(plugin->Module, stack_string("RunOnAfterRenderMethods"));
 
 	if (plugin->OnStart is null
 		or plugin->OnClose is null
@@ -86,6 +92,8 @@ private Plugin Load(string name)
 		or plugin->AfterUpdate is null
 		or plugin->OnFixedUpdate is null
 		or plugin->AfterFixedUpdate is null
+		or plugin->OnRender is null
+		or plugin->AfterRender is null
 		)
 	{
 		fprintf_red(stderr, "Failed to load plugin: %s\n", name->Values);

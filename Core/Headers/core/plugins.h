@@ -12,6 +12,8 @@ struct _plugin
 	void (*AfterUpdate)(void);
 	void (*OnFixedUpdate)(void);
 	void (*AfterFixedUpdate)(void);
+	void (*OnRender)(void);
+	void (*AfterRender)(void);
 	void (*OnClose)(void);
 };
 

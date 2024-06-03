@@ -50,7 +50,10 @@ array(_VoidMethod) GLOBAL_UpdateEvents;
 array(_VoidMethod) GLOBAL_AfterUpdateEvents;
 array(_VoidMethod) GLOBAL_FixedUpdateEvents;
 array(_VoidMethod) GLOBAL_AfterFixedUpdateEvents;
-array(array(_VoidMethod)) GLOBAL_Events = empty_stack_array(array(_VoidMethod), 7);
+array(_VoidMethod) GLOBAL_RenderEvents;
+array(_VoidMethod) GLOBAL_AfterRenderEvents;
+
+array(array(_VoidMethod)) GLOBAL_Events = empty_stack_array(array(_VoidMethod), sizeof(RuntimeEventTypes) / sizeof(RuntimeEventType));
 
 private array(array(_VoidMethod)) GlobalEvents()
 {
@@ -69,6 +72,8 @@ private const char* EventName(RuntimeEventType eventType)
 		case_return(4, RuntimeEventTypes.AfterUpdate);
 		case_return(5, RuntimeEventTypes.FixedUpdate);
 		case_return(6, RuntimeEventTypes.AfterFixedUpdate);
+		case_return(7, RuntimeEventTypes.Render);
+		case_return(8, RuntimeEventTypes.AfterRender);
 	default:
 		return "Unkown";
 	}
@@ -132,6 +137,8 @@ private void InitializeRuntime()
 	GLOBAL_AfterUpdateEvents = dynamic_array(_VoidMethod, 0);
 	GLOBAL_FixedUpdateEvents = dynamic_array(_VoidMethod, 0);
 	GLOBAL_AfterFixedUpdateEvents = dynamic_array(_VoidMethod, 0);
+	GLOBAL_RenderEvents = dynamic_array(_VoidMethod, 0);
+	GLOBAL_AfterRenderEvents = dynamic_array(_VoidMethod, 0);
 
 	// none
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, null);
@@ -142,7 +149,8 @@ private void InitializeRuntime()
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_AfterUpdateEvents);
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_FixedUpdateEvents);
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_AfterFixedUpdateEvents);
-
+	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_RenderEvents);
+	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_AfterRenderEvents);
 
 	Application.InternalState.RuntimeStarted = true;
 }
@@ -193,6 +201,12 @@ private void Start(void)
 				Application.InternalState.PreviousTime = time;
 			}
 		}
+
+		RunOnRenderMethods();
+		ExecuteEvents(GLOBAL_RenderEvents);
+
+		RunOnAfterRenderMethods();
+		ExecuteEvents(GLOBAL_AfterRenderEvents);
 	}
 
 	ExecuteEvents(GLOBAL_CloseEvents);
