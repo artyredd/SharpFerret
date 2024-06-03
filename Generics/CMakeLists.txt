@@ -17,7 +17,7 @@ file(GLOB source CONFIGURE_DEPENDS "Source/*.c")
 add_library(Generics ${source} ${headers})
 
 set_property(TARGET Generics PROPERTY COMPILE_WARNING_AS_ERROR ON)
-set_target_properties(Generics PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
+set_target_properties(Generics PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od /experimental:c11atomics")
 
 # Include directories
 target_include_directories(Generics PRIVATE "../Core/Headers")

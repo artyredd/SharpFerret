@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.25)
 
-project(Core)
+project(Core C)
 
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 
 file(GLOB coreHeaderFiles CONFIGURE_DEPENDS
      "Headers/core/math/*.h"
@@ -17,7 +17,11 @@ file(GLOB coreSourceFiles CONFIGURE_DEPENDS
 add_library(Core STATIC ${coreSourceFiles} ${coreHeaderFiles})
 
 set_property(TARGET Core PROPERTY COMPILE_WARNING_AS_ERROR ON)
-set_target_properties(Core PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od")
+
+if (MSVC)
+    target_compile_options(Core PRIVATE /std:c11 /ZI /Od /experimental:c11atomics)
+endif()
+
 target_compile_definitions(Core PRIVATE BUILD_STATIC_LIB)
 
 include(FetchContent)
@@ -34,4 +38,7 @@ target_include_directories(Core PRIVATE
     "Headers"
 )
 
-target_link_libraries(Core cglm)
+target_link_libraries(Core 
+    cglm
+    Synchronization
+)

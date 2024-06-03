@@ -1,5 +1,6 @@
 #pragma once
 
+#include "core/csharp.h"
 #include "core/array.h"
 
 typedef byte TaskState;
@@ -43,7 +44,10 @@ struct _task {
 	void* ThreadHandle;
 	int ThreadId;
 	int (*Method)(void* state);
-	TaskState State;
+	TaskState Status;
+	// Tells the task to finish it's work and exit quietly
+	// use Tasks.Stop() to force close a thread running a task
+	bool RequestExitFlag;
 	struct
 	{
 		void* StatePointer;
@@ -66,6 +70,10 @@ extern struct _taskMethods {
 	WaitState(*WaitAll)(array(Task) tasks, ulong milliseconds);
 	WaitState(*WaitAny)(array(Task) tasks, ulong milliseconds);
 	int (*ThreadId)();
+	// Returns the task that the current thread is executing
+	Task(*CurrentTask)();
+	// Returns the task that's executing on the given thread id
+	Task(*TaskForThread)(int threadId);
 	WaitState(*WaitForState)(Task task, WaitState state, ulong milliseconds);
 	void (*Dispose)(Task);
 } Tasks;

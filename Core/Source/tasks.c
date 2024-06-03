@@ -23,6 +23,8 @@ private void RunAll(array(Task) tasks, array(void_ptr) states);
 private WaitState WaitAll(array(Task) tasks, ulong milliseconds);
 private WaitState WaitAny(array(Task) tasks, ulong milliseconds);
 private void Dispose(Task);
+private Task CurrentTask();
+private Task TaskForThread(int threadId);
 
 struct _taskMethods Tasks = {
 	.Create = CreateTask,
@@ -37,6 +39,8 @@ struct _taskMethods Tasks = {
 	.RunAll = RunAll,
 	.WaitAll = WaitAll,
 	.WaitAny = WaitAny,
+	.CurrentTask = CurrentTask,
+	.TaskForThread = TaskForThread,
 	.Dispose = Dispose
 };
 
@@ -49,7 +53,7 @@ private Task CreateTask(int (*Method)(void* state))
 	Task task = Memory.Alloc(sizeof(struct _task), TaskTypeId);
 
 	task->Method = Method;
-	task->State = TaskStatus.Created;
+	task->Status = TaskStatus.Created;
 
 	return task;
 }
@@ -61,15 +65,22 @@ private void Dispose(Task task)
 	Memory.Free(task, TaskTypeId);
 }
 
+
+#define MAX_THREAD_ASSIGNMENTS 1024
+Task GLOBAL_ThreadAssignments[MAX_THREAD_ASSIGNMENTS];
+
 private int MethodWrapper(Task task)
 {
-	task->State = TaskStatus.Running;
-	NotifyAllThreadsAddressChanged(&task->State);
+	int threadAssignment = task->ThreadId % MAX_THREAD_ASSIGNMENTS;
+	GLOBAL_ThreadAssignments[threadAssignment] = task;
+
+	task->Status = TaskStatus.Running;
+	NotifyAllThreadsAddressChanged(&task->Status);
 
 	task->Method(task->InternalState.StatePointer);
 
-	task->State = TaskStatus.RanToCompletion;
-	NotifyAllThreadsAddressChanged(&task->State);
+	task->Status = TaskStatus.RanToCompletion;
+	NotifyAllThreadsAddressChanged(&task->Status);
 
 	task->ThreadHandle = null;
 	task->ThreadId = 0;
@@ -77,11 +88,13 @@ private int MethodWrapper(Task task)
 
 	// close our own handle
 	if (!Stop(task)) {
-		task->State = TaskStatus.Faulted;
-		NotifyAllThreadsAddressChanged(&task->State);
+		task->Status = TaskStatus.Faulted;
+		NotifyAllThreadsAddressChanged(&task->Status);
 	};
 
-	return task->State isnt TaskStatus.RanToCompletion;
+	GLOBAL_ThreadAssignments[threadAssignment] = 0;
+
+	return task->Status isnt TaskStatus.RanToCompletion;
 }
 
 private void RunAll(array(Task) tasks, array(void_ptr) states)
@@ -93,16 +106,26 @@ private void RunAll(array(Task) tasks, array(void_ptr) states)
 	}
 }
 
+private Task TaskForThread(int threadId)
+{
+	return GLOBAL_ThreadAssignments[threadId % MAX_THREAD_ASSIGNMENTS];
+}
+
+private Task CurrentTask()
+{
+	return TaskForThread(ThreadId());
+}
+
 private Task Run(Task task, void* state)
 {
-	if (task->State isnt TaskStatus.Created)
+	if (task->Status isnt TaskStatus.Created)
 	{
 		// task already being started
 		return task;
 	}
 
-	task->State = TaskStatus.WaitingForActivation;
-	NotifyAllThreadsAddressChanged(&task->State);
+	task->Status = TaskStatus.WaitingForActivation;
+	NotifyAllThreadsAddressChanged(&task->Status);
 
 	task->InternalState.StatePointer = state;
 
@@ -174,9 +197,9 @@ private WaitState Wait(Task task, ulong milliseconds)
 
 private WaitState WaitForState(Task task, WaitState state, ulong milliseconds)
 {
-	while (task->State != state)
+	while (task->Status != state)
 	{
-		if (_WaitOnAddress(&task->State, sizeof(byte), milliseconds) is false)
+		if (_WaitOnAddress(&task->Status, sizeof(byte), milliseconds) is false)
 		{
 			return WaitStatus.Timedout;
 		}

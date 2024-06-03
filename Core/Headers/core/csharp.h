@@ -9,6 +9,7 @@
 #include "core/exceptions.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <core/atomic.h>
 
 typedef unsigned char byte;
 typedef unsigned short ushort;
@@ -116,6 +117,8 @@ static int BreakDebugger(int errorCode)
 
 #define public STATIC_LIB_API inline
 
+#define atomic _Atomic
+
 // DO NOT USE, DANGY, WILL HURT CPU FEELINGS >:(, ONLY USE WHEN YOU KNOW IT WONT HURT CPU FEELING
 #define struct_cast(destinationType) *(destinationType*)& 
 
@@ -203,3 +206,4 @@ static int _intrinsicTypeIds[] = {
 #define typeof(t) _Generic((t), \
 	default: 0\
 )
+

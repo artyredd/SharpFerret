@@ -3,6 +3,9 @@
 #include "core/runtime.h"
 #include "core/csharp.h"
 #include "core/math/floats.h"
+#include "core/tasks.h"
+#include "core/os.h"
+#include "core/atomic.h"
 
 private void Close(void);
 private void Start(void);
@@ -54,6 +57,10 @@ array(_VoidMethod) GLOBAL_RenderEvents;
 array(_VoidMethod) GLOBAL_AfterRenderEvents;
 
 array(array(_VoidMethod)) GLOBAL_Events = empty_stack_array(array(_VoidMethod), sizeof(RuntimeEventTypes) / sizeof(RuntimeEventType));
+
+bool GLOBAL_EventStackLocker = false;
+array(_VoidMethod) GLOBAL_EventStack;
+array(Task) GLOBAL_Workers;
 
 private array(array(_VoidMethod)) GlobalEvents()
 {
@@ -129,6 +136,31 @@ private void RemoveEvent(RuntimeEventType eventType, void(*Method)(void))
 	arrays(_VoidMethod).RemoveIndex(eventArray, index);
 }
 
+// this is the work that all the runtime threads should do
+private int WorkerJob(void* state)
+{
+	ignore_unused(state);
+
+	// wait for new work
+	Task task = Tasks.CurrentTask();
+
+	// exit when asked
+	while (task->RequestExitFlag is false)
+	{
+
+	}
+
+	return 0;
+}
+
+private void InitializeWorkers(array(Task) workers)
+{
+	for (int i = 0; i < OperatingSystem.ThreadCount() - 1; i++)
+	{
+		arrays(Task).Append(workers, Tasks.Create(WorkerJob));
+	}
+}
+
 private void InitializeRuntime()
 {
 	GLOBAL_StartEvents = dynamic_array(_VoidMethod, 0);
@@ -152,6 +184,11 @@ private void InitializeRuntime()
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_RenderEvents);
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_AfterRenderEvents);
 
+	GLOBAL_EventStack = dynamic_array(_VoidMethod, 0);
+	GLOBAL_Workers = dynamic_array(Task, OperatingSystem.ThreadCount() - 1);
+
+	InitializeWorkers(GLOBAL_Workers);
+
 	Application.InternalState.RuntimeStarted = true;
 }
 
@@ -159,7 +196,7 @@ private void ExecuteEvents(array(_VoidMethod) events)
 {
 	for (int i = 0; i < events->Count; i++)
 	{
-		at(events, i)();
+		arrays(_VoidMethod).Append(GLOBAL_EventStack, at(events, i));
 	}
 }
 

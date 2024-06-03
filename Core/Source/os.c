@@ -9,6 +9,7 @@ private string ExecutableDirectorylINUX(void);
 
 private array(string) GetFilesInDirectory(string path, bool recursive);
 private bool IsDirectory(string path);
+private int ThreadCount();
 
 extern const struct _osMethods OperatingSystem = {
 #ifdef LINUX
@@ -16,7 +17,8 @@ extern const struct _osMethods OperatingSystem = {
 #else
 	.ExecutableDirectory = ExecutableDirectory,
 	.GetFilesInDirectory = GetFilesInDirectory,
-	.IsDirectory = IsDirectory
+	.IsDirectory = IsDirectory,
+	.ThreadCount = ThreadCount
 #endif
 };
 
@@ -137,4 +139,19 @@ private array(string) GetFilesInDirectory(string path, bool recursive)
 	FindClose(hFind);
 
 	return result;
+}
+
+static SYSTEM_INFO SystemInfo;
+static bool CachedSystemInfo;
+
+private int ThreadCount()
+{
+	if (CachedSystemInfo is false)
+	{
+		SYSTEM_INFO SystemInfo;
+		GetSystemInfo(&SystemInfo);
+		CachedSystemInfo = true;
+	}
+
+	return SystemInfo.dwNumberOfProcessors;
 }
