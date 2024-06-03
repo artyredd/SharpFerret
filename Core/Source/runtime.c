@@ -63,6 +63,7 @@ array(array(_VoidMethod)) GLOBAL_Events = empty_stack_array(array(_VoidMethod), 
 array(_VoidMethod) GLOBAL_EventStack;
 array(Task) GLOBAL_Workers;
 Locker GLOBAL_WorkerLock;
+bool GLOBAL_NewWorkSignal = false;
 
 private array(array(_VoidMethod)) GlobalEvents()
 {
@@ -103,7 +104,17 @@ private void AppendEvent(RuntimeEventType eventType, _VoidMethod Method)
 		throw(InvalidArgumentException);
 	}
 
-	arrays(_VoidMethod).Append(at(ApplicationOrParent->InternalState.GlobalEvents(), eventType), Method);
+	array(_VoidMethod) array = at(ApplicationOrParent->InternalState.GlobalEvents(), eventType);
+
+	if (arrays(_VoidMethod).IndexOf(array, Method) is - 1)
+	{
+		arrays(_VoidMethod).Append(array, Method);
+	}
+	else
+	{
+		fprintf_red(stderr, "Can't add the same method twice\n%s", "");
+		throw(InvalidLogicException);
+	}
 
 	// if we already executing the application on starts
 	// then we're hooking a plugin thats hooked after the start
@@ -149,19 +160,24 @@ private int WorkerJob(void* state)
 	// exit when asked
 	while (task->RequestExitFlag is false)
 	{
-		_VoidMethod method = null;
-
-		lock(GLOBAL_WorkerLock,
-			if (GLOBAL_EventStack->Count)
-			{
-				method = arrays(_VoidMethod).Pop(GLOBAL_EventStack);
-			}
-				);
-
-		if (method)
+		while (GLOBAL_EventStack->Count)
 		{
-			method();
+			_VoidMethod method = null;
+
+			lock(GLOBAL_WorkerLock,
+				if (GLOBAL_EventStack->Count)
+				{
+					method = arrays(_VoidMethod).Pop(GLOBAL_EventStack);
+				}
+					);
+
+			if (method)
+			{
+				method();
+			}
 		}
+
+		Tasks.WaitOnAddress(&GLOBAL_NewWorkSignal, sizeof(bool), 100);
 	}
 
 	return 0;
@@ -175,13 +191,17 @@ private void InitializeWorkers(array(Task) workers)
 	}
 }
 
-private void ExpandMultiThreadedEvents(RuntimeEventType type, void** methods)
+private void ExpandMultiThreadedEvents(RuntimeEventType type, _VoidMethod* methods)
 {
 	int i = 0;
 	while (methods[i] != null)
 	{
-		void* method = methods[i];
-		AppendEvent(type, (_VoidMethod)method);
+		_VoidMethod method = methods[i];
+
+		method();
+
+		AppendEvent(type, method);
+
 		i++;
 	}
 }
@@ -229,11 +249,19 @@ private void InitializeRuntime()
 	InitializeThreadedEvents();
 }
 
-private void ExecuteEventsOnMainThread(array(_VoidMethod) events)
+private void ExecuteEvents(array(_VoidMethod) events, bool mainthread)
 {
 	for (int i = 0; i < events->Count; i++)
 	{
-		arrays(_VoidMethod).Append(GLOBAL_EventStack, at(events, i));
+		if (mainthread)
+		{
+			at(events, i)();
+		}
+		else
+		{
+			arrays(_VoidMethod).Append(GLOBAL_EventStack, at(events, i));
+			Tasks.NotifyAddressChanged(&GLOBAL_NewWorkSignal);
+		}
 	}
 }
 
@@ -248,16 +276,14 @@ private void Start(void)
 	InitializeRuntime();
 
 	RunOnStartMethods();
-	ExecuteEventsOnMainThread(GLOBAL_StartEvents);
+	ExecuteEvents(GLOBAL_StartEvents, true);
 	Application.InternalState.StartMethodsBegan = true;
 
 	while (Application.InternalState.CloseApplicationFlag is false)
 	{
-		RunOnUpdateMethods();
-		ExecuteEventsOnMainThread(GLOBAL_UpdateEvents);
+		ExecuteEvents(GLOBAL_UpdateEvents, true);
 
-		RunOnAfterUpdateMethods();
-		ExecuteEventsOnMainThread(GLOBAL_AfterUpdateEvents);
+		ExecuteEvents(GLOBAL_AfterUpdateEvents, true);
 
 		if (Application.InternalState.TimeProvider)
 		{
@@ -266,24 +292,21 @@ private void Start(void)
 			const double targetTime = Application.InternalState.PreviousTime + Application.FixedUpdateTimeInterval;
 
 			if (time >= targetTime) {
-				RunOnFixedUpdateMethods();
-				ExecuteEventsOnMainThread(GLOBAL_FixedUpdateEvents);
-
-				RunOnAfterFixedUpdateMethods();
-				ExecuteEventsOnMainThread(GLOBAL_AfterFixedUpdateEvents);
+				ExecuteEvents(GLOBAL_FixedUpdateEvents, false);
+				ExecuteEvents(GLOBAL_AfterFixedUpdateEvents, false);
 
 				Application.InternalState.PreviousTime = time;
 			}
 		}
 
 		RunOnRenderMethods();
-		ExecuteEventsOnMainThread(GLOBAL_RenderEvents);
+		ExecuteEvents(GLOBAL_RenderEvents, true);
 
 		RunOnAfterRenderMethods();
-		ExecuteEventsOnMainThread(GLOBAL_AfterRenderEvents);
+		ExecuteEvents(GLOBAL_AfterRenderEvents, true);
 	}
 
-	ExecuteEventsOnMainThread(GLOBAL_CloseEvents);
+	ExecuteEvents(GLOBAL_CloseEvents, true);
 	RunOnCloseMethods();
 }
 

@@ -37,22 +37,33 @@ private int CountSectionSize(_VoidMethod* start, _VoidMethod* end) {
 	return count;
 }
 
+private _VoidMethod* GetSectionMethods(_VoidMethod* sectionHeader, _VoidMethod* sectionFooter)
+{
+	int count = CountSectionSize(sectionHeader, sectionFooter);
+
+
+	_VoidMethod* arr = calloc(count + 1, sizeof(_VoidMethod));
+
+	int i = 0;
+
+	_VoidMethod* x = sectionHeader;
+	for (++x; x < sectionFooter; ++x) {
+
+		if (*x) { arr[i] = *x; i++; (*x)(); }
+	}
+
+	return arr;
+}
+
+
 #define DEFINE_SECTION_METHOD_RUNNER(sectionName,sectionHeaderName,sectionFooterName)\
 public void RunOn##sectionName##Methods() {\
 	const _VoidMethod* x = &sectionHeaderName;\
 	for (++x; x < &sectionFooterName; ++x)\
 		if (*x) (*x)();\
 };\
-public void** Get##sectionName##Methods(){\
-	int count = CountSectionSize((_VoidMethod*)&sectionHeaderName,(_VoidMethod*)&sectionFooterName);\
-	_VoidMethod* x = (_VoidMethod*)&sectionHeaderName;\
-	void** arr = calloc(count + 1,sizeof(void*));\
-	int i = 0;\
-	x = (_VoidMethod*)&sectionHeaderName;\
-	for (++x; x < &sectionFooterName; ++x){\
-		if (*x) { arr[i] = x; i++; }\
-	}\
-	return arr; \
+public _VoidMethod* Get##sectionName##Methods(){\
+	return GetSectionMethods((_VoidMethod*)&sectionHeaderName,(_VoidMethod*)&sectionFooterName);\
 }\
 
 #define START_SECTION_HEADER ".srt$a"
