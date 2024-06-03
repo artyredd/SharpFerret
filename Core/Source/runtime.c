@@ -64,6 +64,7 @@ array(_VoidMethod) GLOBAL_EventStack;
 array(Task) GLOBAL_Workers;
 Locker GLOBAL_WorkerLock;
 bool GLOBAL_NewWorkSignal = false;
+int GLOBAL_WorkersWorkingCount = 0;
 
 private array(array(_VoidMethod)) GlobalEvents()
 {
@@ -164,20 +165,39 @@ private int WorkerJob(void* state)
 		{
 			_VoidMethod method = null;
 
+
+
 			lock(GLOBAL_WorkerLock,
 				if (GLOBAL_EventStack->Count)
 				{
 					method = arrays(_VoidMethod).Pop(GLOBAL_EventStack);
+					GLOBAL_WorkersWorkingCount++;
+
+					/*fprintf_yellow(stdout, "Got work, workers active: %i Total Tasks:%lli [%i]\n",
+						GLOBAL_WorkersWorkingCount,
+						GLOBAL_EventStack->Count,
+						Tasks.ThreadId());*/
+
 				}
 					);
 
 			if (method)
 			{
 				method();
+
+				/*fprintf_yellow(stdout, "Finshed work, workers active: %i Total Tasks:%lli [%i]\n",
+					GLOBAL_WorkersWorkingCount,
+					GLOBAL_EventStack->Count,
+					Tasks.ThreadId());*/
+
+
+				GLOBAL_WorkersWorkingCount--;
+				Tasks.NotifyAllThreadsAddressChanged(&GLOBAL_WorkersWorkingCount);
 			}
+
 		}
 
-		Tasks.WaitOnAddress(&GLOBAL_NewWorkSignal, sizeof(bool), 100);
+		Tasks.WaitOnAddress(&GLOBAL_NewWorkSignal, sizeof(bool), Tasks.Forever);
 	}
 
 	return 0;
@@ -259,9 +279,24 @@ private void ExecuteEvents(array(_VoidMethod) events, bool mainthread)
 		}
 		else
 		{
-			arrays(_VoidMethod).Append(GLOBAL_EventStack, at(events, i));
+			lock(GLOBAL_WorkerLock,
+				arrays(_VoidMethod).Append(GLOBAL_EventStack, at(events, i));
+			//fprintf(stdout, "Adding work: Active Workers:%i, Total Work:%lli [%i]\n", GLOBAL_WorkersWorkingCount, GLOBAL_EventStack->Count, Tasks.ThreadId());
+				);
+
 			Tasks.NotifyAddressChanged(&GLOBAL_NewWorkSignal);
 		}
+	}
+
+	// wait for workers to finish
+	if (mainthread is false && GLOBAL_WorkersWorkingCount)
+	{
+		while (GLOBAL_WorkersWorkingCount > 0)
+		{
+			_sleep(1);
+		}
+		//fprintf_red(stdout, "All events finished continuing to next events [%i]\n", Tasks.ThreadId());
+
 	}
 }
 
@@ -281,9 +316,9 @@ private void Start(void)
 
 	while (Application.InternalState.CloseApplicationFlag is false)
 	{
-		ExecuteEvents(GLOBAL_UpdateEvents, true);
+		ExecuteEvents(GLOBAL_UpdateEvents, false);
 
-		ExecuteEvents(GLOBAL_AfterUpdateEvents, true);
+		ExecuteEvents(GLOBAL_AfterUpdateEvents, false);
 
 		if (Application.InternalState.TimeProvider)
 		{
