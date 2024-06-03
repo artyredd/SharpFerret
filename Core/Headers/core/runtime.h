@@ -50,8 +50,7 @@ public void** Get##sectionName##Methods(){\
 	int i = 0;\
 	x = (_VoidMethod*)&sectionHeaderName;\
 	for (++x; x < &sectionFooterName; ++x){\
-		if (*x) { arr[i] = x; }\
-		i++;\
+		if (*x) { arr[i] = x; i++; }\
 	}\
 	return arr; \
 }\

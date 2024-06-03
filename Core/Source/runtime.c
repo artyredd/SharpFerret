@@ -89,7 +89,7 @@ private const char* EventName(RuntimeEventType eventType)
 #undef case_return
 }
 
-private void AppendEvent(RuntimeEventType eventType, void(*Method)(void))
+private void AppendEvent(RuntimeEventType eventType, _VoidMethod Method)
 {
 	if (ApplicationOrParent->InternalState.RuntimeStarted is false)
 	{
@@ -157,6 +157,7 @@ private int WorkerJob(void* state)
 				method = arrays(_VoidMethod).Pop(GLOBAL_EventStack);
 			}
 				);
+
 		if (method)
 		{
 			method();
@@ -181,6 +182,7 @@ private void ExpandMultiThreadedEvents(RuntimeEventType type, void** methods)
 	{
 		void* method = methods[i];
 		AppendEvent(type, (_VoidMethod)method);
+		i++;
 	}
 }
 
@@ -216,7 +218,6 @@ private void InitializeRuntime()
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_RenderEvents);
 	arrays(array(_VoidMethod)).Append(GLOBAL_Events, GLOBAL_AfterRenderEvents);
 
-	InitializeThreadedEvents();
 
 	GLOBAL_EventStack = dynamic_array(_VoidMethod, 0);
 	GLOBAL_Workers = dynamic_array(Task, OperatingSystem.ThreadCount() - 1);
@@ -224,6 +225,8 @@ private void InitializeRuntime()
 	InitializeWorkers(GLOBAL_Workers);
 
 	Application.InternalState.RuntimeStarted = true;
+
+	InitializeThreadedEvents();
 }
 
 private void ExecuteEventsOnMainThread(array(_VoidMethod) events)
