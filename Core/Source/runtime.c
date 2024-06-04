@@ -64,7 +64,7 @@ array(_VoidMethod) GLOBAL_EventStack;
 array(Task) GLOBAL_Workers;
 Locker GLOBAL_WorkerLock;
 bool GLOBAL_NewWorkSignal = false;
-int GLOBAL_WorkersWorkingCount = 0;
+long GLOBAL_WorkersWorkingCount = 0;
 
 private array(array(_VoidMethod)) GlobalEvents()
 {
@@ -171,7 +171,7 @@ private int WorkerJob(void* state)
 				if (GLOBAL_EventStack->Count)
 				{
 					method = arrays(_VoidMethod).Pop(GLOBAL_EventStack);
-					GLOBAL_WorkersWorkingCount++;
+					_InterlockedIncrement(&GLOBAL_WorkersWorkingCount);
 
 					/*fprintf_yellow(stdout, "Got work, workers active: %i Total Tasks:%lli [%i]\n",
 						GLOBAL_WorkersWorkingCount,
@@ -191,7 +191,7 @@ private int WorkerJob(void* state)
 					Tasks.ThreadId());*/
 
 
-				GLOBAL_WorkersWorkingCount--;
+				_InterlockedDecrement(&GLOBAL_WorkersWorkingCount);
 				Tasks.NotifyAllThreadsAddressChanged(&GLOBAL_WorkersWorkingCount);
 			}
 
