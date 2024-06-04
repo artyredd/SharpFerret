@@ -218,8 +218,6 @@ private void ExpandMultiThreadedEvents(RuntimeEventType type, _VoidMethod* metho
 	{
 		_VoidMethod method = methods[i];
 
-		method();
-
 		AppendEvent(type, method);
 
 		i++;
