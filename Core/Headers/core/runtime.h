@@ -49,7 +49,7 @@ private _VoidMethod* GetSectionMethods(_VoidMethod* sectionHeader, _VoidMethod* 
 	_VoidMethod* x = sectionHeader;
 	for (++x; x < sectionFooter; ++x) {
 
-		if (*x) { arr[i] = *x; i++; (*x)(); }
+		if (*x) { arr[i] = *x; i++; }
 	}
 
 	return arr;
