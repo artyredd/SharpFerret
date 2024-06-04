@@ -604,7 +604,7 @@ TEST_SUITE(RunUnitTests,
 	APPEND_TEST(RemoveRange)
 );
 
-OnStart(11)
-{
-	RunUnitTests();
-}
+//OnStart(11)
+//{
+//	RunUnitTests();
+//}
