@@ -9,6 +9,7 @@ struct _osMethods {
 	bool (*IsDirectory)(string path);
 	// Gets the logical processor count (thread count) from the system
 	int (*ThreadCount)();
+	void (*PrintLastError)(void* stream);
 };
 
 extern const struct _osMethods OperatingSystem;

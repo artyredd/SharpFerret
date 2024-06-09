@@ -2,6 +2,7 @@
 #include "core/csharp.h"
 #include "core/array.h"
 #include <windows.h>
+#include <core/os.h>
 
 #define MAX_PATH_LENGTH 2048
 
@@ -49,6 +50,8 @@ private Module Load(string name)
 
 	if (module->Handle is null)
 	{
+		OperatingSystem.PrintLastError(stderr);
+
 		log{ fprintf(stderr, "Failed to find module, looking in alternate Modules.ModuleLocations\n"); };
 
 		bool found = false;
@@ -75,12 +78,14 @@ private Module Load(string name)
 			else
 			{
 				log{ fprintf_red(stderr, "Failed to load library: %s\n", combined->Values); }
+				OperatingSystem.PrintLastError(stderr);
 			}
 		}
 
 		if (found is false)
 		{
 			fprintf_red(stderr, "Failed to load library: %s\n", name->Values);
+			OperatingSystem.PrintLastError(stderr);
 			throw(FailedToLoadLibraryException);
 		}
 	}
