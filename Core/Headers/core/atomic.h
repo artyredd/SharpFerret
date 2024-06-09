@@ -1,11 +1,18 @@
 #pragma once
 
-#include <vcruntime_c11_stdatomic.h>
+struct locker
+{
+	_Atomic(_Bool)_Val;
+};
 
-typedef struct atomic_flag atomic_flag;
+typedef struct locker locker;
 
-typedef atomic_flag Locker;
+extern struct _atomicMethods
+{
+	int (*TryLock)(locker*);
+	void (*Release)(locker*);
+} Atomics;
 
 // waits and locks the given Locker object
 // this will 
-#define lock(atomic_locker, body) while (atomic_flag_test_and_set(&atomic_locker)){/**/} { body } atomic_flag_clear(&atomic_locker);
+#define lock(atomicLocker, body) while (Atomics.TryLock(&atomicLocker)){/**/} { body } Atomics.Release(&atomicLocker);

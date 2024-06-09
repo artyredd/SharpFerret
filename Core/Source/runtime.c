@@ -62,7 +62,7 @@ array(array(_VoidMethod)) GLOBAL_Events = empty_stack_array(array(_VoidMethod), 
 
 array(_VoidMethod) GLOBAL_EventStack;
 array(Task) GLOBAL_Workers;
-Locker GLOBAL_WorkerLock;
+locker GLOBAL_WorkerLock;
 bool GLOBAL_NewWorkSignal = false;
 long GLOBAL_WorkersWorkingCount = 0;
 
@@ -179,7 +179,7 @@ private int WorkerJob(void* state)
 						Tasks.ThreadId());*/
 
 				}
-					);
+			);
 
 			if (method)
 			{
@@ -280,7 +280,7 @@ private void ExecuteEvents(array(_VoidMethod) events, bool mainthread)
 			lock(GLOBAL_WorkerLock,
 				arrays(_VoidMethod).Append(GLOBAL_EventStack, at(events, i));
 			//fprintf(stdout, "Adding work: Active Workers:%i, Total Work:%lli [%i]\n", GLOBAL_WorkersWorkingCount, GLOBAL_EventStack->Count, Tasks.ThreadId());
-				);
+			);
 
 			Tasks.NotifyAddressChanged(&GLOBAL_NewWorkSignal);
 		}
