@@ -51,6 +51,7 @@ struct _fileMethods {
 	ulong(*GetFileSize)(const File file);
 
 	string(*ReadFile)(const File file);
+	int (*ReadUntil)(const File file, string output, byte target);
 
 	// reads the provided fle stream into a NEW string and sets the out
 	// values to the string.
@@ -80,6 +81,9 @@ struct _fileMethods {
 	bool (*TryGetSequenceCount)(File file, const string targetSequence, const string abortSequence, ulong* out_count);
 
 	bool (*TryClose)(File file);
+
+	// closes and disposes the file
+	void (*Dispose)(File);
 
 	void (*Close)(File file);
 

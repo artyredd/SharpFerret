@@ -119,6 +119,8 @@ static int BreakDebugger(int errorCode)
 
 #define atomic _Atomic
 
+#define using(object,name,disposer) for(object;;disposer.Dispose(name))
+
 // DO NOT USE, DANGY, WILL HURT CPU FEELINGS >:(, ONLY USE WHEN YOU KNOW IT WONT HURT CPU FEELING
 #define struct_cast(destinationType) *(destinationType*)& 
 

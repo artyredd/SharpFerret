@@ -19,6 +19,8 @@ private bool TryGetSequenceCount(File file, const string targetSequence, const s
 private bool TryClose(File file);
 private void Close(File file);
 private bool TryVerifyCleanup(void);
+private int ReadUntil(const File file, string output, byte target);
+
 
 const struct _fileMethods Files = {
 	.UseAssetDirectories = true,
@@ -32,12 +34,14 @@ const struct _fileMethods Files = {
 	.ReadFile = &ReadFile,
 	.TryReadFile = &TryReadFile,
 	.ReadAll = &ReadAll,
+	.ReadUntil = ReadUntil,
 	.TryReadAll = &TryReadAll,
 	.WriteAll = WriteAll,
 	.TryReadLine = &TryReadLine,
 	.TryGetSequenceCount = &TryGetSequenceCount,
 	.TryClose = &TryClose,
 	.Close = &Close,
+	.Dispose = &Close,
 	.TryVerifyCleanup = &TryVerifyCleanup
 };
 
@@ -194,6 +198,45 @@ private string ReadFile(const File file)
 	}
 
 	return result;
+}
+
+private int ReadUntil(const File file, string output, byte target)
+{
+	int count = 0;
+	int c = 0;
+	while (c isnt EOF)
+	{
+		c = fgetc(file);
+
+		if (c is EOF)
+		{
+			// check to see what error we got
+			// if we got 0 then the stream was likely not started at the beginning and we reached EOF early
+			int error = ferror(file);
+
+			// if the error we got was actually an error we should return early
+			// only attempt rewinding once
+			if (error != 0)
+			{
+				fprintf(stderr, "An error occurred while reading the file at ptr: %llix, Error Code %i", (ulong)file, ferror(file));
+				throw(FailedToReadFileException);
+			}
+
+			strings.Append(output, '\0');
+			break;
+		}
+
+		if (c is target)
+		{
+			strings.Append(output, '\0');
+			break;
+		}
+
+		strings.Append(output, c);
+		++count;
+	}
+
+	return count;
 }
 
 private bool TryReadFile(const File file, string* out_data)
