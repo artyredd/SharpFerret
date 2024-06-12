@@ -19,7 +19,7 @@ private bool TryGetSequenceCount(File file, const string targetSequence, const s
 private bool TryClose(File file);
 private void Close(File file);
 private bool TryVerifyCleanup(void);
-private int ReadUntil(const File file, string output, byte target);
+private int ReadUntil(const File file, string output, string target);
 
 
 const struct _fileMethods Files = {
@@ -121,7 +121,7 @@ private bool TryOpen(const string path, FileMode fileMode, File* out_file)
 
 private File Open(const string path, FileMode fileMode)
 {
-	Guard(strings.Empty(path));
+	Guard(strings.Empty(path) is false);
 	GuardNotNull(fileMode);
 
 	File file;
@@ -200,7 +200,40 @@ private string ReadFile(const File file)
 	return result;
 }
 
-private int ReadUntil(const File file, string output, byte target)
+private bool LookForwardIs(const File file, string target)
+{
+	int i = 0;
+	char buffer[1024];
+
+	bool result = false;
+	for (; i < target->Count; i++)
+	{
+		int c = fgetc(file);
+		buffer[i] = c;
+
+		if (c != at(target, i))
+		{
+			result = false;
+			break;
+		}
+
+		result = true;
+	}
+
+	if (result is false)
+	{
+		// put the characters back
+		int index = i + 1;
+		while (index-- > 0)
+		{
+			ungetc(buffer[index], file);
+		}
+	}
+
+	return result;
+}
+
+private int ReadUntil(const File file, string output, string target)
 {
 	int count = 0;
 	int c = 0;
@@ -222,14 +255,25 @@ private int ReadUntil(const File file, string output, byte target)
 				throw(FailedToReadFileException);
 			}
 
-			strings.Append(output, '\0');
+			if (count)
+			{
+				unsafe_at(output, output->Count + 1) = '\0';
+			}
+
 			break;
 		}
 
-		if (c is target)
+		if (c is at(target, 0))
 		{
-			strings.Append(output, '\0');
-			break;
+			ungetc(c, file);
+
+			if (LookForwardIs(file, target))
+			{
+				unsafe_at(output, output->Count + 1) = '\0';
+				break;
+			}
+
+			fgetc(file);
 		}
 
 		strings.Append(output, c);
@@ -462,7 +506,13 @@ private bool TryGetSequenceCount(File file, const string targetSequence, const s
 
 static bool TryClose(File file)
 {
+	if (file is null)
+	{
+		return true;
+	}
+
 	++(Global_Files_Closed);
+
 	return fclose(file) != EOF;
 }
 
