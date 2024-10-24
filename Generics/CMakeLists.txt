@@ -14,7 +14,7 @@ file(GLOB headers CONFIGURE_DEPENDS "Source/*.h")
 file(GLOB source CONFIGURE_DEPENDS "Source/*.c")
 
 # Create a library for Generics instead of an executable
-add_library(Generics ${source} ${headers})
+add_executable(Generics ${source} ${headers})
 
 set_property(TARGET Generics PROPERTY COMPILE_WARNING_AS_ERROR ON)
 set_target_properties(Generics PROPERTIES COMPILE_FLAGS "/std:c11 /ZI /Od /experimental:c11atomics")

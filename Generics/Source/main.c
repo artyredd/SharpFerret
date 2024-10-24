@@ -5,6 +5,7 @@
 #include "core/runtime.h"
 #include "core/file.h"
 #include "core/os.h"
+#include "Tokenizer.h"
 
 private array(string) GetFiles(byte* strs[], int count)
 {

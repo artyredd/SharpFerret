@@ -18,6 +18,8 @@
 // Convenience methods that can be used with an array(type)
 #define arrays(type) _EXPAND_Arrays(type)
 
+#define new_array(type) arrays(type).Create(0)
+
 
 // Represents an array that has no data and only offsets, combine with
 // a base pointer from a parent array to create and array
@@ -590,6 +592,8 @@ DEFINE_TUPLE_BOTH_WAYS(type,string);
 
 #define _DEFINE_CONTAINERS(type) __pragma(warning(disable:4113)); DEFINE_ARRAY(type); DEFINE_TUPLE(type,type); DEFINE_TUPLE_ALL_INTRINSIC(type); DEFINE_POINTER(type); __pragma(warning(default:4113))
 #define DEFINE_CONTAINERS(type) _DEFINE_CONTAINERS(type)
+
+#define FORWARD_CONTAINER_TYPE(type) struct _EXPAND_STRUCT_NAME(type); typedef struct _array_##type* type##_array;
 
 DEFINE_TUPLE_INTRINSIC(string);
 

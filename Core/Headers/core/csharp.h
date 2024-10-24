@@ -105,6 +105,8 @@ static int BreakDebugger(int errorCode)
 
 #define private inline static
 
+#define new(type) Memory.Alloc(sizeof(struct _##type),Memory.GenericMemoryBlock)
+
 #ifdef _WIN32
 #ifdef BUILD_STATIC_LIB
 #define STATIC_LIB_API __declspec(dllexport)
